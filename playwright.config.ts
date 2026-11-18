@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const PORT = 4173;
+const PORT = 4310;
 export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: true,
@@ -10,6 +10,10 @@ export default defineConfig({
   use: {
     baseURL: `http://localhost:${PORT}`,
     trace: 'off',
+    // Local sandboxes may provide a preinstalled browser; CI runs `playwright install chromium`.
+    launchOptions: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE
+      ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE }
+      : {},
   },
   expect: { toHaveScreenshot: { maxDiffPixelRatio: 0.01 } },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],

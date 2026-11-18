@@ -6,9 +6,9 @@ export const RUNTIME_PATCHES = [
   {
     file: 'components/shared.ts',
     reason:
-      'MUI X passes `ownerState` to slot components (e.g. picker openPickerIcon); the Tecton slot icon spread it onto a DOM <span>, causing React unknown-prop warnings',
+      'MUI X passes non-DOM props to slot components (`ownerState` from picker icons, `sortingOrder` from Data Grid sort icons); the Tecton slot icon spread them onto a DOM <span>, causing React unknown-prop warnings',
     find: '    comp = (props) => {\n      const passed = (props?.className as string | undefined) ?? "";',
     replace:
-      '    comp = ({ ownerState: _ownerState, ...props }) => {\n      const passed = (props?.className as string | undefined) ?? "";',
+      '    comp = ({ ownerState: _ownerState, sortingOrder: _sortingOrder, ...props }) => {\n      const passed = (props?.className as string | undefined) ?? "";',
   },
 ];

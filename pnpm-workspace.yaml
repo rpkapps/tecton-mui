@@ -2,3 +2,4 @@ packages:
   - packages/*
   - apps/*
   - tooling/bundle-tests/fixture
+  - tests/e2e/harness

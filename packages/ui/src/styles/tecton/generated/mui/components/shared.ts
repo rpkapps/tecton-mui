@@ -13,7 +13,7 @@ const slotIconCache = new Map<string, React.FC<Record<string, unknown>>>();
 export function slotIcon(className: string): React.FC<Record<string, unknown>> {
   let comp = slotIconCache.get(className);
   if (!comp) {
-    comp = ({ ownerState: _ownerState, ...props }) => {
+    comp = ({ ownerState: _ownerState, sortingOrder: _sortingOrder, ...props }) => {
       const passed = (props?.className as string | undefined) ?? "";
       const merged = passed ? `${className} ${passed}` : className;
       return React.createElement("span", { ...props, className: merged, "aria-hidden": true });
