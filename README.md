@@ -1,81 +1,105 @@
 # tecton-mui
 
-A pnpm monorepo for a private, enterprise React component library: MUI-compatible components and
-APIs, preconfigured with the Tecton design system. Standard components are direct re-exports of
-MIT-licensed MUI Core, Lab and MUI X Community packages. A unified Data Grid, range pickers and an
-enhanced Rich Tree View are implemented independently, without commercial MUI X code.
+Material UI components styled with the **Tecton** design system, for internal React 19 apps.
 
-The design decisions are recorded in [SPEC.md](./SPEC.md). This README is for contributors.
-Consumers should read [packages/ui/README.md](./packages/ui/README.md) and the docs portal
-(`__DOCS_URL__`, not deployed yet).
+- **Same API as MUI.** Every MUI Core, Lab and MUI X Community component is re-exported unchanged:
+  same names, props, slots, refs and theme keys. Existing MUI code works after changing the import
+  path from `@mui/material/...` to `@tecton-mui/ui/...` (the one exception: MUI's font-ligature
+  `Icon` is replaced by the Tecton `Icon`).
+- **Tecton out of the box.** `<ThemeProvider>` with no props applies the Tecton theme, fonts,
+  icons and tokens. Light/dark mode is shared by every React root on the page, so a shell and its
+  micro-frontends switch together. RTL and SSR are supported.
+- **Advanced components, no MUI X license.** One `DataGrid` with pinning, reordering, grouping,
+  aggregation, tree data, master/detail, cell selection with copy/paste, undo/redo and server-side
+  data. Date, time and date-time **range pickers**. A `RichTreeView` with drag-and-drop
+  reordering, lazy loading and virtualization. These are written from scratch on public MUI X
+  Community APIs; no commercial MUI X code is used.
+- **Extras MUI does not ship:** `NumberField`, `NumberSpinner` and a typed Tecton `Icon`.
 
-> **Provisional names.** `@tecton-mui/ui` and `@tecton-mui/mcp` are placeholders (SPEC §15.8).
-> The docs URL (`__DOCS_URL__`) and the private registry are also undecided. See
-> [repo-docs/releasing.md](./repo-docs/releasing.md#renaming-the-packages) for where to rename them.
-
-## Workspace map
-
-| Path                                                   | Package                        | Published | Purpose                                                                                                                         |
-| ------------------------------------------------------ | ------------------------------ | --------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| [`packages/ui`](./packages/ui/README.md)               | `@tecton-mui/ui`               | Yes       | The UI package: passthrough exports, Tecton `styles`, `Icon`, `LocalizationProvider`, `DataGrid`, range pickers, `RichTreeView` |
-| [`packages/tecton-adapter`](./packages/tecton-adapter) | `@tecton-mui/tecton-adapter`   | No        | Build-time Tecton source adapter. Vendors the pinned Tecton artifacts and emits the normalized theme into `packages/ui`         |
-| [`packages/mcp`](./packages/mcp/README.md)             | `@tecton-mui/mcp`              | Yes       | Transparent stdio relay to the pinned official MUI MCP server                                                                   |
-| [`apps/docs`](./apps/docs)                             | `@tecton-mui/docs`             | No        | Consumer docs portal (TanStack Router + Vite + MDX, prerendered static output, Pagefind search)                                 |
-| [`tests/e2e`](./tests/e2e)                             | `@tecton-mui/e2e-harness`      | No        | Playwright specs and the harness app they drive                                                                                 |
-| [`tooling/compatibility`](./tooling/compatibility)     | (not a package)                | -         | `generate-exports.mjs` and the generated `export-inventory.json`                                                                |
-| [`tooling/bundle-tests`](./tooling/bundle-tests)       | `@tecton-mui/consumer-fixture` | No        | Consumer fixture and packaging checks against the built package                                                                 |
-| [`tooling/docs-sync`](./tooling/docs-sync)             | (not a package)                | -         | Manual MUI documentation synchronization (`pnpm docs:sync`)                                                                     |
-| [`tooling/scripts`](./tooling/scripts)                 | (not a package)                | -         | Manual dependency update script (`pnpm deps:outdated`, `pnpm deps:update`)                                                      |
-| [`repo-docs`](./repo-docs)                             | -                              | -         | Contributor documentation (below)                                                                                               |
-
-There is no Turborepo. Root scripts call `pnpm --filter` or plain Node scripts.
-
-## Quick start
-
-Requirements: Node.js 22+, pnpm 10.28.0 (`corepack enable`).
+## See it
 
 ```bash
-pnpm install --frozen-lockfile
-pnpm test               # Vitest
-pnpm build              # UI package, MCP relay, docs portal
-pnpm --filter @tecton-mui/docs dev   # docs portal dev server
+corepack enable
+pnpm install
+pnpm docs:dev
 ```
 
-## Commands
+The docs portal opens at http://localhost:5173: every component with live examples and their source,
+API tables and the support matrices for the advanced components. Other ways to look at it:
 
-| Command                                           | Description                                                                               |
-| ------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| `pnpm build`                                      | Build `@tecton-mui/ui`, then `@tecton-mui/mcp`, then the docs portal                      |
-| `pnpm typecheck`                                  | `tsc --noEmit` in every package that defines `typecheck`                                  |
-| `pnpm lint` / `pnpm format` / `pnpm format:check` | ESLint / Prettier write / Prettier check                                                  |
-| `pnpm test` / `pnpm test:coverage`                | Vitest, optionally with the 80% coverage thresholds                                       |
-| `pnpm test:e2e`                                   | Playwright (harness on port 4310)                                                         |
-| `pnpm test:bundle`                                | Consumer packaging, SSR import and tree-shaking checks (builds `packages/ui` if needed)   |
-| `pnpm inventory` / `pnpm inventory:check`         | Regenerate or verify passthrough modules, root barrel, `exports` map and export inventory |
-| `pnpm tecton:sync`                                | Download the pinned Tecton artifacts (network) and emit the generated output              |
-| `pnpm tecton:check`                               | Verify vendored Tecton checksums and the generated output (offline)                       |
-| `pnpm deps:outdated` / `pnpm deps:update`         | Manual dependency report / update                                                         |
-| `pnpm docs:sync`                                  | Manual MUI documentation synchronization                                                  |
-| `pnpm changeset` / `pnpm version-packages`        | Add a changeset / apply changesets to versions and changelogs                             |
+| Command             | What you get                                                                                                     |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `pnpm docs:preview` | Production build of the docs portal, served on port 4173 (all interfaces)                                        |
+| `pnpm harness`      | The e2e test app on port 4310, e.g. `/?scenario=grid:all&mode=dark&dir=rtl` (also `pickers`, `tree`, `showcase`) |
 
-## Documentation
+Requirements: Node.js 22+, pnpm 10 (`corepack enable` picks the pinned version).
 
-- [AGENTS.md](./AGENTS.md): authoritative rules for AI coding agents (and everyone else)
-- [CONTRIBUTING.md](./CONTRIBUTING.md): workflow, changesets, PR checklist, accessibility exceptions
-- [repo-docs/architecture.md](./repo-docs/architecture.md): packages, layers and boundaries
-- [repo-docs/development.md](./repo-docs/development.md): local setup and day-to-day commands
-- [repo-docs/dependencies.md](./repo-docs/dependencies.md): manual dependency updates
-- [repo-docs/testing.md](./repo-docs/testing.md): Vitest, Playwright, bundle tests, coverage, CI
-- [repo-docs/tecton-integration.md](./repo-docs/tecton-integration.md): the Tecton adapter and theme
-- [repo-docs/mui-upgrades.md](./repo-docs/mui-upgrades.md): upgrading MUI Core/Lab/X
-- [repo-docs/documentation-sync.md](./repo-docs/documentation-sync.md): synchronizing MUI docs
-- [repo-docs/releasing.md](./repo-docs/releasing.md): versioning, publishing, renaming
-- [packages/ui/THIRD_PARTY_NOTICES.md](./packages/ui/THIRD_PARTY_NOTICES.md): licenses and
-  attributions
+## Use it
 
-## Legal guardrails
+```bash
+pnpm add @tecton-mui/ui react react-dom
+```
 
-The UI package uses MIT-licensed MUI packages only. Commercial MUI X packages (`*-pro`,
-`*-premium`, `@mui/x-license`), MUI X Charts and MUI X Scheduler must never be imported. ESLint
-enforces this. Commercial MUI X documentation, code and assets are never copied or imitated. See
-SPEC Appendix B.
+```tsx
+import '@tecton-mui/ui/styles/global.css'; // fonts, icons and tokens; once per page
+import { ThemeProvider } from '@tecton-mui/ui/styles';
+import { LocalizationProvider } from '@tecton-mui/ui';
+import Button from '@tecton-mui/ui/Button';
+import DataGrid from '@tecton-mui/ui/DataGrid';
+import DateRangePicker from '@tecton-mui/ui/DateRangePicker';
+
+// rows and columns: your data, as for the MUI DataGrid
+export function App() {
+  return (
+    <ThemeProvider>
+      <LocalizationProvider>
+        <Button variant="contained">Save</Button>
+        <DateRangePicker label="Reporting period" />
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          pinnedColumns={{ left: ['name'] }}
+          rowGroupingModel={['department']}
+          aggregationModel={{ salary: 'sum' }}
+        />
+      </LocalizationProvider>
+    </ThemeProvider>
+  );
+}
+```
+
+[`packages/ui/README.md`](./packages/ui/README.md) covers setup for shells, hosted
+micro-frontends and SSR, dark mode, RTL, icons, dates, and the advanced components.
+
+## Repository
+
+| Path                      | Contents                                                                              |
+| ------------------------- | ------------------------------------------------------------------------------------- |
+| `packages/ui`             | The published library, `@tecton-mui/ui`                                               |
+| `packages/mcp`            | `@tecton-mui/mcp`, a relay to the official MUI MCP server for AI coding assistants    |
+| `packages/tecton-adapter` | Build-time import of the pinned Tecton release into the theme (generated, not edited) |
+| `apps/docs`               | The docs portal                                                                       |
+| `tests/e2e`               | Playwright tests and the harness app                                                  |
+| `tooling`                 | Export generator, MUI docs sync, bundle and packaging checks                          |
+
+## Develop
+
+```bash
+pnpm test               # unit tests (Vitest)
+pnpm test:e2e           # browser tests (Playwright)
+pnpm lint && pnpm typecheck
+```
+
+Before opening a PR, run the full check list in [AGENTS.md §10](./AGENTS.md#10-every-change) and
+add a changeset (`pnpm changeset`). Some files are generated and must not be edited by hand:
+passthrough modules and the export map (`pnpm inventory`), the Tecton theme (`pnpm tecton:sync`)
+and the synced MUI examples (`pnpm docs:sync`).
+
+- [AGENTS.md](./AGENTS.md): the rules for every change (humans and AI agents)
+- [CONTRIBUTING.md](./CONTRIBUTING.md): workflow and PR checklist
+- [SPEC.md](./SPEC.md): product decisions
+- [repo-docs/](./repo-docs): architecture, testing, Tecton integration, MUI upgrades, releasing
+
+Only MIT-licensed MUI packages may be used. Commercial MUI X packages (`*-pro`, `*-premium`,
+`@mui/x-license`) and their code or docs must never be imported, copied or imitated. ESLint blocks
+the imports.

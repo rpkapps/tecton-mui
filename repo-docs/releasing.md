@@ -100,7 +100,7 @@ Mention MUI and Tecton version changes in the changeset summary.
    docs-sync import rewrite in `tooling/docs-sync/sync.mjs`, generator messages, banners in
    `packages/ui/scripts/build.mjs`, the Tecton adapter header (`normalize.mjs`, `scripts/tecton.mjs`),
    `.changeset/*.md` and all Markdown docs.
-5. **Docs URL:** replace `__DOCS_URL__` in `packages/ui/README.md` and `README.md`.
+5. **Docs URL:** replace `__DOCS_URL__` in `packages/ui/README.md`.
 6. **Regenerate and verify:** `pnpm install`, `pnpm inventory`,
    `pnpm --filter <adapter> emit`, then the full test suite (`pnpm test:coverage`,
    `pnpm test:bundle`, `pnpm test:e2e`, docs build).

@@ -1,9 +1,5 @@
 # @tecton-mui/ui
 
-> **Provisional package name.** `@tecton-mui/ui` is a placeholder until the final name is decided
-> (SPEC §15.8). The consumer docs portal URL is also not decided yet and is written as
-> `__DOCS_URL__` below.
-
 A private React component library with the familiar MUI component names, imports, props and
 customization APIs, preconfigured with the **Tecton** design system.
 
@@ -28,11 +24,8 @@ bundled fonts are listed in [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md).
 pnpm add @tecton-mui/ui react react-dom
 ```
 
-The package is published with restricted access to a private registry. The registry and its
-`.npmrc` setup are not decided yet.
-
-MUI, Emotion and `date-fns` are regular dependencies of this package. Do not install separate
-copies of `@mui/material` or `@mui/x-*` to use the components.
+MUI, Emotion and `date-fns` come with the package. Do not install your own `@mui/material` or
+`@mui/x-*`: a second copy breaks theming and context.
 
 ## Imports
 
@@ -99,7 +92,7 @@ imports never inject global CSS.
 | Entry point                                                  | Contents                                                                                         |
 | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ |
 | `@tecton-mui/ui/styles/global.css`                           | Tecton fonts (`@font-face`, font files included), icon classes and design tokens (`--tecton-*`). |
-| `@tecton-mui/ui/styles/components.css`                       | Static component styles. **Intentionally empty today**, see below.                               |
+| `@tecton-mui/ui/styles/components.css`                       | Static component styles (currently empty; component styles are rendered by Emotion at runtime).  |
 | `@tecton-mui/ui/styles/fonts.css`, `icons.css`, `tokens.css` | The three parts of `global.css` as separate files.                                               |
 
 Your bundler must handle CSS imports and the relative font URLs in `global.css` / `fonts.css`.
@@ -149,8 +142,6 @@ export function mount(element: HTMLElement) {
 
 A hosted MFE relies on the shell for fonts, icons, tokens and the global reset. Importing
 `global.css` again would duplicate the `@font-face` rules and token declarations.
-`components.css` is a stable import that contains no rules today: Tecton 0.11.2 ships no static
-component CSS, because Emotion renders component styles at runtime.
 
 ### Token initialization
 
@@ -297,8 +288,7 @@ Available adapters: `AdapterDateFns` (default), `AdapterDayjs`, `AdapterLuxon`, 
 
 ## Number fields
 
-Material UI 9.5.0 has no number field component; its documentation offers copy-paste recipes
-instead. This package ships them as components, so there is nothing to copy:
+Numeric inputs with stepping, formatting and min/max clamping:
 
 ```tsx
 import NumberField from '@tecton-mui/ui/NumberField';
@@ -435,17 +425,13 @@ See the [Tree View support matrix](./src/RichTreeView/SUPPORT.md).
   export, spreadsheet formulas or computed columns (Community `valueGetter` still works) and the AI
   assistant.
 - **Commercial MUI X props:** for `DataGrid`, `RichTreeView` and the range pickers, a commercial
-  MUI X prop or feature that is not listed in their props types and support matrices is not
-  supported. Behavior is verified by this library's own tests, not against the commercial packages.
+  MUI X prop that is not in their TypeScript props or support matrices is not supported.
 - **MUI Lab** components are re-exported as published by the pinned `@mui/lab` beta. They can
   change between upstream releases.
-- The SUPPORT matrix links above point into the source repository. They are not part of the
-  published package.
 
 ## Documentation, versioning and changelog
 
-The consumer documentation portal, with live demos, API tables and compatibility matrices, is at
-`__DOCS_URL__`.
+Live examples, API tables and the support matrices: the docs portal at `__DOCS_URL__`.
 
 The package follows semantic versioning. Release notes are generated with Changesets into
 `CHANGELOG.md` in this package and are shown on the portal's **Releases → Changelog** page. Each
