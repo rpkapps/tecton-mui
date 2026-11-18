@@ -8,6 +8,7 @@ export default tseslint.config(
     ignores: [
       '**/dist/**',
       '**/dist-server/**',
+      '**/dist-gallery/**',
       '**/.tanstack/**',
       'tooling/bundle-tests/.out/**',
       'tests/e2e/**/*-snapshots/**',

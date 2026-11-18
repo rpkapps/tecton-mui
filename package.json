@@ -24,7 +24,11 @@
     "deps:update": "node tooling/scripts/deps-update.mjs",
     "docs:sync": "node tooling/docs-sync/sync.mjs",
     "changeset": "changeset",
-    "version-packages": "changeset version"
+    "version-packages": "changeset version",
+    "docs:dev": "pnpm --filter @tecton-mui/docs dev",
+    "docs:preview": "pnpm --filter @tecton-mui/docs build && pnpm --filter @tecton-mui/docs preview --host 0.0.0.0 --port 4173",
+    "harness": "node tests/e2e/harness/server.mjs 4310",
+    "gallery:build": "cd tests/e2e/harness && vite build -c gallery.config.ts && node scripts/inline-gallery.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.14.0",
