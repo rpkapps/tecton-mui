@@ -1,0 +1,150 @@
+{
+  "version": "0.11.2",
+  "source": "umd",
+  "files": {
+    "fonts.css": {
+      "sha256": "619e141bc568c1ebaf3318c5ee432a4a473a41bd74d1760ec371f6c8448d82c5",
+      "bytes": 14745
+    },
+    "icons.css": {
+      "sha256": "25352512882a9ba61171634be3b06c5d411a44503d58cc15a9f67e3bcde0e125",
+      "bytes": 363216
+    },
+    "index.umd.js": {
+      "sha256": "26432971ba88e52ade6436739a29afb499fe561748b81b4d6aa2f02191ac57d4",
+      "bytes": 234242
+    },
+    "index.umd.js.map": {
+      "sha256": "ac6a6129f7e9693415aa47c68697981d265eef6e0aea04c0026a05bafc5b822f",
+      "bytes": 742621
+    },
+    "assets/fonts/figtree-latin-ext-wght-normal.woff2": {
+      "sha256": "bf7828e2c258cffcfa50a048ee388a36b95bc16b452e8d36fa797635dbe15965",
+      "bytes": 10280
+    },
+    "assets/fonts/figtree-latin-wght-normal.woff2": {
+      "sha256": "4ba7d3d096695818fe0686be4f1e82c6b05134e18a22260336130335027462dd",
+      "bytes": 20156
+    },
+    "assets/fonts/figtree-latin-ext-wght-italic.woff2": {
+      "sha256": "a0cc105b3241fe952fd58ba226633f8ba733b16fd5419affbda6c8cc5c627a0b",
+      "bytes": 10376
+    },
+    "assets/fonts/figtree-latin-wght-italic.woff2": {
+      "sha256": "7242fa62d13d46172816b266f03c027999faa3755a52c2124bc2c440f6f4b983",
+      "bytes": 20928
+    },
+    "assets/fonts/ibm-plex-mono-latin-ext-100-normal.woff2": {
+      "sha256": "0b61a85db7c5c370c167341eb86657a1039bcee716e4e8a248cd6b9f78796898",
+      "bytes": 13308
+    },
+    "assets/fonts/ibm-plex-mono-latin-100-normal.woff2": {
+      "sha256": "a95cee290c3ad04aed0f49e4bbe7b3c01d5442ef5787c39be6bf01fff7263d01",
+      "bytes": 14976
+    },
+    "assets/fonts/ibm-plex-mono-latin-ext-100-italic.woff2": {
+      "sha256": "b207785154e33661f99e5041a3eb309c73e03f9ede545ac082e8ba7748c129d2",
+      "bytes": 14252
+    },
+    "assets/fonts/ibm-plex-mono-latin-100-italic.woff2": {
+      "sha256": "cd5a75907286a80e03cda4a816720b633c0db3d213b6460118ce43b7ee22f0f7",
+      "bytes": 16208
+    },
+    "assets/fonts/ibm-plex-mono-latin-ext-200-normal.woff2": {
+      "sha256": "c3f73cebd40d82d94fb41c3f13c707c4913e3d9a40584ea4019b2cc59abbaf2b",
+      "bytes": 13428
+    },
+    "assets/fonts/ibm-plex-mono-latin-200-normal.woff2": {
+      "sha256": "f7d78fb743e3c9a2a1c8e5e88454a338158ca1c9742d88d5b5c354a338b6755a",
+      "bytes": 15024
+    },
+    "assets/fonts/ibm-plex-mono-latin-ext-200-italic.woff2": {
+      "sha256": "1c59e1c57659051aa4c65443694781356fdd37722b898098261350122fa60413",
+      "bytes": 14572
+    },
+    "assets/fonts/ibm-plex-mono-latin-200-italic.woff2": {
+      "sha256": "c254f4f8dc3dad7247ad1eace2808b694878513e7eb584ce2e165d390dc1e762",
+      "bytes": 16476
+    },
+    "assets/fonts/ibm-plex-mono-latin-ext-300-normal.woff2": {
+      "sha256": "3159f09be3975a6ecdf31d2a1fa4b2782c6aaddf17bf4500d479b9c1da3ce44d",
+      "bytes": 13344
+    },
+    "assets/fonts/ibm-plex-mono-latin-300-normal.woff2": {
+      "sha256": "d31018e0755c050098e1fcea94a30b577da6f90c6265665656b0e573fd165656",
+      "bytes": 14796
+    },
+    "assets/fonts/ibm-plex-mono-latin-ext-300-italic.woff2": {
+      "sha256": "601b2e74e4c18c200df5565d7267253d3e8b6160203662817dee2e835c764c59",
+      "bytes": 14476
+    },
+    "assets/fonts/ibm-plex-mono-latin-300-italic.woff2": {
+      "sha256": "df5c154f4697f426904e118ed37dcbe61d6ab660dc8b69a8283d89d8e23f4457",
+      "bytes": 16348
+    },
+    "assets/fonts/ibm-plex-mono-latin-ext-400-normal.woff2": {
+      "sha256": "6bc0f226a5b7884a8170e3f62c63d7675609d4631bdc5931b5cdab81821f00eb",
+      "bytes": 13348
+    },
+    "assets/fonts/ibm-plex-mono-latin-400-normal.woff2": {
+      "sha256": "08949f728dc52d528e69b1667d15c89a5686a4ee9a296ff90983985f99c380f7",
+      "bytes": 14708
+    },
+    "assets/fonts/ibm-plex-mono-latin-ext-400-italic.woff2": {
+      "sha256": "2f1e3247e6411d9401094e5f44d2e545fca07e18143f531cbb14f424da21afd4",
+      "bytes": 14472
+    },
+    "assets/fonts/ibm-plex-mono-latin-400-italic.woff2": {
+      "sha256": "78439db25c4237c6b986d7b8af12b894c6cd660666b9507ccb91263f8b4138b5",
+      "bytes": 16508
+    },
+    "assets/fonts/ibm-plex-mono-latin-ext-500-normal.woff2": {
+      "sha256": "c8bfbf1336ac25c5bc4fdc21baeae8c3e7be14b27cc53c796ccd3009bd9b2c20",
+      "bytes": 13416
+    },
+    "assets/fonts/ibm-plex-mono-latin-500-normal.woff2": {
+      "sha256": "01d285447409c8a588692162439a038b8cbd7871309ee20267b0d2d91c6e8e22",
+      "bytes": 14888
+    },
+    "assets/fonts/ibm-plex-mono-latin-ext-500-italic.woff2": {
+      "sha256": "236ae67d01cb330d34e9f51d9b822fbded84acd694fd08970a97b38caf16ec3b",
+      "bytes": 14624
+    },
+    "assets/fonts/ibm-plex-mono-latin-500-italic.woff2": {
+      "sha256": "b476fb49f8b9cfb2c4b06b7790d39997d87af632daffd23484d0279950fa088d",
+      "bytes": 16576
+    },
+    "assets/fonts/ibm-plex-mono-latin-ext-600-normal.woff2": {
+      "sha256": "af115aa5613b8b041aa660126b6cc1979497544baa0295105965f449f25d7acc",
+      "bytes": 14240
+    },
+    "assets/fonts/ibm-plex-mono-latin-600-normal.woff2": {
+      "sha256": "c4d3deb734a27e6d0dc7a6b464779f70ba1c272e26287860a14e35e85acb5b76",
+      "bytes": 15704
+    },
+    "assets/fonts/ibm-plex-mono-latin-ext-600-italic.woff2": {
+      "sha256": "b144aa4dd024028d4fe212179bacd34d1c3daa616c96637fb5004abd150a7636",
+      "bytes": 15480
+    },
+    "assets/fonts/ibm-plex-mono-latin-600-italic.woff2": {
+      "sha256": "97e4a261541cc9a7eb208146934b52f4aca97145b471873a8d809180c9ef7481",
+      "bytes": 17360
+    },
+    "assets/fonts/ibm-plex-mono-latin-ext-700-normal.woff2": {
+      "sha256": "12929a9de09e6f517baeb7e0180ca0f856d65f4e8e4e41f87c2a35b06db7184a",
+      "bytes": 13424
+    },
+    "assets/fonts/ibm-plex-mono-latin-700-normal.woff2": {
+      "sha256": "a51b6594bdda5d76e047259fb1fcaf7af2eb227cac553b4eb1cffa8328784c9c",
+      "bytes": 14956
+    },
+    "assets/fonts/ibm-plex-mono-latin-ext-700-italic.woff2": {
+      "sha256": "a4d264a8a30d541904fb5ca51fa699f8b5ae69b48fe9b04c10f0ca1f405908bf",
+      "bytes": 14588
+    },
+    "assets/fonts/ibm-plex-mono-latin-700-italic.woff2": {
+      "sha256": "283c14aa864332ae685073debb0a28c0f27c14ca839a4bedbe40b2b8f18b0cb5",
+      "bytes": 16588
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "@tecton-mui/consumer-fixture",
+  "private": true,
+  "type": "module",
+  "description": "Real consumer application fixture: resolves @tecton-mui/ui through its published exports map (dist).",
+  "dependencies": {
+    "@tecton-mui/ui": "workspace:*",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  }
+}

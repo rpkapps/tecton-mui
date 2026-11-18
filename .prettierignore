@@ -1,0 +1,9 @@
+pnpm-lock.yaml
+dist
+coverage
+packages/tecton-adapter/vendor
+packages/ui/src/styles/tecton/generated
+packages/ui/assets
+apps/docs/src/generated
+.changeset/*.md
+SPEC.md

@@ -1,0 +1,13 @@
+{
+  "name": "@tecton-mui/tecton-adapter",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Build-time Tecton source adapter: fetches/validates pinned Tecton artifacts and emits the normalized theme contract into @tecton-mui/ui.",
+  "type": "module",
+  "scripts": {
+    "sync": "node scripts/tecton.mjs sync",
+    "emit": "node scripts/tecton.mjs emit",
+    "check": "node scripts/tecton.mjs check",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  }
+}

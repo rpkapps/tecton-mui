@@ -1,0 +1,10 @@
+{
+  "version": "0.11.2",
+  "origin": "umd",
+  "artifacts": {
+    "fonts.css": "https://d1md5uq86jnv53.cloudfront.net/lmk/webframework/utils/tecton-core/0.11.2/fonts.css",
+    "icons.css": "https://d1md5uq86jnv53.cloudfront.net/lmk/webframework/utils/tecton-core/0.11.2/icons.css",
+    "index.umd.js": "https://d1md5uq86jnv53.cloudfront.net/lmk/webframework/utils/tecton-mui/0.11.2/index.umd.js",
+    "index.umd.js.map": "https://d1md5uq86jnv53.cloudfront.net/lmk/webframework/utils/tecton-mui/0.11.2/index.umd.js.map"
+  }
+}

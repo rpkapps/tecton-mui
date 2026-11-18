@@ -1,0 +1,21 @@
+{
+  "name": "@tecton-mui/mcp",
+  "version": "0.1.0",
+  "description": "Transparent stdio relay to the official MUI MCP server.",
+  "license": "UNLICENSED",
+  "type": "module",
+  "bin": {
+    "tecton-mui-mcp": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "restricted"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  }
+}

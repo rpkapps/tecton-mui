@@ -1,0 +1,21 @@
+{
+  "$comment": "Pinned Tecton upstream. Change `version` (and refresh vendor/ with `pnpm tecton:sync`) only as part of a reviewed upgrade PR.",
+  "version": "0.11.2",
+  "source": "umd",
+  "umd": {
+    "baseUrl": "https://d1md5uq86jnv53.cloudfront.net/lmk/webframework/utils",
+    "artifacts": {
+      "fonts.css": "tecton-core/{version}/fonts.css",
+      "icons.css": "tecton-core/{version}/icons.css",
+      "index.umd.js": "tecton-mui/{version}/index.umd.js",
+      "index.umd.js.map": "tecton-mui/{version}/index.umd.js.map"
+    },
+    "relativeAssetBase": {
+      "fonts.css": "tecton-core/{version}/"
+    }
+  },
+  "npm": {
+    "corePackage": "@webframework/tecton-core",
+    "muiPackage": "@webframework/tecton-mui"
+  }
+}
