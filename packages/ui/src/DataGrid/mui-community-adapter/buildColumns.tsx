@@ -91,8 +91,10 @@ function joinHeaderClass(
   return (params) => `${original(params)} ${extra}`;
 }
 
-const titleOf = (col: GridColDef<any>, params: GridColumnHeaderParams<any>): React.ReactNode =>
-  col.renderHeader ? col.renderHeader(params) : (col.headerName ?? col.field);
+const titleOf = <R extends GridValidRowModel>(
+  col: GridColDef<R>,
+  params: GridColumnHeaderParams<R>,
+): React.ReactNode => (col.renderHeader ? col.renderHeader(params) : (col.headerName ?? col.field));
 
 function formatKey(key: unknown): string {
   if (key === null || key === undefined || key === '') return '(empty)';

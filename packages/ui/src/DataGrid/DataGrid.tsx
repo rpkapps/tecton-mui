@@ -732,7 +732,7 @@ function DataGridInner<R extends GridValidRowModel>(
   const communityColumns = React.useMemo(
     () =>
       buildCommunityColumns<R>({
-        columns: columnsProp.map((c) => lookup[c.field] && c),
+        columns: columnsProp,
         order: columnOrder,
         pinned: disableColumnPinning ? { left: [], right: [] } : pinnedNormalized,
         groupingMode,
@@ -856,6 +856,8 @@ function DataGridInner<R extends GridValidRowModel>(
       aggregationFunctions,
     ],
   );
+  // `actions` is intentionally created once (stable identity); see its definition.
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const contextValue = React.useMemo<GridAdvancedContextValue>(
     () => ({ ui, derived, actions, features }),
     [ui, derived, actions, features],
@@ -1021,6 +1023,27 @@ function DataGridInner<R extends GridValidRowModel>(
     return api.subscribeEvent('viewportInnerSizeChange', update);
   }, [autoPageSize, apiRef]);
 
+  const cellSelectionRef = useLatest(cellSelectionModel);
+  const rangeFor = (
+    start: { id: GridRowId; field: string },
+    end: { id: GridRowId; field: string },
+  ) => {
+    const rows = visibleRowIds();
+    const fields = visibleFields();
+    const r1 = rows.indexOf(start.id);
+    const r2 = rows.indexOf(end.id);
+    const c1 = fields.indexOf(start.field);
+    const c2 = fields.indexOf(end.field);
+    const model: GridCellSelectionModel = {};
+    if (r1 < 0 || r2 < 0 || c1 < 0 || c2 < 0) return model;
+    for (let r = Math.min(r1, r2); r <= Math.max(r1, r2); r++) {
+      model[rows[r]] = Object.fromEntries(
+        fields.slice(Math.min(c1, c2), Math.max(c1, c2) + 1).map((f) => [f, true]),
+      );
+    }
+    return model;
+  };
+
   // ---------------------------------------------------------------- imperative API
   const visibleInfoRef = useLatest(flat.info);
   React.useImperativeHandle(
@@ -1065,27 +1088,6 @@ function DataGridInner<R extends GridValidRowModel>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [ds.refetch],
   );
-  const cellSelectionRef = useLatest(cellSelectionModel);
-  const rangeFor = (
-    start: { id: GridRowId; field: string },
-    end: { id: GridRowId; field: string },
-  ) => {
-    const rows = visibleRowIds();
-    const fields = visibleFields();
-    const r1 = rows.indexOf(start.id);
-    const r2 = rows.indexOf(end.id);
-    const c1 = fields.indexOf(start.field);
-    const c2 = fields.indexOf(end.field);
-    const model: GridCellSelectionModel = {};
-    if (r1 < 0 || r2 < 0 || c1 < 0 || c2 < 0) return model;
-    for (let r = Math.min(r1, r2); r <= Math.max(r1, r2); r++) {
-      model[rows[r]] = Object.fromEntries(
-        fields.slice(Math.min(c1, c2), Math.max(c1, c2) + 1).map((f) => [f, true]),
-      );
-    }
-    return model;
-  };
-
   // ---------------------------------------------------------------- Community props
   const communitySortModel = React.useMemo(
     () => (sortModel.length ? [sortModel[0]] : EMPTY_SORT),
@@ -1412,6 +1414,7 @@ function buildServerHierarchy<R extends GridValidRowModel>(
 
 export { collectRows };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- matches MUI's DataGrid<R = any> default
 type DataGridComponent = <R extends GridValidRowModel = any>(
   props: DataGridProps<R> & React.RefAttributes<HTMLDivElement>,
 ) => React.ReactElement;

@@ -32,12 +32,17 @@ console.log('1. exports map');
 let missing = 0;
 for (const [subpath, target] of Object.entries(pkg.exports)) {
   if (typeof target === 'string') {
-    if (!existsSync(join(ui, target))) (fail(`${subpath} -> ${target} missing`), missing++);
+    if (!existsSync(join(ui, target))) {
+      fail(`${subpath} -> ${target} missing`);
+      missing++;
+    }
     continue;
   }
   for (const key of ['default', 'types']) {
-    if (!existsSync(join(ui, target[key])))
-      (fail(`${subpath} ${key} -> ${target[key]} missing`), missing++);
+    if (!existsSync(join(ui, target[key]))) {
+      fail(`${subpath} ${key} -> ${target[key]} missing`);
+      missing++;
+    }
   }
 }
 if (!missing) pass(`${Object.keys(pkg.exports).length} subpaths resolve to JS + declarations`);

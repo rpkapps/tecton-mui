@@ -8,3 +8,5 @@ apps/docs/src/generated
 .changeset/*.md
 SPEC.md
 apps/docs/src/routeTree.gen.ts
+packages/ui/src/index.ts
+packages/ui/package.json

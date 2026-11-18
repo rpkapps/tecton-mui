@@ -1,0 +1,67 @@
+# DataGrid feature compatibility matrix
+
+`DataGrid` is the MIT `@mui/x-data-grid` (Community) component extended with independently
+written feature modules (`./features`). No commercial MUI X code, types or documentation is used.
+Advanced features are off until you pass the props listed here; with none of them the grid
+behaves like the Community `DataGrid`.
+
+Status: **Supported**, **Partial** (works, with the noted differences), **Not supported**.
+
+## Community baseline
+
+| Capability                                                                 | Status    | Notes                                                                                                                                  |
+| -------------------------------------------------------------------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Columns, column types, value getters/formatters, renderCell, column groups | Supported | Passed through to the Community grid.                                                                                                  |
+| Editing (cell/row), `processRowUpdate`                                     | Supported | `processRowUpdate` is wrapped so edits feed aggregation, undo/redo and server updates.                                                 |
+| Row selection with checkboxes                                              | Supported | Community behaviour, including shift+click ranges.                                                                                     |
+| Quick filter, toolbar, column visibility, density, CSV export              | Partial   | CSV export / print export the rows of the current page (rows are processed by the wrapper; Community only holds the page).             |
+| Server-side rendering                                                      | Partial   | The Community grid renders on the client only (`useIsSSR`); the server output contains no grid markup.                                 |
+| `apiRef` (Community API)                                                   | Partial   | Works; `setSortModel`/`setFilterModel` through Community `apiRef` are limited to one item. Use `advancedApiRef` for multi-item models. |
+
+## Pro-equivalent features
+
+| Feature                             | Props / API                                                                                                       | Status    | Notes                                                                                                                                                          |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------------------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Multi-column sorting                | `sortModel`, `onSortModelChange`, `disableMultipleColumnsSorting`, `multipleColumnsSortingMode`                   | Supported | Shift/Ctrl/Cmd+click or Shift+Enter appends. Priority badges and screen-reader text on secondary columns; `aria-sort` is set on the primary column only.       |
+| Multi-item filtering                | `filterModel`, `onFilterModelChange`, `disableMultipleColumnsFiltering`                                           | Supported | Own filter panel built from Community `GridFilterForm`; AND/OR logic and quick filter.                                                                         |
+| Header filters                      | `headerFilters`                                                                                                   | Partial   | One inline input per column with the type's default operator (`contains`, `=`, `is`); operator selection is not offered inline (use the filter panel).         |
+| Column pinning                      | `pinnedColumns`, `onPinnedColumnsChange`, `initialState.pinnedColumns`, `disableColumnPinning`, column menu       | Supported | CSS sticky positioning; offsets update on resize without React re-renders. Column virtualization is turned off while columns are pinned.                       |
+| Column reordering                   | `disableColumnReorder`, `onColumnOrderChange`, `initialState.columns.orderedFields`, column menu Move items       | Supported | Pointer drag on headers within the same pinned section; keyboard alternative via the column menu.                                                              |
+| Row pinning                         | `pinnedRows={{ top, bottom }}`                                                                                    | Supported | Rendered in Community's sticky pinned-row containers; cells are read-only.                                                                                     |
+| Row reordering                      | `rowReordering`, `onRowOrderChange`                                                                               | Partial   | Flat data only; disabled while sorted, grouped or server-side. Pointer drag on the handle, or Alt+Arrow keys on the focused handle.                            |
+| Multi-row / range selection         | `disableMultipleRowSelection={false}` (without checkboxes)                                                        | Supported | Uses Community multi-selection with a hidden checkbox column (Ctrl/Cmd+click, Shift+click ranges).                                                             |
+| Tree data                           | `treeData`, `getTreeDataPath`, `groupingColDef`, `defaultGroupingExpansionDepth`, `isGroupExpandedByDefault`      | Supported | Missing parents are generated. Parents stay visible when a descendant matches a filter. Rows expose `aria-level`/`aria-expanded`; the grid role is `treegrid`. |
+| Master/detail                       | `getDetailPanelContent`, `getDetailPanelHeight`, `detailPanelExpandedRowIds`, `onDetailPanelExpandedRowIdsChange` | Supported | Panels are rows spanning all columns; they do not count towards the page size.                                                                                 |
+| Page size above 100 / no pagination | `paginationModel`, `pageSizeOptions`, `pagination={false}`                                                        | Supported | Pagination is applied by the wrapper.                                                                                                                          |
+| Lazy loading                        | `dataSource`, `lazyLoading`, `lazyLoadingRequestThrottleMs`                                                       | Supported | Viewport-driven chunk loading with skeleton rows; unknown row counts load more at the end.                                                                     |
+| Server-side data                    | `dataSource`, `dataSourceCache`, `onDataSourceError`, `advancedApiRef.refetchRows`                                | Supported | Requests carry full multi-item sort/filter models.                                                                                                             |
+| Batched row updates                 | `advancedApiRef.current.updateRows`, `throttleRowsMs`                                                             | Supported | Updates, inserts and `_action: 'delete'`.                                                                                                                      |
+
+## Premium-equivalent features (selected)
+
+| Feature                  | Props / API                                                                                           | Status    | Notes                                                                                                                         |
+| ------------------------ | ----------------------------------------------------------------------------------------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Row grouping             | `rowGroupingModel`, `onRowGroupingModelChange`, `rowGroupingColumnMode`, column menu                  | Supported | Single or multiple grouping columns; `groupingValueGetter` on columns. Group rows are not selectable.                         |
+| Aggregation              | `aggregationModel`, `aggregationFunctions`, `getAggregationPosition`, column menu                     | Supported | `sum`, `avg`, `min`, `max`, `size` built in, custom functions allowed. Group rows inline; grand total as a pinned footer row. |
+| Cell range selection     | `cellSelection`, `cellSelectionModel`, `onCellSelectionModelChange`, `advancedApiRef.selectCellRange` | Partial   | Drag, Shift+click, Ctrl/Cmd+click. Highlighting is CSS-only (no cell re-renders). Keyboard range extension is not available.  |
+| Clipboard copy of ranges | Ctrl/Cmd+C with a cell selection                                                                      | Supported | Copies TSV of the selected range.                                                                                             |
+| Clipboard paste          | `disableClipboardPaste`, `splitClipboardPastedText`, `onClipboardPasteStart/End`                      | Supported | Pastes into editable columns from the selection origin (or focused cell) through `processRowUpdate`.                          |
+| Server-side grouping     | `dataSource` with `getGroupKey`, `getChildrenCount` + `rowGroupingModel` or `treeData`                | Supported | Children load when a group expands.                                                                                           |
+| Server-side aggregation  | `dataSource` with `aggregateRow` responses and `getAggregatedValue`                                   | Supported |                                                                                                                               |
+| Undo / redo              | `historyStackSize`, Ctrl/Cmd+Z, Ctrl/Cmd+Shift+Z, Ctrl/Cmd+Y, `advancedApiRef.undo/redo`              | Partial   | Cell edits, paste and row reordering. Column, sort and filter changes are not recorded.                                       |
+
+## Not supported (by decision)
+
+AI assistant, formulas and computed columns, charts integration, pivoting (client or server), and
+Excel export. Commercial-only props not listed above are not supported.
+
+## Performance notes
+
+- Sorting, filtering, grouping, aggregation, flattening and pagination run as separately memoized
+  stages, so expanding a group only re-flattens and the other stages are reused.
+- Group and detail rows keep stable object identities, so unrelated Community rows are not
+  re-rendered.
+- Expansion toggles, detail toggles, sort badges and filter counters subscribe to narrow
+  external-store selectors: each updates only the cell or header that shows it.
+- Column pinning offsets, drag feedback and cell-selection highlighting are applied through CSS
+  variables or stylesheet text, not React state.

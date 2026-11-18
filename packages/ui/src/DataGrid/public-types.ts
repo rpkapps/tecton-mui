@@ -35,6 +35,7 @@ export interface GridAggregationParams<V = unknown> {
   groupId: GridRowId | null;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- default mirrors MUI generics
 export interface GridAggregationFunction<V = any, AV = V> {
   apply: (params: GridAggregationParams<V>) => AV;
   /** Label shown in the column header and column menu. */
@@ -178,6 +179,7 @@ export type GridInitialStateAdvanced = GridInitialState & {
 type CallbackDetails = GridCallbackDetails;
 
 /** Advanced (Pro/Premium-equivalent) props. All are opt-in. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- default mirrors MUI generics
 export interface DataGridAdvancedProps<R extends GridValidRowModel = any> {
   // Sorting & filtering
   /** @default false (multi-column sorting enabled, shift/ctrl-click) */
@@ -262,6 +264,7 @@ export interface DataGridAdvancedProps<R extends GridValidRowModel = any> {
 type OverriddenKeys =
   keyof DataGridAdvancedProps | 'dataSource' | 'dataSourceCache' | 'onDataSourceError';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- default mirrors MUI generics
 export type DataGridProps<R extends GridValidRowModel = any> = Omit<
   CommunityDataGridProps<R>,
   OverriddenKeys

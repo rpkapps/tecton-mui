@@ -13,13 +13,18 @@ const assets = join(root, 'assets/tecton');
 const require = createRequire(import.meta.url);
 
 rmSync(dist, { recursive: true, force: true });
-execFileSync(process.execPath, [require.resolve('typescript/bin/tsc'), '-p', join(root, 'tsconfig.build.json')], {
-  stdio: 'inherit',
-});
+execFileSync(
+  process.execPath,
+  [require.resolve('typescript/bin/tsc'), '-p', join(root, 'tsconfig.build.json')],
+  {
+    stdio: 'inherit',
+  },
+);
 
 const stylesOut = join(dist, 'styles');
 mkdirSync(stylesOut, { recursive: true });
-for (const file of ['tokens.css', 'fonts.css', 'icons.css']) cpSync(join(assets, file), join(stylesOut, file));
+for (const file of ['tokens.css', 'fonts.css', 'icons.css'])
+  cpSync(join(assets, file), join(stylesOut, file));
 cpSync(join(assets, 'assets'), join(stylesOut, 'assets'), { recursive: true });
 
 const provenance = JSON.parse(readFileSync(join(assets, 'provenance.json'), 'utf8'));

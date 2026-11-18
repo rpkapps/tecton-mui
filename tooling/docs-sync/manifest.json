@@ -1,0 +1,48 @@
+{
+  "$comment": "Controlled upstream documentation synchronization (SPEC §8.5). Every upstream page considered for the portal is listed with a status: `included` (copied verbatim, license notice retained), `modified` (adapted; our edits preserved via the patch file), or `excluded` (with a reason). Only MIT-licensed MUI Core docs may be included or modified; commercial MUI X docs are always excluded.",
+  "upstream": {
+    "@mui/material": { "repo": "mui/material-ui", "tagPrefix": "v", "license": "MIT" },
+    "@mui/lab": { "repo": "mui/material-ui", "tagPrefix": "v", "license": "MIT" },
+    "@mui/x-data-grid": {
+      "repo": "mui/mui-x",
+      "tagPrefix": "v",
+      "license": "MIT (Community pages only)"
+    },
+    "@mui/x-date-pickers": {
+      "repo": "mui/mui-x",
+      "tagPrefix": "v",
+      "license": "MIT (Community pages only)"
+    },
+    "@mui/x-tree-view": {
+      "repo": "mui/mui-x",
+      "tagPrefix": "v",
+      "license": "MIT (Community pages only)"
+    }
+  },
+  "pages": [
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/buttons/buttons.md",
+      "status": "excluded",
+      "reason": "Portal page is originally authored for Tecton usage."
+    },
+    {
+      "package": "@mui/x-data-grid",
+      "source": "docs/data/data-grid/row-grouping/row-grouping.md",
+      "status": "excluded",
+      "reason": "Commercial (Premium) documentation; feature independently implemented and documented."
+    },
+    {
+      "package": "@mui/x-date-pickers",
+      "source": "docs/data/date-pickers/date-range-picker/date-range-picker.md",
+      "status": "excluded",
+      "reason": "Commercial (Pro) documentation; feature independently implemented and documented."
+    },
+    {
+      "package": "@mui/x-tree-view",
+      "source": "docs/data/tree-view/rich-tree-view/ordering/ordering.md",
+      "status": "excluded",
+      "reason": "Commercial (Pro) documentation; feature independently implemented and documented."
+    }
+  ]
+}

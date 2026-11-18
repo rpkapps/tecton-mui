@@ -1,15 +1,19 @@
 import * as React from 'react';
 import type { GridColDef, GridFilterModel, GridRowId, GridSortModel } from '@mui/x-data-grid';
-import { Store } from './store.js';
+import type {
+  GridAggregationFunction,
+  GridGroupNodeInfo,
+  GridPinnedColumnFields,
+} from '../public-types.js';
+import type { Store } from './store.js';
 import type { RowMeta } from './pipeline.js';
-import type { GridPinnedColumnFields } from '../public-types.js';
 
 /** Interaction state owned by the grid (mutated by user gestures; read via selectors). */
 export interface UiState {
   expansion: ReadonlyMap<GridRowId, boolean>;
   detailExpanded: ReadonlySet<GridRowId>;
   defaultExpansionDepth: number;
-  isGroupExpandedByDefault?: (info: import('../public-types.js').GridGroupNodeInfo) => boolean;
+  isGroupExpandedByDefault?: (info: GridGroupNodeInfo) => boolean;
 }
 
 /** Derived state published by the DataGrid after each render for slot components. */
@@ -59,7 +63,7 @@ export interface GridAdvancedContextValue {
     aggregation: boolean;
     multiSort: boolean;
     multiFilter: boolean;
-    aggregationFunctions: Record<string, import('../public-types.js').GridAggregationFunction>;
+    aggregationFunctions: Record<string, GridAggregationFunction>;
   };
 }
 

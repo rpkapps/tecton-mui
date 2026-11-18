@@ -51,6 +51,7 @@ export interface UseDataSourceOptions<R extends GridValidRowModel> {
   onError?: (error: unknown) => void;
 }
 
+const EMPTY_CHILDREN: ReadonlyMap<string, ServerLevel<never>> = new Map();
 const EMPTY_LEVEL: ServerLevel<never> = { rows: [], rowCount: 0, loading: false };
 
 /**
@@ -79,7 +80,15 @@ export function useDataSource<R extends GridValidRowModel>(
   optsRef.current = options;
 
   const [top, setTop] = React.useState<ServerLevel<R>>(EMPTY_LEVEL);
-  const [children, setChildren] = React.useState<ReadonlyMap<string, ServerLevel<R>>>(new Map());
+  // Children are tagged with the request generation; a model change makes older entries invisible
+  // without a synchronous reset in an effect.
+  const [childrenState, setChildrenState] = React.useState<{
+    gen: number;
+    map: ReadonlyMap<string, ServerLevel<R>>;
+  }>({
+    gen: 0,
+    map: new Map(),
+  });
   const [lazy, setLazy] = React.useState<ReadonlyMap<number, R>>(new Map());
   const [lazyRowCount, setLazyRowCount] = React.useState(0);
   const [aggregateRow, setAggregateRow] = React.useState<Partial<R> | null>(null);
@@ -116,7 +125,6 @@ export function useDataSource<R extends GridValidRowModel>(
     if (!active) return;
     const gen = ++generation.current;
     inFlight.current.clear();
-    setChildren(new Map());
     const chunk = paginationModel.pageSize;
     const params: GridGetRowsParams = lazyLoading
       ? { ...baseParams, start: 0, end: chunk - 1, groupKeys: [] }
@@ -129,6 +137,8 @@ export function useDataSource<R extends GridValidRowModel>(
             groupKeys: [],
           }
         : { ...baseParams, start: 0, end: Number.MAX_SAFE_INTEGER, groupKeys: [] };
+    // Starting a request is the effect's purpose; the loading flag must render immediately.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setTop((prev) => ({ ...prev, loading: true }));
     request(params).then(
       (res) => {
@@ -166,35 +176,38 @@ export function useDataSource<R extends GridValidRowModel>(
     version,
   ]);
 
+  const setChildren = React.useCallback((gen: number, key: string, level: ServerLevel<R>) => {
+    setChildrenState((prev) => ({
+      gen,
+      map: new Map(prev.gen === gen ? prev.map : undefined).set(key, level),
+    }));
+  }, []);
+
   const fetchChildren = React.useCallback(
     (groupKeys: string[]) => {
       const key = JSON.stringify(groupKeys);
       if (inFlight.current.has(key)) return;
       inFlight.current.add(key);
       const gen = generation.current;
-      setChildren((prev) => new Map(prev).set(key, { rows: [], rowCount: 0, loading: true }));
+      setChildren(gen, key, { rows: [], rowCount: 0, loading: true });
       request({ ...baseParams, start: 0, end: Number.MAX_SAFE_INTEGER, groupKeys }).then(
         (res) => {
           if (!res || gen !== generation.current) return;
-          setChildren((prev) =>
-            new Map(prev).set(key, {
-              rows: res.rows,
-              rowCount: res.rowCount ?? res.rows.length,
-              loading: false,
-            }),
-          );
+          setChildren(gen, key, {
+            rows: res.rows,
+            rowCount: res.rowCount ?? res.rows.length,
+            loading: false,
+          });
         },
         (error) => {
           if (gen !== generation.current) return;
           inFlight.current.delete(key);
-          setChildren((prev) =>
-            new Map(prev).set(key, { rows: [], rowCount: 0, loading: false, error }),
-          );
+          setChildren(gen, key, { rows: [], rowCount: 0, loading: false, error });
           fail(error);
         },
       );
     },
-    [baseParams, request, fail],
+    [baseParams, request, fail, setChildren],
   );
 
   // Viewport-driven lazy loading.
@@ -268,6 +281,7 @@ export function useDataSource<R extends GridValidRowModel>(
     [cache],
   );
 
+  const children = childrenState.gen === generation.current ? childrenState.map : EMPTY_CHILDREN;
   const loading = top.loading || [...children.values()].some((c) => c.loading);
   return {
     active,

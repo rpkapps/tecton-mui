@@ -213,7 +213,12 @@ export const HeaderWithFilter = React.memo(function HeaderWithFilter({
     ),
   );
   const [draft, setDraft] = React.useState(value);
-  React.useEffect(() => setDraft(value), [value]);
+  // Resync the draft when the committed value changes externally (derived-state pattern).
+  const [committed, setCommitted] = React.useState(value);
+  if (committed !== value) {
+    setCommitted(value);
+    setDraft(value);
+  }
   const timer = React.useRef<ReturnType<typeof setTimeout>>(undefined);
   React.useEffect(() => () => clearTimeout(timer.current), []);
   const type = colDef.type ?? 'string';

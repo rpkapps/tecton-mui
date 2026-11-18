@@ -347,7 +347,7 @@ describe('aggregation', () => {
     ]);
     expect(
       availableAggregationFunctions(
-        { ...lookup.name, aggregable: false } as GridColDef,
+        { ...lookup.name, aggregable: false } as unknown as GridColDef,
         GRID_AGGREGATION_FUNCTIONS,
       ),
     ).toEqual([]);

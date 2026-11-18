@@ -46,6 +46,10 @@ function cellFromEvent(
   return id === undefined ? null : { id, field: cell.dataset.field! };
 }
 
+function setStyleText(el: HTMLStyleElement | null, text: string): void {
+  if (el) el.textContent = text;
+}
+
 const isEditableTarget = (t: EventTarget | null) =>
   t instanceof HTMLElement && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName));
 
@@ -58,8 +62,7 @@ export function useCellSelection(o: CellSelectionOptions): void {
   ref.current = o;
 
   React.useEffect(() => {
-    if (o.styleRef.current)
-      o.styleRef.current.textContent = o.enabled ? selectionCss(o.scope, o.model) : '';
+    setStyleText(o.styleRef.current, o.enabled ? selectionCss(o.scope, o.model) : '');
   }, [o.enabled, o.model, o.scope, o.styleRef]);
 
   React.useEffect(() => {

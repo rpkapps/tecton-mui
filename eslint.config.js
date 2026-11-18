@@ -7,6 +7,10 @@ export default tseslint.config(
   {
     ignores: [
       '**/dist/**',
+      '**/dist-server/**',
+      '**/.tanstack/**',
+      'tooling/bundle-tests/.out/**',
+      'tests/e2e/**/*-snapshots/**',
       '**/coverage/**',
       '**/node_modules/**',
       'packages/tecton-adapter/vendor/**',
@@ -59,6 +63,12 @@ export default tseslint.config(
         },
       ],
     },
+  },
+  {
+    // The grid integration reads Community's imperative apiRef and latest-value refs during render
+    // by design (the same pattern MUI X uses); this module is not compiled with React Compiler.
+    files: ['packages/ui/src/DataGrid/**/*.{ts,tsx}'],
+    rules: { 'react-hooks/refs': 'off' },
   },
   {
     files: ['**/*.test.{ts,tsx}', 'tests/**', 'tooling/**'],

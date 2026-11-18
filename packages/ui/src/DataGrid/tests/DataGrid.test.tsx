@@ -1,6 +1,12 @@
 import * as React from 'react';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { DataGrid, useGridAdvancedApiRef, type GridColDef, type GridDataSource } from '../index.js';
+import {
+  DataGrid,
+  useGridAdvancedApiRef,
+  type GridAdvancedApi,
+  type GridColDef,
+  type GridDataSource,
+} from '../index.js';
 
 type Row = { id: number; name: string; dept: string; salary: number };
 const rows: Row[] = [
@@ -186,9 +192,7 @@ describe('DataGrid (unified)', () => {
   });
 
   it('pins columns with sticky classes and exposes the advanced API', () => {
-    const apiRef = { current: null } as React.RefObject<
-      import('../index.js').GridAdvancedApi<Row> | null
-    >;
+    const apiRef = { current: null } as React.RefObject<GridAdvancedApi<Row> | null>;
     render(<Grid pinnedColumns={{ left: ['salary'] }} advancedApiRef={apiRef} />);
     const header = document.querySelector('.MuiDataGrid-columnHeader[data-field="salary"]')!;
     expect(header.className).toContain('MuiDataGrid-columnHeader--pinnedLeft');

@@ -13,7 +13,7 @@ import {
   GridColumnHeaderSortIcon,
   GridColumnMenu,
   GridFilterForm,
-  GridLogicOperator,
+  type GridLogicOperator,
   GridRow,
   gridVisibleColumnDefinitionsSelector,
   gridDimensionsSelector,

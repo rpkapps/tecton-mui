@@ -1,8 +1,4 @@
 {
   "files": [],
-  "references": [
-    { "path": "packages/ui" },
-    { "path": "packages/mcp" },
-    { "path": "apps/docs" }
-  ]
+  "references": [{ "path": "packages/ui" }, { "path": "packages/mcp" }, { "path": "apps/docs" }]
 }
