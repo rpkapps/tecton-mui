@@ -27,14 +27,7 @@ test.describe('SSR and hydration', () => {
     await page.addInitScript(() => localStorage.setItem('tecton-theme-mode', 'dark'));
     const consoleErrors: string[] = [];
     page.on('console', (m) => m.type() === 'error' && consoleErrors.push(m.text()));
-    // Capture the theme attribute before any client JS runs: the inline mode script must set it.
-    await page.route('**/src/ssr-entry-client.tsx', async (route) => {
-      await page.evaluate(() => {
-        (window as unknown as { __themeBeforeHydration: string | null }).__themeBeforeHydration =
-          document.documentElement.getAttribute('data-theme');
-      });
-      await route.continue();
-    });
+    // The server page records data-theme right after the inline mode script, before any module runs.
     await page.goto('/ssr');
     await expect(page.locator('html')).toHaveAttribute('data-hydrated', 'true');
     expect(

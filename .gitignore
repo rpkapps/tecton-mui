@@ -10,3 +10,4 @@ apps/docs/dist/
 tooling/bundle-tests/.out/
 .DS_Store
 *.log
+dist-gallery/

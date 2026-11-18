@@ -28,7 +28,7 @@ import {
 } from '@tecton-mui/ui';
 import Icon from '@tecton-mui/ui/Icon';
 import LocalizationProvider from '@tecton-mui/ui/LocalizationProvider';
-import { DataGrid as CommunityDataGrid } from '@mui/x-data-grid';
+import DataGrid from '@tecton-mui/ui/DataGrid';
 import { GridScenarios } from './GridScenarios.js';
 import { PickerScenarios, TreeScenarios } from './AdvancedScenarios.js';
 
@@ -54,7 +54,7 @@ const columns = [
   { field: 'salary', headerName: 'Salary', type: 'number' as const, width: 140 },
 ];
 
-function Showcase() {
+export function Showcase() {
   const [tab, setTab] = React.useState(0);
   return (
     <Box
@@ -62,7 +62,7 @@ function Showcase() {
         p: 3,
         display: 'grid',
         gap: 3,
-        gridTemplateColumns: 'repeat(auto-fill, minmax(420px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(min(420px, 100%), 1fr))',
       }}
     >
       <Paper variant="outlined" sx={{ p: 2 }}>
@@ -163,10 +163,10 @@ function Showcase() {
       </Paper>
       <Paper variant="outlined" sx={{ p: 2 }}>
         <Typography variant="h5" gutterBottom>
-          Data Grid (Community baseline)
+          Data Grid (no advanced props)
         </Typography>
         <Box sx={{ height: 420 }}>
-          <CommunityDataGrid rows={rows} columns={columns} checkboxSelection />
+          <DataGrid rows={rows} columns={columns} checkboxSelection />
         </Box>
       </Paper>
     </Box>

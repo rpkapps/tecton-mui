@@ -1211,744 +1211,9 @@
   ],
   "rootCollisions": [
     {
-      "name": "DateRange",
-      "kept": "DateRangeCalendar",
-      "dropped": "DateRangePicker"
-    },
-    {
-      "name": "NonEmptyDateRange",
-      "kept": "DateRangeCalendar",
-      "dropped": "DateRangePicker"
-    },
-    {
-      "name": "PickerRangeValue",
-      "kept": "DateRangeCalendar",
-      "dropped": "DateRangePicker"
-    },
-    {
-      "name": "RangePosition",
-      "kept": "DateRangeCalendar",
-      "dropped": "DateRangePicker"
-    },
-    {
-      "name": "DateRange",
-      "kept": "DateRangeCalendar",
-      "dropped": "DateTimeRangePicker"
-    },
-    {
-      "name": "NonEmptyDateRange",
-      "kept": "DateRangeCalendar",
-      "dropped": "DateTimeRangePicker"
-    },
-    {
-      "name": "PickerRangeValue",
-      "kept": "DateRangeCalendar",
-      "dropped": "DateTimeRangePicker"
-    },
-    {
-      "name": "RangePosition",
-      "kept": "DateRangeCalendar",
-      "dropped": "DateTimeRangePicker"
-    },
-    {
-      "name": "PickerRangeChangeContext",
-      "kept": "DateRangePicker",
-      "dropped": "DateTimeRangePicker"
-    },
-    {
-      "name": "PickersShortcutsItem",
-      "kept": "DateRangePicker",
-      "dropped": "DateTimeRangePicker"
-    },
-    {
-      "name": "PickersRangeActionBarAction",
-      "kept": "DateRangePicker",
-      "dropped": "DateTimeRangePicker"
-    },
-    {
-      "name": "RangePickerLocaleText",
-      "kept": "DateRangePicker",
-      "dropped": "DateTimeRangePicker"
-    },
-    {
-      "name": "RangePickerSlots",
-      "kept": "DateRangePicker",
-      "dropped": "DateTimeRangePicker"
-    },
-    {
-      "name": "RangePickerSlotProps",
-      "kept": "DateRangePicker",
-      "dropped": "DateTimeRangePicker"
-    },
-    {
-      "name": "DateRange",
-      "kept": "DateRangeCalendar",
-      "dropped": "DesktopDateRangePicker"
-    },
-    {
-      "name": "NonEmptyDateRange",
-      "kept": "DateRangeCalendar",
-      "dropped": "DesktopDateRangePicker"
-    },
-    {
-      "name": "PickerRangeValue",
-      "kept": "DateRangeCalendar",
-      "dropped": "DesktopDateRangePicker"
-    },
-    {
-      "name": "RangePosition",
-      "kept": "DateRangeCalendar",
-      "dropped": "DesktopDateRangePicker"
-    },
-    {
-      "name": "DateRangeValidationError",
-      "kept": "DateRangePicker",
-      "dropped": "DesktopDateRangePicker"
-    },
-    {
-      "name": "PickerRangeChangeContext",
-      "kept": "DateRangePicker",
-      "dropped": "DesktopDateRangePicker"
-    },
-    {
-      "name": "PickersShortcutsItem",
-      "kept": "DateRangePicker",
-      "dropped": "DesktopDateRangePicker"
-    },
-    {
-      "name": "PickersRangeActionBarAction",
-      "kept": "DateRangePicker",
-      "dropped": "DesktopDateRangePicker"
-    },
-    {
-      "name": "RangePickerLocaleText",
-      "kept": "DateRangePicker",
-      "dropped": "DesktopDateRangePicker"
-    },
-    {
-      "name": "RangePickerSlots",
-      "kept": "DateRangePicker",
-      "dropped": "DesktopDateRangePicker"
-    },
-    {
-      "name": "RangePickerSlotProps",
-      "kept": "DateRangePicker",
-      "dropped": "DesktopDateRangePicker"
-    },
-    {
-      "name": "DateRange",
-      "kept": "DateRangeCalendar",
-      "dropped": "DesktopDateTimeRangePicker"
-    },
-    {
-      "name": "NonEmptyDateRange",
-      "kept": "DateRangeCalendar",
-      "dropped": "DesktopDateTimeRangePicker"
-    },
-    {
-      "name": "PickerRangeValue",
-      "kept": "DateRangeCalendar",
-      "dropped": "DesktopDateTimeRangePicker"
-    },
-    {
-      "name": "RangePosition",
-      "kept": "DateRangeCalendar",
-      "dropped": "DesktopDateTimeRangePicker"
-    },
-    {
-      "name": "DateTimeRangeValidationError",
-      "kept": "DateTimeRangePicker",
-      "dropped": "DesktopDateTimeRangePicker"
-    },
-    {
-      "name": "PickerRangeChangeContext",
-      "kept": "DateRangePicker",
-      "dropped": "DesktopDateTimeRangePicker"
-    },
-    {
-      "name": "PickersShortcutsItem",
-      "kept": "DateRangePicker",
-      "dropped": "DesktopDateTimeRangePicker"
-    },
-    {
-      "name": "PickersRangeActionBarAction",
-      "kept": "DateRangePicker",
-      "dropped": "DesktopDateTimeRangePicker"
-    },
-    {
-      "name": "RangePickerLocaleText",
-      "kept": "DateRangePicker",
-      "dropped": "DesktopDateTimeRangePicker"
-    },
-    {
-      "name": "RangePickerSlots",
-      "kept": "DateRangePicker",
-      "dropped": "DesktopDateTimeRangePicker"
-    },
-    {
-      "name": "RangePickerSlotProps",
-      "kept": "DateRangePicker",
-      "dropped": "DesktopDateTimeRangePicker"
-    },
-    {
-      "name": "DateRange",
-      "kept": "DateRangeCalendar",
-      "dropped": "DesktopTimeRangePicker"
-    },
-    {
-      "name": "NonEmptyDateRange",
-      "kept": "DateRangeCalendar",
-      "dropped": "DesktopTimeRangePicker"
-    },
-    {
-      "name": "PickerRangeValue",
-      "kept": "DateRangeCalendar",
-      "dropped": "DesktopTimeRangePicker"
-    },
-    {
-      "name": "RangePosition",
-      "kept": "DateRangeCalendar",
-      "dropped": "DesktopTimeRangePicker"
-    },
-    {
-      "name": "PickerRangeChangeContext",
-      "kept": "DateRangePicker",
-      "dropped": "DesktopTimeRangePicker"
-    },
-    {
-      "name": "PickersShortcutsItem",
-      "kept": "DateRangePicker",
-      "dropped": "DesktopTimeRangePicker"
-    },
-    {
-      "name": "PickersRangeActionBarAction",
-      "kept": "DateRangePicker",
-      "dropped": "DesktopTimeRangePicker"
-    },
-    {
-      "name": "RangePickerLocaleText",
-      "kept": "DateRangePicker",
-      "dropped": "DesktopTimeRangePicker"
-    },
-    {
-      "name": "RangePickerSlots",
-      "kept": "DateRangePicker",
-      "dropped": "DesktopTimeRangePicker"
-    },
-    {
-      "name": "RangePickerSlotProps",
-      "kept": "DateRangePicker",
-      "dropped": "DesktopTimeRangePicker"
-    },
-    {
-      "name": "DateRange",
-      "kept": "DateRangeCalendar",
-      "dropped": "MobileDateRangePicker"
-    },
-    {
-      "name": "NonEmptyDateRange",
-      "kept": "DateRangeCalendar",
-      "dropped": "MobileDateRangePicker"
-    },
-    {
-      "name": "PickerRangeValue",
-      "kept": "DateRangeCalendar",
-      "dropped": "MobileDateRangePicker"
-    },
-    {
-      "name": "RangePosition",
-      "kept": "DateRangeCalendar",
-      "dropped": "MobileDateRangePicker"
-    },
-    {
-      "name": "DateRangeValidationError",
-      "kept": "DateRangePicker",
-      "dropped": "MobileDateRangePicker"
-    },
-    {
-      "name": "PickerRangeChangeContext",
-      "kept": "DateRangePicker",
-      "dropped": "MobileDateRangePicker"
-    },
-    {
-      "name": "PickersShortcutsItem",
-      "kept": "DateRangePicker",
-      "dropped": "MobileDateRangePicker"
-    },
-    {
-      "name": "PickersRangeActionBarAction",
-      "kept": "DateRangePicker",
-      "dropped": "MobileDateRangePicker"
-    },
-    {
-      "name": "RangePickerLocaleText",
-      "kept": "DateRangePicker",
-      "dropped": "MobileDateRangePicker"
-    },
-    {
-      "name": "RangePickerSlots",
-      "kept": "DateRangePicker",
-      "dropped": "MobileDateRangePicker"
-    },
-    {
-      "name": "RangePickerSlotProps",
-      "kept": "DateRangePicker",
-      "dropped": "MobileDateRangePicker"
-    },
-    {
-      "name": "DateRange",
-      "kept": "DateRangeCalendar",
-      "dropped": "MobileDateTimeRangePicker"
-    },
-    {
-      "name": "NonEmptyDateRange",
-      "kept": "DateRangeCalendar",
-      "dropped": "MobileDateTimeRangePicker"
-    },
-    {
-      "name": "PickerRangeValue",
-      "kept": "DateRangeCalendar",
-      "dropped": "MobileDateTimeRangePicker"
-    },
-    {
-      "name": "RangePosition",
-      "kept": "DateRangeCalendar",
-      "dropped": "MobileDateTimeRangePicker"
-    },
-    {
-      "name": "DateTimeRangeValidationError",
-      "kept": "DateTimeRangePicker",
-      "dropped": "MobileDateTimeRangePicker"
-    },
-    {
-      "name": "PickerRangeChangeContext",
-      "kept": "DateRangePicker",
-      "dropped": "MobileDateTimeRangePicker"
-    },
-    {
-      "name": "PickersShortcutsItem",
-      "kept": "DateRangePicker",
-      "dropped": "MobileDateTimeRangePicker"
-    },
-    {
-      "name": "PickersRangeActionBarAction",
-      "kept": "DateRangePicker",
-      "dropped": "MobileDateTimeRangePicker"
-    },
-    {
-      "name": "RangePickerLocaleText",
-      "kept": "DateRangePicker",
-      "dropped": "MobileDateTimeRangePicker"
-    },
-    {
-      "name": "RangePickerSlots",
-      "kept": "DateRangePicker",
-      "dropped": "MobileDateTimeRangePicker"
-    },
-    {
-      "name": "RangePickerSlotProps",
-      "kept": "DateRangePicker",
-      "dropped": "MobileDateTimeRangePicker"
-    },
-    {
-      "name": "DateRange",
-      "kept": "DateRangeCalendar",
-      "dropped": "MobileTimeRangePicker"
-    },
-    {
-      "name": "NonEmptyDateRange",
-      "kept": "DateRangeCalendar",
-      "dropped": "MobileTimeRangePicker"
-    },
-    {
-      "name": "PickerRangeValue",
-      "kept": "DateRangeCalendar",
-      "dropped": "MobileTimeRangePicker"
-    },
-    {
-      "name": "RangePosition",
-      "kept": "DateRangeCalendar",
-      "dropped": "MobileTimeRangePicker"
-    },
-    {
-      "name": "TimeRangeValidationError",
-      "kept": "DesktopTimeRangePicker",
-      "dropped": "MobileTimeRangePicker"
-    },
-    {
-      "name": "PickerRangeChangeContext",
-      "kept": "DateRangePicker",
-      "dropped": "MobileTimeRangePicker"
-    },
-    {
-      "name": "PickersShortcutsItem",
-      "kept": "DateRangePicker",
-      "dropped": "MobileTimeRangePicker"
-    },
-    {
-      "name": "PickersRangeActionBarAction",
-      "kept": "DateRangePicker",
-      "dropped": "MobileTimeRangePicker"
-    },
-    {
-      "name": "RangePickerLocaleText",
-      "kept": "DateRangePicker",
-      "dropped": "MobileTimeRangePicker"
-    },
-    {
-      "name": "RangePickerSlots",
-      "kept": "DateRangePicker",
-      "dropped": "MobileTimeRangePicker"
-    },
-    {
-      "name": "RangePickerSlotProps",
-      "kept": "DateRangePicker",
-      "dropped": "MobileTimeRangePicker"
-    },
-    {
-      "name": "DateRange",
-      "kept": "DateRangeCalendar",
-      "dropped": "MultiInputDateRangeField"
-    },
-    {
-      "name": "PickerRangeValue",
-      "kept": "DateRangeCalendar",
-      "dropped": "MultiInputDateRangeField"
-    },
-    {
-      "name": "RangePosition",
-      "kept": "DateRangeCalendar",
-      "dropped": "MultiInputDateRangeField"
-    },
-    {
-      "name": "PickerRangeChangeContext",
-      "kept": "DateRangePicker",
-      "dropped": "MultiInputDateRangeField"
-    },
-    {
-      "name": "RangeFieldValidationError",
-      "kept": "MultiInputDateRangeField",
-      "dropped": "SingleInputDateRangeField"
-    },
-    {
-      "name": "DateRange",
-      "kept": "DateRangeCalendar",
-      "dropped": "SingleInputDateRangeField"
-    },
-    {
-      "name": "PickerRangeValue",
-      "kept": "DateRangeCalendar",
-      "dropped": "SingleInputDateRangeField"
-    },
-    {
-      "name": "RangePosition",
-      "kept": "DateRangeCalendar",
-      "dropped": "SingleInputDateRangeField"
-    },
-    {
-      "name": "PickerRangeChangeContext",
-      "kept": "DateRangePicker",
-      "dropped": "SingleInputDateRangeField"
-    },
-    {
-      "name": "RangeFieldValidationError",
-      "kept": "MultiInputDateRangeField",
-      "dropped": "SingleInputDateTimeRangeField"
-    },
-    {
-      "name": "DateRange",
-      "kept": "DateRangeCalendar",
-      "dropped": "SingleInputDateTimeRangeField"
-    },
-    {
-      "name": "PickerRangeValue",
-      "kept": "DateRangeCalendar",
-      "dropped": "SingleInputDateTimeRangeField"
-    },
-    {
-      "name": "RangePosition",
-      "kept": "DateRangeCalendar",
-      "dropped": "SingleInputDateTimeRangeField"
-    },
-    {
-      "name": "PickerRangeChangeContext",
-      "kept": "DateRangePicker",
-      "dropped": "SingleInputDateTimeRangeField"
-    },
-    {
-      "name": "RangeFieldValidationError",
-      "kept": "MultiInputDateRangeField",
-      "dropped": "SingleInputTimeRangeField"
-    },
-    {
-      "name": "DateRange",
-      "kept": "DateRangeCalendar",
-      "dropped": "SingleInputTimeRangeField"
-    },
-    {
-      "name": "PickerRangeValue",
-      "kept": "DateRangeCalendar",
-      "dropped": "SingleInputTimeRangeField"
-    },
-    {
-      "name": "RangePosition",
-      "kept": "DateRangeCalendar",
-      "dropped": "SingleInputTimeRangeField"
-    },
-    {
-      "name": "PickerRangeChangeContext",
-      "kept": "DateRangePicker",
-      "dropped": "SingleInputTimeRangeField"
-    },
-    {
-      "name": "DateRange",
-      "kept": "DateRangeCalendar",
-      "dropped": "StaticDateRangePicker"
-    },
-    {
-      "name": "NonEmptyDateRange",
-      "kept": "DateRangeCalendar",
-      "dropped": "StaticDateRangePicker"
-    },
-    {
-      "name": "PickerRangeValue",
-      "kept": "DateRangeCalendar",
-      "dropped": "StaticDateRangePicker"
-    },
-    {
-      "name": "RangePosition",
-      "kept": "DateRangeCalendar",
-      "dropped": "StaticDateRangePicker"
-    },
-    {
-      "name": "DateRangeValidationError",
-      "kept": "DateRangePicker",
-      "dropped": "StaticDateRangePicker"
-    },
-    {
-      "name": "PickerRangeChangeContext",
-      "kept": "DateRangePicker",
-      "dropped": "StaticDateRangePicker"
-    },
-    {
-      "name": "PickersShortcutsItem",
-      "kept": "DateRangePicker",
-      "dropped": "StaticDateRangePicker"
-    },
-    {
-      "name": "PickersRangeActionBarAction",
-      "kept": "DateRangePicker",
-      "dropped": "StaticDateRangePicker"
-    },
-    {
-      "name": "RangePickerLocaleText",
-      "kept": "DateRangePicker",
-      "dropped": "StaticDateRangePicker"
-    },
-    {
-      "name": "RangePickerSlots",
-      "kept": "DateRangePicker",
-      "dropped": "StaticDateRangePicker"
-    },
-    {
-      "name": "RangePickerSlotProps",
-      "kept": "DateRangePicker",
-      "dropped": "StaticDateRangePicker"
-    },
-    {
-      "name": "DateRange",
-      "kept": "DateRangeCalendar",
-      "dropped": "StaticDateTimeRangePicker"
-    },
-    {
-      "name": "NonEmptyDateRange",
-      "kept": "DateRangeCalendar",
-      "dropped": "StaticDateTimeRangePicker"
-    },
-    {
-      "name": "PickerRangeValue",
-      "kept": "DateRangeCalendar",
-      "dropped": "StaticDateTimeRangePicker"
-    },
-    {
-      "name": "RangePosition",
-      "kept": "DateRangeCalendar",
-      "dropped": "StaticDateTimeRangePicker"
-    },
-    {
-      "name": "DateTimeRangeValidationError",
-      "kept": "DateTimeRangePicker",
-      "dropped": "StaticDateTimeRangePicker"
-    },
-    {
-      "name": "PickerRangeChangeContext",
-      "kept": "DateRangePicker",
-      "dropped": "StaticDateTimeRangePicker"
-    },
-    {
-      "name": "PickersShortcutsItem",
-      "kept": "DateRangePicker",
-      "dropped": "StaticDateTimeRangePicker"
-    },
-    {
-      "name": "PickersRangeActionBarAction",
-      "kept": "DateRangePicker",
-      "dropped": "StaticDateTimeRangePicker"
-    },
-    {
-      "name": "RangePickerLocaleText",
-      "kept": "DateRangePicker",
-      "dropped": "StaticDateTimeRangePicker"
-    },
-    {
-      "name": "RangePickerSlots",
-      "kept": "DateRangePicker",
-      "dropped": "StaticDateTimeRangePicker"
-    },
-    {
-      "name": "RangePickerSlotProps",
-      "kept": "DateRangePicker",
-      "dropped": "StaticDateTimeRangePicker"
-    },
-    {
-      "name": "DateRange",
-      "kept": "DateRangeCalendar",
-      "dropped": "StaticTimeRangePicker"
-    },
-    {
-      "name": "NonEmptyDateRange",
-      "kept": "DateRangeCalendar",
-      "dropped": "StaticTimeRangePicker"
-    },
-    {
-      "name": "PickerRangeValue",
-      "kept": "DateRangeCalendar",
-      "dropped": "StaticTimeRangePicker"
-    },
-    {
-      "name": "RangePosition",
-      "kept": "DateRangeCalendar",
-      "dropped": "StaticTimeRangePicker"
-    },
-    {
-      "name": "TimeRangeValidationError",
-      "kept": "DesktopTimeRangePicker",
-      "dropped": "StaticTimeRangePicker"
-    },
-    {
-      "name": "PickerRangeChangeContext",
-      "kept": "DateRangePicker",
-      "dropped": "StaticTimeRangePicker"
-    },
-    {
-      "name": "PickersShortcutsItem",
-      "kept": "DateRangePicker",
-      "dropped": "StaticTimeRangePicker"
-    },
-    {
-      "name": "PickersRangeActionBarAction",
-      "kept": "DateRangePicker",
-      "dropped": "StaticTimeRangePicker"
-    },
-    {
-      "name": "RangePickerLocaleText",
-      "kept": "DateRangePicker",
-      "dropped": "StaticTimeRangePicker"
-    },
-    {
-      "name": "RangePickerSlots",
-      "kept": "DateRangePicker",
-      "dropped": "StaticTimeRangePicker"
-    },
-    {
-      "name": "RangePickerSlotProps",
-      "kept": "DateRangePicker",
-      "dropped": "StaticTimeRangePicker"
-    },
-    {
-      "name": "DateRange",
-      "kept": "DateRangeCalendar",
-      "dropped": "TimeRangePicker"
-    },
-    {
-      "name": "NonEmptyDateRange",
-      "kept": "DateRangeCalendar",
-      "dropped": "TimeRangePicker"
-    },
-    {
-      "name": "PickerRangeValue",
-      "kept": "DateRangeCalendar",
-      "dropped": "TimeRangePicker"
-    },
-    {
-      "name": "RangePosition",
-      "kept": "DateRangeCalendar",
-      "dropped": "TimeRangePicker"
-    },
-    {
-      "name": "TimeRangeValidationError",
-      "kept": "DesktopTimeRangePicker",
-      "dropped": "TimeRangePicker"
-    },
-    {
-      "name": "PickerRangeChangeContext",
-      "kept": "DateRangePicker",
-      "dropped": "TimeRangePicker"
-    },
-    {
-      "name": "PickersShortcutsItem",
-      "kept": "DateRangePicker",
-      "dropped": "TimeRangePicker"
-    },
-    {
-      "name": "PickersRangeActionBarAction",
-      "kept": "DateRangePicker",
-      "dropped": "TimeRangePicker"
-    },
-    {
-      "name": "RangePickerLocaleText",
-      "kept": "DateRangePicker",
-      "dropped": "TimeRangePicker"
-    },
-    {
-      "name": "RangePickerSlots",
-      "kept": "DateRangePicker",
-      "dropped": "TimeRangePicker"
-    },
-    {
-      "name": "RangePickerSlotProps",
-      "kept": "DateRangePicker",
-      "dropped": "TimeRangePicker"
-    },
-    {
-      "name": "gridClasses",
-      "kept": "DataGrid",
-      "dropped": "Grid"
-    },
-    {
-      "name": "GridClasses",
-      "kept": "DataGrid",
-      "dropped": "Grid"
-    },
-    {
-      "name": "GridClassKey",
-      "kept": "DataGrid",
-      "dropped": "Grid"
-    },
-    {
       "name": "createSvgIcon",
       "kept": "utils",
       "dropped": "SvgIcon"
-    },
-    {
-      "name": "Toolbar",
-      "kept": "DataGrid",
-      "dropped": "Toolbar"
-    },
-    {
-      "name": "ToolbarProps",
-      "kept": "DataGrid",
-      "dropped": "Toolbar"
     },
     {
       "name": "createFilterOptions",
@@ -1984,6 +1249,741 @@
       "name": "AutocompleteInputChangeReason",
       "kept": "Autocomplete",
       "dropped": "useAutocomplete"
+    },
+    {
+      "name": "Toolbar",
+      "kept": "Toolbar",
+      "dropped": "DataGrid"
+    },
+    {
+      "name": "gridClasses",
+      "kept": "Grid",
+      "dropped": "DataGrid"
+    },
+    {
+      "name": "ToolbarProps",
+      "kept": "Toolbar",
+      "dropped": "DataGrid"
+    },
+    {
+      "name": "GridClassKey",
+      "kept": "Grid",
+      "dropped": "DataGrid"
+    },
+    {
+      "name": "GridClasses",
+      "kept": "Grid",
+      "dropped": "DataGrid"
+    },
+    {
+      "name": "DateRange",
+      "kept": "DateRangeCalendar",
+      "dropped": "DateRangePicker"
+    },
+    {
+      "name": "NonEmptyDateRange",
+      "kept": "DateRangeCalendar",
+      "dropped": "DateRangePicker"
+    },
+    {
+      "name": "PickerRangeValue",
+      "kept": "DateRangeCalendar",
+      "dropped": "DateRangePicker"
+    },
+    {
+      "name": "RangePosition",
+      "kept": "DateRangeCalendar",
+      "dropped": "DateRangePicker"
+    },
+    {
+      "name": "DateRange",
+      "kept": "DateRangeCalendar",
+      "dropped": "DateTimeRangePicker"
+    },
+    {
+      "name": "NonEmptyDateRange",
+      "kept": "DateRangeCalendar",
+      "dropped": "DateTimeRangePicker"
+    },
+    {
+      "name": "PickerRangeValue",
+      "kept": "DateRangeCalendar",
+      "dropped": "DateTimeRangePicker"
+    },
+    {
+      "name": "RangePosition",
+      "kept": "DateRangeCalendar",
+      "dropped": "DateTimeRangePicker"
+    },
+    {
+      "name": "PickerRangeChangeContext",
+      "kept": "DateRangePicker",
+      "dropped": "DateTimeRangePicker"
+    },
+    {
+      "name": "PickersShortcutsItem",
+      "kept": "DateRangePicker",
+      "dropped": "DateTimeRangePicker"
+    },
+    {
+      "name": "PickersRangeActionBarAction",
+      "kept": "DateRangePicker",
+      "dropped": "DateTimeRangePicker"
+    },
+    {
+      "name": "RangePickerLocaleText",
+      "kept": "DateRangePicker",
+      "dropped": "DateTimeRangePicker"
+    },
+    {
+      "name": "RangePickerSlots",
+      "kept": "DateRangePicker",
+      "dropped": "DateTimeRangePicker"
+    },
+    {
+      "name": "RangePickerSlotProps",
+      "kept": "DateRangePicker",
+      "dropped": "DateTimeRangePicker"
+    },
+    {
+      "name": "DateRange",
+      "kept": "DateRangeCalendar",
+      "dropped": "DesktopDateRangePicker"
+    },
+    {
+      "name": "NonEmptyDateRange",
+      "kept": "DateRangeCalendar",
+      "dropped": "DesktopDateRangePicker"
+    },
+    {
+      "name": "PickerRangeValue",
+      "kept": "DateRangeCalendar",
+      "dropped": "DesktopDateRangePicker"
+    },
+    {
+      "name": "RangePosition",
+      "kept": "DateRangeCalendar",
+      "dropped": "DesktopDateRangePicker"
+    },
+    {
+      "name": "DateRangeValidationError",
+      "kept": "DateRangePicker",
+      "dropped": "DesktopDateRangePicker"
+    },
+    {
+      "name": "PickerRangeChangeContext",
+      "kept": "DateRangePicker",
+      "dropped": "DesktopDateRangePicker"
+    },
+    {
+      "name": "PickersShortcutsItem",
+      "kept": "DateRangePicker",
+      "dropped": "DesktopDateRangePicker"
+    },
+    {
+      "name": "PickersRangeActionBarAction",
+      "kept": "DateRangePicker",
+      "dropped": "DesktopDateRangePicker"
+    },
+    {
+      "name": "RangePickerLocaleText",
+      "kept": "DateRangePicker",
+      "dropped": "DesktopDateRangePicker"
+    },
+    {
+      "name": "RangePickerSlots",
+      "kept": "DateRangePicker",
+      "dropped": "DesktopDateRangePicker"
+    },
+    {
+      "name": "RangePickerSlotProps",
+      "kept": "DateRangePicker",
+      "dropped": "DesktopDateRangePicker"
+    },
+    {
+      "name": "DateRange",
+      "kept": "DateRangeCalendar",
+      "dropped": "DesktopDateTimeRangePicker"
+    },
+    {
+      "name": "NonEmptyDateRange",
+      "kept": "DateRangeCalendar",
+      "dropped": "DesktopDateTimeRangePicker"
+    },
+    {
+      "name": "PickerRangeValue",
+      "kept": "DateRangeCalendar",
+      "dropped": "DesktopDateTimeRangePicker"
+    },
+    {
+      "name": "RangePosition",
+      "kept": "DateRangeCalendar",
+      "dropped": "DesktopDateTimeRangePicker"
+    },
+    {
+      "name": "DateTimeRangeValidationError",
+      "kept": "DateTimeRangePicker",
+      "dropped": "DesktopDateTimeRangePicker"
+    },
+    {
+      "name": "PickerRangeChangeContext",
+      "kept": "DateRangePicker",
+      "dropped": "DesktopDateTimeRangePicker"
+    },
+    {
+      "name": "PickersShortcutsItem",
+      "kept": "DateRangePicker",
+      "dropped": "DesktopDateTimeRangePicker"
+    },
+    {
+      "name": "PickersRangeActionBarAction",
+      "kept": "DateRangePicker",
+      "dropped": "DesktopDateTimeRangePicker"
+    },
+    {
+      "name": "RangePickerLocaleText",
+      "kept": "DateRangePicker",
+      "dropped": "DesktopDateTimeRangePicker"
+    },
+    {
+      "name": "RangePickerSlots",
+      "kept": "DateRangePicker",
+      "dropped": "DesktopDateTimeRangePicker"
+    },
+    {
+      "name": "RangePickerSlotProps",
+      "kept": "DateRangePicker",
+      "dropped": "DesktopDateTimeRangePicker"
+    },
+    {
+      "name": "DateRange",
+      "kept": "DateRangeCalendar",
+      "dropped": "DesktopTimeRangePicker"
+    },
+    {
+      "name": "NonEmptyDateRange",
+      "kept": "DateRangeCalendar",
+      "dropped": "DesktopTimeRangePicker"
+    },
+    {
+      "name": "PickerRangeValue",
+      "kept": "DateRangeCalendar",
+      "dropped": "DesktopTimeRangePicker"
+    },
+    {
+      "name": "RangePosition",
+      "kept": "DateRangeCalendar",
+      "dropped": "DesktopTimeRangePicker"
+    },
+    {
+      "name": "PickerRangeChangeContext",
+      "kept": "DateRangePicker",
+      "dropped": "DesktopTimeRangePicker"
+    },
+    {
+      "name": "PickersShortcutsItem",
+      "kept": "DateRangePicker",
+      "dropped": "DesktopTimeRangePicker"
+    },
+    {
+      "name": "PickersRangeActionBarAction",
+      "kept": "DateRangePicker",
+      "dropped": "DesktopTimeRangePicker"
+    },
+    {
+      "name": "RangePickerLocaleText",
+      "kept": "DateRangePicker",
+      "dropped": "DesktopTimeRangePicker"
+    },
+    {
+      "name": "RangePickerSlots",
+      "kept": "DateRangePicker",
+      "dropped": "DesktopTimeRangePicker"
+    },
+    {
+      "name": "RangePickerSlotProps",
+      "kept": "DateRangePicker",
+      "dropped": "DesktopTimeRangePicker"
+    },
+    {
+      "name": "DateRange",
+      "kept": "DateRangeCalendar",
+      "dropped": "MobileDateRangePicker"
+    },
+    {
+      "name": "NonEmptyDateRange",
+      "kept": "DateRangeCalendar",
+      "dropped": "MobileDateRangePicker"
+    },
+    {
+      "name": "PickerRangeValue",
+      "kept": "DateRangeCalendar",
+      "dropped": "MobileDateRangePicker"
+    },
+    {
+      "name": "RangePosition",
+      "kept": "DateRangeCalendar",
+      "dropped": "MobileDateRangePicker"
+    },
+    {
+      "name": "DateRangeValidationError",
+      "kept": "DateRangePicker",
+      "dropped": "MobileDateRangePicker"
+    },
+    {
+      "name": "PickerRangeChangeContext",
+      "kept": "DateRangePicker",
+      "dropped": "MobileDateRangePicker"
+    },
+    {
+      "name": "PickersShortcutsItem",
+      "kept": "DateRangePicker",
+      "dropped": "MobileDateRangePicker"
+    },
+    {
+      "name": "PickersRangeActionBarAction",
+      "kept": "DateRangePicker",
+      "dropped": "MobileDateRangePicker"
+    },
+    {
+      "name": "RangePickerLocaleText",
+      "kept": "DateRangePicker",
+      "dropped": "MobileDateRangePicker"
+    },
+    {
+      "name": "RangePickerSlots",
+      "kept": "DateRangePicker",
+      "dropped": "MobileDateRangePicker"
+    },
+    {
+      "name": "RangePickerSlotProps",
+      "kept": "DateRangePicker",
+      "dropped": "MobileDateRangePicker"
+    },
+    {
+      "name": "DateRange",
+      "kept": "DateRangeCalendar",
+      "dropped": "MobileDateTimeRangePicker"
+    },
+    {
+      "name": "NonEmptyDateRange",
+      "kept": "DateRangeCalendar",
+      "dropped": "MobileDateTimeRangePicker"
+    },
+    {
+      "name": "PickerRangeValue",
+      "kept": "DateRangeCalendar",
+      "dropped": "MobileDateTimeRangePicker"
+    },
+    {
+      "name": "RangePosition",
+      "kept": "DateRangeCalendar",
+      "dropped": "MobileDateTimeRangePicker"
+    },
+    {
+      "name": "DateTimeRangeValidationError",
+      "kept": "DateTimeRangePicker",
+      "dropped": "MobileDateTimeRangePicker"
+    },
+    {
+      "name": "PickerRangeChangeContext",
+      "kept": "DateRangePicker",
+      "dropped": "MobileDateTimeRangePicker"
+    },
+    {
+      "name": "PickersShortcutsItem",
+      "kept": "DateRangePicker",
+      "dropped": "MobileDateTimeRangePicker"
+    },
+    {
+      "name": "PickersRangeActionBarAction",
+      "kept": "DateRangePicker",
+      "dropped": "MobileDateTimeRangePicker"
+    },
+    {
+      "name": "RangePickerLocaleText",
+      "kept": "DateRangePicker",
+      "dropped": "MobileDateTimeRangePicker"
+    },
+    {
+      "name": "RangePickerSlots",
+      "kept": "DateRangePicker",
+      "dropped": "MobileDateTimeRangePicker"
+    },
+    {
+      "name": "RangePickerSlotProps",
+      "kept": "DateRangePicker",
+      "dropped": "MobileDateTimeRangePicker"
+    },
+    {
+      "name": "DateRange",
+      "kept": "DateRangeCalendar",
+      "dropped": "MobileTimeRangePicker"
+    },
+    {
+      "name": "NonEmptyDateRange",
+      "kept": "DateRangeCalendar",
+      "dropped": "MobileTimeRangePicker"
+    },
+    {
+      "name": "PickerRangeValue",
+      "kept": "DateRangeCalendar",
+      "dropped": "MobileTimeRangePicker"
+    },
+    {
+      "name": "RangePosition",
+      "kept": "DateRangeCalendar",
+      "dropped": "MobileTimeRangePicker"
+    },
+    {
+      "name": "TimeRangeValidationError",
+      "kept": "DesktopTimeRangePicker",
+      "dropped": "MobileTimeRangePicker"
+    },
+    {
+      "name": "PickerRangeChangeContext",
+      "kept": "DateRangePicker",
+      "dropped": "MobileTimeRangePicker"
+    },
+    {
+      "name": "PickersShortcutsItem",
+      "kept": "DateRangePicker",
+      "dropped": "MobileTimeRangePicker"
+    },
+    {
+      "name": "PickersRangeActionBarAction",
+      "kept": "DateRangePicker",
+      "dropped": "MobileTimeRangePicker"
+    },
+    {
+      "name": "RangePickerLocaleText",
+      "kept": "DateRangePicker",
+      "dropped": "MobileTimeRangePicker"
+    },
+    {
+      "name": "RangePickerSlots",
+      "kept": "DateRangePicker",
+      "dropped": "MobileTimeRangePicker"
+    },
+    {
+      "name": "RangePickerSlotProps",
+      "kept": "DateRangePicker",
+      "dropped": "MobileTimeRangePicker"
+    },
+    {
+      "name": "DateRange",
+      "kept": "DateRangeCalendar",
+      "dropped": "MultiInputDateRangeField"
+    },
+    {
+      "name": "PickerRangeValue",
+      "kept": "DateRangeCalendar",
+      "dropped": "MultiInputDateRangeField"
+    },
+    {
+      "name": "RangePosition",
+      "kept": "DateRangeCalendar",
+      "dropped": "MultiInputDateRangeField"
+    },
+    {
+      "name": "PickerRangeChangeContext",
+      "kept": "DateRangePicker",
+      "dropped": "MultiInputDateRangeField"
+    },
+    {
+      "name": "RangeFieldValidationError",
+      "kept": "MultiInputDateRangeField",
+      "dropped": "SingleInputDateRangeField"
+    },
+    {
+      "name": "DateRange",
+      "kept": "DateRangeCalendar",
+      "dropped": "SingleInputDateRangeField"
+    },
+    {
+      "name": "PickerRangeValue",
+      "kept": "DateRangeCalendar",
+      "dropped": "SingleInputDateRangeField"
+    },
+    {
+      "name": "RangePosition",
+      "kept": "DateRangeCalendar",
+      "dropped": "SingleInputDateRangeField"
+    },
+    {
+      "name": "PickerRangeChangeContext",
+      "kept": "DateRangePicker",
+      "dropped": "SingleInputDateRangeField"
+    },
+    {
+      "name": "RangeFieldValidationError",
+      "kept": "MultiInputDateRangeField",
+      "dropped": "SingleInputDateTimeRangeField"
+    },
+    {
+      "name": "DateRange",
+      "kept": "DateRangeCalendar",
+      "dropped": "SingleInputDateTimeRangeField"
+    },
+    {
+      "name": "PickerRangeValue",
+      "kept": "DateRangeCalendar",
+      "dropped": "SingleInputDateTimeRangeField"
+    },
+    {
+      "name": "RangePosition",
+      "kept": "DateRangeCalendar",
+      "dropped": "SingleInputDateTimeRangeField"
+    },
+    {
+      "name": "PickerRangeChangeContext",
+      "kept": "DateRangePicker",
+      "dropped": "SingleInputDateTimeRangeField"
+    },
+    {
+      "name": "RangeFieldValidationError",
+      "kept": "MultiInputDateRangeField",
+      "dropped": "SingleInputTimeRangeField"
+    },
+    {
+      "name": "DateRange",
+      "kept": "DateRangeCalendar",
+      "dropped": "SingleInputTimeRangeField"
+    },
+    {
+      "name": "PickerRangeValue",
+      "kept": "DateRangeCalendar",
+      "dropped": "SingleInputTimeRangeField"
+    },
+    {
+      "name": "RangePosition",
+      "kept": "DateRangeCalendar",
+      "dropped": "SingleInputTimeRangeField"
+    },
+    {
+      "name": "PickerRangeChangeContext",
+      "kept": "DateRangePicker",
+      "dropped": "SingleInputTimeRangeField"
+    },
+    {
+      "name": "DateRange",
+      "kept": "DateRangeCalendar",
+      "dropped": "StaticDateRangePicker"
+    },
+    {
+      "name": "NonEmptyDateRange",
+      "kept": "DateRangeCalendar",
+      "dropped": "StaticDateRangePicker"
+    },
+    {
+      "name": "PickerRangeValue",
+      "kept": "DateRangeCalendar",
+      "dropped": "StaticDateRangePicker"
+    },
+    {
+      "name": "RangePosition",
+      "kept": "DateRangeCalendar",
+      "dropped": "StaticDateRangePicker"
+    },
+    {
+      "name": "DateRangeValidationError",
+      "kept": "DateRangePicker",
+      "dropped": "StaticDateRangePicker"
+    },
+    {
+      "name": "PickerRangeChangeContext",
+      "kept": "DateRangePicker",
+      "dropped": "StaticDateRangePicker"
+    },
+    {
+      "name": "PickersShortcutsItem",
+      "kept": "DateRangePicker",
+      "dropped": "StaticDateRangePicker"
+    },
+    {
+      "name": "PickersRangeActionBarAction",
+      "kept": "DateRangePicker",
+      "dropped": "StaticDateRangePicker"
+    },
+    {
+      "name": "RangePickerLocaleText",
+      "kept": "DateRangePicker",
+      "dropped": "StaticDateRangePicker"
+    },
+    {
+      "name": "RangePickerSlots",
+      "kept": "DateRangePicker",
+      "dropped": "StaticDateRangePicker"
+    },
+    {
+      "name": "RangePickerSlotProps",
+      "kept": "DateRangePicker",
+      "dropped": "StaticDateRangePicker"
+    },
+    {
+      "name": "DateRange",
+      "kept": "DateRangeCalendar",
+      "dropped": "StaticDateTimeRangePicker"
+    },
+    {
+      "name": "NonEmptyDateRange",
+      "kept": "DateRangeCalendar",
+      "dropped": "StaticDateTimeRangePicker"
+    },
+    {
+      "name": "PickerRangeValue",
+      "kept": "DateRangeCalendar",
+      "dropped": "StaticDateTimeRangePicker"
+    },
+    {
+      "name": "RangePosition",
+      "kept": "DateRangeCalendar",
+      "dropped": "StaticDateTimeRangePicker"
+    },
+    {
+      "name": "DateTimeRangeValidationError",
+      "kept": "DateTimeRangePicker",
+      "dropped": "StaticDateTimeRangePicker"
+    },
+    {
+      "name": "PickerRangeChangeContext",
+      "kept": "DateRangePicker",
+      "dropped": "StaticDateTimeRangePicker"
+    },
+    {
+      "name": "PickersShortcutsItem",
+      "kept": "DateRangePicker",
+      "dropped": "StaticDateTimeRangePicker"
+    },
+    {
+      "name": "PickersRangeActionBarAction",
+      "kept": "DateRangePicker",
+      "dropped": "StaticDateTimeRangePicker"
+    },
+    {
+      "name": "RangePickerLocaleText",
+      "kept": "DateRangePicker",
+      "dropped": "StaticDateTimeRangePicker"
+    },
+    {
+      "name": "RangePickerSlots",
+      "kept": "DateRangePicker",
+      "dropped": "StaticDateTimeRangePicker"
+    },
+    {
+      "name": "RangePickerSlotProps",
+      "kept": "DateRangePicker",
+      "dropped": "StaticDateTimeRangePicker"
+    },
+    {
+      "name": "DateRange",
+      "kept": "DateRangeCalendar",
+      "dropped": "StaticTimeRangePicker"
+    },
+    {
+      "name": "NonEmptyDateRange",
+      "kept": "DateRangeCalendar",
+      "dropped": "StaticTimeRangePicker"
+    },
+    {
+      "name": "PickerRangeValue",
+      "kept": "DateRangeCalendar",
+      "dropped": "StaticTimeRangePicker"
+    },
+    {
+      "name": "RangePosition",
+      "kept": "DateRangeCalendar",
+      "dropped": "StaticTimeRangePicker"
+    },
+    {
+      "name": "TimeRangeValidationError",
+      "kept": "DesktopTimeRangePicker",
+      "dropped": "StaticTimeRangePicker"
+    },
+    {
+      "name": "PickerRangeChangeContext",
+      "kept": "DateRangePicker",
+      "dropped": "StaticTimeRangePicker"
+    },
+    {
+      "name": "PickersShortcutsItem",
+      "kept": "DateRangePicker",
+      "dropped": "StaticTimeRangePicker"
+    },
+    {
+      "name": "PickersRangeActionBarAction",
+      "kept": "DateRangePicker",
+      "dropped": "StaticTimeRangePicker"
+    },
+    {
+      "name": "RangePickerLocaleText",
+      "kept": "DateRangePicker",
+      "dropped": "StaticTimeRangePicker"
+    },
+    {
+      "name": "RangePickerSlots",
+      "kept": "DateRangePicker",
+      "dropped": "StaticTimeRangePicker"
+    },
+    {
+      "name": "RangePickerSlotProps",
+      "kept": "DateRangePicker",
+      "dropped": "StaticTimeRangePicker"
+    },
+    {
+      "name": "DateRange",
+      "kept": "DateRangeCalendar",
+      "dropped": "TimeRangePicker"
+    },
+    {
+      "name": "NonEmptyDateRange",
+      "kept": "DateRangeCalendar",
+      "dropped": "TimeRangePicker"
+    },
+    {
+      "name": "PickerRangeValue",
+      "kept": "DateRangeCalendar",
+      "dropped": "TimeRangePicker"
+    },
+    {
+      "name": "RangePosition",
+      "kept": "DateRangeCalendar",
+      "dropped": "TimeRangePicker"
+    },
+    {
+      "name": "TimeRangeValidationError",
+      "kept": "DesktopTimeRangePicker",
+      "dropped": "TimeRangePicker"
+    },
+    {
+      "name": "PickerRangeChangeContext",
+      "kept": "DateRangePicker",
+      "dropped": "TimeRangePicker"
+    },
+    {
+      "name": "PickersShortcutsItem",
+      "kept": "DateRangePicker",
+      "dropped": "TimeRangePicker"
+    },
+    {
+      "name": "PickersRangeActionBarAction",
+      "kept": "DateRangePicker",
+      "dropped": "TimeRangePicker"
+    },
+    {
+      "name": "RangePickerLocaleText",
+      "kept": "DateRangePicker",
+      "dropped": "TimeRangePicker"
+    },
+    {
+      "name": "RangePickerSlots",
+      "kept": "DateRangePicker",
+      "dropped": "TimeRangePicker"
+    },
+    {
+      "name": "RangePickerSlotProps",
+      "kept": "DateRangePicker",
+      "dropped": "TimeRangePicker"
     },
     {
       "name": "PickersShortcutsItem",

@@ -55,6 +55,8 @@ writeFileSync(
 import { renderToString } from 'react-dom/server';
 import * as root from '@tecton-mui/ui';
 import Button from '@tecton-mui/ui/Button';
+import Toolbar, { toolbarClasses } from '@tecton-mui/ui/Toolbar';
+import { gridClasses } from '@tecton-mui/ui/Grid';
 import DataGrid from '@tecton-mui/ui/DataGrid';
 import DateRangePicker from '@tecton-mui/ui/DateRangePicker';
 import RichTreeView from '@tecton-mui/ui/RichTreeView';
@@ -62,6 +64,9 @@ import Icon from '@tecton-mui/ui/Icon';
 import LocalizationProvider from '@tecton-mui/ui/LocalizationProvider';
 import { ThemeProvider, TectonModeScript } from '@tecton-mui/ui/styles';
 if (root.Button !== Button) throw new Error('root Button differs from subpath Button');
+// MUI Core names win at the root over same-named MUI X re-exports (e.g. Data Grid's Toolbar).
+if (root.Toolbar !== Toolbar || root.toolbarClasses !== toolbarClasses) throw new Error('root Toolbar is not the Material Toolbar');
+if (root.gridClasses !== gridClasses) throw new Error('root gridClasses is not the Material Grid classes');
 const h = React.createElement;
 const html = renderToString(h(ThemeProvider, null,
   h(TectonModeScript),
@@ -98,7 +103,9 @@ const { build } = await import(
 rmSync(out, { recursive: true, force: true });
 mkdirSync(out, { recursive: true });
 const entries = {
-  'button-subpath': `import Button from '@tecton-mui/ui/Button';\nexport default Button;\n`,
+  'button-subpath': `import Button from '@tecton-mui/ui/Button';
+import Toolbar, { toolbarClasses } from '@tecton-mui/ui/Toolbar';
+import { gridClasses } from '@tecton-mui/ui/Grid';\nexport default Button;\n`,
   'button-root': `import { Button } from '@tecton-mui/ui';\nexport default Button;\n`,
   'theme-provider': `import { ThemeProvider } from '@tecton-mui/ui/styles';\nexport default ThemeProvider;\n`,
 };

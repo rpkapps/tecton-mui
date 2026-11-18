@@ -258,17 +258,22 @@ function runtimeExports(specifiers) {
 }
 
 function generateRoot(modules, custom) {
-  // Priority: Tecton styles, hand-written modules, then Core, Lab, X pickers, X tree view.
+  // Priority: Tecton styles; each hand-written module's own component name; MUI Core and Lab;
+  // the rest of the hand-written modules' re-exports; then MUI X passthroughs. Core names must win
+  // over names that hand-written modules re-export from MUI X (e.g. Data Grid's `Toolbar` must not
+  // shadow Material's `Toolbar` at the root).
+  const passthrough = (m) => ({
+    id: m.id,
+    rel: `./${m.id}/index.js`,
+    defaultName: /^[A-Z]|^use[A-Z]/.test(m.module) ? m.module : null,
+  });
+  const rootPassthroughs = modules.filter((m) => m.rootExport !== false);
+  const isCore = (m) => m.package === '@mui/material' || m.package === '@mui/lab';
   const ordered = [
     { id: 'styles', rel: './styles/index.js', subpath: true, defaultName: null },
+    ...rootPassthroughs.filter(isCore).map(passthrough),
     ...custom.map((m) => ({ id: m, rel: `./${m}/index.js`, subpath: true, defaultName: m })),
-    ...modules
-      .filter((m) => m.rootExport !== false)
-      .map((m) => ({
-        id: m.id,
-        rel: `./${m.id}/index.js`,
-        defaultName: /^[A-Z]|^use[A-Z]/.test(m.module) ? m.module : null,
-      })),
+    ...rootPassthroughs.filter((m) => !isCore(m)).map(passthrough),
   ];
   // Write passthroughs to disk temporarily so the checker can resolve them.
   for (const [file, content] of outputs) {
@@ -303,6 +308,9 @@ function generateRoot(modules, custom) {
   });
   const taken = new Map();
   const collisions = [];
+  // Hand-written modules own their component name ahead of every passthrough.
+  for (const m of ordered)
+    if (custom.includes(m.id) && m.defaultName) taken.set(m.defaultName, m.id);
   const blocks = [
     MARKER,
     '// Root barrel. Explicit named re-exports keep the surface reviewable and tree-shakeable.',
@@ -320,7 +328,8 @@ function generateRoot(modules, custom) {
       return true;
     };
     const values = [];
-    if (names.hasDefault && m.defaultName && claim(m.defaultName))
+    const ownsDefault = custom.includes(m.id) && taken.get(m.defaultName) === m.id;
+    if (names.hasDefault && m.defaultName && (ownsDefault || claim(m.defaultName)))
       values.push(`default as ${m.defaultName}`);
     values.push(...names.values.filter(claim).sort());
     const types = names.types.filter(claim).sort();

@@ -16,7 +16,7 @@ const server = http.createServer(async (req, res) => {
       const { head, html } = render();
       const page = await vite.transformIndexHtml(
         req.url,
-        `<!doctype html><html lang="en"><head><meta charset="UTF-8" />${head}</head><body><div id="root">${html}</div><script type="module" src="/src/ssr-entry-client.tsx"></script></body></html>`,
+        `<!doctype html><html lang="en"><head><meta charset="UTF-8" />${head}<script>window.__themeBeforeHydration=document.documentElement.getAttribute('data-theme')</script></head><body><div id="root">${html}</div><script type="module" src="/src/ssr-entry-client.tsx"></script></body></html>`,
       );
       res.setHeader('Content-Type', 'text/html');
       res.end(page);

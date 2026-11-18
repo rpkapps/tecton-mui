@@ -4,7 +4,6 @@
   "type": "module",
   "description": "Playwright harness app: renders @tecton-mui/ui scenarios for interaction, visual, a11y, RTL and mode tests.",
   "dependencies": {
-    "@mui/x-data-grid": "9.18.0",
     "@tecton-mui/ui": "workspace:*",
     "react": "19.3.1",
     "react-dom": "19.3.1"
