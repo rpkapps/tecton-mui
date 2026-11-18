@@ -244,16 +244,33 @@ describe('createTheme', () => {
 });
 
 describe('Tecton compat corrections', () => {
-  it('keeps the PickerDay state rules as Tecton ships them (Storybook parity)', () => {
+  it('keeps the selected day as the Tecton Storybook renders it and restores disabled days', () => {
     const root = createTheme().components?.MuiPickerDay?.styleOverrides?.root as Record<
       string,
       unknown
     >;
-    // The Tecton Storybook renders MUI's own selected/disabled day styles, because Tecton's
-    // `.MuiPickerDay-selected` / `-disabled` rules never match MUI X 9; no alias is added.
+    // Tecton's `.MuiPickerDay-selected` rule never matches MUI X 9; the Storybook shows MUI's own
+    // selected day, so no selected alias is added.
     expect(root['&.MuiPickerDay-selected']).toBeDefined();
     expect(root['&.Mui-selected']).toBeUndefined();
-    expect(root['&.Mui-disabled']).toBeUndefined();
+    // Disabled days must look disabled: Tecton's disabled token on MUI X 9's `Mui-disabled`.
+    expect(root['&.Mui-disabled:not(.Mui-selected)']).toEqual({
+      color: 'var(--tecton-color-text-disabled)',
+    });
+  });
+
+  it('gives the TimeClock face a visible Tecton surface in dark mode only', () => {
+    const clockOf = (mode: 'light' | 'dark') =>
+      (
+        createTheme({ palette: { mode } }).components as Record<
+          string,
+          { styleOverrides?: Record<string, unknown> } | undefined
+        >
+      ).MuiClock?.styleOverrides?.clock;
+    expect(clockOf('dark')).toEqual({
+      backgroundColor: 'var(--tecton-color-component-input-filled-background)',
+    });
+    expect(clockOf('light')).toBeUndefined();
   });
 });
 

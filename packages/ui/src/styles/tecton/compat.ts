@@ -57,6 +57,17 @@ export const muiCompatOverrides: ThemeOptions = {
         },
       },
     },
+    MuiPickerDay: {
+      styleOverrides: {
+        root: {
+          // Tecton 0.11.2 styles disabled days as `.MuiPickerDay-disabled`, which MUI X 9 never
+          // renders (it uses the global `Mui-disabled`), and its `root` color overrides MUI's own
+          // disabled color, so disabled days looked enabled. Apply Tecton's disabled text token to
+          // `Mui-disabled`. Selected days are left as the Tecton Storybook renders them (see below).
+          '&.Mui-disabled:not(.Mui-selected)': { color: cssVar('color-text-disabled') },
+        },
+      },
+    },
     // MUI X does not augment the theme with MuiTreeItemLoader; the key is still read by the loader.
     ...({
       MuiTreeItemLoader: {
@@ -95,9 +106,19 @@ export function applyThemeCompat(theme: Theme): Theme {
   if (components.MuiSimpleTreeView && !components.MuiRichTreeView) {
     components.MuiRichTreeView = components.MuiSimpleTreeView;
   }
-  // PickerDay states are intentionally NOT aliased. Tecton 0.11.2 styles `.MuiPickerDay-selected`
-  // / `-disabled`, which MUI X 9 never renders (it renders `Mui-selected` / `Mui-disabled`), so the
-  // official Tecton Storybook shows MUI's own selected day (`primary.main` fill) under Tecton's text
-  // color. We match that rendering; see tests/e2e/storybook-parity/REPORT.md.
+  // MUI X 9 paints the TimeClock face `rgba(0,0,0,.07)` in both modes and Tecton 0.11.2 has no
+  // MuiClock override, so in dark mode the face was invisible. Dark mode only: light keeps the
+  // Tecton Storybook rendering.
+  if (theme.palette.mode === 'dark') {
+    const clock = (components.MuiClock ??= {}) as { styleOverrides?: Record<string, object> };
+    clock.styleOverrides = {
+      ...clock.styleOverrides,
+      clock: { backgroundColor: cssVar('color-component-input-filled-background') },
+    };
+  }
+  // The selected PickerDay state is intentionally NOT aliased: Tecton's `.MuiPickerDay-selected`
+  // rule never matches MUI X 9 either, so the official Tecton Storybook shows MUI's own selected day
+  // (`primary.main` fill) under Tecton's text color. We match that rendering; see
+  // tests/e2e/storybook-parity/REPORT.md.
   return theme;
 }

@@ -148,11 +148,16 @@ Written by `emit` and listed with checksums in
   - **TablePagination icon slots:** Tecton passes the previous/next icons through
     `slotProps.actions.slots`, which MUI 9 ignores. The correction sets them through
     `MuiTablePagination.defaultProps.slots.actions`.
-  - **PickerDay state classes (deliberately not corrected):** MUI X 9 renders `Mui-selected` /
-    `Mui-disabled`, while Tecton styles `.MuiPickerDay-selected` / `.MuiPickerDay-disabled`, so
-    those Tecton rules never match. The official Tecton Storybook (same MUI X 9 and Tecton 0.11.2)
-    therefore shows MUI's own selected day (`primary.main` fill, Tecton text color). We match the
-    Storybook and do not alias the rules (see `tests/e2e/storybook-parity/REPORT.md`).
+  - **PickerDay states:** MUI X 9 renders `Mui-selected` / `Mui-disabled`, while Tecton styles
+    `.MuiPickerDay-selected` / `.MuiPickerDay-disabled`, so those Tecton rules never match and
+    Tecton's `root` color also hides MUI's disabled color. Disabled days get Tecton's
+    `color-text-disabled` on `Mui-disabled`. The selected day is deliberately not aliased: the
+    official Tecton Storybook (same MUI X 9 and Tecton 0.11.2) shows MUI's own selected day
+    (`primary.main` fill, Tecton text color), and we match it (see
+    `tests/e2e/storybook-parity/REPORT.md`). Its contrast is a recorded Tecton token defect.
+  - **TimeClock face (dark mode):** MUI X 9 paints it `rgba(0,0,0,.07)` and Tecton has no
+    `MuiClock` override, so it was invisible in dark mode. Dark mode uses
+    `color-component-input-filled-background`; light mode is unchanged (Storybook parity).
   - **Tree item focus ring:** Tecton draws it on `.Mui-focusVisible` and hides `[data-focused]`,
     but MUI X 9 tree items never get `Mui-focusVisible`, so keyboard focus was invisible. The
     correction draws Tecton's ring when the `treeitem` matches `:focus-visible`.
