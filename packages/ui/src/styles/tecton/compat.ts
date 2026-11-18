@@ -1,7 +1,7 @@
 // Runtime compatibility corrections between the pinned Tecton theme and the pinned MUI release.
 // Each entry documents the upstream assumption it corrects; remove entries once Tecton catches up.
 import type { Theme, ThemeOptions } from '@mui/material/styles';
-import { slotIcon } from './generated/mui/components/shared.js';
+import { focusRingShadow, slotIcon } from './generated/mui/components/shared.js';
 import { cssVar } from './generated/core/index.js';
 
 export const muiCompatOverrides: ThemeOptions = {
@@ -46,6 +46,31 @@ export const muiCompatOverrides: ThemeOptions = {
         },
       },
     } as NonNullable<ThemeOptions['components']>['MuiDataGrid'],
+    MuiTreeItem: {
+      styleOverrides: {
+        content: {
+          // Tecton 0.11.2 draws the tree item focus ring on `.Mui-focusVisible` and hides
+          // `[data-focused]`. MUI X 9 no longer sets `Mui-focusVisible` on tree items (focus moves
+          // to the `treeitem` element and is marked with `data-focused`), so keyboard focus was
+          // invisible (WCAG 2.4.7). Draw Tecton's ring when the item has keyboard focus.
+          '.MuiTreeItem-root:focus-visible > &&': { boxShadow: focusRingShadow },
+        },
+      },
+    },
+    // MUI X does not augment the theme with MuiTreeItemLoader; the key is still read by the loader.
+    ...({
+      MuiTreeItemLoader: {
+        styleOverrides: {
+          root: {
+            // Tecton 0.11.2 indents nested tree items with padding on the group and gives item content
+            // a fixed inline padding. The loading row keeps MUI's depth-based padding, so inside a
+            // nested group it was indented twice. Match the item content there; flat (virtualized)
+            // trees have no group and keep the depth-based indent.
+            '.MuiTreeItem-groupTransition &': { paddingLeft: cssVar('space-100') },
+          },
+        },
+      },
+    } as Record<string, object>),
     MuiTablePagination: {
       defaultProps: {
         // Tecton 0.11.2 passes icon slots via `slotProps.actions.slots`, which MUI 9 ignores;

@@ -153,6 +153,12 @@ Written by `emit` and listed with checksums in
     those Tecton rules never match. The official Tecton Storybook (same MUI X 9 and Tecton 0.11.2)
     therefore shows MUI's own selected day (`primary.main` fill, Tecton text color). We match the
     Storybook and do not alias the rules (see `tests/e2e/storybook-parity/REPORT.md`).
+  - **Tree item focus ring:** Tecton draws it on `.Mui-focusVisible` and hides `[data-focused]`,
+    but MUI X 9 tree items never get `Mui-focusVisible`, so keyboard focus was invisible. The
+    correction draws Tecton's ring when the `treeitem` matches `:focus-visible`.
+  - **Nested tree loading rows:** Tecton indents nested items with group padding and fixed content
+    padding; `TreeItemLoader` keeps MUI's depth-based padding and was indented twice inside a
+    group. The correction gives loaders inside a group the content padding.
   - **RichTreeView defaults:** Tecton themes only `MuiSimpleTreeView`. The correction makes
     `MuiRichTreeView` share the same theme entry.
 - `tecton/augmentations.ts` re-declares the Tecton prop augmentations (`activated`, `shape`,

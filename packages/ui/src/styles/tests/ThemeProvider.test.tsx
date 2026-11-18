@@ -257,6 +257,22 @@ describe('Tecton compat corrections', () => {
   });
 });
 
+describe('Tecton tree item corrections', () => {
+  it('draws the focus ring on keyboard focus and aligns nested loading rows', () => {
+    const components = createTheme().components as Record<
+      string,
+      { styleOverrides: Record<string, Record<string, unknown>> }
+    >;
+    const content = components.MuiTreeItem.styleOverrides.content;
+    expect(content['.MuiTreeItem-root:focus-visible > &&']).toHaveProperty('boxShadow');
+    // Tecton's own rule (kept): no ring for every focus, including mouse focus.
+    expect(content['&[data-focused]']).toMatchObject({ boxShadow: 'none' });
+    expect(components.MuiTreeItemLoader.styleOverrides.root).toEqual({
+      '.MuiTreeItem-groupTransition &': { paddingLeft: 'var(--tecton-space-100)' },
+    });
+  });
+});
+
 describe('Tecton tree view defaults', () => {
   it('shares the Tecton SimpleTreeView defaults with RichTreeView', () => {
     const components = createTheme().components as Record<string, unknown>;

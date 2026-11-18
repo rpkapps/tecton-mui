@@ -123,6 +123,25 @@ test.describe('RTL', () => {
   }
 });
 
+test.describe('Tree View focus', () => {
+  // WCAG 2.4.7: keyboard focus must be visible. Tecton 0.11.2 targets `.Mui-focusVisible`, which
+  // MUI X 9 tree items never get; the compat layer draws the ring on `:focus-visible` instead.
+  test('shows the Tecton focus ring on keyboard focus only', async ({ page }) => {
+    await page.goto('/?scenario=tree');
+    const item = page.getByRole('treeitem').first();
+    const ring = () =>
+      item.evaluate(
+        (el) => getComputedStyle(el.querySelector(':scope > .MuiTreeItem-content')!).boxShadow,
+      );
+    await item.locator('.MuiTreeItem-label').first().click();
+    expect(await ring()).toBe('none');
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowUp');
+    await expect(item).toBeFocused();
+    expect(await ring()).not.toBe('none');
+  });
+});
+
 const scenarios = ['showcase', 'grid:all', 'pickers', 'tree'];
 for (const mode of ['light', 'dark'] as const) {
   for (const scenario of scenarios) {
