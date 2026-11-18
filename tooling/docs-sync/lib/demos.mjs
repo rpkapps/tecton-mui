@@ -13,7 +13,9 @@ export function readUiSurface(repo) {
   const barrel = readFileSync(join(repo, 'packages/ui/src/index.ts'), 'utf8');
   const root = new Set();
   const byModule = new Map();
-  for (const m of barrel.matchAll(/export (?:type )?\{([^}]*)\} from '\.\/([\w-]+)\/index\.js'/g)) {
+  for (const m of barrel.matchAll(
+    /export (?:type )?\{([^}]*)\} from '\.\/([\w/-]+)\/index\.js'/g,
+  )) {
     const names = m[1]
       .split(',')
       .map((s) => s.trim())

@@ -92,6 +92,10 @@ function plan() {
       });
     else included.push({ package: '@mui/material', module: mod });
   }
+  // Public Material/utils modules that MUI's root index does not list but its docs import:
+  // `TransitionProps` (custom transition components) and `visuallyHidden` (screen-reader text).
+  included.push({ package: '@mui/material', module: 'transitions' });
+  included.push({ package: '@mui/utils', module: 'visuallyHidden', defaultName: 'visuallyHidden' });
   for (const mod of indexModules('@mui/lab')) {
     const implPath = join(pkgDir('@mui/lab'), mod, `${mod}.js`);
     const impl = existsSync(implPath) ? readFileSync(implPath, 'utf8').slice(0, 4000) : '';
@@ -265,7 +269,7 @@ function generateRoot(modules, custom) {
   const passthrough = (m) => ({
     id: m.id,
     rel: `./${m.id}/index.js`,
-    defaultName: /^[A-Z]|^use[A-Z]/.test(m.module) ? m.module : null,
+    defaultName: m.defaultName ?? (/^[A-Z]|^use[A-Z]/.test(m.module) ? m.module : null),
   });
   const rootPassthroughs = modules.filter((m) => m.rootExport !== false);
   const isCore = (m) => m.package === '@mui/material' || m.package === '@mui/lab';

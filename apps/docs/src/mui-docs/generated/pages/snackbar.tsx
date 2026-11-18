@@ -20,6 +20,8 @@ import LongTextSnackbar from '../demos/snackbars/LongTextSnackbar';
 import LongTextSnackbarSource from '../demos/snackbars/LongTextSnackbar.tsx?raw';
 import AutohideSnackbar from '../demos/snackbars/AutohideSnackbar';
 import AutohideSnackbarSource from '../demos/snackbars/AutohideSnackbar.tsx?raw';
+import TransitionsSnackbar from '../demos/snackbars/TransitionsSnackbar';
+import TransitionsSnackbarSource from '../demos/snackbars/TransitionsSnackbar.tsx?raw';
 import CustomizedSnackbars from '../demos/snackbars/CustomizedSnackbars';
 import CustomizedSnackbarsSource from '../demos/snackbars/CustomizedSnackbars.tsx?raw';
 import FabIntegrationSnackbar from '../demos/snackbars/FabIntegrationSnackbar';
@@ -39,6 +41,9 @@ const demos = {
   }),
   AutohideSnackbar: defineDemo('AutohideSnackbar', AutohideSnackbar, {
     code: AutohideSnackbarSource,
+  }),
+  TransitionsSnackbar: defineDemo('TransitionsSnackbar', TransitionsSnackbar, {
+    code: TransitionsSnackbarSource,
   }),
   CustomizedSnackbars: defineDemo('CustomizedSnackbars', CustomizedSnackbars, {
     code: CustomizedSnackbarsSource,
@@ -150,10 +155,7 @@ export default function MuiDocs() {
         <M.a href={'/components/slide#slide'}>{'Slide'}</M.a>
         {'.'}
       </M.p>
-      <ExcludedDemo
-        name="TransitionsSnackbar"
-        reason="imports @mui/material/transitions, which @tecton-mui/ui does not export"
-      />
+      <Demo name="TransitionsSnackbar" />
       <Heading level={3} id="customization">
         {'Customization'}
       </Heading>

@@ -9,6 +9,7 @@ import Typography from '@tecton-mui/ui/Typography';
 import LinearProgress from '@tecton-mui/ui/LinearProgress';
 import Box from '@tecton-mui/ui/Box';
 import Icon from '@tecton-mui/ui/Icon';
+import { visuallyHidden } from '@tecton-mui/ui';
 
 interface PagefindResultData {
   url: string;
@@ -27,14 +28,6 @@ interface PagefindApi {
 
 const BASE = import.meta.env.BASE_URL;
 
-const visuallyHidden = {
-  position: 'absolute',
-  width: 1,
-  height: 1,
-  overflow: 'hidden',
-  clip: 'rect(0 0 0 0)',
-  whiteSpace: 'nowrap',
-} as const;
 let pagefindPromise: Promise<PagefindApi | null> | null = null;
 
 /** Lazily loads the Pagefind runtime generated next to the built site (`<base>pagefind/`). */

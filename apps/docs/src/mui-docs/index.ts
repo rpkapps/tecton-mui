@@ -44,7 +44,8 @@ export function preloadMuiDocs(slug: string): Promise<void> {
 export function MuiDocsSection({ slug }: { slug: string }) {
   const promise = load(slug);
   if (!promise) return null;
-  const { default: Page } =
-    promise.status === 'fulfilled' ? promise.value! : React.use(promise as Promise<PageModule>);
+  // Always call `use` (hooks must not be conditional); React reads `status`/`value` on the
+  // tracked promise and returns synchronously once the chunk has loaded.
+  const { default: Page } = React.use(promise as Promise<PageModule>);
   return React.createElement(Page);
 }

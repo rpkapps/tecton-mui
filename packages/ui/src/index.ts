@@ -272,6 +272,7 @@ export type { GlobalStateSlot } from './internal/passthrough/material_generateUt
 export { default as Unstable_TrapFocus } from './Unstable_TrapFocus/index.js';
 export type { TrapFocusProps } from './Unstable_TrapFocus/index.js';
 export { default as InitColorSchemeScript } from './InitColorSchemeScript/index.js';
+export type { EasingProps, TransitionHandlerKeys, TransitionHandlerProps, TransitionKeys, TransitionProps } from './transitions/index.js';
 export { default as TabContext, getPanelId, getTabId, useTabContext } from './TabContext/index.js';
 export type { TabContextProps, TabContextValue } from './TabContext/index.js';
 export { default as TabList } from './TabList/index.js';
@@ -340,6 +341,7 @@ export { default as StaticTimeRangePicker } from './StaticTimeRangePicker/index.
 export type { StaticTimeRangePickerProps } from './StaticTimeRangePicker/index.js';
 export { default as TimeRangePicker } from './TimeRangePicker/index.js';
 export type { TimeRangePickerProps } from './TimeRangePicker/index.js';
+export { default as visuallyHidden } from './internal/passthrough/utils_visuallyHidden/index.js';
 export { default as TimeClock, clockClasses, clockNumberClasses, clockPointerClasses, getTimeClockUtilityClass, timeClockClasses } from './TimeClock/index.js';
 export type { ClockClassKey, ClockClasses, ClockNumberClassKey, ClockNumberClasses, ClockNumberProps, ClockPointerClassKey, ClockPointerClasses, ClockPointerProps, ClockProps, TimeClockClassKey, TimeClockClasses, TimeClockProps, TimeClockSlotProps, TimeClockSlots } from './TimeClock/index.js';
 export { default as DigitalClock, DigitalClockItem, digitalClockClasses, getDigitalClockUtilityClass } from './DigitalClock/index.js';

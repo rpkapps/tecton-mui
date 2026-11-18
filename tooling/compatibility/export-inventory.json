@@ -238,6 +238,7 @@
     "YearCalendar",
     "Zoom",
     "colors",
+    "transitions",
     "useAutocomplete",
     "useMediaQuery",
     "usePagination",
@@ -801,6 +802,14 @@
     {
       "package": "@mui/material",
       "module": "InitColorSchemeScript"
+    },
+    {
+      "package": "@mui/material",
+      "module": "transitions"
+    },
+    {
+      "package": "@mui/utils",
+      "module": "visuallyHidden"
     },
     {
       "package": "@mui/lab",

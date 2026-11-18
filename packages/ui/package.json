@@ -1092,6 +1092,11 @@
       "types": "./dist/colors/index.d.ts",
       "default": "./dist/colors/index.js"
     },
+    "./transitions": {
+      "@tecton-mui/source": "./src/transitions/index.ts",
+      "types": "./dist/transitions/index.d.ts",
+      "default": "./dist/transitions/index.js"
+    },
     "./useAutocomplete": {
       "@tecton-mui/source": "./src/useAutocomplete/index.ts",
       "types": "./dist/useAutocomplete/index.d.ts",

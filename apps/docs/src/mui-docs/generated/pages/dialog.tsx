@@ -16,10 +16,14 @@ import SimpleDialogDemo from '../demos/dialogs/SimpleDialogDemo';
 import SimpleDialogDemoSource from '../demos/dialogs/SimpleDialogDemo.tsx?raw';
 import AlertDialog from '../demos/dialogs/AlertDialog';
 import AlertDialogSource from '../demos/dialogs/AlertDialog.tsx?raw';
+import AlertDialogSlide from '../demos/dialogs/AlertDialogSlide';
+import AlertDialogSlideSource from '../demos/dialogs/AlertDialogSlide.tsx?raw';
 import FormDialog from '../demos/dialogs/FormDialog';
 import FormDialogSource from '../demos/dialogs/FormDialog.tsx?raw';
 import CustomizedDialogs from '../demos/dialogs/CustomizedDialogs';
 import CustomizedDialogsSource from '../demos/dialogs/CustomizedDialogs.tsx?raw';
+import FullScreenDialog from '../demos/dialogs/FullScreenDialog';
+import FullScreenDialogSource from '../demos/dialogs/FullScreenDialog.tsx?raw';
 import MaxWidthDialog from '../demos/dialogs/MaxWidthDialog';
 import MaxWidthDialogSource from '../demos/dialogs/MaxWidthDialog.tsx?raw';
 import ResponsiveDialog from '../demos/dialogs/ResponsiveDialog';
@@ -36,9 +40,15 @@ const demos = {
     code: SimpleDialogDemoSource,
   }),
   AlertDialog: defineDemo('AlertDialog', AlertDialog, { code: AlertDialogSource }),
+  AlertDialogSlide: defineDemo('AlertDialogSlide', AlertDialogSlide, {
+    code: AlertDialogSlideSource,
+  }),
   FormDialog: defineDemo('FormDialog', FormDialog, { code: FormDialogSource }),
   CustomizedDialogs: defineDemo('CustomizedDialogs', CustomizedDialogs, {
     code: CustomizedDialogsSource,
+  }),
+  FullScreenDialog: defineDemo('FullScreenDialog', FullScreenDialog, {
+    code: FullScreenDialogSource,
   }),
   MaxWidthDialog: defineDemo('MaxWidthDialog', MaxWidthDialog, { code: MaxWidthDialogSource }),
   ResponsiveDialog: defineDemo('ResponsiveDialog', ResponsiveDialog, {
@@ -155,10 +165,7 @@ export default function MuiDocs() {
         <M.code>{'Slide'}</M.code>
         {'.'}
       </M.p>
-      <ExcludedDemo
-        name="AlertDialogSlide"
-        reason="imports @mui/material/transitions, which @tecton-mui/ui does not export"
-      />
+      <Demo name="AlertDialogSlide" />
       <Heading level={3} id="form-dialogs">
         {'Form dialogs'}
       </Heading>
@@ -188,10 +195,7 @@ export default function MuiDocs() {
       <Heading level={3} id="full-screen-dialogs">
         {'Full-screen dialogs'}
       </Heading>
-      <ExcludedDemo
-        name="FullScreenDialog"
-        reason="imports @mui/material/transitions, which @tecton-mui/ui does not export"
-      />
+      <Demo name="FullScreenDialog" />
       <Heading level={3} id="optional-sizes">
         {'Optional sizes'}
       </Heading>

@@ -16,6 +16,8 @@ import BasicTable from '../demos/table/BasicTable';
 import BasicTableSource from '../demos/table/BasicTable.tsx?raw';
 import DenseTable from '../demos/table/DenseTable';
 import DenseTableSource from '../demos/table/DenseTable.tsx?raw';
+import EnhancedTable from '../demos/table/EnhancedTable';
+import EnhancedTableSource from '../demos/table/EnhancedTable.tsx?raw';
 import CustomizedTables from '../demos/table/CustomizedTables';
 import CustomizedTablesSource from '../demos/table/CustomizedTables.tsx?raw';
 import CustomPaginationActionsTable from '../demos/table/CustomPaginationActionsTable';
@@ -34,6 +36,12 @@ import AccessibleTableSource from '../demos/table/AccessibleTable.tsx?raw';
 const demos = {
   BasicTable: defineDemo('BasicTable', BasicTable, { code: BasicTableSource }, { bg: true }),
   DenseTable: defineDemo('DenseTable', DenseTable, { code: DenseTableSource }, { bg: true }),
+  EnhancedTable: defineDemo(
+    'EnhancedTable',
+    EnhancedTable,
+    { code: EnhancedTableSource },
+    { bg: true },
+  ),
   CustomizedTables: defineDemo(
     'CustomizedTables',
     CustomizedTables,
@@ -231,10 +239,7 @@ export default function MuiDocs() {
         </M.a>
         {' below shows the pagination within the TableFooter.)'}
       </M.p>
-      <ExcludedDemo
-        name="EnhancedTable"
-        reason="imports visuallyHidden from @mui/utils, which @tecton-mui/ui does not export"
-      />
+      <Demo name="EnhancedTable" />
       <Heading level={3} id="customization">
         {'Customization'}
       </Heading>
