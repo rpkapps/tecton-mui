@@ -1,0 +1,23 @@
+{
+  "$comment": "Known accessibility defects originating in Tecton design tokens (SPEC §11.3: Tecton owns visual tokens). They are NOT approved exceptions and NOT compliant: every run reports them as 'tecton-token defect (unapproved)'. A defect not listed here fails the build. To approve one, move it to a11y-exceptions.json with owner, rationale, reviewer approval and follow-up via PR.",
+  "defects": [
+    {
+      "rule": "color-contrast",
+      "selector": "MuiPickerDay-root",
+      "modes": ["light", "dark"],
+      "tokens": "color-action-primary-bg-active vs color-text-primary (light 2.77:1, dark 4.19:1)",
+      "detail": "Tecton selected-day spec (Figma 16874:80020) pairs text/primary with action/primary/activeBackground.",
+      "owner": "Tecton design-token owners",
+      "status": "reported-unapproved"
+    },
+    {
+      "rule": "color-contrast",
+      "selector": "MuiDataGrid-columnHeader",
+      "modes": ["dark"],
+      "tokens": "color-text-secondary on color-table-header-bg (dark 4.2:1)",
+      "detail": "Data Grid / Table header title text in dark mode.",
+      "owner": "Tecton design-token owners",
+      "status": "reported-unapproved"
+    }
+  ]
+}

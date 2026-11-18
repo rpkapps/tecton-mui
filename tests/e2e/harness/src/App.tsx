@@ -125,7 +125,7 @@ function Showcase() {
           <Alert severity="warning" variant="outlined">
             Pressure above threshold.
           </Alert>
-          <LinearProgress variant="determinate" value={60} />
+          <LinearProgress variant="determinate" value={60} aria-label="Upload progress" />
         </Stack>
       </Paper>
       <Paper variant="outlined" sx={{ p: 2 }}>

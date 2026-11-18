@@ -201,6 +201,7 @@ function DataGridInner<R extends GridValidRowModel>(
     getRowClassName,
     onColumnHeaderClick,
     slots: slotsProp,
+    slotProps: slotPropsProp,
     sx,
     className,
     loading,
@@ -1214,6 +1215,15 @@ function DataGridInner<R extends GridValidRowModel>(
     [clientPaging, server, pagination, lazyLoading, groupingMode, slotsProp],
   );
 
+  // Hierarchical rows expose aria-level/aria-expanded, which are only valid inside a treegrid.
+  const slotProps = React.useMemo(
+    () =>
+      groupingMode === 'none'
+        ? slotPropsProp
+        : { ...slotPropsProp, main: { role: 'treegrid', ...slotPropsProp?.main } },
+    [groupingMode, slotPropsProp],
+  );
+
   const pinnedSx = React.useMemo(
     () =>
       disableColumnPinning
@@ -1283,6 +1293,7 @@ function DataGridInner<R extends GridValidRowModel>(
         columnHeaderHeight={headerFilters ? (columnHeaderHeight ?? 56) + 32 : columnHeaderHeight}
         columnBufferPx={hasPinnedColumns ? PINNED_COLUMN_BUFFER_PX : columnBufferPx}
         slots={slots}
+        slotProps={slotProps}
       />
     </GridAdvancedContext.Provider>
   );

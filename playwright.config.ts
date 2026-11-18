@@ -18,7 +18,7 @@ export default defineConfig({
   expect: { toHaveScreenshot: { maxDiffPixelRatio: 0.01 } },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
-    command: `pnpm --filter @tecton-mui/e2e-harness exec vite --port ${PORT} --strictPort`,
+    command: `node tests/e2e/harness/server.mjs ${PORT}`,
     port: PORT,
     reuseExistingServer: !process.env.CI,
   },
