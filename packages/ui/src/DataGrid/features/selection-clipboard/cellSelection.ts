@@ -53,31 +53,95 @@ export function isModelEmpty(model: GridCellSelectionModel): boolean {
 const esc = (value: string) =>
   typeof CSS !== 'undefined' && CSS.escape ? CSS.escape(value) : value.replace(/["\\]/g, '\\$&');
 
-/**
- * Highlight rules for the selection. Rows sharing the same field set are grouped into one `:is()`
- * selector, so a rectangle of N rows x M columns produces a single rule. Updating this stylesheet
- * re-highlights cells without re-rendering any React cell.
- */
-export function selectionCss(scope: string, model: GridCellSelectionModel): string {
+const SELECTED_BG =
+  'color-mix(in srgb, var(--DataGrid-t-color-interactive-selected, #1976d2) calc(var(--DataGrid-t-color-interactive-selected-opacity, 0.08) * 100%), transparent)';
+const RANGE_BORDER = 'var(--DataGrid-t-color-interactive-focus, #1976d2)';
+const EDGES = [
+  ['top', 'inset 0 2px 0 0'],
+  ['right', 'inset -2px 0 0 0'],
+  ['bottom', 'inset 0 -2px 0 0'],
+  ['left', 'inset 2px 0 0 0'],
+] as const;
+
+/** Groups row ids by identical field sets, so a rectangle becomes one `:is()` selector. */
+function groupedSelector(scope: string, cells: Map<string, Set<string>>): string {
   const groups = new Map<string, string[]>();
-  for (const [id, cells] of Object.entries(model)) {
-    const fields = Object.keys(cells).filter((f) => cells[f]);
-    if (!fields.length) continue;
-    const key = fields.sort().join('\u0000');
+  for (const [id, fields] of cells) {
+    if (!fields.size) continue;
+    const key = [...fields].sort().join('\u0000');
     const list = groups.get(key) ?? [];
     list.push(id);
     groups.set(key, list);
   }
-  const rules: string[] = [];
-  for (const [key, ids] of groups) {
-    const rows = ids.map((id) => `[data-id="${esc(id)}"]`).join(',');
-    const fields = key
-      .split('\u0000')
-      .map((f) => `[data-field="${esc(f)}"]`)
-      .join(',');
-    rules.push(
-      `.${scope} .MuiDataGrid-row:is(${rows}) > .MuiDataGrid-cell:is(${fields}){background-image:linear-gradient(var(--tdg-cell-selected, rgba(118,82,146,0.16)),var(--tdg-cell-selected, rgba(118,82,146,0.16)));box-shadow:inset 0 0 0 1px var(--tecton-color-focus-ring, #765292);}`,
+  return [...groups]
+    .map(([key, ids]) => {
+      const rows = ids.map((id) => `[data-id="${esc(id)}"]`).join(',');
+      const fields = key
+        .split('\u0000')
+        .map((f) => `[data-field="${esc(f)}"]`)
+        .join(',');
+      return `.${scope} .MuiDataGrid-row:is(${rows}) > .MuiDataGrid-cell:is(${fields})`;
+    })
+    .join(',');
+}
+
+/**
+ * Highlight rules for the selection, matching the Community range styling: a selected tint on
+ * every cell and a 2px focus-colour border around the outside of each range (the
+ * `cell--rangeTop/Right/Bottom/Left` look). With row and field order, only perimeter cells get
+ * border rules (O(rows + columns) selectors per rectangle). Updating this stylesheet re-highlights
+ * cells without re-rendering any React cell.
+ */
+export function selectionCss(
+  scope: string,
+  model: GridCellSelectionModel,
+  rowOrder?: readonly GridRowId[],
+  fieldOrder?: readonly string[],
+): string {
+  const all = new Map<string, Set<string>>();
+  for (const [id, cells] of Object.entries(model)) {
+    const fields = Object.keys(cells).filter((f) => cells[f]);
+    if (fields.length) all.set(id, new Set(fields));
+  }
+  if (!all.size) return '';
+  const rules = [
+    `${groupedSelector(scope, all)}{background-image:linear-gradient(${SELECTED_BG},${SELECTED_BG});}`,
+  ];
+
+  // Perimeter edges: a cell has an edge where its neighbour in that direction is not selected.
+  const masks = new Map<number, Map<string, Set<string>>>();
+  const rowIndex = new Map((rowOrder ?? []).map((id, i) => [String(id), i]));
+  const fieldIndex = new Map((fieldOrder ?? []).map((f, i) => [f, i]));
+  const isSelected = (r: number, c: number) => {
+    const id = rowOrder?.[r];
+    const field = fieldOrder?.[c];
+    return id !== undefined && field !== undefined && !!all.get(String(id))?.has(field);
+  };
+  for (const [id, fields] of all) {
+    const r = rowIndex.get(id);
+    for (const field of fields) {
+      const c = fieldIndex.get(field);
+      let mask = 15;
+      if (r !== undefined && c !== undefined) {
+        mask = 0;
+        if (!isSelected(r - 1, c)) mask |= 1;
+        if (!isSelected(r, c + 1)) mask |= 2;
+        if (!isSelected(r + 1, c)) mask |= 4;
+        if (!isSelected(r, c - 1)) mask |= 8;
+      }
+      if (!mask) continue;
+      const byRow = masks.get(mask) ?? new Map<string, Set<string>>();
+      const set = byRow.get(id) ?? new Set<string>();
+      set.add(field);
+      byRow.set(id, set);
+      masks.set(mask, byRow);
+    }
+  }
+  for (const [mask, cells] of masks) {
+    const shadows = EDGES.filter((_, i) => mask & (1 << i)).map(
+      ([, inset]) => `${inset} ${RANGE_BORDER}`,
     );
+    rules.push(`${groupedSelector(scope, cells)}{box-shadow:${shadows.join(',')};}`);
   }
   return rules.join('\n');
 }

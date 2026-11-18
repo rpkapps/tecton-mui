@@ -160,6 +160,24 @@ export function GridScenarios({ which }: { which: string }) {
           </Box>
         </Paper>
       )}
+      {show('rows') && (
+        <Paper variant="outlined" sx={{ p: 2 }} data-testid="grid-rows">
+          <Typography variant="h5" gutterBottom>
+            Row reordering + cell selection + editing, paste and undo
+          </Typography>
+          <Box sx={{ height: 420 }}>
+            <DataGrid
+              rows={employees.slice(0, 30)}
+              columns={employeeColumns}
+              rowReordering
+              cellSelection
+              historyStackSize={30}
+              initialState={wellInitial}
+              pageSizeOptions={pageSizes}
+            />
+          </Box>
+        </Paper>
+      )}
       {show('tree') && (
         <Paper variant="outlined" sx={{ p: 2 }} data-testid="grid-tree">
           <Typography variant="h5" gutterBottom>

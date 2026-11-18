@@ -17,6 +17,7 @@ import {
   type GridValidRowModel,
   type GridColumnHeaderParams,
   type GridEventListener,
+  type GridRowSelectionModel,
 } from '@mui/x-data-grid';
 import { Store, useStoreSelector } from './core/store.js';
 import { cssVar } from '../styles/tecton/index.js';
@@ -210,6 +211,10 @@ function DataGridInner<R extends GridValidRowModel>(
     columnHeaderHeight,
     columnBufferPx,
     disableColumnSorting,
+    rowSelectionModel: rowSelectionModelProp,
+    onRowSelectionModelChange,
+    keepNonExistentRowsSelected = false,
+    checkboxSelectionVisibleOnly = false,
     ...other
   } = inProps;
 
@@ -937,6 +942,22 @@ function DataGridInner<R extends GridValidRowModel>(
       const t = domIdRef.current.get(target);
       if (s !== undefined && t !== undefined) moveRowTo(s, t, after);
     },
+    // Ghost label: the row's first visible text column (falls back to the first data column).
+    getLabel: (domId) => {
+      const id = domIdRef.current.get(domId);
+      const api = apiRef.current;
+      if (id === undefined || !api) return undefined;
+      const cols = api.getVisibleColumns().filter((c) => !c.field.startsWith('__'));
+      const col = cols.find((c) => (c.type ?? 'string') === 'string') ?? cols[0];
+      if (!col) return undefined;
+      try {
+        const params = api.getCellParams(id, col.field);
+        const text = params.formattedValue ?? params.value;
+        return text == null ? undefined : String(text);
+      } catch {
+        return undefined;
+      }
+    },
   });
 
   const pageRowsRef = useLatest(pageRows);
@@ -1201,6 +1222,25 @@ function DataGridInner<R extends GridValidRowModel>(
     return api.subscribeEvent('columnHeaderKeyDown', handleHeaderKeyDown, { isFirst: true });
   }, [apiRef, handleHeaderKeyDown]);
 
+  // Space on a group row's grouping cell toggles the group (the chevron is not in the tab order).
+  React.useEffect(() => {
+    const api = apiRef.current;
+    if (!api || groupingMode === 'none') return undefined;
+    const onCellKeyDown: GridEventListener<'cellKeyDown'> = (params, event) => {
+      if (event.key !== ' ' || event.shiftKey || event.ctrlKey || event.metaKey || event.altKey)
+        return;
+      const field = params.field;
+      const isGroupingField =
+        field === TREE_DATA_GROUPING_FIELD ||
+        field.startsWith(ROW_GROUPING_SINGLE_FIELD.slice(0, -2));
+      if (!isGroupingField || !derived.getState().meta.get(params.id)?.isGroup) return;
+      if (api.getCellMode(params.id, field) !== 'view') return;
+      event.preventDefault(); // no page scroll
+      actions.toggleExpansion(params.id);
+    };
+    return api.subscribeEvent('cellKeyDown', onCellKeyDown, { isFirst: true });
+  }, [apiRef, groupingMode, derived, actions]);
+
   const handleGetRowHeight = React.useMemo(() => {
     if (!detailPanel && !getRowHeight) return undefined;
     return (params: Parameters<NonNullable<DataGridProps<R>['getRowHeight']>>[0]) => {
@@ -1213,6 +1253,92 @@ function DataGridInner<R extends GridValidRowModel>(
       return getRowHeight ? getRowHeight(params) : null;
     };
   }, [detailPanel, getRowHeight, getDetailPanelHeight]);
+  // Row selection. The wrapper paginates on the client, so the Community grid only holds the
+  // current page: it must keep ids of other pages, and select-all must cover every filtered row
+  // (as the MUI grid does when it paginates itself).
+  const [innerSelection, setInnerSelection] = React.useState<GridRowSelectionModel>(
+    () =>
+      (initialState as { rowSelection?: GridRowSelectionModel } | undefined)?.rowSelection ??
+      EMPTY_SELECTION,
+  );
+  const selectionControlled = rowSelectionModelProp !== undefined;
+  const selection = selectionControlled ? rowSelectionModelProp : innerSelection;
+  const selectionRef = useLatest(selection);
+  /** All-pages select-all result, substituted for Community's page-only change that follows. */
+  const pendingSelectAll = React.useRef<GridRowSelectionModel | null>(null);
+  const handleSelectionChange = useEventCallback(
+    (
+      incoming: GridRowSelectionModel,
+      details: Parameters<NonNullable<DataGridProps<R>['onRowSelectionModelChange']>>[1],
+    ) => {
+      const model = pendingSelectAll.current ?? incoming;
+      pendingSelectAll.current = null;
+      if (!selectionControlled) setInnerSelection(model);
+      onRowSelectionModelChange?.(model, details);
+    },
+  );
+  const selectableIdsRef = useLatest(
+    React.useMemo(() => {
+      const ids: GridRowId[] = [];
+      for (const row of flat.rows) {
+        if (getSynthetic(row)) continue;
+        const id = getRowId(row as R);
+        if (!isRowSelectable || isRowSelectable({ id, row, columns: [] } as never)) ids.push(id);
+      }
+      return ids;
+    }, [flat.rows, getRowId, isRowSelectable]),
+  );
+  // Without keepNonExistentRowsSelected, ids of rows removed from the data are dropped (MUI default).
+  React.useEffect(() => {
+    if (keepNonExistentRowsSelected || server || selectionControlled) return;
+    const current = selectionRef.current;
+    if (current.type !== 'include' || current.ids.size === 0) return;
+    const existing = new Set(baseRows.map((row) => getRowId(row)));
+    const kept = [...current.ids].filter((id) => existing.has(id));
+    if (kept.length !== current.ids.size)
+      handleSelectionChange({ type: 'include', ids: new Set(kept) }, {} as never);
+  }, [
+    baseRows,
+    getRowId,
+    keepNonExistentRowsSelected,
+    server,
+    selectionControlled,
+    selectionRef,
+    handleSelectionChange,
+  ]);
+  React.useEffect(() => {
+    const api = apiRef.current;
+    if (!api || checkboxSelectionVisibleOnly || !clientPaging) return undefined;
+    // Runs before Community's handler, which only sees the current page.
+    return api.subscribeEvent(
+      'headerSelectionCheckboxChange',
+      ({ value }: { value: boolean }) => {
+        const current = selectionRef.current;
+        const ids = new Set(current.type === 'include' ? current.ids : []);
+        for (const id of selectableIdsRef.current) {
+          if (value) ids.add(id);
+          else ids.delete(id);
+        }
+        const model: GridRowSelectionModel = { type: 'include', ids };
+        pendingSelectAll.current = model;
+        // Community's handler runs next and reports its page-only change through
+        // handleSelectionChange, which substitutes this model. If it reports nothing, apply it here.
+        queueMicrotask(() => {
+          if (pendingSelectAll.current === model)
+            handleSelectionChange(model, { reason: 'multipleRowsSelection' } as never);
+        });
+      },
+      { isFirst: true },
+    );
+  }, [
+    apiRef,
+    checkboxSelectionVisibleOnly,
+    clientPaging,
+    selectionRef,
+    selectableIdsRef,
+    handleSelectionChange,
+  ]);
+
   const handleIsRowSelectable = React.useMemo(() => {
     if (!hasSynthetic && !isRowSelectable) return undefined;
     return (params: Parameters<NonNullable<DataGridProps<R>['isRowSelectable']>>[0]) =>
@@ -1324,6 +1450,9 @@ function DataGridInner<R extends GridValidRowModel>(
         rowCount={totalRows}
         pageSizeOptions={pageSizeOptions}
         checkboxSelection={checkboxSelection || hiddenMultiSelect}
+        rowSelectionModel={selection}
+        onRowSelectionModelChange={handleSelectionChange}
+        keepNonExistentRowsSelected={keepNonExistentRowsSelected || clientPaging}
         disableMultipleRowSelection={disableMultipleRowSelection}
         columnVisibilityModel={effectiveVisibility}
         onColumnVisibilityModelChange={handleVisibilityChange}
@@ -1349,6 +1478,7 @@ const SYSTEM_FIELDS = [
   TREE_DATA_GROUPING_FIELD,
   ROW_GROUPING_SINGLE_FIELD,
 ];
+const EMPTY_SELECTION: GridRowSelectionModel = { type: 'include', ids: new Set() };
 const NO_PINNED = { left: [] as string[], right: [] as string[] };
 const selectExpansion = (s: UiState) => s.expansion;
 const isDetailRow = (row: object) => getSynthetic(row)?.kind === 'detail';
@@ -1449,7 +1579,6 @@ const BASE_SX = {
     fontSize: cssVar('font-size-medium'),
     '&:hover': { backgroundColor: cssVar('color-input-filled-bg-hover') },
     '&:focus-within': { boxShadow: `inset 0 0 0 1px ${cssVar('color-focus-ring')}` },
-    '& input::placeholder': { color: cssVar('color-input-filled-text-placeholder'), opacity: 1 },
   },
   '& .TectonDataGrid-headerFilterOperator, & .TectonDataGrid-headerFilterClear': {
     width: cssVar('space-300'),
@@ -1486,6 +1615,11 @@ const BASE_SX = {
   '&.TectonDataGrid--columnDragging, &.TectonDataGrid--rowDragging': {
     userSelect: 'none',
     cursor: 'grabbing',
+  },
+  '&.TectonDataGrid--cellSelecting': { userSelect: 'none' },
+  // The row being dragged stays in place as a dimmed placeholder (Community `row--beingDragged`).
+  '& .MuiDataGrid-row--beingDragged, & .MuiDataGrid-row--beingDragged .MuiDataGrid-cell': {
+    color: cssVar('color-text-disabled'),
   },
 };
 

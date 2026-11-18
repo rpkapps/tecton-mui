@@ -19,9 +19,11 @@ import {
 import { moveField } from '../features/pinning-reordering/useColumnReorder.js';
 import { moveId } from '../features/pinning-reordering/useRowReorder.js';
 import {
-  DragIndicator,
+  DragPreview,
+  cssString,
   isInteractiveTarget,
-} from '../features/pinning-reordering/dragIndicator.js';
+  logicalScrollLeft,
+} from '../features/pinning-reordering/dragPreview.js';
 import { cacheKey, GridDataSourceCacheDefault } from '../features/server-data/cache.js';
 import { Store } from '../core/store.js';
 
@@ -42,8 +44,26 @@ describe('cell selection model', () => {
 
   it('generates grouped CSS rules and TSV text', () => {
     const rect = rangeModel({ id: 1, field: 'a' }, { id: 2, field: 'b' }, rows, fields);
+    // Without order: one tint rule plus a full border per cell.
     const css = selectionCss('scope', rect);
-    expect(css.match(/\{/g)).toHaveLength(1);
+    expect(css.match(/\{/g)).toHaveLength(2);
+    // With order: the 2x2 rectangle gets the tint plus one border rule per corner, each with the
+    // two outside edges only.
+    const ordered = selectionCss('scope', rect, rows, fields);
+    expect(ordered.match(/\{/g)).toHaveLength(5);
+    expect(ordered).toContain(
+      ':is([data-field="a"]){box-shadow:inset 0 2px 0 0 var(--DataGrid-t-color-interactive-focus, #1976d2),inset 2px 0 0 0',
+    );
+    const tall = selectionCss(
+      'scope',
+      rangeModel({ id: 1, field: 'a' }, { id: 3, field: 'a' }, rows, fields),
+      rows,
+      fields,
+    );
+    // The middle cell of a 3x1 column has only left and right edges.
+    expect(tall).toContain(
+      `[data-id="${CSS.escape('2')}"]) > .MuiDataGrid-cell:is([data-field="a"]){box-shadow:inset -2px 0 0 0`,
+    );
     expect(css).toContain(`[data-id="${CSS.escape('1')}"]`);
     expect(css).toContain('[data-field="b"]');
     expect(selectionCss('scope', {})).toBe('');
@@ -127,15 +147,33 @@ describe('pinning & reordering helpers', () => {
     expect(moveId([1, 2], 1, 9, true)).toEqual([1, 2]);
   });
 
-  it('manages a DOM drop indicator and detects interactive targets', () => {
-    const indicator = new DragIndicator();
-    indicator.show({ left: 1, top: 2, width: 3, height: 4 });
-    const el = document.querySelector<HTMLElement>('.TectonDataGrid-dropIndicator')!;
-    expect(el.style.left).toBe('1px');
-    indicator.show({ left: 5, top: 2, width: 3, height: 4 });
-    expect(document.querySelectorAll('.TectonDataGrid-dropIndicator')).toHaveLength(1);
-    indicator.hide();
-    expect(document.querySelector('.TectonDataGrid-dropIndicator')).toBeNull();
+  it('manages DOM-only drag feedback and detects interactive targets', () => {
+    const root = document.createElement('div');
+    document.body.appendChild(root);
+    const preview = new DragPreview(root);
+    preview.begin();
+    expect(root.getAttribute('data-tdg-drag')).toMatch(/^tdg-drag-/);
+    preview.setShifts('.a', [{ targets: ['.b'], transform: 'translateX(4px)' }]);
+    const style = document.querySelector('style[data-tecton-grid-drag]')!;
+    expect(style.textContent).toContain(`${preview.selector} .b{transform:translateX(4px)`);
+    const ghost = document.createElement('div');
+    preview.showGhost(
+      ghost,
+      { left: 0, top: 0, width: 50, height: 20 } as DOMRect,
+      { x: 10, y: 5 },
+      {},
+    );
+    expect(document.querySelectorAll('.TectonDataGrid-dragGhost')).toHaveLength(1);
+    expect(ghost.style.boxShadow).not.toMatch(/255/);
+    preview.moveGhost(30, 25);
+    expect(ghost.style.transform).toBe('translate(20px, 20px)');
+    preview.dispose();
+    expect(document.querySelector('.TectonDataGrid-dragGhost')).toBeNull();
+    expect(document.querySelector('style[data-tecton-grid-drag]')).toBeNull();
+    expect(root.hasAttribute('data-tdg-drag')).toBe(false);
+    expect(cssString('a"b')).toBe('a\\"b');
+    expect(logicalScrollLeft(null, false)).toBe(0);
+    root.remove();
     const button = document.createElement('button');
     expect(isInteractiveTarget(button)).toBe(true);
     expect(isInteractiveTarget(document.createElement('div'))).toBe(false);

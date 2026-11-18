@@ -3,6 +3,7 @@ import Skeleton from '@mui/material/Skeleton';
 import {
   GRID_CHECKBOX_SELECTION_COL_DEF,
   GRID_CHECKBOX_SELECTION_FIELD,
+  gridClasses,
   type GridColDef,
   type GridColumnHeaderParams,
   type GridRenderCellParams,
@@ -122,7 +123,13 @@ export function buildCommunityColumns<R extends GridValidRowModel>(
     } as GridColDef<R>);
   }
   if (args.checkboxSelection && !byField.has(GRID_CHECKBOX_SELECTION_FIELD)) {
-    out.set(GRID_CHECKBOX_SELECTION_FIELD, GRID_CHECKBOX_SELECTION_COL_DEF as GridColDef<R>);
+    // The Community grid merges this definition over its own selection column, so it must carry
+    // the Community class names, or `columnHeaderCheckbox` / `cellCheckbox` styles are lost.
+    out.set(GRID_CHECKBOX_SELECTION_FIELD, {
+      ...GRID_CHECKBOX_SELECTION_COL_DEF,
+      cellClassName: gridClasses.cellCheckbox,
+      headerClassName: gridClasses.columnHeaderCheckbox,
+    } as GridColDef<R>);
   }
   if (args.rowReordering) {
     out.set(ROW_REORDER_FIELD, {

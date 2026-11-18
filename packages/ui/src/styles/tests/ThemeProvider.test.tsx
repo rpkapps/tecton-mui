@@ -4,6 +4,8 @@ import { createRoot } from 'react-dom/client';
 import { renderToString } from 'react-dom/server';
 import { hydrateRoot } from 'react-dom/client';
 import { useTheme } from '@mui/material/styles';
+import TextField from '@mui/material/TextField';
+import InputBase from '@mui/material/InputBase';
 import {
   ThemeProvider,
   createTheme,
@@ -123,6 +125,18 @@ describe('ThemeProvider', () => {
     expect(screen.getByTestId('rtl')).toHaveAttribute('data-dir', 'rtl');
   });
 
+  it('renders inputs with placeholders in rtl (Tecton input styles use ::placeholder)', () => {
+    expect(() =>
+      render(
+        <ThemeProvider direction="rtl">
+          <TextField placeholder="Search" label="Search" />
+          <InputBase placeholder="Filter" inputProps={{ readOnly: true }} />
+        </ThemeProvider>,
+      ),
+    ).not.toThrow();
+    expect(screen.getByPlaceholderText('Filter')).toBeInTheDocument();
+  });
+
   it('exposes mode controls through useTectonMode with stable actions', () => {
     const apis: ReturnType<typeof useTectonMode>[] = [];
     function Toggle() {
@@ -232,9 +246,15 @@ describe('Tecton Data Grid compat', () => {
     expect(overrides.root['&&']).toEqual({
       '--DataGrid-t-color-border-base': 'var(--tecton-color-action-outlined-border)',
     });
-    expect(String(overrides.columnHeaders.borderBottom)).toContain(
-      '--tecton-color-action-outlined-border',
-    );
+    // MUI X already draws the header bottom border on each header cell (in the border colour
+    // above); Tecton's extra border on the header container is removed so it is not 2px.
+    expect(overrides.columnHeaders.borderBottom).toBe('none');
+    // Hover/selected row stroke is an overlay, not a layout-shifting border.
+    const rowHover = (overrides.row as Record<string, Record<string, unknown>>)[
+      '&:hover, &.Mui-selected'
+    ];
+    expect(rowHover.border).toBe('none');
+    expect((rowHover['&::after'] as Record<string, unknown>).pointerEvents).toBe('none');
     expect(overrides.columnHeader['&.MuiDataGrid-columnHeaderCheckbox']).toEqual({ padding: 0 });
   });
 });

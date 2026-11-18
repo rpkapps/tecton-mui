@@ -122,6 +122,40 @@ describe('DataGrid (unified)', () => {
     expect(document.querySelector('.TectonDataGrid-pagination')).toBeNull();
   });
 
+  it('keeps row selection across pages and selects every filtered row from the header', async () => {
+    const many = Array.from({ length: 30 }, (_, i) => ({
+      id: i,
+      name: `n${i}`,
+      dept: i % 2 ? 'odd' : 'even',
+      salary: i,
+    }));
+    const onRowSelectionModelChange = vi.fn();
+    render(
+      <Grid
+        rows={many}
+        checkboxSelection
+        initialState={{ pagination: { paginationModel: { page: 0, pageSize: 10 } } }}
+        pageSizeOptions={[10]}
+        onRowSelectionModelChange={onRowSelectionModelChange}
+      />,
+    );
+    const rowCheckbox = (i: number) =>
+      document.querySelectorAll<HTMLInputElement>('.MuiDataGrid-row input[type="checkbox"]')[i]!;
+    fireEvent.click(rowCheckbox(1));
+    fireEvent.click(screen.getByRole('button', { name: /next page/i }));
+    fireEvent.click(screen.getByRole('button', { name: /previous page/i }));
+    expect(rowCheckbox(1).checked).toBe(true);
+    const selectAll = screen.getByRole('checkbox', { name: /select all rows/i });
+    fireEvent.click(selectAll);
+    await waitFor(() => {
+      const model = onRowSelectionModelChange.mock.calls.at(-1)![0];
+      expect(model.type).toBe('include');
+      expect(model.ids.size).toBe(30);
+    });
+    fireEvent.click(screen.getByRole('checkbox', { name: /select all rows/i }));
+    await waitFor(() => expect(onRowSelectionModelChange.mock.calls.at(-1)![0].ids.size).toBe(0));
+  });
+
   it('groups rows, aggregates, and toggles groups without re-rendering other rows', () => {
     const renders = vi.fn();
     const cols: GridColDef<Row>[] = [

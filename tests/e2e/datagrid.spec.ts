@@ -108,4 +108,126 @@ test.describe('DataGrid advanced features', () => {
     await src.locator('.TectonDataGrid-groupingToggle').click();
     await expect(root.locator('.MuiDataGrid-row', { hasText: 'Button.tsx' })).toHaveCount(0);
   });
+
+  test('column drag shows a ghost, slides columns live, and Escape cancels', async ({ page }) => {
+    await page.goto('/?scenario=grid:sorting');
+    const root = grid(page, 'grid-sorting');
+    const fields = () =>
+      root
+        .locator('.MuiDataGrid-columnHeader')
+        .evaluateAll((els) => els.map((e) => e.getAttribute('data-field')));
+    const before = await fields();
+    const source = await header(root, 'site')
+      .locator('.MuiDataGrid-columnHeaderTitle')
+      .boundingBox();
+    const target = await header(root, 'name').boundingBox();
+    await page.mouse.move(source!.x + 10, source!.y + 8);
+    await page.mouse.down();
+    await page.mouse.move(target!.x + 10, target!.y + 8, { steps: 10 });
+    await expect(page.locator('.TectonDataGrid-dragGhost')).toHaveText('Site');
+    // The passed column slid right to open the slot; nothing re-ordered yet.
+    const nameTransform = await header(root, 'name').evaluate((e) => getComputedStyle(e).transform);
+    expect(nameTransform).not.toBe('none');
+    expect(await fields()).toEqual(before);
+    await page.keyboard.press('Escape');
+    await page.mouse.up();
+    await expect(page.locator('.TectonDataGrid-dragGhost')).toHaveCount(0);
+    expect(await fields()).toEqual(before);
+  });
+
+  test('row drag reorders rows; undo restores; Alt+Arrow moves the focused row', async ({
+    page,
+  }) => {
+    await page.goto('/?scenario=grid:rows');
+    const root = grid(page, 'grid-rows');
+    const handle = await root
+      .locator('.MuiDataGrid-row[data-rowindex="0"] [data-row-reorder-handle]')
+      .boundingBox();
+    const target = await root.locator('.MuiDataGrid-row[data-rowindex="3"]').boundingBox();
+    await page.mouse.move(handle!.x + 10, handle!.y + 10);
+    await page.mouse.down();
+    await page.mouse.move(handle!.x + 10, target!.y + target!.height - 4, { steps: 12 });
+    await expect(root.locator('.MuiDataGrid-row--beingDragged')).toHaveCount(1);
+    await expect(page.locator('.TectonDataGrid-dragGhost')).toContainText('Employee 1');
+    await page.mouse.up();
+    expect((await cellTexts(root, 'name')).slice(0, 4)).toEqual([
+      'Employee 2',
+      'Employee 3',
+      'Employee 4',
+      'Employee 1',
+    ]);
+    await page.keyboard.press('Control+z');
+    await expect.poll(async () => (await cellTexts(root, 'name'))[0]).toBe('Employee 1');
+    await root.locator('.MuiDataGrid-row[data-rowindex="0"] [data-row-reorder-handle]').click();
+    await page.keyboard.press('Alt+ArrowDown');
+    await expect
+      .poll(async () => (await cellTexts(root, 'name')).slice(0, 2))
+      .toEqual(['Employee 2', 'Employee 1']);
+  });
+
+  test('cell range selection copies TSV and paste fills consecutive rows', async ({
+    page,
+    context,
+  }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    await page.goto('/?scenario=grid:rows');
+    const root = grid(page, 'grid-rows');
+    const cell = (r: number, f: string) =>
+      root.locator(`.MuiDataGrid-row[data-rowindex="${r}"] [data-field="${f}"]`);
+    const a = await cell(1, 'name').boundingBox();
+    const b = await cell(2, 'department').boundingBox();
+    await page.mouse.move(a!.x + 10, a!.y + 10);
+    await page.mouse.down();
+    await page.mouse.move(b!.x + 10, b!.y + 10, { steps: 6 });
+    await page.mouse.up();
+    expect(await page.evaluate(() => window.getSelection()?.toString())).toBe('');
+    await page.keyboard.press('Control+c');
+    await expect
+      .poll(() => page.evaluate(() => navigator.clipboard.readText()))
+      .toBe('Employee 2\tResearch\r\nEmployee 3\tOperations');
+    await page.evaluate(() => navigator.clipboard.writeText('X1\nX2'));
+    await cell(5, 'name').click();
+    await page.keyboard.press('Control+v');
+    await expect
+      .poll(async () => (await cellTexts(root, 'name')).slice(5, 7))
+      .toEqual(['X1', 'X2']);
+  });
+
+  test('selection persists across pages and select-all covers every row', async ({ page }) => {
+    await page.goto('/?scenario=grid:pinning');
+    const root = grid(page, 'grid-pinning');
+    await root
+      .locator('.MuiDataGrid-virtualScrollerRenderZone .MuiDataGrid-row[data-rowindex="1"] input')
+      .click();
+    await root.getByRole('button', { name: /next page/i }).click();
+    await root.getByRole('button', { name: /previous page/i }).click();
+    await expect(root.locator('.MuiDataGrid-selectedRowCount')).toHaveText('1 row selected');
+    await root.getByRole('checkbox', { name: /select all rows/i }).click();
+    await expect(root.locator('.MuiDataGrid-selectedRowCount')).toHaveText('60 rows selected');
+  });
+
+  test('hovering a row does not shift cells and the header line is 1px', async ({ page }) => {
+    await page.goto('/?scenario=grid:pinning');
+    const root = grid(page, 'grid-pinning');
+    const cell = root.locator(
+      '.MuiDataGrid-virtualScrollerRenderZone .MuiDataGrid-row[data-rowindex="3"] [data-field="depth"]',
+    );
+    const before = await cell.boundingBox();
+    await cell.hover();
+    expect(await cell.boundingBox()).toEqual(before);
+    const containerBorder = await root
+      .locator('.MuiDataGrid-columnHeaders')
+      .evaluate((e) => getComputedStyle(e).borderBottomWidth);
+    expect(containerBorder).toBe('0px');
+  });
+
+  test('Space on a group row toggles the group', async ({ page }) => {
+    await page.goto('/?scenario=grid:grouping');
+    const root = grid(page, 'grid-grouping');
+    const row = root.locator('.MuiDataGrid-row[data-rowindex="0"]');
+    await expect(row).toHaveAttribute('aria-expanded', 'true');
+    await row.locator('.MuiDataGrid-cell').first().click();
+    await page.keyboard.press(' ');
+    await expect(row).toHaveAttribute('aria-expanded', 'false');
+  });
 });

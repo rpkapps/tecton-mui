@@ -50,6 +50,24 @@ function setStyleText(el: HTMLStyleElement | null, text: string): void {
   if (el) el.textContent = text;
 }
 
+const SELECTING_CLASS = 'TectonDataGrid--cellSelecting';
+/** [row delta, column delta] per arrow key (column delta in LTR). */
+const ARROW_STEPS: Record<string, readonly [number, number]> = {
+  ArrowUp: [-1, 0],
+  ArrowDown: [1, 0],
+  ArrowLeft: [0, -1],
+  ArrowRight: [0, 1],
+};
+const cssEscape = (value: string) =>
+  typeof CSS !== 'undefined' && CSS.escape ? CSS.escape(value) : value.replace(/["\\]/g, '\\$&');
+
+/** Layout-independent Ctrl/Cmd+V check (same rule as the Community grid). */
+const isPasteShortcut = (event: KeyboardEvent) =>
+  (event.ctrlKey || event.metaKey) &&
+  !event.shiftKey &&
+  !event.altKey &&
+  String.fromCharCode(event.keyCode) === 'V';
+
 const isEditableTarget = (t: EventTarget | null) =>
   t instanceof HTMLElement && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName));
 
@@ -62,13 +80,20 @@ export function useCellSelection(o: CellSelectionOptions): void {
   ref.current = o;
 
   React.useEffect(() => {
-    setStyleText(o.styleRef.current, o.enabled ? selectionCss(o.scope, o.model) : '');
+    setStyleText(
+      o.styleRef.current,
+      o.enabled
+        ? selectionCss(o.scope, o.model, ref.current.rowOrder(), ref.current.fieldOrder())
+        : '',
+    );
   }, [o.enabled, o.model, o.scope, o.styleRef]);
 
   React.useEffect(() => {
     const root = o.rootRef.current;
     if (!root || !o.enabled) return undefined;
     let anchor: CellCoord | null = null;
+    /** The moving end of the range (extended by drag, Shift+click and Shift+Arrow keys). */
+    let head: CellCoord | null = null;
     let base: GridCellSelectionModel = {};
 
     const onMouseDown = (event: MouseEvent) => {
@@ -82,15 +107,26 @@ export function useCellSelection(o: CellSelectionOptions): void {
         return;
       }
       if (event.shiftKey && anchor) {
+        // Shift+click would otherwise extend a native text selection.
+        event.preventDefault();
+        window.getSelection()?.removeAllRanges();
+        head = cell;
         current.setModel(rangeModel(anchor, cell, current.rowOrder(), current.fieldOrder()));
         return;
       }
       anchor = cell;
+      head = cell;
       base = {};
       current.setModel({ [cell.id]: { [cell.field]: true } });
       const onMove = (e: MouseEvent) => {
         const over = cellFromEvent(e.target, ref.current.resolveId);
         if (!over || !anchor || over.field.startsWith('__')) return;
+        if (over.id !== anchor.id || over.field !== anchor.field) {
+          // Dragging across cells selects cells, not text.
+          root.classList.add(SELECTING_CLASS);
+          window.getSelection()?.removeAllRanges();
+        }
+        head = over;
         ref.current.setModel(
           mergeModels(
             base,
@@ -99,6 +135,7 @@ export function useCellSelection(o: CellSelectionOptions): void {
         );
       };
       const onUp = () => {
+        root.classList.remove(SELECTING_CLASS);
         root.removeEventListener('mouseover', onMove);
         window.removeEventListener('mouseup', onUp);
       };
@@ -108,9 +145,49 @@ export function useCellSelection(o: CellSelectionOptions): void {
 
     const onKeyDownCapture = (event: KeyboardEvent) => {
       const current = ref.current;
+      if (isEditableTarget(event.target)) return;
+      const step = ARROW_STEPS[event.key];
+      if (step && event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey) {
+        const focused = current.focusedCell() ?? cellFromEvent(event.target, current.resolveId);
+        if (!focused || focused.field.startsWith('__')) return;
+        const rows = current.rowOrder();
+        const fields = current.fieldOrder();
+        if (!anchor || !head || isModelEmpty(current.model)) {
+          anchor = focused;
+          head = focused;
+        }
+        const rtl = getComputedStyle(root).direction === 'rtl';
+        const r = Math.min(rows.length - 1, Math.max(0, rows.indexOf(head.id) + step[0]));
+        const c = Math.min(
+          fields.length - 1,
+          Math.max(0, fields.indexOf(head.field) + step[1] * (rtl ? -1 : 1)),
+        );
+        if (rows[r] === undefined || fields[c] === undefined) return;
+        event.preventDefault();
+        event.stopPropagation(); // Community would move focus / extend row selection instead
+        head = { id: rows[r], field: fields[c] };
+        current.setModel(rangeModel(anchor, head, rows, fields));
+        root
+          .querySelector(
+            `.MuiDataGrid-row[data-id="${cssEscape(String(head.id))}"] > .MuiDataGrid-cell[data-field="${cssEscape(head.field)}"]`,
+          )
+          ?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+        return;
+      }
+      if (step && !event.shiftKey) {
+        // Plain navigation starts a new range from the next focused cell.
+        anchor = null;
+        head = null;
+        return;
+      }
       const isCopy = (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'c';
-      if (!isCopy || isEditableTarget(event.target) || isModelEmpty(current.model)) return;
-      if (window.getSelection()?.toString()) return;
+      if (!isCopy || isModelEmpty(current.model)) return;
+      // A text selection inside the grid is a leftover of pointer interaction: copy the cells.
+      const selection = window.getSelection();
+      if (selection?.toString()) {
+        if (!selection.anchorNode || !root.contains(selection.anchorNode)) return;
+        selection.removeAllRanges();
+      }
       event.preventDefault();
       event.stopPropagation(); // replaces Community's row/cell copy for this keystroke
       const text = toTsv(
@@ -145,7 +222,20 @@ export function useCellSelection(o: CellSelectionOptions): void {
       const matrix = (current.splitClipboardPastedText ?? defaultSplitClipboardText)(text);
       current.onPaste(origin, matrix);
     };
+    // Community starts editing the focused cell on Ctrl/Cmd+V (so the paste lands in its input).
+    // With grid paste enabled, the keystroke must not reach the cell; the native paste event still
+    // fires on the focused cell and is handled above.
+    const onKeyDownCapture = (event: KeyboardEvent) => {
+      if (!isPasteShortcut(event) || isEditableTarget(event.target)) return;
+      const cell = (event.target as Element | null)?.closest?.('.MuiDataGrid-cell');
+      if (!cell || cell.classList.contains('MuiDataGrid-cell--editing')) return;
+      event.stopPropagation();
+    };
     root.addEventListener('paste', onPaste);
-    return () => root.removeEventListener('paste', onPaste);
+    root.addEventListener('keydown', onKeyDownCapture, true);
+    return () => {
+      root.removeEventListener('paste', onPaste);
+      root.removeEventListener('keydown', onKeyDownCapture, true);
+    };
   }, [o.pasteEnabled, o.rootRef]);
 }

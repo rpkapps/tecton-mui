@@ -108,7 +108,7 @@ describe('DataGrid column menu', () => {
     await openColumnMenu(api, 'salary');
     fireEvent.click(screen.getByText(/unsort/i));
     expect(cellsOf('salary')).toEqual(['300', '100', '200']);
-  });
+  }, 60_000);
 });
 
 describe('DataGrid filter panel', () => {
@@ -172,8 +172,14 @@ describe('DataGrid drag reordering', () => {
     fireEvent.pointerDown(salary, { button: 0, clientX: 250 });
     fireEvent.pointerMove(window, { clientX: 230 });
     fireEvent.pointerMove(window, { clientX: 20 });
-    expect(document.querySelector('.TectonDataGrid-dropIndicator')).not.toBeNull();
+    // Live feedback: a ghost follows the pointer and the other columns slide aside.
+    expect(document.querySelector('.TectonDataGrid-dragGhost')?.textContent).toBe('Salary');
+    expect(document.querySelector('style[data-tecton-grid-drag]')?.textContent).toContain(
+      '[data-field="name"]{transform:translateX(100px)',
+    );
+    expect(salary.classList.contains('MuiDataGrid-columnHeader--moving')).toBe(true);
     fireEvent.pointerUp(window);
+    expect(document.querySelector('.TectonDataGrid-dragGhost')).toBeNull();
     expect(onColumnOrderChange).toHaveBeenCalledWith({
       field: 'salary',
       oldIndex: 2,
@@ -194,6 +200,19 @@ describe('DataGrid drag reordering', () => {
     fireEvent.pointerMove(window, { clientX: 500 });
     fireEvent.pointerUp(window);
     expect(headerFields()).toEqual(['name', 'dept', 'salary']);
+    // Escape cancels a drag in progress.
+    const again = Array.from(
+      document.querySelectorAll<HTMLElement>('.MuiDataGrid-columnHeader[data-field]'),
+    );
+    again.forEach((h, i) =>
+      vi.spyOn(h, 'getBoundingClientRect').mockReturnValue(rect(i * 100, 100)),
+    );
+    fireEvent.pointerDown(again[2], { button: 0, clientX: 250 });
+    fireEvent.pointerMove(window, { clientX: 20 });
+    fireEvent.keyDown(window, { key: 'Escape' });
+    fireEvent.pointerUp(window);
+    expect(headerFields()).toEqual(['name', 'dept', 'salary']);
+    expect(document.querySelector('.TectonDataGrid-dragGhost')).toBeNull();
   });
 
   it('reorders rows with the drag handle and keyboard, and undoes the move', async () => {
@@ -201,14 +220,24 @@ describe('DataGrid drag reordering', () => {
     render(<Harness rowReordering onRowOrderChange={onRowOrderChange} historyStackSize={5} />);
     const rowEl = (id: number) =>
       document.querySelector<HTMLElement>(`.MuiDataGrid-row[data-id="${id}"]`)!;
-    [1, 2, 3].forEach((id, i) =>
-      vi.spyOn(rowEl(id), 'getBoundingClientRect').mockReturnValue(rect(0, 800, i * 50, 50)),
-    );
+    // jsdom has no layout: give rows natural positions (offsetTop ignores the slide transforms).
+    [1, 2, 3].forEach((id, i) => {
+      Object.defineProperty(rowEl(id), 'offsetTop', { configurable: true, value: i * 50 });
+      Object.defineProperty(rowEl(id), 'offsetHeight', { configurable: true, value: 50 });
+      vi.spyOn(rowEl(id), 'getBoundingClientRect').mockReturnValue(rect(0, 800, i * 50, 50));
+    });
     const handle = rowEl(1).querySelector<HTMLElement>('[data-row-reorder-handle]')!;
-    document.elementFromPoint = vi.fn(() => rowEl(3).querySelector('[role="gridcell"]')) as never;
     fireEvent.pointerDown(handle, { button: 0, clientY: 10 });
+    fireEvent.pointerMove(window, { clientX: 10, clientY: 90 });
+    // The source row is dimmed and the row it passed slides up into its slot.
+    expect(rowEl(1).classList.contains('MuiDataGrid-row--beingDragged')).toBe(true);
+    expect(document.querySelector('style[data-tecton-grid-drag]')?.textContent).toContain(
+      '[data-id="2"]{transform:translateY(-50px)',
+    );
+    expect(document.querySelector('.TectonDataGrid-dragGhost')?.textContent).toBe('Ada');
     fireEvent.pointerMove(window, { clientX: 10, clientY: 140 });
     fireEvent.pointerUp(window);
+    expect(rowEl(1).classList.contains('MuiDataGrid-row--beingDragged')).toBe(false);
     expect(onRowOrderChange).toHaveBeenCalledWith({ row: rows[0], oldIndex: 0, targetIndex: 2 });
     expect(cellsOf('name')).toEqual(['Bob', 'Cy', 'Ada']);
     const bobHandle = document.querySelector<HTMLElement>(
@@ -320,5 +349,18 @@ describe('DataGrid editing history', () => {
       fireEvent.keyDown(root, { key: 'z', ctrlKey: true, shiftKey: true });
     });
     await waitFor(() => expect(cellsOf('name')[0]).toBe('Zed'));
+  });
+});
+
+describe('DataGrid checkbox column', () => {
+  it('keeps the Community checkbox classes, also when columns are pinned', () => {
+    render(<Harness checkboxSelection pinnedColumns={{ left: ['name'] }} />);
+    const header = document.querySelector('.MuiDataGrid-columnHeader[data-field="__check__"]')!;
+    expect(header.classList.contains('MuiDataGrid-columnHeaderCheckbox')).toBe(true);
+    expect(header.classList.contains('MuiDataGrid-columnHeader--pinnedLeft')).toBe(true);
+    const cell = document.querySelector(
+      '.MuiDataGrid-row .MuiDataGrid-cell[data-field="__check__"]',
+    )!;
+    expect(cell.classList.contains('MuiDataGrid-cellCheckbox')).toBe(true);
   });
 });

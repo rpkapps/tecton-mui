@@ -12,6 +12,7 @@ import NativeSelect from '@mui/material/NativeSelect';
 import Tooltip from '@mui/material/Tooltip';
 import { useGridApiContext, type GridColDef, type GridFilterItem } from '@mui/x-data-grid';
 import Icon from '../../../Icon/Icon.js';
+import { cssVar } from '../../../styles/tecton/index.js';
 import { useStoreSelector } from '../../core/store.js';
 import { useGridAdvanced, type DerivedState } from '../../core/context.js';
 
@@ -50,6 +51,14 @@ const OPERATOR_GLYPH: Record<string, string> = {
   '>=': '≥',
   '<': '<',
   '<=': '≤',
+};
+
+// Vendor-prefixed selectors, as MUI's InputBase uses: Emotion's prefixer crashes on `::placeholder`
+// when the RTL stylis plugin is active.
+const PLACEHOLDER = { color: cssVar('color-input-filled-text-placeholder'), opacity: 1 };
+const PLACEHOLDER_SX = {
+  '&::-webkit-input-placeholder': PLACEHOLDER,
+  '&::-moz-placeholder': PLACEHOLDER,
 };
 
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
@@ -197,6 +206,7 @@ function HeaderFilterInput({ col }: { col: Col }) {
         }
         placeholder={needsValue ? `${t('filterPanelInputPlaceholder')}…`.replace('……', '…') : ''}
         inputProps={{ 'aria-label': `Filter ${label}` }}
+        slotProps={{ input: { sx: PLACEHOLDER_SX } as never }}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={(e) => {
           e.stopPropagation();

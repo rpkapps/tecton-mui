@@ -249,6 +249,12 @@ export interface DataGridAdvancedProps<R extends GridValidRowModel = any> {
   onDataSourceError?: (error: unknown) => void;
   /** Batched updates through `advancedApiRef.current.updateRows` are flushed at most this often. */
   throttleRowsMs?: number;
+  // Row selection
+  /**
+   * With pagination, the header checkbox selects only the rows of the current page instead of
+   * every filtered row. Selection always persists across pages. @default false
+   */
+  checkboxSelectionVisibleOnly?: boolean;
   // Undo/redo
   /** Number of undoable operations kept (cell edits, paste, row reorder). `0` disables. @default 0 */
   historyStackSize?: number;

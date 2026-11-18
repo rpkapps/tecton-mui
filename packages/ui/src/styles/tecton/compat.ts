@@ -14,8 +14,26 @@ export const muiCompatOverrides: ThemeOptions = {
           // CSS-variables themes), which is what row lines, header and separators used.
           '&&': { '--DataGrid-t-color-border-base': cssVar('color-action-outlined-border') },
         },
-        columnHeaders: {
-          borderBottom: `${cssVar('border-width-100')} solid ${cssVar('color-action-outlined-border')}`,
+        // Tecton puts a bottom border on the header container, but MUI X already draws one on every
+        // header cell (in --DataGrid-t-color-border-base above); together they render 2px.
+        columnHeaders: { borderBottom: 'none' },
+        // Tecton draws the Figma 1px inside stroke of hovered/selected rows as a real border and
+        // shrinks the cells to fit, which shifts every cell 1px right and down on hover. Draw the
+        // stroke as an overlay instead (rows are position: relative in MUI X), above pinned cells
+        // (z-index 30) and below the sticky header/footer containers (40).
+        row: {
+          '&:hover, &.Mui-selected': {
+            border: 'none',
+            '& .MuiDataGrid-cell': { height: 'var(--height)' },
+            '&::after': {
+              content: '""',
+              position: 'absolute',
+              inset: 0,
+              border: `${cssVar('border-width-100')} solid ${cssVar('color-action-outlined-border')}`,
+              pointerEvents: 'none',
+              zIndex: 31,
+            },
+          },
         },
         footerContainer: {
           borderTop: `${cssVar('border-width-100')} solid ${cssVar('color-action-outlined-border')}`,
