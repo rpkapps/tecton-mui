@@ -106,6 +106,16 @@ export function applyThemeCompat(theme: Theme): Theme {
   if (components.MuiSimpleTreeView && !components.MuiRichTreeView) {
     components.MuiRichTreeView = components.MuiSimpleTreeView;
   }
+  // Tecton 0.11.2 sets `defaultProps.disableRipple` on MuiYearCalendar / MuiMonthCalendar. Those
+  // MUI X 9 components have no such prop (their buttons have no ripple), so it reached the DOM and
+  // React warned about an unknown attribute. Drop it.
+  for (const name of ['MuiYearCalendar', 'MuiMonthCalendar']) {
+    const defaults = components[name]?.defaultProps as Record<string, unknown> | undefined;
+    if (defaults && 'disableRipple' in defaults) {
+      const { disableRipple: _ignored, ...rest } = defaults;
+      components[name] = { ...components[name], defaultProps: rest };
+    }
+  }
   // MUI X 9 paints the TimeClock face `rgba(0,0,0,.07)` in both modes and Tecton 0.11.2 has no
   // MuiClock override, so in dark mode the face was invisible. Dark mode only: light keeps the
   // Tecton Storybook rendering.

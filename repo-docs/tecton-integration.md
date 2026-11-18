@@ -155,6 +155,8 @@ Written by `emit` and listed with checksums in
     official Tecton Storybook (same MUI X 9 and Tecton 0.11.2) shows MUI's own selected day
     (`primary.main` fill, Tecton text color), and we match it (see
     `tests/e2e/storybook-parity/REPORT.md`). Its contrast is a recorded Tecton token defect.
+  - **Year/month calendar `disableRipple`:** Tecton sets it as a default prop, but MUI X 9's
+    `YearCalendar` / `MonthCalendar` have no such prop and pass it to the DOM. The correction drops it.
   - **TimeClock face (dark mode):** MUI X 9 paints it `rgba(0,0,0,.07)` and Tecton has no
     `MuiClock` override, so it was invisible in dark mode. Dark mode uses
     `color-component-input-filled-background`; light mode is unchanged (Storybook parity).

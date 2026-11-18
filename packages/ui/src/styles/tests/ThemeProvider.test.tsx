@@ -6,6 +6,9 @@ import { hydrateRoot } from 'react-dom/client';
 import { useTheme } from '@mui/material/styles';
 import TextField from '@mui/material/TextField';
 import InputBase from '@mui/material/InputBase';
+import { YearCalendar } from '@mui/x-date-pickers/YearCalendar';
+import { MonthCalendar } from '@mui/x-date-pickers/MonthCalendar';
+import { LocalizationProvider } from '../../LocalizationProvider/index.js';
 import {
   ThemeProvider,
   createTheme,
@@ -257,6 +260,26 @@ describe('Tecton compat corrections', () => {
     expect(root['&.Mui-disabled:not(.Mui-selected)']).toEqual({
       color: 'var(--tecton-color-text-disabled)',
     });
+  });
+
+  it('does not pass the unknown disableRipple prop to the year and month calendars', () => {
+    const components = createTheme().components as Record<
+      string,
+      { defaultProps?: Record<string, unknown> } | undefined
+    >;
+    expect(components.MuiYearCalendar?.defaultProps).not.toHaveProperty('disableRipple');
+    expect(components.MuiMonthCalendar?.defaultProps).not.toHaveProperty('disableRipple');
+    const errors = vi.spyOn(console, 'error').mockImplementation(() => {});
+    render(
+      <ThemeProvider>
+        <LocalizationProvider>
+          <YearCalendar />
+          <MonthCalendar />
+        </LocalizationProvider>
+      </ThemeProvider>,
+    );
+    expect(errors.mock.calls.flat().join(' ')).not.toMatch(/disableRipple/);
+    errors.mockRestore();
   });
 
   it('gives the TimeClock face a visible Tecton surface in dark mode only', () => {
