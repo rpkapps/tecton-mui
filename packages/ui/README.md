@@ -7,23 +7,18 @@
 A private React component library with the familiar MUI component names, imports, props and
 customization APIs, preconfigured with the **Tecton** design system.
 
-- Standard MUI Core and Lab components are re-exported directly from the MIT-licensed MUI packages.
-  You get the same components, props, slots and refs, styled by Tecton through the theme.
-- MUI X Community Date and Time Pickers, `SimpleTreeView` and the Community Data Grid are included.
-- One unified `DataGrid`, range pickers (`DateRangePicker`, `TimeRangePicker`,
-  `DateTimeRangePicker` and their variants) and one unified `RichTreeView` add advanced features.
-  They are implemented independently, on public MUI X Community APIs only. No commercial MUI X code
-  is used.
-- Tecton fonts, icons and design tokens, with a typed `Icon` component. `@mui/icons-material` is
-  not required.
-- Light and dark mode shared by every React root on the page, RTL, and SSR helpers.
-- ESM only, with TypeScript declarations for every public path. Imports are tree-shakeable.
+- MUI Core and Lab components are direct re-exports of the MIT MUI packages (same components,
+  props, slots and refs), styled by Tecton through the theme. MUI X Community Date and Time
+  Pickers and `SimpleTreeView` are included.
+- One unified `DataGrid`, range pickers and one unified `RichTreeView` add advanced features,
+  implemented independently on public MUI X Community APIs. No commercial MUI X code is used.
+- Tecton fonts, icons and tokens, with a typed `Icon` (no `@mui/icons-material` needed). Light and
+  dark mode shared by every React root on the page, RTL and SSR helpers.
+- ESM only, TypeScript declarations for every public path, tree-shakeable imports.
 
-**Requirements:** React and React DOM **19 or later** (peer dependencies). `@types/react` 19 is an
-optional peer for TypeScript users.
-
-**License:** `UNLICENSED` (internal, private package). Open-source dependencies, the Tecton
-artifacts and the bundled fonts are listed in [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md).
+**Requirements:** React and React DOM **19 or later** (peer dependencies); `@types/react` 19 is an
+optional peer. **License:** `UNLICENSED` (internal). Open-source dependencies, Tecton artifacts and
+bundled fonts are listed in [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md).
 
 ## Installation
 
@@ -76,11 +71,11 @@ export function App() {
 
 `ThemeProvider` renders no DOM. It does **not** render `CssBaseline` or `LocalizationProvider`.
 
-| Prop           | Description                                                                                                                                                                                |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `themeOptions` | MUI `ThemeOptions` merged over the Tecton defaults for the current mode. Pass a stable (module-level or memoized) object so the theme is not rebuilt on every render.                       |
-| `theme`        | A complete theme, or an MUI nested-theme function, used as is (MUI semantics). It does not follow the shared mode by itself.                                                               |
-| `direction`    | `'ltr'` (default) or `'rtl'`. See [RTL](#rtl).                                                                                                                                             |
+| Prop           | Description                                                                                                                                                           |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `themeOptions` | MUI `ThemeOptions` merged over the Tecton defaults for the current mode. Pass a stable (module-level or memoized) object so the theme is not rebuilt on every render. |
+| `theme`        | A complete theme, or an MUI nested-theme function, used as is (MUI semantics). It does not follow the shared mode by itself.                                          |
+| `direction`    | `'ltr'` (default) or `'rtl'`. See [RTL](#rtl).                                                                                                                        |
 
 `createTheme(options)` has the MUI signature and starts from the Tecton defaults. `palette.mode`
 selects the light or dark Tecton base. The standard MUI customization APIs (`sx`, `styled`,
@@ -99,19 +94,19 @@ The library has no micro-frontend runtime. Each MFE is an independent React root
 element. What the library provides is a set of explicit style entry points. Ordinary component
 imports never inject global CSS.
 
-| Entry point                             | Contents                                                                                             |
-| --------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `@tecton-mui/ui/styles/global.css`      | Tecton fonts (`@font-face`, font files included), icon classes and design tokens (`--tecton-*`).    |
-| `@tecton-mui/ui/styles/components.css`  | Static component styles. **Intentionally empty today**, see below.                                  |
-| `@tecton-mui/ui/styles/fonts.css`, `icons.css`, `tokens.css` | The three parts of `global.css` as separate files.                               |
+| Entry point                                                  | Contents                                                                                         |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ |
+| `@tecton-mui/ui/styles/global.css`                           | Tecton fonts (`@font-face`, font files included), icon classes and design tokens (`--tecton-*`). |
+| `@tecton-mui/ui/styles/components.css`                       | Static component styles. **Intentionally empty today**, see below.                               |
+| `@tecton-mui/ui/styles/fonts.css`, `icons.css`, `tokens.css` | The three parts of `global.css` as separate files.                                               |
 
 Your bundler must handle CSS imports and the relative font URLs in `global.css` / `fonts.css`.
 
-| Environment       | `global.css`      | `components.css`      | `ThemeProvider` | `CssBaseline`                           |
-| ----------------- | ----------------- | --------------------- | --------------- | --------------------------------------- |
-| Shell             | Import **once**   | Optional              | Yes             | Render **once**                         |
-| Hosted MFE        | **Never**         | Optional, recommended | Yes, its own    | **Never** (use `ScopedCssBaseline`)     |
-| Standalone app    | Import **once**   | Optional              | Yes             | Yes, if it owns the page                |
+| Environment    | `global.css`    | `components.css`      | `ThemeProvider` | `CssBaseline`                       |
+| -------------- | --------------- | --------------------- | --------------- | ----------------------------------- |
+| Shell          | Import **once** | Optional              | Yes             | Render **once**                     |
+| Hosted MFE     | **Never**       | Optional, recommended | Yes, its own    | **Never** (use `ScopedCssBaseline`) |
+| Standalone app | Import **once** | Optional              | Yes             | Yes, if it owns the page            |
 
 **Shell, or a standalone app that owns the page:**
 
@@ -151,12 +146,9 @@ export function mount(element: HTMLElement) {
 ```
 
 A hosted MFE relies on the shell for fonts, icons, tokens and the global reset. Importing
-`global.css` again duplicates the `@font-face` rules and token declarations.
-
-`components.css` exists so that hosted MFEs have a stable import. Tecton 0.11.2 ships no static
-component CSS, because component styles are rendered by Emotion at runtime. The file therefore
-contains no rules, resets or custom properties. Keeping the import means a future release can add
-static styles without code changes.
+`global.css` again would duplicate the `@font-face` rules and token declarations.
+`components.css` is a stable import that contains no rules today: Tecton 0.11.2 ships no static
+component CSS, because Emotion renders component styles at runtime.
 
 ### Token initialization
 
@@ -171,11 +163,9 @@ call `initTecton()`. On initialization it:
 2. Sets `data-theme="light"` or `data-theme="dark"` on `<html>`. The token CSS defines both modes
    with this attribute.
 
-Fonts and icon classes are never injected. They come only from `global.css` (or `fonts.css` and
-`icons.css`).
-
-`initTecton(config?)` is safe to call from every root. `config` accepts `defaultMode`
-(`'light' | 'dark' | 'system'`, default `'light'`) and `storageKey` (default `tecton-theme-mode`).
+Fonts and icon classes are never injected; they come only from the CSS files. `initTecton(config?)`
+is safe to call from every root. `config` accepts `defaultMode` (`'light' | 'dark' | 'system'`,
+default `'light'`) and `storageKey` (default `tecton-theme-mode`).
 
 ## CssBaseline and ScopedCssBaseline
 
@@ -205,16 +195,16 @@ import { useTectonMode } from '@tecton-mui/ui/styles';
 import Button from '@tecton-mui/ui/Button';
 
 function ModeToggle() {
-  const { mode, preference, setMode, toggleMode, clearPreference } = useTectonMode();
+  const { mode, toggleMode } = useTectonMode();
   return <Button onClick={toggleMode}>{mode === 'dark' ? 'Light mode' : 'Dark mode'}</Button>;
 }
 ```
 
-- `setMode('light' | 'dark' | 'system')` stores the preference in `localStorage`. `'system'`
-  follows `prefers-color-scheme`. `clearPreference()` returns to the default mode.
-- Other tabs follow the change through `storage` events.
-- `useTectonModeValue()` returns only the mode. `getThemeManager()` returns the manager itself (or
-  `null` on the server).
+`useTectonMode()` also returns `preference`, `setMode('light' | 'dark' | 'system')` and
+`clearPreference()`. The preference is stored in `localStorage`, `'system'` follows
+`prefers-color-scheme`, and other tabs follow changes through `storage` events.
+`useTectonModeValue()` returns only the mode; `getThemeManager()` returns the manager (`null` on the
+server).
 
 ### SSR
 
@@ -232,11 +222,10 @@ import { TectonModeScript, TectonTokensStyle } from '@tecton-mui/ui/styles';
 </head>;
 ```
 
-- `TectonModeScript` accepts `storageKey`, `defaultMode` and `nonce`. Use the same `storageKey` and
-  `defaultMode` as `initTecton()`. `getTectonModeScript(options)` returns the script source as a
-  string for non-React templates.
-- `TectonTokensStyle` is for SSR apps that do not load `global.css`. You still need fonts and icons
-  (`fonts.css` and `icons.css`).
+- `TectonModeScript` accepts `storageKey`, `defaultMode` (use the same values as `initTecton()`)
+  and `nonce`. `getTectonModeScript(options)` returns the script source for non-React templates.
+- `TectonTokensStyle` is for SSR apps that do not load `global.css`; load `fonts.css` and
+  `icons.css` separately.
 - On the server, `ThemeProvider` renders the light theme, or the `defaultMode` passed to
   `initTecton()` if it is `'light'` or `'dark'`. After hydration, React components switch to the
   stored mode.
@@ -334,22 +323,24 @@ const columns: GridColDef[] = [
 </div>;
 ```
 
-| Feature                     | Props / API                                                                                                  |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| Multi-column sort / filter  | On by default (Shift/Ctrl-click to sort). `disableMultipleColumnsSorting`, `disableMultipleColumnsFiltering`, `headerFilters` |
-| Column pinning, reordering  | `pinnedColumns`, `onPinnedColumnsChange`, `onColumnOrderChange`. Header drag reordering is on unless `disableColumnReorder` |
-| Row pinning, reordering     | `pinnedRows`, `rowReordering`, `onRowOrderChange`                                                            |
-| Tree data                   | `treeData`, `getTreeDataPath`                                                                                |
-| Row grouping, aggregation   | `rowGroupingModel`, `aggregationModel`, `aggregationFunctions` (built in: `sum`, `avg`, `min`, `max`, `size`) |
-| Master/detail               | `getDetailPanelContent`, `getDetailPanelHeight`, `detailPanelExpandedRowIds`                                 |
-| Cell selection, paste       | `cellSelection`, `cellSelectionModel`, `onClipboardPasteEnd`, `disableClipboardPaste`                        |
-| Server-side data            | `dataSource` (`getRows`, optional `updateRow`, grouping callbacks), `dataSourceCache`, `lazyLoading`         |
-| Batched updates             | `advancedApiRef.current.updateRows(...)`, `throttleRowsMs`                                                   |
-| Undo / redo                 | `historyStackSize` (default `0`, off); Ctrl/Cmd+Z to undo, Ctrl/Cmd+Shift+Z or Ctrl/Cmd+Y to redo                                |
-| Imperative API              | `useGridAdvancedApiRef()` with `advancedApiRef`                                                              |
+| Feature                    | Props / API                                                                                                                   |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Multi-column sort / filter | On by default (Shift/Ctrl-click to sort). `disableMultipleColumnsSorting`, `disableMultipleColumnsFiltering`, `headerFilters` |
+| Column pinning, reordering | `pinnedColumns`, `onPinnedColumnsChange`, `onColumnOrderChange`. Header drag reordering is on unless `disableColumnReorder`   |
+| Row pinning, reordering    | `pinnedRows`, `rowReordering`, `onRowOrderChange`                                                                             |
+| Tree data                  | `treeData`, `getTreeDataPath`                                                                                                 |
+| Row grouping, aggregation  | `rowGroupingModel`, `aggregationModel`, `aggregationFunctions` (built in: `sum`, `avg`, `min`, `max`, `size`)                 |
+| Master/detail              | `getDetailPanelContent`, `getDetailPanelHeight`, `detailPanelExpandedRowIds`                                                  |
+| Cell selection, paste      | `cellSelection`, `cellSelectionModel`, `onClipboardPasteEnd`, `disableClipboardPaste`                                         |
+| Server-side data           | `dataSource` (`getRows`, optional `updateRow`, grouping callbacks), `dataSourceCache`, `lazyLoading`                          |
+| Batched updates            | `advancedApiRef.current.updateRows(...)`, `throttleRowsMs`                                                                    |
+| Undo / redo                | `historyStackSize` (default `0`, off); Ctrl/Cmd+Z to undo, Ctrl/Cmd+Shift+Z or Ctrl/Cmd+Y to redo                             |
+| Imperative API             | `useGridAdvancedApiRef()` with `advancedApiRef`                                                                               |
 
 `DataGridPro` and `DataGridPremium` are not exported. The supported advanced props are exactly
-those declared in `DataGridAdvancedProps`, which is exported as a type.
+those declared in `DataGridAdvancedProps`, which is exported as a type. Supported, partial and
+unsupported behaviour is listed in the [Data Grid support matrix](./src/DataGrid/SUPPORT.md)
+(repository link; the docs portal renders the same matrix).
 
 ### Range pickers
 
@@ -424,12 +415,10 @@ See the [Tree View support matrix](./src/RichTreeView/SUPPORT.md).
 - The SUPPORT matrix links above point into the source repository. They are not part of the
   published package.
 
-## Documentation
+## Documentation, versioning and changelog
 
 The consumer documentation portal, with live demos, API tables and compatibility matrices, is at
 `__DOCS_URL__`.
-
-## Versioning and changelog
 
 The package follows semantic versioning. Release notes are generated with Changesets into
 `CHANGELOG.md` in this package and are shown on the portal's **Releases → Changelog** page. Each
