@@ -1,0 +1,21 @@
+## Purpose
+
+The app bar holds the product name, primary navigation and global actions such as search,
+notifications and the user menu. In a micro-frontend setup the shell typically owns the app bar.
+
+## Basic usage
+
+Tecton adds two props: `productColor` (`app1` to `app4`) publishes a product branding color, and
+`tier="secondary"` renders the compact second tier for in-page navigation.
+
+<Demo name="ProductAppBar" />
+
+## Accessibility
+
+- Render the app bar inside a `<header>` landmark (`component="header"` is the default) and put
+  navigation links in a `<nav>` with an `aria-label`.
+- Provide a "skip to content" link before the app bar so keyboard users can bypass it, as this portal
+  does.
+- Icon buttons in the bar need `aria-label`s.
+- With `position="fixed"`, add a `Toolbar` spacer (or equivalent padding) so content is not hidden
+  behind the bar.

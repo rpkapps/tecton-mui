@@ -1,0 +1,35 @@
+## Purpose
+
+`Icon` renders an icon from the Tecton icon set. It replaces Material Icons: the `name` prop is typed
+with every available icon, so typos are caught by TypeScript. Icons are drawn with CSS masks in
+`currentColor`, so they adopt the color of the surrounding text.
+
+The full list is in the [icon gallery](/guides/styles-and-icons#icon-gallery).
+
+## Variants, sizes and color
+
+`variant` is `outline` (default) or `filled`; sizes follow the Tecton steps. Color comes from the
+context or `sx`.
+
+<Demo name="IconBasics" />
+
+## Inside other components
+
+Pass `Icon` wherever MUI expects an icon element: `startIcon`, `endIcon`, `icon`, adornments or as
+the child of `IconButton`.
+
+<Demo name="IconsInComponents" />
+
+## Accessibility
+
+- Without `title`, icons render `aria-hidden` and are ignored by assistive technology. That is right
+  when a text label is next to the icon.
+- When the icon alone carries meaning (a status indicator), pass `title`; the icon then gets
+  `role="img"` and an accessible name.
+- Icon-only buttons need an `aria-label` on the button.
+
+## Limitations
+
+- Requires `icons.css` (part of `styles/global.css`) to be loaded by the host page.
+- Multicolor brand marks ignore `variant` and text color.
+- SVG children (`SvgIcon`) remain supported for icons that are not in the Tecton set.

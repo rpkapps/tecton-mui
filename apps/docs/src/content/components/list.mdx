@@ -1,0 +1,25 @@
+## Purpose
+
+Lists present a vertical set of related items: navigation entries, search results, files, settings.
+Each row can combine an icon or avatar, primary and secondary text, and actions.
+
+## Interactive list
+
+Use `ListItemButton` for rows that act as one control, and `selected` for the current item.
+
+<Demo name="NavigationList" />
+
+## Rows with secondary actions
+
+`ListItem` with `secondaryAction` keeps the row static and adds a separate control at the end.
+
+<Demo name="ListWithActions" />
+
+## Accessibility
+
+- `List` renders a `<ul>`; rows render `<li>`. Keep that structure when inserting dividers
+  (`Divider component="li"`).
+- `ListItemButton` is focusable and activated with <kbd>Enter</kbd> or <kbd>Space</kbd>. For a
+  navigation list render it as a link (`component="a"` with `href`, or your router's link) and mark
+  the current page with `aria-current="page"`.
+- Arrow-key navigation is not built into `List`; use `MenuList` for menu-like keyboard behaviour.

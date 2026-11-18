@@ -1,0 +1,72 @@
+{/* INTEGRATION: the unified DataGrid (Community foundation plus independently implemented feature modules) is being written in packages/ui/src/DataGrid. Do not import it here until it lands. Then: add live demos under src/demos/data-grid/, list 'DataGrid' in this page's `components` in src/data/catalog.ts and remove /^DataGrid/ from PENDING in scripts/generate-api.mjs so the API table is generated. */}
+
+## Overview
+
+`DataGrid` displays and edits tabular data: sorting, filtering, pagination, column management, row
+selection and editing out of the box, and advanced capabilities such as pinning, row grouping,
+aggregation, tree data and server-side data when you enable them through props.
+
+There is **one** `DataGrid` in `@tecton-mui/ui`. It is built on the MIT-licensed Community grid, with
+advanced features implemented independently in this library. There are no separate Pro or Premium
+components and no license key. With default props it behaves like the Community grid; nothing is
+grouped, pinned or aggregated unless you ask for it.
+
+> The Data Grid is being integrated. Live demos and the generated API will appear here when it is
+> released.
+
+## Basic usage
+
+{/* INTEGRATION: basic DataGrid demo (rows + columns, pagination, sorting). */}
+
+```tsx
+import { DataGrid } from '@tecton-mui/ui/DataGrid';
+
+const columns = [
+  { field: 'id', headerName: 'ID', width: 90 },
+  { field: 'well', headerName: 'Well', flex: 1 },
+  { field: 'depth', headerName: 'Depth (m)', type: 'number', width: 140 },
+];
+const rows = [
+  { id: 1, well: 'A-12', depth: 3120 },
+  { id: 2, well: 'B-07', depth: 2875 },
+];
+
+<DataGrid rows={rows} columns={columns} />;
+```
+
+{/* INTEGRATION: confirm the export style (named vs default) and the snippet above against the shipped API before release. */}
+
+## Advanced features compatibility matrix
+
+{/* INTEGRATION: fill in the status and notes columns from the DataGrid feature test suites. */}
+
+| Capability                                         | Enabled by | Status                  |
+| -------------------------------------------------- | ---------- | ----------------------- |
+| Sorting, filtering, pagination (single column)     | default    | Integration in progress |
+| Multi-column sorting and filtering, header filters | props      | Integration in progress |
+| Column pinning and reordering                      | props      | Integration in progress |
+| Row pinning and reordering                         | props      | Integration in progress |
+| Multi-row and range row selection                  | props      | Integration in progress |
+| Tree data                                          | props      | Integration in progress |
+| Master/detail panels                               | props      | Integration in progress |
+| Server-side lazy loading, batched row updates      | props      | Integration in progress |
+| Row grouping                                       | props      | Integration in progress |
+| Aggregation and summary rows                       | props      | Integration in progress |
+| Cell range selection and clipboard paste           | props      | Integration in progress |
+| Server-side grouping and aggregation               | props      | Integration in progress |
+| Undo/redo                                          | props      | Integration in progress |
+| CSV export and print (Community)                   | default    | Integration in progress |
+
+**Not included:** AI assistant, spreadsheet-style formulas, chart integration, pivoting and Excel
+export.
+
+## Accessibility
+
+{/* INTEGRATION: keyboard and screen-reader notes verified against the implementation. */}
+
+The grid follows the ARIA grid pattern: arrow keys move between cells, <kbd>Enter</kbd> starts editing
+and <kbd>Escape</kbd> cancels, and headers announce their sort state.
+
+## API
+
+The API reference will be generated from the package types when the component is released.

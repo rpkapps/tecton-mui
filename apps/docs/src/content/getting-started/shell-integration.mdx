@@ -1,0 +1,61 @@
+## What the shell owns
+
+In a micro-frontend architecture, the **shell** is the application that renders the page frame and
+mounts feature applications. Page-wide concerns belong to it and to nothing else:
+
+| Concern                                                   | Shell                       | Hosted MFE              |
+| --------------------------------------------------------- | --------------------------- | ----------------------- |
+| `@tecton-mui/ui/styles/global.css` (fonts, icons, tokens) | Load once                   | Do not load             |
+| `CssBaseline` (global reset)                              | Render once                 | Do not render           |
+| `ThemeProvider`                                           | Yes, for its own tree       | Yes, in each React root |
+| Light/dark mode                                           | Shared Tecton theme manager | Same shared manager     |
+
+## Shell setup
+
+```tsx
+// shell/src/main.tsx
+import '@tecton-mui/ui/styles/global.css';
+import { createRoot } from 'react-dom/client';
+import CssBaseline from '@tecton-mui/ui/CssBaseline';
+import { ThemeProvider, initTecton } from '@tecton-mui/ui/styles';
+import { Shell } from './Shell';
+
+// Explicit host step: initialize the page-wide Tecton theme manager. Pass options only here,
+// in the shell, so that every root on the page agrees on them.
+initTecton({ defaultMode: 'system' });
+
+createRoot(document.getElementById('root')!).render(
+  <ThemeProvider>
+    <CssBaseline />
+    <Shell />
+  </ThemeProvider>,
+);
+```
+
+`initTecton` accepts an optional configuration:
+
+- `defaultMode`: `'light'`, `'dark'` or `'system'`, used when the user has not chosen a mode yet.
+  Without it the default is `light`.
+- `storageKey`: where the preference is stored (`tecton-theme-mode` by default). Change it only if
+  several products share an origin and must keep independent preferences.
+
+## Mode switching in the shell
+
+The shell typically hosts the mode toggle. It calls `useTectonMode().toggleMode()` (or `setMode`);
+every `ThemeProvider` on the page, including those inside micro-frontends, re-renders with the new
+mode because they all subscribe to the same manager. There is no React context to pass down and no
+event to forward.
+
+## Portals and overlays
+
+Dialogs, menus, popovers and tooltips render into `document.body` through React portals. They
+work across independent React roots that share the document: each overlay is themed by the
+`ThemeProvider` of the root that rendered it, and stacking order follows the theme's `zIndex`
+scale, which is identical in every root.
+
+## What the library does not do
+
+The library has no micro-frontend runtime. It does not configure Module Federation, share React or
+Emotion between bundles, or provide communication between applications. Those decisions belong to
+your platform setup. If several micro-frontends share one copy of `@tecton-mui/ui`, that is a
+bundling decision; the library works either way.

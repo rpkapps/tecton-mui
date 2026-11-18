@@ -1,0 +1,16 @@
+## Purpose
+
+A switch turns one setting on or off and applies the change immediately, like a light switch. If the
+change only takes effect after pressing a "Save" button, use a [Checkbox](/components/checkbox).
+
+## Basic usage
+
+<Demo name="SwitchLabels" />
+
+## Accessibility
+
+- The switch renders a native checkbox input with `role="switch"`, so screen readers announce it as
+  on/off. Always give it a label through `FormControlLabel` or `aria-label`.
+- Keyboard: <kbd>Space</kbd> toggles.
+- Keep the label stable ("Auto-save") or make it describe the current state consistently; avoid labels
+  that describe the action ("Turn on").

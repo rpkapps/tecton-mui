@@ -1,0 +1,18 @@
+## Purpose
+
+Avatars represent people, teams or systems with a photo, initials or an icon. `AvatarGroup` stacks
+several avatars and summarises the rest as "+N".
+
+## Basic usage
+
+Tecton sizes are `xsmall` (18px), `small` (24px), `medium` (32px) and `large` (40px). Avatars with
+initials get a stable accent color derived from their content.
+
+<Demo name="Avatars" />
+
+## Accessibility
+
+- An avatar image needs `alt` text (`<Avatar alt="Ada Lovelace" src="…" />`).
+- Initials alone are often meaningless to screen-reader users; show the name next to the avatar or add
+  an `aria-label`.
+- The "+N" surplus avatar in a group is text; mention who is hidden elsewhere if that matters.

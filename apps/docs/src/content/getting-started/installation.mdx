@@ -1,0 +1,67 @@
+## Requirements
+
+- React 19 and React DOM 19 (peer dependencies).
+- A bundler that understands package `exports` maps and CSS imports, such as Vite, webpack 5 or
+  Rspack. TypeScript users need `moduleResolution` set to `bundler`, `node16` or `nodenext`.
+- No separate installation of `@mui/material`, `@mui/x-date-pickers`, `@emotion/*` or `date-fns`:
+  they are dependencies of `@tecton-mui/ui` and are pinned to versions the library is tested with.
+
+## Install the package
+
+`@tecton-mui/ui` is published to the organisation's private registry. Once your project is
+configured for that registry, add the package with your package manager:
+
+```bash
+pnpm add @tecton-mui/ui
+# or
+npm install @tecton-mui/ui
+```
+
+> Do not add `@mui/material` next to it to "get the latest". Mixing a second copy of MUI or Emotion
+> in one bundle leads to duplicated styles and theme contexts that do not see each other.
+
+## Load the Tecton styles once
+
+Fonts, icons and the Tecton design tokens ship as plain CSS. The application that owns the page
+(the shell, or a standalone app) imports the global stylesheet exactly once:
+
+```tsx
+// main.tsx of the shell or standalone application
+import '@tecton-mui/ui/styles/global.css';
+```
+
+Micro-frontends hosted inside a shell must **not** import it again. See
+[Shell Integration](/getting-started/shell-integration) and
+[MFE / Standalone Integration](/getting-started/mfe-standalone) for the exact split.
+
+## Wrap your application
+
+```tsx
+import CssBaseline from '@tecton-mui/ui/CssBaseline';
+import { ThemeProvider } from '@tecton-mui/ui/styles';
+
+export function Root() {
+  return (
+    <ThemeProvider>
+      <CssBaseline />
+      <App />
+    </ThemeProvider>
+  );
+}
+```
+
+`ThemeProvider` needs no configuration: it provides the Tecton theme for the current shared
+light/dark mode. Continue with the [Quick Start](/getting-started/quick-start).
+
+## Optional date libraries
+
+Date and time pickers work out of the box with `date-fns` and native `Date` values. If your
+application already uses Day.js, Luxon or Moment, install that library yourself and import the
+matching adapter, for example `@tecton-mui/ui/AdapterDayjs`. Adapters are never bundled unless you
+import them. See [LocalizationProvider and locales](/guides/localization).
+
+## TypeScript
+
+Type declarations are included for every public import path. Tecton-specific props, such as
+`activated` on `Button` or the `tertiary` color, are available as soon as you import from
+`@tecton-mui/ui`; no extra `declare module` setup is needed.

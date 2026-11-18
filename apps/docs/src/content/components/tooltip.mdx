@@ -1,0 +1,17 @@
+## Purpose
+
+Tooltips show a short, non-essential label when an element is hovered or focused, typically the name
+of an icon button. They must not contain interactive content or information users need to complete a
+task; use a [Popover](/components/popover) or helper text instead.
+
+## Basic usage
+
+<Demo name="BasicTooltips" />
+
+## Accessibility
+
+- The tooltip text becomes the accessible description of its child (or its label when the child has
+  no other name). Still give icon buttons an `aria-label`.
+- Tooltips open on hover and keyboard focus and close with <kbd>Escape</kbd>.
+- The child must accept a ref and forward event handlers; wrap disabled elements in a `<span>`.
+- Keep the text short; users with magnification may not see long tooltips completely.

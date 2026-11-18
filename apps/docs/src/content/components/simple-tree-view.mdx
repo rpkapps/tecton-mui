@@ -1,0 +1,32 @@
+## Purpose
+
+`SimpleTreeView` displays a hierarchy declared with JSX: each `TreeItem` has an `itemId`, a `label`
+and nested items as children. It suits small and medium trees whose structure is known when rendering,
+such as navigation or settings. For large or data-driven trees, use the
+[Rich Tree View](/components/rich-tree-view).
+
+## Basic usage
+
+<Demo name="FileTree" />
+
+## Selection
+
+`multiSelect` and `checkboxSelection` enable multiple selection with checkboxes. Control the state with
+`selectedItems` and `onSelectedItemsChange`; expansion works the same way with `expandedItems`.
+
+<Demo name="ControlledSelection" />
+
+## Accessibility
+
+- Follows the ARIA tree pattern: the view is a `tree`, items are `treeitem`s with `aria-expanded` and
+  `aria-selected`. Name the tree with `aria-label`.
+- Keyboard: <kbd>Up</kbd>/<kbd>Down</kbd> move between visible items; <kbd>Right</kbd> expands or moves
+  to the first child; <kbd>Left</kbd> collapses or moves to the parent; <kbd>Home</kbd>/<kbd>End</kbd>
+  jump to the first/last item; <kbd>Enter</kbd> or <kbd>Space</kbd> selects; typing a character moves
+  to the next item starting with it; <kbd>\*</kbd> expands all siblings.
+- In right-to-left layout the <kbd>Left</kbd>/<kbd>Right</kbd> behaviour is mirrored.
+
+## Limitations
+
+- Every item must have a unique `itemId`.
+- Lazy loading, drag-and-drop reordering and label editing belong to the Rich Tree View.

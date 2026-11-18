@@ -1,0 +1,26 @@
+## Purpose
+
+`TimePicker` enters a time of day. On desktop it opens a digital list of hours and minutes; on touch
+devices an analog clock in a dialog. The date part of the value is preserved.
+
+## Basic usage
+
+`ampm` switches between 12- and 24-hour display (the default follows the locale). `minutesStep`
+limits the available minutes. `views` selects which sections appear (for example add `'seconds'`).
+
+<Demo name="BasicTimePicker" />
+
+## Accessibility
+
+- The field is keyboard-first: each part of the date (month, day, year, hours…) is a section. Arrow
+  keys <kbd>Left</kbd>/<kbd>Right</kbd> move between sections, <kbd>Up</kbd>/<kbd>Down</kbd> change the
+  value, digits type it directly.
+- The open-picker button has an accessible label that includes the current value. In the popup,
+  arrow keys move between days (or time options), <kbd>Page Up</kbd>/<kbd>Page Down</kbd> change the
+  month, <kbd>Enter</kbd> selects and <kbd>Escape</kbd> closes and returns focus to the field.
+- Always give the picker a `label`; describe constraints (minimum date, format) in helper text.
+- On touch devices without a fine pointer the responsive variant opens a full-screen dialog.
+
+## Limitations
+
+- Time ranges are provided by the separate [range pickers](/components/date-range-pickers).

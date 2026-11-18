@@ -1,0 +1,41 @@
+## Purpose
+
+`CssBaseline` applies a global CSS reset and the Tecton base styles to the whole page: box sizing,
+font smoothing, the Tecton text font and color, and the page background for the current mode.
+`ScopedCssBaseline` applies the same styles to its subtree only.
+
+## Usage
+
+Render `CssBaseline` **once**, in the application that owns the page (the shell or a standalone
+application), inside `ThemeProvider`:
+
+```tsx
+import CssBaseline from '@tecton-mui/ui/CssBaseline';
+import { ThemeProvider } from '@tecton-mui/ui/styles';
+
+<ThemeProvider>
+  <CssBaseline />
+  <App />
+</ThemeProvider>;
+```
+
+Hosted micro-frontends must not render `CssBaseline`; their styles would reset the shell. If a hosted
+application needs baseline styles for its own container, use `ScopedCssBaseline`:
+
+```tsx
+import ScopedCssBaseline from '@tecton-mui/ui/ScopedCssBaseline';
+
+<ScopedCssBaseline>
+  <FeatureApp />
+</ScopedCssBaseline>;
+```
+
+`CssBaseline` does not load fonts, icons or tokens; those come from `styles/global.css`. See
+[Shell Integration](/getting-started/shell-integration).
+
+## Accessibility
+
+- The baseline sets the document text color and background from the Tecton palette, which keeps
+  default text readable in both modes.
+- `enableColorScheme` sets the CSS `color-scheme` property so native scrollbars and form controls
+  follow the mode.

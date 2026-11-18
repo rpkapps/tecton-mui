@@ -1,0 +1,26 @@
+## Purpose
+
+Tabs switch between related views of the same context without leaving the page. Keep labels short and
+the number of tabs small; for many destinations use navigation lists or a menu.
+
+## Basic usage
+
+Tabs and their panels are connected with `id`, `aria-controls` and `aria-labelledby`. The Lab
+[Tab Context](/components/tab-context) components wire this up for you.
+
+<Demo name="BasicTabs" />
+
+## Tecton pill tabs
+
+`variant="pills"` renders Tecton's filled tab style; `size` is `medium` (default) or `small`.
+
+<Demo name="PillTabs" />
+
+## Accessibility
+
+- Follows the ARIA tabs pattern: `Tabs` is a `tablist`, each `Tab` a `tab`, panels are `tabpanel`s.
+- Keyboard: <kbd>Tab</kbd> focuses the selected tab; arrow keys move between tabs (automatic
+  activation); <kbd>Home</kbd>/<kbd>End</kbd> jump to the first/last tab. In right-to-left layout the
+  arrow keys are mirrored.
+- Name the tab list with `aria-label`.
+- With `variant="scrollable"`, scroll buttons appear when tabs overflow.

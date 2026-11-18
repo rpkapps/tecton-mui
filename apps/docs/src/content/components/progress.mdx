@@ -1,0 +1,22 @@
+## Purpose
+
+Progress indicators show that the application is working. Use a **determinate** indicator when the
+amount of work is known and an **indeterminate** one otherwise. Prefer skeletons for content that is
+loading into a known layout.
+
+## Circular
+
+<Demo name="CircularIndicators" />
+
+## Linear
+
+<Demo name="LinearIndicators" />
+
+## Accessibility
+
+- Indicators have `role="progressbar"`; determinate ones expose `aria-valuenow`. Name every indicator
+  with `aria-label` or `aria-labelledby`.
+- Mark the region being updated with `aria-busy="true"` while loading, and announce completion with
+  visible text.
+- Animations respect the user's reduced-motion preference where upstream supports it.
+- Tecton adds `secondary` and `tertiary` colors to both components.

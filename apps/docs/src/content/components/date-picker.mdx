@@ -1,0 +1,43 @@
+## Purpose
+
+`DatePicker` lets users type a date or pick it from a calendar. It adapts to the device: a popover
+calendar on desktop, a full-screen dialog on touch devices. Use `DesktopDatePicker`,
+`MobileDatePicker` or `StaticDatePicker` to force one presentation.
+
+Pickers need a [`LocalizationProvider`](/guides/localization) above them. The one from
+`@tecton-mui/ui` defaults to `date-fns` and `en-US`, so no adapter setup is required. Values are
+native `Date` objects (or `null`).
+
+## Basic usage
+
+<Demo name="BasicDatePicker" />
+
+## Validation
+
+`minDate`, `maxDate`, `disablePast`, `disableFuture` and `shouldDisableDate` restrict the selectable
+dates. `onError` reports why the current value is invalid so you can show a message.
+
+<Demo name="ValidatedDatePicker" />
+
+## Locale
+
+Pass a `date-fns` locale to `LocalizationProvider` to change the format, month names and first day of
+the week.
+
+<Demo name="LocalizedDatePicker" />
+
+## Accessibility
+
+- The field is keyboard-first: each part of the date (month, day, year, hours…) is a section. Arrow
+  keys <kbd>Left</kbd>/<kbd>Right</kbd> move between sections, <kbd>Up</kbd>/<kbd>Down</kbd> change the
+  value, digits type it directly.
+- The open-picker button has an accessible label that includes the current value. In the popup,
+  arrow keys move between days (or time options), <kbd>Page Up</kbd>/<kbd>Page Down</kbd> change the
+  month, <kbd>Enter</kbd> selects and <kbd>Escape</kbd> closes and returns focus to the field.
+- Always give the picker a `label`; describe constraints (minimum date, format) in helper text.
+- On touch devices without a fine pointer the responsive variant opens a full-screen dialog.
+
+## Limitations
+
+- Date range selection is provided by the separate [range pickers](/components/date-range-pickers).
+- `LocalizationProvider` is not added by `ThemeProvider`; render it yourself.

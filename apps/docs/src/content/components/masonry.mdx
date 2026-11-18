@@ -1,0 +1,22 @@
+## Purpose
+
+`Masonry` places items of different heights into columns so that gaps are minimal, for example notes,
+image tiles or cards with varying content.
+
+> Masonry is a Lab component. Its API may change upstream in a minor release.
+
+## Basic usage
+
+`columns` and `spacing` accept responsive values.
+
+<Demo name="BasicMasonry" />
+
+## Accessibility
+
+- Items are placed in columns visually but keep their DOM order. Tab order therefore runs in DOM order,
+  which may differ from the visual reading order; use masonry for content where order is not essential.
+
+## Limitations
+
+- Layout is computed in the browser from measured item heights. In server rendering, set
+  `defaultHeight`, `defaultColumns` and `defaultSpacing` to approximate the first paint.

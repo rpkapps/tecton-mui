@@ -1,0 +1,59 @@
+## What changes
+
+`@tecton-mui/ui` keeps MUI's component names, props, slots and theming APIs. Migrating is mostly a
+matter of changing import paths and removing setup that the library now provides.
+
+| Before (MUI)                                                        | After (`@tecton-mui/ui`)                                             |
+| ------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `import Button from '@mui/material/Button'`                         | `import Button from '@tecton-mui/ui/Button'`                         |
+| `import { Button } from '@mui/material'`                            | `import { Button } from '@tecton-mui/ui'`                            |
+| `import { ThemeProvider, createTheme } from '@mui/material/styles'` | `import { ThemeProvider, createTheme } from '@tecton-mui/ui/styles'` |
+| `import { TreeItem } from '@mui/x-tree-view/TreeItem'`              | `import { TreeItem } from '@tecton-mui/ui/TreeItem'`                 |
+| `import { DatePicker } from '@mui/x-date-pickers/DatePicker'`       | `import { DatePicker } from '@tecton-mui/ui/DatePicker'`             |
+| `import TabContext from '@mui/lab/TabContext'`                      | `import TabContext from '@tecton-mui/ui/TabContext'`                 |
+| `@mui/icons-material` icons                                         | `Icon` from `@tecton-mui/ui/Icon` (Tecton icon set)                  |
+
+## Step by step
+
+1. **Replace imports.** A search-and-replace from `@mui/material/` to `@tecton-mui/ui/` covers most
+   files. Lab and MUI X Community modules map to the same flat paths (`@tecton-mui/ui/<Name>`).
+2. **Remove your theme.** Delete the `createTheme` call that recreated your design system and render
+   `<ThemeProvider>` without props. The Tecton theme is the default.
+3. **Remove `LocalizationProvider` adapter boilerplate.** `LocalizationProvider` defaults to
+   `date-fns` with `en-US`; keep `dateAdapter`/`adapterLocale` only if you use another library or
+   locale.
+4. **Load styles once** in the shell or standalone app: `import '@tecton-mui/ui/styles/global.css'`.
+5. **Replace icon imports.** Use `<Icon name="…" />`. Icon placement props such as `startIcon`,
+   `endIcon` and `icon` accept it like any other element. Plain SVG children still work, so you can
+   migrate gradually.
+6. **Uninstall direct MUI dependencies** once nothing imports them, so only one copy remains.
+
+## Customising the theme
+
+All MUI customisation interfaces still work (`sx`, `styled`, `slots`, `slotProps`, theme
+`components` with `defaultProps`, `styleOverrides` and `variants`). Passing `themeOptions` to
+`ThemeProvider` layers your options over the Tecton defaults for the current mode:
+
+```tsx
+import { ThemeProvider } from '@tecton-mui/ui/styles';
+
+const options = { components: { MuiButton: { defaultProps: { disableElevation: true } } } };
+
+<ThemeProvider themeOptions={options}>{/* … */}</ThemeProvider>;
+```
+
+> Organisation policy: applications should not visually override Tecton styling or tokens. The APIs
+> remain available for compatibility and behavioural defaults, not for restyling.
+
+## Not included
+
+- **Material icons** and the font-ligature `Icon` from `@mui/material/Icon`: replaced by the Tecton
+  `Icon`.
+- **Deprecated Lab stubs** (Lab date pickers, `LoadingButton`, Lab `TreeView`): use the MUI X
+  Community components and the `Button` `loading` prop.
+- **MUI X Charts and Scheduler**: not part of this library.
+- **Separate Pro/Premium components**: there is one `DataGrid` and one `RichTreeView`; advanced
+  features are enabled by props. See the [Data Grid](/components/data-grid) page.
+
+A complete list of differences is maintained in
+[Known compatibility differences](/guides/compatibility).

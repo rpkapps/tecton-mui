@@ -1,0 +1,49 @@
+## Purpose
+
+Use a button for an action that happens on the current page: saving, opening a dialog, starting a
+process. For moving to another page, use a link (a `Button` with `href` renders an anchor). Keep one
+`contained` button per area for the primary action and use `outlined` or `text` buttons for the rest.
+
+## Basic usage
+
+The `variant` prop selects the emphasis.
+
+<Demo name="BasicButtons" />
+
+## Colors
+
+Tecton adds a `tertiary` color and a low-emphasis `textOnly` color to the standard palette colors.
+Reserve `error` for destructive actions.
+
+<Demo name="ButtonColors" />
+
+## Icons, loading and states
+
+`startIcon` and `endIcon` accept the Tecton `Icon`. The `loading` prop disables the button and shows
+its loading state while keeping its width. `activated` renders a persistent pressed state, useful for
+toggles in toolbars. Three sizes are available.
+
+<Demo name="IconsAndSizes" />
+
+## Button group
+
+`ButtonGroup` joins related buttons and lets them share `variant`, `size` and `color`.
+
+<Demo name="GroupedButtons" />
+
+## Accessibility
+
+- Buttons render a native `<button>` (or `<a>` with `href`) and are reachable with <kbd>Tab</kbd>;
+  <kbd>Enter</kbd> and <kbd>Space</kbd> activate them.
+- Write labels that describe the result ("Save changes"), not the mechanism ("Click here").
+- A `disabled` button is skipped by keyboard focus. When users need to understand why an action is
+  unavailable, keep the button enabled and explain the problem after activation, or describe it next to
+  the button.
+- While `loading`, the button is disabled and the indicator is announced as progress; also update a
+  visible status text when the operation completes.
+
+## Limitations
+
+- `activated` is a visual state only. For a real toggle with an announced state use `ToggleButton` or
+  set `aria-pressed` yourself.
+- The former Lab `LoadingButton` is not exported; use the `loading` prop of `Button`.

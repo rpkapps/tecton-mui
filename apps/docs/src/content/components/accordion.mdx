@@ -1,0 +1,23 @@
+## Purpose
+
+Accordions organise long content into sections that users expand on demand, such as settings groups or
+FAQs. If users need to compare sections side by side, show the content directly instead.
+
+## Basic usage
+
+<Demo name="BasicAccordion" />
+
+## One section at a time
+
+Control `expanded` to keep a single section open. Tecton's `activated` prop tints the active row.
+
+<Demo name="ControlledAccordion" />
+
+## Accessibility
+
+- The summary is a button with `aria-expanded`; give it `id` and `aria-controls` so it is linked to the
+  region it controls.
+- Keyboard: <kbd>Tab</kbd> moves between summaries; <kbd>Enter</kbd> or <kbd>Space</kbd> toggles.
+- The heading level of the summary defaults to `h3`; set `slotProps.heading.component` to fit your
+  outline.
+- Collapsed content is hidden from assistive technology; do not hide required form fields in it.

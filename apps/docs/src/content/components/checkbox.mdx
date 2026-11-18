@@ -1,0 +1,25 @@
+## Purpose
+
+Checkboxes select any number of options from a set, or confirm a single statement ("I accept the
+terms"). For a setting that takes effect immediately, a [Switch](/components/switch) communicates the
+on/off nature better.
+
+## Basic usage
+
+Wrap a `Checkbox` in `FormControlLabel` to give it a clickable text label, and group related checkboxes
+with `FormGroup`.
+
+<Demo name="CheckboxLabels" />
+
+## Parent and child selection
+
+`indeterminate` shows that only some children are selected.
+
+<Demo name="IndeterminateCheckbox" />
+
+## Accessibility
+
+- Use `FormControlLabel` or an explicit label; a bare checkbox needs `slotProps={{ input: { 'aria-label': '…' } }}`.
+- For a group with a heading, wrap it in `FormControl component="fieldset"` with a `FormLabel component="legend"`.
+- Keyboard: <kbd>Tab</kbd> moves between checkboxes, <kbd>Space</kbd> toggles.
+- The indeterminate state is exposed as `aria-checked="mixed"`.

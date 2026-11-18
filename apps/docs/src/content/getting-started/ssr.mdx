@@ -1,0 +1,64 @@
+## Overview
+
+`@tecton-mui/ui` renders on the server like any MUI application: Emotion generates the component
+styles during rendering and the client continues from there. Two extra pieces avoid a flash of the
+wrong theme:
+
+- `TectonModeScript` sets the light/dark mode on `<html>` **before the first paint**, from the
+  preference stored in the browser.
+- `TectonTokensStyle` server-renders the Tecton CSS variables for applications that do not load
+  `styles/global.css` as a stylesheet.
+
+## Document head
+
+```tsx
+import { TectonModeScript, TectonTokensStyle } from '@tecton-mui/ui/styles';
+
+export function Document({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <head>
+        {/* Must run before content is painted. */}
+        <TectonModeScript />
+        {/* Only when the tokens are not already loaded through styles/global.css. */}
+        <TectonTokensStyle />
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+If your framework renders the head as a string, `getTectonModeScript()` returns the same inline
+script source. Both accept `storageKey` and `defaultMode`, which must match the options passed to
+`initTecton` on the client. Both accept a `nonce` (the component form) for strict
+Content-Security-Policy setups.
+
+## Server mode and hydration
+
+On the server there is no stored preference, so `ThemeProvider` renders the `defaultMode` given to
+`initTecton` (light when omitted). During hydration React keeps using that server value, then
+switches to the user's stored mode in the same tick. The mode script has already set
+`data-theme` on `<html>`, so token-based colors are correct from the first paint; colors computed
+by the MUI theme follow immediately after hydration.
+
+```tsx
+// Shared by server and client entry points
+import { initTecton } from '@tecton-mui/ui/styles';
+
+initTecton({ defaultMode: 'light' });
+```
+
+## Emotion
+
+Follow your framework's Emotion SSR integration (for example a per-request Emotion cache with
+critical style extraction). `ThemeProvider` uses the Emotion cache from context, so a cache you
+provide with `CacheProvider` is respected. For right-to-left pages, `ThemeProvider direction="rtl"`
+switches to a dedicated RTL cache; `getRtlCache()` exposes it if your SSR setup needs to extract
+styles from it.
+
+## Static generation
+
+Static site generators work the same way: render each page with `TectonModeScript` in the head.
+This documentation portal is an example: every page is prerendered at build time and the client
+takes over after load.

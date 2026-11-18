@@ -1,0 +1,31 @@
+## Purpose
+
+A dialog interrupts the current task to request a decision or collect a small amount of input. Use it
+sparingly: confirmations of destructive actions, short forms, or focused content that needs the full
+attention of the user.
+
+## Confirmation
+
+Name the action in both the title and the confirm button. Put initial focus on the safe choice for
+destructive actions.
+
+<Demo name="ConfirmDialog" />
+
+## Form in a dialog
+
+Render the paper as a `form` so <kbd>Enter</kbd> submits.
+
+<Demo name="FormDialog" />
+
+## Accessibility
+
+- Connect `DialogTitle` with `aria-labelledby` and the main text with `aria-describedby`.
+- Focus moves into the dialog when it opens and is trapped there; it returns to the trigger on close.
+- <kbd>Escape</kbd> and a click on the backdrop call `onClose`. If closing would lose data, ask for
+  confirmation instead of disabling these paths.
+- Content outside the dialog is hidden from assistive technology while it is open.
+
+## Limitations
+
+- Dialogs render in a portal at the end of `document.body`. In a micro-frontend, the dialog is styled
+  by the `ThemeProvider` of the root that renders it.

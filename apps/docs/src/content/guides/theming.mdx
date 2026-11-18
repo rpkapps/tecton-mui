@@ -1,0 +1,109 @@
+import { ModeDemo } from '../../components/ModeDemo';
+
+## The Tecton ThemeProvider
+
+`ThemeProvider` from `@tecton-mui/ui/styles` keeps the name and nesting behaviour of MUI's provider
+but starts from the Tecton theme. Rendered without props, it supplies the approved Tecton palette,
+typography (Figtree and IBM Plex Mono), spacing, shape and component styles for the current mode.
+It renders no DOM element of its own and does not add `CssBaseline` or `LocalizationProvider`.
+
+```tsx
+import { ThemeProvider } from '@tecton-mui/ui/styles';
+
+<ThemeProvider>
+  <App />
+</ThemeProvider>;
+```
+
+| Prop           | Purpose                                                                                                                                                                         |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `themeOptions` | MUI `ThemeOptions` merged over the Tecton defaults for the current mode. Pass a stable object (module-level constant or `useMemo`) so the theme is not rebuilt on every render. |
+| `theme`        | A complete theme, or a function of the outer theme for nested providers. Used as-is, exactly like MUI.                                                                          |
+| `direction`    | `'ltr'` (default) or `'rtl'`. `rtl` also enables right-to-left style flipping for the subtree.                                                                                  |
+
+## createTheme
+
+`createTheme` has MUI's signature but builds on the Tecton defaults. `palette.mode` chooses the light
+or dark Tecton base; additional arguments are deep-merged onto the result, which is how component
+texts are translated:
+
+```tsx
+import { createTheme, ThemeProvider } from '@tecton-mui/ui/styles';
+
+const german = {
+  components: { MuiTablePagination: { defaultProps: { labelRowsPerPage: 'Zeilen pro Seite' } } },
+};
+const theme = createTheme({ palette: { mode: 'light' } }, german);
+
+<ThemeProvider theme={theme}>{/* … */}</ThemeProvider>;
+```
+
+A theme created this way is static: it does not follow the shared mode. Prefer `themeOptions`, which
+is re-applied whenever the mode changes. `useTheme`, `styled`, `sx`, `slots`, `slotProps`, theme
+`defaultProps`, `styleOverrides` and `variants` all behave as in MUI.
+
+## Shared light/dark mode
+
+Tecton keeps the mode in a single, page-wide theme manager. It is the only source of truth: every
+`ThemeProvider` on the page subscribes to it, including providers in independently mounted
+micro-frontends. Changing the mode in one place updates every root, and nothing stores a second
+copy of the mode in React state.
+
+`useTectonMode()` returns the current state and stable actions:
+
+| Field                 | Description                                                 |
+| --------------------- | ----------------------------------------------------------- |
+| `mode`                | The resolved mode, `'light'` or `'dark'`.                   |
+| `preference`          | What the user chose: `'light'`, `'dark'` or `'system'`.     |
+| `setMode(preference)` | Set and persist a preference.                               |
+| `toggleMode()`        | Switch between light and dark.                              |
+| `clearPreference()`   | Forget the stored choice and fall back to the default mode. |
+
+<ModeDemo />
+
+`useTectonModeValue()` returns only the resolved mode and re-renders only when it changes. The
+manager also sets `data-theme="light|dark"` on `<html>`, which drives the Tecton CSS variables.
+
+## Initialization
+
+`initTecton(config?)` is the explicit host step that initializes the manager. Call it once at start-up
+in the shell or standalone application; hosted micro-frontends do not need it. It is safe to call
+from several roots: the manager is shared through `globalThis`.
+
+```tsx
+import { initTecton } from '@tecton-mui/ui/styles';
+
+initTecton({ defaultMode: 'system', storageKey: 'tecton-theme-mode' });
+```
+
+When `styles/global.css` is loaded, the manager detects the token stylesheet and does not inject the
+variables a second time.
+
+## Reading tokens in your own styles
+
+Tecton tokens are CSS custom properties. `cssVar` builds a reference to one, so you can use tokens in
+`sx` or `styled` without hard-coding values:
+
+```tsx
+import Box from '@tecton-mui/ui/Box';
+import { cssVar } from '@tecton-mui/ui/styles';
+
+<Box sx={{ p: cssVar('space-200'), color: cssVar('color-text-primary') }} />;
+```
+
+Pass the token name without the `tecton-` prefix. Token-based styles switch with the mode
+automatically because the variables are redefined for `[data-theme="dark"]`.
+
+## Right-to-left
+
+`<ThemeProvider direction="rtl">` sets the theme direction and flips direction-dependent styles
+(margins, paddings, positions) for its subtree. Also set `dir="rtl"` on the containing element, or on
+`<html>`, so the browser lays out text and native controls correctly. Use the RTL switch in the
+header of this portal to see every page and demo mirrored.
+
+## Styling policy
+
+Applications should not change Tecton's visual design through theme options, `sx` or `styled`.
+The APIs remain fully functional for compatibility, layout and behavioural defaults (for example
+`defaultProps`), and the library never warns at runtime; uniform styling is an organisational
+policy rather than a technical restriction.

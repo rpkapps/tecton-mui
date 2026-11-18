@@ -1,0 +1,23 @@
+## Purpose
+
+Cards group content and actions about one subject, such as a project, a dataset or a metric. They work
+well in grids and dashboards. Avoid nesting cards and avoid putting many unrelated actions on one card.
+
+## Anatomy
+
+`CardHeader` (avatar, title, actions), `CardContent` and `CardActions` give consistent spacing.
+
+<Demo name="ProjectCard" />
+
+## Variants
+
+Tecton names its raised surface `elevated` (`elevation` remains an alias) and also supports `outlined`.
+
+<Demo name="CardVariants" />
+
+## Accessibility
+
+- A card is a plain container. Use headings inside it (`CardHeader` with `slotProps.title` set to a
+  heading component, or `Typography component="h3"`) so cards appear in the document outline.
+- To make the whole card clickable, wrap its content in `CardActionArea`; do not nest other buttons
+  inside the action area.

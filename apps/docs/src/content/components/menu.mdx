@@ -1,0 +1,25 @@
+## Purpose
+
+A menu shows a temporary list of actions or options anchored to the control that opened it, such as a
+"more" button or a split button. Keep menus short and group items with dividers or headings.
+
+## Basic usage
+
+Tecton adds `heading` items (non-interactive section labels) and a `size` prop on `MenuItem`.
+
+<Demo name="BasicMenu" />
+
+## Inline menu list
+
+`MenuList` renders the same keyboard-navigable list without a popup.
+
+<Demo name="DenseMenuList" />
+
+## Accessibility
+
+- The trigger needs `aria-haspopup`, `aria-controls` and `aria-expanded`; the list is labelled by the
+  trigger.
+- Focus moves to the first item when the menu opens; arrow keys move between items, typing a letter
+  jumps to matching items, <kbd>Escape</kbd> closes and returns focus to the trigger.
+- Menu items have `role="menuitem"`. Use them for actions; for selecting a form value use
+  [Select](/components/select).

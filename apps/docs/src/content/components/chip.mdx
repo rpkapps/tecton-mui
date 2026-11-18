@@ -1,0 +1,22 @@
+## Purpose
+
+Chips show short pieces of information such as a status, a tag or an active filter. They can be
+static, clickable (`onClick`) or removable (`onDelete`). Do not use chips as the primary way to trigger
+actions; use buttons for that.
+
+## Basic usage
+
+Tecton adds a `shape` prop (`pill` or `rectangle`).
+
+<Demo name="BasicChips" />
+
+## Removable filters
+
+<Demo name="DeletableChips" />
+
+## Accessibility
+
+- Clickable and deletable chips are focusable. <kbd>Enter</kbd> activates; <kbd>Backspace</kbd> or
+  <kbd>Delete</kbd> triggers `onDelete`.
+- Static chips are not focusable and are read as text.
+- Do not rely on color alone for status: include the status in the label.

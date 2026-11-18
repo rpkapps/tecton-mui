@@ -1,0 +1,53 @@
+{/* INTEGRATION: the unified RichTreeView (Community features plus independently implemented advanced features) is being written in packages/ui/src/RichTreeView. Do not import it here until it lands. Then: add live demos under src/demos/rich-tree-view/, list 'RichTreeView' in this page's `components` in src/data/catalog.ts and remove /^RichTreeView$/ from PENDING in scripts/generate-api.mjs so its API table is generated. */}
+
+## Overview
+
+`RichTreeView` renders a tree from data: you pass an array of items, and the component handles
+rendering, expansion and selection. It is designed for large hierarchies such as asset structures,
+file systems or organisation charts. There is a single `RichTreeView` in `@tecton-mui/ui`; advanced
+capabilities are enabled through props, without a separate "Pro" component or license key.
+
+> This component is being integrated. Live demos and the generated API will appear here when it is
+> released.
+
+## Basic usage
+
+{/* INTEGRATION: basic RichTreeView demo with an `items` array. */}
+
+```tsx
+import { RichTreeView } from '@tecton-mui/ui/RichTreeView';
+
+const items = [
+  { id: 'surveys', label: 'Surveys', children: [{ id: 'north-2025', label: 'North 2025' }] },
+  { id: 'wells', label: 'Wells' },
+];
+
+<RichTreeView items={items} aria-label="Project" />;
+```
+
+{/* INTEGRATION: verify the snippet against the shipped API before release. */}
+
+## Advanced features compatibility matrix
+
+{/* INTEGRATION: fill in the status column from the RichTreeView feature test suites. */}
+
+| Capability                                             | Status                  |
+| ------------------------------------------------------ | ----------------------- |
+| Items from data (`items`, `getItemId`, `getItemLabel`) | Integration in progress |
+| Single and multiple selection, checkbox selection      | Integration in progress |
+| Controlled expansion and selection                     | Integration in progress |
+| Label editing                                          | Integration in progress |
+| Lazy loading of children                               | Integration in progress |
+| Drag-and-drop reordering                               | Integration in progress |
+| Virtualization of large trees                          | Integration in progress |
+
+## Accessibility
+
+{/* INTEGRATION: keyboard and screen-reader notes verified against the implementation. */}
+
+The tree follows the same ARIA tree pattern and keyboard model as the
+[Simple Tree View](/components/simple-tree-view).
+
+## API
+
+The API reference will be generated from the package types when the component is released.

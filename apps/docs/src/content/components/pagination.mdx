@@ -1,0 +1,16 @@
+## Purpose
+
+Pagination lets users move through a result set that is split into pages. For tables, prefer
+`TablePagination`, which also controls the page size. For feeds, consider loading more content instead.
+
+## Basic usage
+
+<Demo name="BasicPagination" />
+
+## Accessibility
+
+- `Pagination` renders a `<nav>` with a list of buttons; each button has an accessible label such as
+  "Go to page 4", and the current page is marked with `aria-current`.
+- Customise the labels with `getItemAriaLabel` when the page language is not English.
+- After changing the page, move focus or announce the new content so screen-reader users know the
+  results changed.

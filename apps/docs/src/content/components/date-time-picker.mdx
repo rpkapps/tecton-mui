@@ -1,0 +1,26 @@
+## Purpose
+
+`DateTimePicker` combines date and time entry in one field, for scheduling and timestamps. On desktop
+the popup shows the calendar and the time lists side by side.
+
+## Basic usage
+
+<Demo name="BasicDateTimePicker" />
+
+Validation props of both [DatePicker](/components/date-picker) and
+[TimePicker](/components/time-picker) apply, plus `minDateTime` and `maxDateTime`.
+
+## Accessibility
+
+- The field is keyboard-first: each part of the date (month, day, year, hours…) is a section. Arrow
+  keys <kbd>Left</kbd>/<kbd>Right</kbd> move between sections, <kbd>Up</kbd>/<kbd>Down</kbd> change the
+  value, digits type it directly.
+- The open-picker button has an accessible label that includes the current value. In the popup,
+  arrow keys move between days (or time options), <kbd>Page Up</kbd>/<kbd>Page Down</kbd> change the
+  month, <kbd>Enter</kbd> selects and <kbd>Escape</kbd> closes and returns focus to the field.
+- Always give the picker a `label`; describe constraints (minimum date, format) in helper text.
+- On touch devices without a fine pointer the responsive variant opens a full-screen dialog.
+
+## Limitations
+
+- Time zones: values are local `Date` objects. Convert to and from UTC at your API boundary.

@@ -1,0 +1,18 @@
+## Purpose
+
+`Box` is a generic element (a `div` by default) with the `sx` prop. Use it for layout wrappers and
+one-off spacing where no dedicated component fits. Values in `sx` resolve against the Tecton theme:
+`p: 2` is two spacing units, `bgcolor: 'background.paper'` is the Tecton surface color.
+
+## Basic usage
+
+<Demo name="BoxSx" />
+
+## Accessibility
+
+- Choose the right element with `component` (`section`, `nav`, `ul`…); a `div` carries no meaning.
+
+## Limitations
+
+- Keep `sx` to layout. Colors and typography should come from Tecton tokens via theme keys or
+  components, so that both modes stay correct.

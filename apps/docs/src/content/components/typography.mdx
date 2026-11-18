@@ -1,0 +1,26 @@
+## Purpose
+
+`Typography` renders text with the Tecton type scale: Figtree for headings and body text, IBM Plex
+Mono for tabular data. Using variants instead of ad-hoc font sizes keeps text consistent across
+applications.
+
+## Type scale
+
+Tecton adds the `data` variant for numbers in tables and dashboards (tabular figures, monospace).
+
+<Demo name="TypeScale" />
+
+## Visual style versus document structure
+
+`variant` controls the look; `component` controls the HTML element. Choose the element that fits the
+document outline, then the variant that fits the design.
+
+<Demo name="SemanticHeadings" />
+
+## Accessibility
+
+- Keep heading levels sequential (`h1` → `h2` → `h3`) using `component`; screen-reader users navigate
+  by headings.
+- Do not use `overline` or `caption` for long text; their size is intended for short labels.
+- Text colors from the palette (`text.primary`, `text.secondary`) are chosen by Tecton for contrast in
+  both modes; arbitrary colors may not be.

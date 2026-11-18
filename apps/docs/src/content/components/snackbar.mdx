@@ -1,0 +1,22 @@
+## Purpose
+
+Snackbars confirm an operation briefly at the edge of the screen and disappear on their own. They may
+offer one action, typically "Undo". Show one snackbar at a time.
+
+## Basic usage
+
+<Demo name="SimpleSnackbar" />
+
+## With an alert
+
+Place an `Alert` inside to communicate severity.
+
+<Demo name="AlertSnackbar" />
+
+## Accessibility
+
+- The content has `role="alert"`, so screen readers announce the message when it appears.
+- Give users enough time: keep `autoHideDuration` at 5 seconds or more, and longer when there is an
+  action. The timer pauses while the snackbar is hovered or focused and when the window loses focus.
+- Do not put essential information or the only path to an action in a snackbar.
+- `SnackbarContent` accepts the Tecton `type` prop (`success` or `error`) when used on its own.

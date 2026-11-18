@@ -1,0 +1,24 @@
+## Purpose
+
+The table components render semantic HTML tables styled by Tecton. They suit small to medium data sets
+that you render yourself. For sorting, filtering, column resizing, virtualization or editing, use the
+[Data Grid](/components/data-grid).
+
+## Basic table
+
+<Demo name="BasicTable" />
+
+## Pagination
+
+`TablePagination` provides page and page-size controls; slicing the rows is up to you.
+
+<Demo name="PaginatedTable" />
+
+## Accessibility
+
+- Give the table a name with `aria-label` or a `<caption>`.
+- Mark row headers with `TableCell component="th" scope="row"`; header cells in `TableHead` are
+  `th` automatically.
+- Align numbers to the end (`align="right"`) and keep units in the header.
+- `TableSortLabel` exposes the sort direction through `aria-sort` when you set `sortDirection` on the
+  header cell.

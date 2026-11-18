@@ -1,0 +1,18 @@
+## Purpose
+
+A timeline presents events in chronological order, such as an activity log or a project history. Each
+item has a dot, an optional connector, content and optional opposite content (for example a time).
+
+> Timeline is a Lab component. Lab APIs are not yet stable upstream and may change in a minor MUI
+> release; such changes are listed in the release notes.
+
+## Basic usage
+
+<Demo name="ActivityTimeline" />
+
+## Accessibility
+
+- `Timeline` renders an ordered list (`<ul>` with list items), so screen readers announce the number
+  of events.
+- Dots are decorative. Express status in the text, not only with the dot color.
+- `position="alternate"` alternates sides visually; the DOM order stays chronological.

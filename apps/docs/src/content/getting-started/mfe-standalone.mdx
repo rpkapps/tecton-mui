@@ -1,0 +1,70 @@
+## Hosted micro-frontend
+
+A micro-frontend mounted inside a shell has its own React root in a regular DOM element. It relies
+on the shell for fonts, icons, tokens and the global reset, and brings only what it renders:
+
+```tsx
+// feature/src/mount.tsx
+import '@tecton-mui/ui/styles/components.css';
+import { createRoot } from 'react-dom/client';
+import Button from '@tecton-mui/ui/Button';
+import { ThemeProvider } from '@tecton-mui/ui/styles';
+
+export function mount(element: HTMLElement) {
+  const root = createRoot(element);
+  root.render(
+    <ThemeProvider>
+      <Button variant="contained">Save</Button>
+    </ThemeProvider>,
+  );
+  return () => root.unmount();
+}
+```
+
+Rules for hosted micro-frontends:
+
+1. **Do not** import `@tecton-mui/ui/styles/global.css`. The shell already loaded it; a second copy
+   duplicates `@font-face` rules and token declarations.
+2. **Do not** render `CssBaseline`. A second global reset can override the shell's page styles. If
+   you need baseline styles inside your container only, use `ScopedCssBaseline` around your tree.
+3. **Do** render your own `ThemeProvider`. It reads the same shared light/dark mode as the shell.
+4. `@tecton-mui/ui/styles/components.css` is the stable import for static component styles. Today
+   component styles are generated at runtime by Emotion, so the file is intentionally empty; keeping
+   the import means a future release can add static styles without code changes on your side.
+
+## Standalone application
+
+When the same application runs on its own (local development, a separate deployment), it owns the
+page and therefore takes over the shell's responsibilities:
+
+```tsx
+// feature/src/standalone.tsx
+import '@tecton-mui/ui/styles/global.css';
+import { createRoot } from 'react-dom/client';
+import CssBaseline from '@tecton-mui/ui/CssBaseline';
+import { ThemeProvider, initTecton } from '@tecton-mui/ui/styles';
+import { App } from './App';
+
+initTecton();
+
+createRoot(document.getElementById('root')!).render(
+  <ThemeProvider>
+    <CssBaseline />
+    <App />
+  </ThemeProvider>,
+);
+```
+
+A common pattern is two entry files that render the same `App`: `mount.tsx` for the shell and
+`standalone.tsx` for running on its own. Only the standalone entry imports `global.css` and renders
+`CssBaseline`.
+
+## Checklist
+
+|                         | Hosted MFE                         | Standalone |
+| ----------------------- | ---------------------------------- | ---------- |
+| `styles/global.css`     | No                                 | Yes, once  |
+| `styles/components.css` | Optional, recommended              | Optional   |
+| `initTecton()`          | Not required (the shell calls it)  | Yes        |
+| `ThemeProvider`         | Yes                                | Yes        |
+| `CssBaseline`           | No (`ScopedCssBaseline` if needed) | Yes        |

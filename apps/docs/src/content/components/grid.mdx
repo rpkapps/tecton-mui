@@ -1,0 +1,21 @@
+## Purpose
+
+`Grid` is a responsive 12-column layout for page-level structure: dashboards, forms with several
+columns, card grids. For a single row or column use [Stack](/components/stack).
+
+## Basic usage
+
+`Grid container` creates the grid; each child sets `size` per breakpoint (`xs`, `sm`, `md`, `lg`, `xl`).
+`spacing` sets the gap between items.
+
+<Demo name="ResponsiveGrid" />
+
+## Accessibility
+
+- Grid is presentational. Ensure the reading order in the DOM matches the visual order at every
+  breakpoint, and avoid `offset` tricks that move content far from its DOM position.
+
+## Limitations
+
+- This is MUI's current `Grid` (the former "Grid v2"): items use `size` and `offset` instead of the
+  legacy `item`, `xs`, `md` props.

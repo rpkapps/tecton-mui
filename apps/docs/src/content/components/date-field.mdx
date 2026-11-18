@@ -1,0 +1,16 @@
+## Purpose
+
+Fields are the text inputs used inside the pickers, without the popup. They are ideal when users know
+the value and type it, such as dates of birth or timestamps copied from another system.
+
+## Basic usage
+
+`format` sets the display and typing format using `date-fns` tokens.
+
+<Demo name="Fields" />
+
+## Accessibility
+
+- Each section of the value is announced separately as you move with <kbd>Left</kbd>/<kbd>Right</kbd>;
+  <kbd>Up</kbd>/<kbd>Down</kbd> increment, digits type, <kbd>Backspace</kbd> clears a section.
+- Empty sections show placeholders such as `MM/DD/YYYY` that reflect the locale format.

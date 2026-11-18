@@ -4,10 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build && node scripts/postbuild.mjs",
+    "generate:api": "node scripts/generate-api.mjs",
+    "dev": "node scripts/generate-api.mjs && vite",
+    "build": "node scripts/generate-api.mjs && vite build && node scripts/postbuild.mjs",
     "preview": "vite preview",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "check-links": "node scripts/check-links.mjs",
+    "typecheck": "node scripts/generate-api.mjs && tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "@mdx-js/react": "3.1.1",

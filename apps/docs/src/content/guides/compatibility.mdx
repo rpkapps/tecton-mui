@@ -1,0 +1,86 @@
+import {
+  ExcludedModules,
+  RootCollisions,
+  PinnedVersions,
+} from '../../components/CompatibilityTables';
+
+## Scope
+
+`@tecton-mui/ui` re-exports stable MUI components unchanged wherever the Tecton theme can style them
+without changing behaviour. Props, events, keyboard interaction and ARIA semantics are therefore those
+of the pinned upstream version. Compatibility with your existing MUI code is verified by the library's
+test suites; differences that are known today are listed on this page.
+
+## Pinned upstream versions
+
+<PinnedVersions />
+
+MUI packages are upgraded deliberately, together with this library's release notes. Versions do not
+need to match across MUI packages.
+
+## Intentional differences
+
+- **Theme defaults.** `ThemeProvider` and `createTheme` start from the Tecton theme instead of MUI's
+  default theme. Colors, typography, spacing, radii and component styles therefore differ from a plain
+  MUI application by design.
+- **Fixed-width alerts.** Following the Tecton design, `Alert` has a fixed width of 320px by default.
+- **Mode source of truth.** Light/dark mode comes from Tecton's shared theme manager. MUI's
+  `CssVarsProvider`/`useColorScheme` are still exported for compatibility, but they do not change the
+  Tecton mode; use `useTectonMode`.
+- **Extra Tecton props and values.** Some components accept additional, typed options that the Tecton
+  theme styles: `activated` on `Button`, `IconButton` and `Accordion`; `variant="square"` on
+  `IconButton`; `tertiary` and `textOnly` colors on buttons; `shape` on `Chip` and `Badge`;
+  `emphasis` on `Divider`; `size` steps on `Avatar`, `AvatarGroup`, `Tabs` and `MenuItem`;
+  `variant="pills"` on `Tabs`; `variant="elevated"` on `Paper` and `Card`; `tier` and
+  `productColor` on `AppBar`; the `data` variant on `Typography`. The API tables mark them with their
+  descriptions.
+- **Icons.** `@mui/material/Icon` (Material Icons font ligatures) is replaced by the Tecton `Icon`.
+- **LocalizationProvider.** Defaults to `date-fns` with `en-US` instead of requiring `dateAdapter`.
+- **One Data Grid and one Rich Tree View.** There are no separate Pro or Premium components or license
+  keys; advanced capabilities are enabled through props.
+- **Upstream locale bundles.** The translation objects of `@mui/material/locale` and
+  `@mui/x-date-pickers/locales` are not re-exported. Provide translated texts through theme
+  `defaultProps` and the `localeText` prop of `LocalizationProvider`.
+- **MUI X module exports.** As upstream, pickers and tree view components are named exports, also on
+  their own paths: `import { DatePicker } from '@tecton-mui/ui/DatePicker'`.
+
+## Modules that are not exported
+
+<ExcludedModules />
+
+MUI X Charts and Scheduler packages are not part of the library.
+
+## Root export name collisions
+
+A few names are exported by two upstream modules. The package root can export only one; the other is
+still available from its own path.
+
+<RootCollisions />
+
+## Accessibility
+
+The library targets **WCAG 2.2 AA**. Its quality process tests rendered components in both Tecton
+modes and in right-to-left layout with automated tooling, and complex components additionally receive
+manual keyboard and screen-reader testing. Automated results
+alone do not establish formal conformance, so this documentation does not claim it.
+
+Responsibilities are split:
+
+- **Tecton design tokens** define visual properties: color contrast, focus indicator appearance, font
+  and icon sizes, and state colors.
+- **This library** is responsible for semantics, keyboard behaviour, ARIA attributes and focus
+  management, and for using the tokens correctly.
+
+Known limitations you should account for:
+
+- Where a Tecton token does not meet a contrast requirement, the library uses the token as designed
+  and records an approved exception with an owner and follow-up. Such components are not reported as
+  conformant; check the component page and the release notes for current exceptions.
+- Icons are decorative unless you pass `title`. An `IconButton` that only contains an icon needs an
+  `aria-label`.
+- Upstream Lab components (`Timeline`, `Masonry`, `TabContext` and related) carry upstream's
+  stability caveats; their APIs may change in a minor MUI release.
+- Overriding Tecton styles with `sx` or `styled` can break contrast and focus visibility. Keep
+  customisations to layout.
+
+Component pages include accessibility and keyboard notes for the components they cover.

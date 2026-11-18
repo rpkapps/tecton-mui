@@ -1,0 +1,30 @@
+## Purpose
+
+A select lets users pick from a known, moderately sized list of options without typing. For long lists
+or when users know what they are looking for, an [Autocomplete](/components/autocomplete) is faster.
+For two to five options that should stay visible, use a [Radio Group](/components/radio).
+
+## Basic usage
+
+Wrap `Select` in a `FormControl` with an `InputLabel`, and pass the same text to `label` so the outline
+leaves room for it. `TextField` with the `select` prop is a shorter alternative.
+
+<Demo name="BasicSelect" />
+
+## Multiple selection
+
+With `multiple`, the value is an array. `renderValue` customises how the selection is shown.
+
+<Demo name="MultipleSelect" />
+
+## Accessibility
+
+- Link the label with `labelId` (or use `TextField select`) so the combobox is announced with its name.
+- Keyboard: <kbd>Enter</kbd>, <kbd>Space</kbd> or <kbd>Arrow Down</kbd> opens the list; arrow keys move;
+  typing a letter jumps to matching options; <kbd>Escape</kbd> closes without changing the value.
+- The list renders in a popover with focus management; focus returns to the select on close.
+
+## Limitations
+
+- `NativeSelect` (a styled native `<select>`) is also exported. It offers the platform's picker on mobile
+  devices but cannot render rich option content.

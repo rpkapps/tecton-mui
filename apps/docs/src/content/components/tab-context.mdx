@@ -1,0 +1,17 @@
+## Purpose
+
+`TabContext`, `TabList` and `TabPanel` remove the boilerplate of connecting [Tabs](/components/tabs)
+to their panels: ids and ARIA relationships are generated from the shared `value`.
+
+> These are Lab components. Their API may change upstream in a minor release.
+
+## Basic usage
+
+<Demo name="LabTabs" />
+
+## Accessibility
+
+- The generated ids link each tab to its panel (`aria-controls`, `aria-labelledby`), following the ARIA
+  tabs pattern described on the [Tabs](/components/tabs) page.
+- Inactive panels are not rendered by default; set `keepMounted` on `TabPanel` if their state must
+  survive switching.

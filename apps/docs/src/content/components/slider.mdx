@@ -1,0 +1,24 @@
+## Purpose
+
+Sliders adjust a value where the relative position matters more than an exact number: opacity, zoom,
+ranges on a scale. When users need to enter precise values, combine the slider with a text field or use
+a field alone.
+
+## Continuous value
+
+<Demo name="ContinuousSlider" />
+
+## Range with marks
+
+Passing an array as `value` creates a range slider. `step` and `marks` constrain the values.
+
+<Demo name="RangeSlider" />
+
+## Accessibility
+
+- Name every slider with `aria-labelledby` or `aria-label`; for ranges each thumb is announced
+  separately.
+- Provide `getAriaValueText` when the number alone is ambiguous (units, currencies).
+- Keyboard: arrow keys change the value by `step`; <kbd>Page Up</kbd>/<kbd>Page Down</kbd> by larger
+  increments; <kbd>Home</kbd>/<kbd>End</kbd> jump to the limits.
+- Tecton adds a `tertiary` color option.

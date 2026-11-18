@@ -1,0 +1,21 @@
+## Purpose
+
+The calendar components render a picker view inline, without a field or popup: `DateCalendar` for days,
+`MonthCalendar` for months and `YearCalendar` for years. Use them in side panels, filters or when the
+calendar is the main content.
+
+## Basic usage
+
+<Demo name="Calendars" />
+
+## Accessibility
+
+- `DateCalendar` is a grid: arrow keys move by day and week, <kbd>Page Up</kbd>/<kbd>Page Down</kbd>
+  by month, <kbd>Home</kbd>/<kbd>End</kbd> to the start/end of the week.
+- Today's date is marked visually and announced. Disabled dates are announced as unavailable.
+- Label the surrounding region (for example with a heading) because inline calendars have no field
+  label.
+
+## Limitations
+
+- `DayCalendarSkeleton` is available as a loading placeholder while data for a month is fetched.

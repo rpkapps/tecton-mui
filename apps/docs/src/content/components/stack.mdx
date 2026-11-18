@@ -1,0 +1,17 @@
+## Purpose
+
+`Stack` lays out its children in one direction with consistent spacing. It is the simplest way to
+build toolbars, form columns and button rows.
+
+## Basic usage
+
+`direction` and `spacing` accept responsive objects. `divider` inserts an element between children.
+`useFlexGap` uses CSS `gap` instead of margins, which also works with wrapping.
+
+<Demo name="StackDirections" />
+
+## Accessibility
+
+- `Stack` only affects visual layout. Keep the DOM order meaningful, because screen readers and
+  keyboard focus follow it, not the visual order (`row-reverse` and `column-reverse` change only the
+  visual order).

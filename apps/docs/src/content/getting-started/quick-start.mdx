@@ -1,0 +1,84 @@
+## A first screen
+
+The snippet below is a complete component tree: global styles, theme, baseline and a few
+components. Paste it into a new Vite + React project after [installing](/getting-started/installation)
+the package.
+
+```tsx
+import '@tecton-mui/ui/styles/global.css';
+import { createRoot } from 'react-dom/client';
+import CssBaseline from '@tecton-mui/ui/CssBaseline';
+import { ThemeProvider, initTecton } from '@tecton-mui/ui/styles';
+import { Button, Stack, TextField, Typography } from '@tecton-mui/ui';
+
+// Initializes Tecton's shared theme manager (mode preference and `data-theme` on <html>).
+initTecton();
+
+function App() {
+  return (
+    <Stack spacing={2} sx={{ p: 4, maxWidth: 360 }}>
+      <Typography variant="h5" component="h1">
+        Create project
+      </Typography>
+      <TextField label="Project name" required />
+      <Button variant="contained">Create</Button>
+    </Stack>
+  );
+}
+
+createRoot(document.getElementById('root')!).render(
+  <ThemeProvider>
+    <CssBaseline />
+    <App />
+  </ThemeProvider>,
+);
+```
+
+## Two import styles
+
+Both styles are supported and produce the same components:
+
+```tsx
+// 1. Named imports from the package root
+import { Button, TextField } from '@tecton-mui/ui';
+
+// 2. One import path per component
+import Button from '@tecton-mui/ui/Button';
+import TextField from '@tecton-mui/ui/TextField';
+```
+
+Root imports are convenient and tree-shake well with modern bundlers. Per-component paths make the
+dependency graph explicit and keep development servers fast because only the imported modules are
+loaded. Theme utilities always come from `@tecton-mui/ui/styles`.
+
+MUI X modules (pickers, tree view) use named exports on their own paths too, for example
+`import { DatePicker } from '@tecton-mui/ui/DatePicker'`. Every component page shows the exact
+import lines generated from the package.
+
+## Add a light/dark switch
+
+The mode lives in Tecton's page-wide theme manager. Any component can read or change it:
+
+```tsx
+import IconButton from '@tecton-mui/ui/IconButton';
+import Icon from '@tecton-mui/ui/Icon';
+import { useTectonMode } from '@tecton-mui/ui/styles';
+
+export function ModeSwitch() {
+  const { mode, toggleMode } = useTectonMode();
+  return (
+    <IconButton onClick={toggleMode} aria-label="Toggle light and dark mode">
+      <Icon name={mode === 'dark' ? 'light-mode' : 'dark-mode'} />
+    </IconButton>
+  );
+}
+```
+
+The choice is persisted and shared by every React root on the page. Read more in
+[ThemeProvider and shared light/dark mode](/guides/theming).
+
+## Next steps
+
+- Browse the [components](/components) and their live demos.
+- Learn which stylesheet to load where in [Fonts, icons and style entry points](/guides/styles-and-icons).
+- Coming from plain MUI? Read [Migration from MUI](/getting-started/migration-from-mui).

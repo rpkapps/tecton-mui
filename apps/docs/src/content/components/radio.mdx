@@ -1,0 +1,23 @@
+## Purpose
+
+Radio buttons choose exactly one option from a small set where all options should be visible at once.
+Order options logically and pre-select a sensible default when there is one.
+
+## Basic usage
+
+`RadioGroup` manages the selection and keyboard behaviour; label it with a `FormLabel`.
+
+<Demo name="RadioButtonsGroup" />
+
+## Horizontal layout and controlled value
+
+Use `row` for two or three short options. Control the value with `value` and `onChange`.
+
+<Demo name="RowRadioGroup" />
+
+## Accessibility
+
+- Name the group: connect the `FormLabel` with `aria-labelledby` on `RadioGroup`.
+- Keyboard: <kbd>Tab</kbd> enters the group at the selected option; arrow keys move and select;
+  <kbd>Tab</kbd> again leaves the group.
+- All radios in a group share the same `name`.

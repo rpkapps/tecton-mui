@@ -1,0 +1,29 @@
+## Purpose
+
+An alert displays a short, important message in the page flow without blocking the user: the result
+of an operation, a warning about data, an error that needs attention. For temporary confirmations use
+a [Snackbar](/components/snackbar); for decisions that must be made before continuing use a
+[Dialog](/components/dialog).
+
+## Severities
+
+Each severity has its own color and icon from the Tecton theme. Variants `standard`, `outlined` and
+`filled` adjust emphasis.
+
+<Demo name="SeverityAlerts" />
+
+## Title, actions and dismissal
+
+`AlertTitle` adds a heading; `action` places controls at the end; `onClose` adds a close button.
+
+<Demo name="AlertWithAction" />
+
+## Accessibility
+
+- Alerts have `role="alert"`, which makes screen readers announce them **when they appear**. Render
+  them in response to events; an alert that is present on page load may not be announced.
+- Do not use alerts for content that is always visible and unimportant; frequent interruptions are
+  disruptive.
+- Write messages that say what happened and what to do next. Do not rely on the color alone.
+- Tecton's design gives alerts a fixed width of 320px (the default `size="medium"`). Place them where
+  that width fits, for example in a side panel or above a form.

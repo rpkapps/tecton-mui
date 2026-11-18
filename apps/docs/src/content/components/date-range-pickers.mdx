@@ -1,0 +1,58 @@
+{/* INTEGRATION: range pickers (DateRangePicker, TimeRangePicker, DateTimeRangePicker and their Desktop/Mobile/Static and lower-level counterparts) are being implemented independently in packages/ui/src. Replace the placeholders below with live demos and generated API tables once the modules exist; add their names to the page's `components` list in src/data/catalog.ts and remove the matching PENDING entries in scripts/generate-api.mjs. */}
+
+## Overview
+
+Range pickers select a start and an end value in one component: a period of days
+(`DateRangePicker`), a span of time (`TimeRangePicker`) or a period with times
+(`DateTimeRangePicker`). Each comes in responsive, desktop, mobile and static variants, following the
+same conventions as the single-value [pickers](/components/date-picker). They are part of
+`@tecton-mui/ui`, implemented independently of commercial MUI X packages, and use the same
+`LocalizationProvider`.
+
+> These components are being integrated. This page will include live demos and the generated API as
+> soon as they are released.
+
+## Basic usage
+
+{/* INTEGRATION: basic DateRangePicker demo (controlled value as [start, end] of Date | null). */}
+
+The planned usage mirrors the single-value pickers; the value is a tuple of start and end:
+
+```tsx
+import { DateRangePicker } from '@tecton-mui/ui/DateRangePicker';
+import LocalizationProvider from '@tecton-mui/ui/LocalizationProvider';
+
+<LocalizationProvider>
+  <DateRangePicker localeText={{ start: 'Check-in', end: 'Check-out' }} />
+</LocalizationProvider>;
+```
+
+{/* INTEGRATION: verify the snippet above against the shipped API before release. */}
+
+## Advanced features compatibility matrix
+
+{/* INTEGRATION: fill in the status column from the range picker test suites. */}
+
+| Capability                                         | Component             | Status                  |
+| -------------------------------------------------- | --------------------- | ----------------------- |
+| Date range with two-month calendar                 | `DateRangePicker`     | Integration in progress |
+| Single input field / two input fields              | `DateRangePicker`     | Integration in progress |
+| Shortcuts (e.g. "Last 7 days")                     | `DateRangePicker`     | Integration in progress |
+| Time range                                         | `TimeRangePicker`     | Integration in progress |
+| Date-time range                                    | `DateTimeRangePicker` | Integration in progress |
+| Desktop, mobile and static variants                | all                   | Integration in progress |
+| Inline range calendar                              | `DateRangeCalendar`   | Integration in progress |
+| Validation (min/max, disabled dates, range length) | all                   | Integration in progress |
+
+## Accessibility
+
+{/* INTEGRATION: keyboard and screen-reader notes verified against the implementation. */}
+
+Range pickers will follow the keyboard model of the single-value pickers, with the start and end
+positions announced separately.
+
+## API
+
+{/* INTEGRATION: generated API tables appear automatically once the components are listed in the catalog entry for this page. */}
+
+The API reference will be generated from the package types when the components are released.

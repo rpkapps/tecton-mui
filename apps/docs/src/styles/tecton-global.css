@@ -1,0 +1,7 @@
+/*
+ * Same content as `@tecton-mui/ui/styles/global.css` (the UI build concatenates exactly these three
+ * files). Vite aliases the public import to this file so the portal can be built from sources.
+ */
+@import '../../../../packages/ui/assets/tecton/fonts.css';
+@import '../../../../packages/ui/assets/tecton/icons.css';
+@import '../../../../packages/ui/assets/tecton/tokens.css';

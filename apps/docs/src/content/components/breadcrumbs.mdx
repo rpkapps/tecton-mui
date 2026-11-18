@@ -1,0 +1,20 @@
+## Purpose
+
+Breadcrumbs show where the current page sits in a hierarchy and let users jump to parent levels. They
+complement, but do not replace, the main navigation.
+
+## Basic usage
+
+<Demo name="BasicBreadcrumbs" />
+
+## Collapsing long paths
+
+`maxItems` collapses the middle of long paths into an expandable ellipsis.
+
+<Demo name="CollapsedBreadcrumbs" />
+
+## Accessibility
+
+- `Breadcrumbs` renders a `<nav>` landmark containing an ordered list; label it with `aria-label`.
+- Mark the current page with `aria-current="page"` and do not make it a link.
+- The collapse button is keyboard accessible and expands the full path.

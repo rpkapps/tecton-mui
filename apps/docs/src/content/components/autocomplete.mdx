@@ -1,0 +1,32 @@
+## Purpose
+
+Autocomplete is a text input with a filtered list of suggestions. Use it when the list of options is
+long, when users know what they are looking for, or when they may enter values that are not in the
+list (`freeSolo`).
+
+## Single value
+
+Options can be strings or objects with a `label`. `groupBy` adds group headers.
+
+<Demo name="ComboBox" />
+
+## Multiple values
+
+With `multiple`, selected values appear as chips inside the field.
+
+<Demo name="MultipleTags" />
+
+## Accessibility
+
+- The input follows the ARIA combobox pattern: it announces the number of options and the active
+  option as you move.
+- Keyboard: type to filter; <kbd>Arrow Down</kbd>/<kbd>Arrow Up</kbd> move through options;
+  <kbd>Enter</kbd> selects; <kbd>Escape</kbd> closes the list or clears the input; with `multiple`,
+  <kbd>Backspace</kbd> removes the last chip.
+- Provide a label through `renderInput`'s `TextField`.
+
+## Limitations
+
+- For server-side search, control `inputValue` and `options` yourself and set
+  `filterOptions={(x) => x}` so the component does not filter again on the client.
+- `useAutocomplete` is available from `@tecton-mui/ui/useAutocomplete` for fully custom UIs.

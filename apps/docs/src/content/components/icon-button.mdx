@@ -1,0 +1,29 @@
+## Purpose
+
+Icon buttons save space in toolbars, table rows and headers where the icon is widely understood:
+close, edit, delete, more options. If an action is uncommon, prefer a `Button` with a text label.
+
+## Basic usage
+
+Besides the palette colors, Tecton provides `outlined` and `textOnly` colors, a `square` variant and an
+`activated` state for buttons that stay selected.
+
+<Demo name="IconButtons" />
+
+## Sizes and tooltips
+
+Pair each icon button with a `Tooltip` so pointer users can discover its meaning.
+
+<Demo name="IconButtonSizes" />
+
+## Accessibility
+
+- An icon button has no visible text, so it **must** have an accessible name: pass `aria-label`
+  (the Tecton `Icon` inside is decorative by default).
+- A `Tooltip` provides a visual hint but does not replace `aria-label`.
+- Keyboard: <kbd>Tab</kbd> to focus, <kbd>Enter</kbd> or <kbd>Space</kbd> to activate.
+- For toggle actions, set `aria-pressed` alongside `activated`.
+
+## Limitations
+
+- `activated` and `variant="square"` are Tecton additions and have no effect in other MUI themes.

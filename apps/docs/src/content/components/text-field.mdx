@@ -1,0 +1,31 @@
+## Purpose
+
+`TextField` combines a label, an input, helper text and validation state in one component. It covers
+single-line and multi-line text, numbers, passwords and search fields. For choosing from a list use
+[Select](/components/select) or [Autocomplete](/components/autocomplete).
+
+## Basic usage
+
+<Demo name="BasicTextFields" />
+
+## Validation and adornments
+
+Set `error` and explain the problem in `helperText`. Adornments add units, icons or actions inside the
+field. Use `slotProps.input` for adornments and `slotProps.htmlInput` for attributes of the native
+`<input>`.
+
+<Demo name="ValidationTextField" />
+
+## Accessibility
+
+- Always provide a `label`. It is associated with the input and announced on focus; placeholders are not
+  a substitute.
+- `helperText` is linked through `aria-describedby`, so error messages are read with the field. Give the
+  field an `id` if you need a stable relationship for tests.
+- `required` adds the native `required` attribute and a visual marker.
+- Use `type` and `inputMode` to get the right mobile keyboard (`email`, `tel`, `numeric`).
+
+## Limitations
+
+- Visual variants are defined by the Tecton theme. The `variant` prop is accepted for compatibility, but
+  Tecton styles all field variants consistently; avoid mixing variants on one form.
