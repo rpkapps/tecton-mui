@@ -40,9 +40,31 @@ function indexModules(name) {
   ];
 }
 const hasDefault = (name, mod) =>
-  /export \{ default( \}|,)|export default /.test(
+  /export \{[^}]*\bas default\b|export \{ default( \}|,)|export default /.test(
     readFileSync(join(pkgDir(name), mod, 'index.d.ts'), 'utf8'),
   );
+
+/** Whether a module directory declares an export named after the module (e.g. SimpleTreeView). */
+function exportsNamesake(name, mod) {
+  if (!/^[A-Z]/.test(mod)) return false;
+  const dir = join(pkgDir(name), mod);
+  const index = readFileSync(join(dir, 'index.d.ts'), 'utf8');
+  const listed = (text) =>
+    [...text.matchAll(/export (?:type )?\{([^}]*)\}/g)].some((m) =>
+      m[1]
+        .split(',')
+        .map((x) => x.trim())
+        .includes(mod),
+    );
+  if (listed(index)) return true;
+  // Follow `export * from "./File.js"` one level (only files the public index re-exports).
+  return [...index.matchAll(/export \* from "\.\/([^"]+)\.js"/g)].some(([, file]) => {
+    const path = join(dir, `${file}.d.ts`);
+    if (!existsSync(path)) return false;
+    const text = readFileSync(path, 'utf8');
+    return new RegExp(`export declare (const|function|class) ${mod}\\b`).test(text) || listed(text);
+  });
+}
 
 const LAB_EXCLUDED_REASON = {
   LoadingButton: 'deprecated in @mui/lab; use Button `loading` prop',
@@ -136,6 +158,10 @@ function generatePassthroughs(custom) {
     const target = isSubpathModule(mod) ? mod : dir;
     const lines = [MARKER, `// Passthrough of ${pkg}/${mod} (v${pkgVersion(pkg)}). Do not edit.`];
     if (hasDefault(pkg, mod)) lines.push(`export { default } from '${pkg}/${mod}';`);
+    else if (exportsNamesake(pkg, mod)) {
+      // MUI X modules export components by name only; add the conventional default export.
+      lines.push(`export { ${mod} as default } from '${pkg}/${mod}';`);
+    }
     lines.push(`export * from '${pkg}/${mod}';`, '');
     out(join(src, target, 'index.ts'), lines.join('\n'));
     modules.push({ ...entry, id: target, subpath: isSubpathModule(mod) });

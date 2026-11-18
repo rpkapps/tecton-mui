@@ -33,6 +33,14 @@ const PICKER_DAY_STATE_ALIASES: Record<string, string> = {
 };
 
 export function applyThemeCompat(theme: Theme): Theme {
+  const components = (theme.components ?? {}) as Record<
+    string,
+    { defaultProps?: object; styleOverrides?: object } | undefined
+  >;
+  // Tecton 0.11.2 themes only MuiSimpleTreeView; RichTreeView shares its item visuals (chevrons).
+  if (components.MuiSimpleTreeView && !components.MuiRichTreeView) {
+    components.MuiRichTreeView = components.MuiSimpleTreeView;
+  }
   const root = (
     theme.components as Record<string, { styleOverrides?: { root?: unknown } }> | undefined
   )?.MuiPickerDay?.styleOverrides?.root;

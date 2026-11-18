@@ -215,3 +215,10 @@ describe('Tecton compat corrections', () => {
     expect(root['&.Mui-disabled']).toBe(root['&.MuiPickerDay-disabled']);
   });
 });
+
+describe('Tecton tree view defaults', () => {
+  it('shares the Tecton SimpleTreeView defaults with RichTreeView', () => {
+    const components = createTheme().components as Record<string, unknown>;
+    expect(components.MuiRichTreeView).toBe(components.MuiSimpleTreeView);
+  });
+});

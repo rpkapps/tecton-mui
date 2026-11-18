@@ -30,6 +30,7 @@ import Icon from '@tecton-mui/ui/Icon';
 import LocalizationProvider from '@tecton-mui/ui/LocalizationProvider';
 import { DataGrid as CommunityDataGrid } from '@mui/x-data-grid';
 import { GridScenarios } from './GridScenarios.js';
+import { PickerScenarios, TreeScenarios } from './AdvancedScenarios.js';
 
 const rows = Array.from({ length: 8 }, (_, i) => ({
   id: i + 1,
@@ -181,6 +182,10 @@ export function App({ scenario, rtl }: { scenario: string; rtl: boolean }) {
           <Showcase />
         ) : scenario.startsWith('grid') ? (
           <GridScenarios which={scenario.split(':')[1] ?? 'all'} />
+        ) : scenario === 'pickers' ? (
+          <PickerScenarios />
+        ) : scenario === 'tree' ? (
+          <TreeScenarios />
         ) : null}
       </div>
     </ThemeProvider>
