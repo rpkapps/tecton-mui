@@ -41,8 +41,10 @@ need to match across MUI packages.
 - **Upstream locale bundles.** The translation objects of `@mui/material/locale` and
   `@mui/x-date-pickers/locales` are not re-exported. Provide translated texts through theme
   `defaultProps` and the `localeText` prop of `LocalizationProvider`.
-- **MUI X module exports.** As upstream, pickers and tree view components are named exports, also on
-  their own paths: `import { DatePicker } from '@tecton-mui/ui/DatePicker'`.
+- **Default exports for MUI X paths.** Upstream MUI X modules only have named exports. Here every
+  component path also has a default export, consistent with MUI Core:
+  `import DatePicker from '@tecton-mui/ui/DatePicker'`. The upstream named form
+  (`import { DatePicker } from '@tecton-mui/ui/DatePicker'`) keeps working.
 
 ## Modules that are not exported
 

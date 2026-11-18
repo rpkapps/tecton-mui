@@ -68,10 +68,6 @@ function ApiIndex() {
           </Box>
         );
       })}
-      <Typography variant="body2" color="text.secondary">
-        Data Grid, range pickers and the unified Rich Tree View are being integrated; their API
-        tables will appear here once they ship.
-      </Typography>
     </>
   );
 }

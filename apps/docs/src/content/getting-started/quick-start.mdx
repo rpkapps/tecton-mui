@@ -51,9 +51,11 @@ Root imports are convenient and tree-shake well with modern bundlers. Per-compon
 dependency graph explicit and keep development servers fast because only the imported modules are
 loaded. Theme utilities always come from `@tecton-mui/ui/styles`.
 
-MUI X modules (pickers, tree view) use named exports on their own paths too, for example
-`import { DatePicker } from '@tecton-mui/ui/DatePicker'`. Every component page shows the exact
-import lines generated from the package.
+The same applies to MUI X components (pickers, tree view, data grid): every component path has a
+default export, so `import DatePicker from '@tecton-mui/ui/DatePicker'` works like
+`import Button from '@tecton-mui/ui/Button'`. The named form used by MUI X
+(`import { DatePicker } from '@tecton-mui/ui/DatePicker'`) is available too, which keeps migrated
+code working. Every component page shows the import lines generated from the package.
 
 ## Add a light/dark switch
 

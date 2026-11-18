@@ -1,5 +1,5 @@
-import { SimpleTreeView } from '@tecton-mui/ui/SimpleTreeView';
-import { TreeItem } from '@tecton-mui/ui/TreeItem';
+import SimpleTreeView from '@tecton-mui/ui/SimpleTreeView';
+import TreeItem from '@tecton-mui/ui/TreeItem';
 import Box from '@tecton-mui/ui/Box';
 
 export default function FileTree() {

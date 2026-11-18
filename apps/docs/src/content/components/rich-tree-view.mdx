@@ -1,53 +1,61 @@
-{/* INTEGRATION: the unified RichTreeView (Community features plus independently implemented advanced features) is being written in packages/ui/src/RichTreeView. Do not import it here until it lands. Then: add live demos under src/demos/rich-tree-view/, list 'RichTreeView' in this page's `components` in src/data/catalog.ts and remove /^RichTreeView$/ from PENDING in scripts/generate-api.mjs so its API table is generated. */}
+import { SupportMatrix } from '../../components/SupportMatrix';
+import TreeSupport from '../../../../../packages/ui/src/RichTreeView/SUPPORT.md';
 
 ## Overview
 
-`RichTreeView` renders a tree from data: you pass an array of items, and the component handles
-rendering, expansion and selection. It is designed for large hierarchies such as asset structures,
-file systems or organisation charts. There is a single `RichTreeView` in `@tecton-mui/ui`; advanced
-capabilities are enabled through props, without a separate "Pro" component or license key.
+`RichTreeView` renders a tree from data: pass an array of `items` (each with `id`, `label` and optional
+`children`) and the component renders, expands and selects them. It suits large or changing
+hierarchies such as asset structures, file systems or organisation charts. For small trees written in
+JSX, the [Simple Tree View](/components/simple-tree-view) is simpler.
 
-> This component is being integrated. Live demos and the generated API will appear here when it is
-> released.
+There is a single `RichTreeView` in `@tecton-mui/ui`: the MIT Community component plus features
+implemented in this library. Drag-and-drop reordering, lazy loading and virtualization each turn on
+with their own props; without them, the component behaves exactly like the Community one.
 
 ## Basic usage
 
-{/* INTEGRATION: basic RichTreeView demo with an `items` array. */}
+Use `getItemId`, `getItemLabel` and `getItemChildren` when your data uses other property names.
+Selection, checkboxes and expansion work as in the Simple Tree View.
 
-```tsx
-import { RichTreeView } from '@tecton-mui/ui/RichTreeView';
+<Demo name="BasicRichTree" />
 
-const items = [
-  { id: 'surveys', label: 'Surveys', children: [{ id: 'north-2025', label: 'North 2025' }] },
-  { id: 'wells', label: 'Wells' },
-];
+## Reordering
 
-<RichTreeView items={items} aria-label="Project" />;
-```
+`itemsReordering` lets users drag items: drop on the upper or lower third of an item to place it
+before or after, or on the middle to nest it. `isItemReorderable` and `canMoveItemToNewPosition`
+restrict moves. Keyboard users press <kbd>Alt</kbd>+<kbd>Shift</kbd> with the arrow keys; each move is
+announced. Keep the new order by updating `items` from `onItemPositionChange`.
 
-{/* INTEGRATION: verify the snippet against the shipped API before release. */}
+<Demo name="ReorderingTree" />
+
+## Lazy loading
+
+Pass a `dataSource` to fetch children when an item expands. `getChildrenCount` tells the tree which
+items can be expanded (`-1` for "unknown"), and `getTreeItems(parentId)` returns the children, or
+the root items when `parentId` is `undefined`. Responses are cached in memory for five minutes by
+default.
+
+<Demo name="LazyLoadingTree" />
+
+## Virtualization
+
+With `virtualization`, only the rows in view are mounted, which keeps trees with thousands of items
+fast. The tree fills its parent, so the parent needs a height, and all rows share one height
+(`itemHeight`, measured from the first row when omitted).
+
+<Demo name="VirtualizedTree" />
 
 ## Advanced features compatibility matrix
 
-{/* INTEGRATION: fill in the status column from the RichTreeView feature test suites. */}
+The matrix below is maintained with the implementation and lists each capability with its status.
 
-| Capability                                             | Status                  |
-| ------------------------------------------------------ | ----------------------- |
-| Items from data (`items`, `getItemId`, `getItemLabel`) | Integration in progress |
-| Single and multiple selection, checkbox selection      | Integration in progress |
-| Controlled expansion and selection                     | Integration in progress |
-| Label editing                                          | Integration in progress |
-| Lazy loading of children                               | Integration in progress |
-| Drag-and-drop reordering                               | Integration in progress |
-| Virtualization of large trees                          | Integration in progress |
+<SupportMatrix Doc={TreeSupport} idPrefix="tree-support" />
 
 ## Accessibility
 
-{/* INTEGRATION: keyboard and screen-reader notes verified against the implementation. */}
-
-The tree follows the same ARIA tree pattern and keyboard model as the
-[Simple Tree View](/components/simple-tree-view).
-
-## API
-
-The API reference will be generated from the package types when the component is released.
+- The tree follows the ARIA tree pattern with the same keyboard model as the
+  [Simple Tree View](/components/simple-tree-view); name it with `aria-label`.
+- Reorderable items describe their keyboard instructions through `aria-describedby`, and a polite live
+  region announces each move. Customise the texts with `itemsReorderingLocaleText`.
+- Items that are loading expose `aria-busy`; virtualized rows keep `aria-level`, `aria-posinset` and
+  `aria-setsize` so screen readers still announce the position in the hierarchy.

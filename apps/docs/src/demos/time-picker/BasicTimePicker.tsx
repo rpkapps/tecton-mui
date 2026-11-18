@@ -1,6 +1,6 @@
 import * as React from 'react';
 import LocalizationProvider from '@tecton-mui/ui/LocalizationProvider';
-import { TimePicker } from '@tecton-mui/ui/TimePicker';
+import TimePicker from '@tecton-mui/ui/TimePicker';
 import Stack from '@tecton-mui/ui/Stack';
 
 export default function BasicTimePicker() {

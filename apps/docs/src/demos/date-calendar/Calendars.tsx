@@ -1,8 +1,8 @@
 import * as React from 'react';
 import LocalizationProvider from '@tecton-mui/ui/LocalizationProvider';
-import { DateCalendar } from '@tecton-mui/ui/DateCalendar';
-import { MonthCalendar } from '@tecton-mui/ui/MonthCalendar';
-import { YearCalendar } from '@tecton-mui/ui/YearCalendar';
+import DateCalendar from '@tecton-mui/ui/DateCalendar';
+import MonthCalendar from '@tecton-mui/ui/MonthCalendar';
+import YearCalendar from '@tecton-mui/ui/YearCalendar';
 import Stack from '@tecton-mui/ui/Stack';
 
 export default function Calendars() {

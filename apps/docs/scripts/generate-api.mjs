@@ -25,10 +25,10 @@ const outDir = join(docsRoot, 'src/generated');
 const apiDir = join(outDir, 'api');
 
 /**
- * Modules owned by concurrent workstreams (enhanced Data Grid, range pickers, unified RichTreeView).
- * Their portal pages are skeletons until the implementations land; remove entries to document them.
+ * Modules to leave out of the generated reference (e.g. while a component is being integrated).
+ * Add a RegExp here to exclude a module; its portal page then needs no API data.
  */
-const PENDING = [/^DataGrid/, /^RichTreeView$/, /Range(Picker|Field|Calendar)/];
+const PENDING = [];
 /** Non-component subpaths that start with an uppercase letter. */
 const NOT_COMPONENTS = [/^Adapter/];
 

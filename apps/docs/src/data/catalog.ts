@@ -116,7 +116,7 @@ export const componentCategory: Record<string, CategoryId> = {
   ),
   ...group(
     'date-time-pickers',
-    'LocalizationProvider DateCalendar DateField DatePicker DateTimeField DateTimePicker DayCalendarSkeleton DesktopDatePicker DesktopDateTimePicker DesktopTimePicker DigitalClock MobileDatePicker MobileDateTimePicker MobileTimePicker MonthCalendar MultiSectionDigitalClock PickerDay PickersActionBar PickersCalendarHeader PickersLayout PickersSectionList PickersShortcuts PickersTextField StaticDatePicker StaticDateTimePicker StaticTimePicker TimeClock TimeField TimePicker YearCalendar',
+    'LocalizationProvider DateRangePicker DesktopDateRangePicker MobileDateRangePicker StaticDateRangePicker DateRangeCalendar TimeRangePicker DesktopTimeRangePicker MobileTimeRangePicker StaticTimeRangePicker DateTimeRangePicker DesktopDateTimeRangePicker MobileDateTimeRangePicker StaticDateTimeRangePicker SingleInputDateRangeField MultiInputDateRangeField SingleInputTimeRangeField SingleInputDateTimeRangeField DateCalendar DateField DatePicker DateTimeField DateTimePicker DayCalendarSkeleton DesktopDatePicker DesktopDateTimePicker DesktopTimePicker DigitalClock MobileDatePicker MobileDateTimePicker MobileTimePicker MonthCalendar MultiSectionDigitalClock PickerDay PickersActionBar PickersCalendarHeader PickersLayout PickersSectionList PickersShortcuts PickersTextField StaticDatePicker StaticDateTimePicker StaticTimePicker TimeClock TimeField TimePicker YearCalendar',
   ),
   ...group(
     'tree-view',
@@ -399,15 +399,14 @@ export const authoredPages: AuthoredPage[] = [
     components: ['TabContext', 'TabList', 'TabPanel'],
     summary: 'Wires Tabs and their panels together with accessible ids automatically.',
   },
-  // Data Grid (being integrated)
+  // Data Grid
   {
     slug: 'data-grid',
     title: 'Data Grid',
     category: 'data-grid',
-    components: [],
+    components: ['DataGrid'],
     summary:
       'One DataGrid for tabular data, from simple lists to grouped, pinned and editable grids.',
-    status: 'integration-pending',
   },
   // Date & Time Pickers
   {
@@ -456,9 +455,15 @@ export const authoredPages: AuthoredPage[] = [
     slug: 'date-range-pickers',
     title: 'Range Pickers',
     category: 'date-time-pickers',
-    components: [],
+    components: [
+      'DateRangePicker',
+      'TimeRangePicker',
+      'DateTimeRangePicker',
+      'DateRangeCalendar',
+      'SingleInputDateRangeField',
+      'MultiInputDateRangeField',
+    ],
     summary: 'Pick a start and end date, time or date-time in one component.',
-    status: 'integration-pending',
   },
   // Tree View
   {
@@ -472,9 +477,8 @@ export const authoredPages: AuthoredPage[] = [
     slug: 'rich-tree-view',
     title: 'Rich Tree View',
     category: 'tree-view',
-    components: [],
+    components: ['RichTreeView'],
     summary: 'A data-driven tree for large hierarchies, with selection, editing and reordering.',
-    status: 'integration-pending',
   },
 ];
 

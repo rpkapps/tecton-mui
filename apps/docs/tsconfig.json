@@ -3,26 +3,13 @@
   "compilerOptions": {
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "customConditions": [
-      "@tecton-mui/source"
-    ],
+    "customConditions": ["@tecton-mui/source"],
     "noEmit": true,
-    "types": [
-      "vite/client",
-      "node",
-      "mdx"
-    ],
+    "types": ["vite/client", "node", "mdx"],
     "paths": {
-      "date-fns": [
-        "../../packages/ui/node_modules/date-fns/index.d.ts"
-      ],
-      "date-fns/locale/*": [
-        "../../packages/ui/node_modules/date-fns/locale/*.d.ts"
-      ]
+      "date-fns": ["../../packages/ui/node_modules/date-fns/index.d.ts"],
+      "date-fns/locale/*": ["../../packages/ui/node_modules/date-fns/locale/*.d.ts"]
     }
   },
-  "include": [
-    "src",
-    "vite.config.ts"
-  ]
+  "include": ["src", "vite.config.ts"]
 }

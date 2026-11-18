@@ -13,6 +13,9 @@ matter of changing import paths and removing setup that the library now provides
 | `import TabContext from '@mui/lab/TabContext'`                      | `import TabContext from '@tecton-mui/ui/TabContext'`                 |
 | `@mui/icons-material` icons                                         | `Icon` from `@tecton-mui/ui/Icon` (Tecton icon set)                  |
 
+MUI X paths keep their named exports, so the right-hand column works unchanged; they also offer a
+default export (`import DatePicker from '@tecton-mui/ui/DatePicker'`) like the Core paths.
+
 ## Step by step
 
 1. **Replace imports.** A search-and-replace from `@mui/material/` to `@tecton-mui/ui/` covers most

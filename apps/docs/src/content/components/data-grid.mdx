@@ -1,72 +1,128 @@
-{/* INTEGRATION: the unified DataGrid (Community foundation plus independently implemented feature modules) is being written in packages/ui/src/DataGrid. Do not import it here until it lands. Then: add live demos under src/demos/data-grid/, list 'DataGrid' in this page's `components` in src/data/catalog.ts and remove /^DataGrid/ from PENDING in scripts/generate-api.mjs so the API table is generated. */}
+import { SupportMatrix } from '../../components/SupportMatrix';
+import GridSupport from '../../../../../packages/ui/src/DataGrid/SUPPORT.md';
 
 ## Overview
 
-`DataGrid` displays and edits tabular data: sorting, filtering, pagination, column management, row
-selection and editing out of the box, and advanced capabilities such as pinning, row grouping,
-aggregation, tree data and server-side data when you enable them through props.
+`DataGrid` displays and edits tabular data. Out of the box it sorts, filters, paginates, selects
+rows, manages columns and edits cells. Advanced capabilities (multi-column sorting, header filters,
+pinning, reordering, grouping, aggregation, tree data, detail panels, cell ranges, clipboard,
+server-side data and undo/redo) are switched on with their own props.
 
-There is **one** `DataGrid` in `@tecton-mui/ui`. It is built on the MIT-licensed Community grid, with
-advanced features implemented independently in this library. There are no separate Pro or Premium
-components and no license key. With default props it behaves like the Community grid; nothing is
-grouped, pinned or aggregated unless you ask for it.
+There is **one** `DataGrid` in `@tecton-mui/ui`. It wraps the MIT-licensed Community grid and adds
+features implemented in this library. There are no Pro or Premium variants and no license key.
+Without any advanced props the grid behaves like the Community grid: nothing is grouped, pinned or
+aggregated unless you ask for it.
 
-> The Data Grid is being integrated. Live demos and the generated API will appear here when it is
-> released.
+> **Server-side rendering:** like the Community grid, `DataGrid` renders on the client only. Server or
+> static output contains no grid markup; the grid appears once the page runs in the browser. Give the
+> grid a parent with a fixed height so the page does not shift when it appears.
 
 ## Basic usage
 
-{/* INTEGRATION: basic DataGrid demo (rows + columns, pagination, sorting). */}
+Give the grid `rows` (each with a unique `id`, or pass `getRowId`) and `columns`. The grid fills its
+parent, so the parent needs a height.
 
-```tsx
-import { DataGrid } from '@tecton-mui/ui/DataGrid';
+<Demo name="BasicGrid" />
 
-const columns = [
-  { field: 'id', headerName: 'ID', width: 90 },
-  { field: 'well', headerName: 'Well', flex: 1 },
-  { field: 'depth', headerName: 'Depth (m)', type: 'number', width: 140 },
-];
-const rows = [
-  { id: 1, well: 'A-12', depth: 3120 },
-  { id: 2, well: 'B-07', depth: 2875 },
-];
+## Sorting and filtering
 
-<DataGrid rows={rows} columns={columns} />;
-```
+Hold <kbd>Shift</kbd> (or <kbd>Ctrl</kbd>/<kbd>Cmd</kbd>) while clicking a header to sort by several
+columns; the order is shown as a number next to the sort arrow. `headerFilters` adds an inline filter
+input below each header. The filter panel combines several conditions with AND/OR.
 
-{/* INTEGRATION: confirm the export style (named vs default) and the snippet above against the shipped API before release. */}
+<Demo name="MultiSortHeaderFilters" />
+
+## Column pinning and reordering
+
+Pinned columns stay visible while scrolling horizontally. Pin with `pinnedColumns` /
+`initialState.pinnedColumns` or from the column menu. Drag headers to reorder columns within their
+section; the column menu offers the same moves for keyboard users.
+
+<Demo name="PinningReordering" />
+
+## Row grouping and aggregation
+
+`rowGroupingModel` groups rows by one or more fields. `aggregationModel` maps a field to a function
+(`sum`, `avg`, `min`, `max`, `size`, or your own via `aggregationFunctions`). Group rows show their
+aggregates inline, and a grand total row is pinned at the bottom.
+
+<Demo name="GroupingAggregation" />
+
+## Tree data
+
+With `treeData`, `getTreeDataPath` returns each row's position in the hierarchy. Missing parents are
+created automatically, and aggregation works on tree nodes too.
+
+<Demo name="TreeData" />
+
+## Master/detail
+
+`getDetailPanelContent` renders a panel under a row; a toggle column is added automatically.
+`getDetailPanelHeight` returns a height in pixels or `'auto'`.
+
+<Demo name="MasterDetail" />
+
+## Cell selection and clipboard
+
+`cellSelection` lets users select rectangular ranges of cells. <kbd>Ctrl</kbd>/<kbd>Cmd</kbd>+<kbd>C</kbd>
+copies the range as tab-separated text, ready for spreadsheets. Pasting writes into editable columns
+starting at the selected cell and goes through `processRowUpdate`, so your validation and persistence
+apply.
+
+<Demo name="CellSelectionClipboard" />
+
+## Server-side data
+
+Instead of `rows`, pass a `dataSource` whose `getRows` receives the current sort and filter models and
+the requested row range (`start`, `end`). Return the rows and the total `rowCount`. With `lazyLoading`
+the grid requests rows as they scroll into view and shows placeholder rows meanwhile. Responses are
+cached in memory by default (`dataSourceCache`).
+
+<Demo name="ServerSideData" />
+
+## Row reordering
+
+`rowReordering` adds a drag handle column. Keyboard users focus the handle and press
+
+<kbd>Alt</kbd>+<kbd>Arrow Up</kbd>/<kbd>Arrow Down</kbd>. Reordering applies to flat data and is
+disabled while rows are sorted, grouped or loaded from a server.
+
+<Demo name="RowReordering" />
+
+## Undo and redo
+
+`historyStackSize` keeps that many cell edits, pastes and row moves for
+
+<kbd>Ctrl</kbd>/<kbd>Cmd</kbd>+<kbd>Z</kbd> and <kbd>Ctrl</kbd>/<kbd>Cmd</kbd>+<kbd>Shift</kbd>+
+<kbd>Z</kbd>
+(or <kbd>Ctrl</kbd>+<kbd>Y</kbd>). `useGridAdvancedApiRef` gives you `undo()`, `redo()`, `canUndo()`
+and `canRedo()` for your own buttons. Edit a value below with a double click or <kbd>Enter</kbd>.
+
+<Demo name="UndoRedo" />
+
+## Imperative API
+
+`useGridAdvancedApiRef()` creates a ref for the `advancedApiRef` prop. Through it you can read and set
+multi-item sort and filter models, pin and move columns, change grouping and aggregation, expand groups
+and detail panels, select cell ranges, apply batched row updates (`updateRows`) and refetch server
+data. The Community `apiRef` keeps working for everything else.
 
 ## Advanced features compatibility matrix
 
-{/* INTEGRATION: fill in the status and notes columns from the DataGrid feature test suites. */}
+The matrix below is maintained with the implementation and lists every capability with its status
+and the props that enable it.
 
-| Capability                                         | Enabled by | Status                  |
-| -------------------------------------------------- | ---------- | ----------------------- |
-| Sorting, filtering, pagination (single column)     | default    | Integration in progress |
-| Multi-column sorting and filtering, header filters | props      | Integration in progress |
-| Column pinning and reordering                      | props      | Integration in progress |
-| Row pinning and reordering                         | props      | Integration in progress |
-| Multi-row and range row selection                  | props      | Integration in progress |
-| Tree data                                          | props      | Integration in progress |
-| Master/detail panels                               | props      | Integration in progress |
-| Server-side lazy loading, batched row updates      | props      | Integration in progress |
-| Row grouping                                       | props      | Integration in progress |
-| Aggregation and summary rows                       | props      | Integration in progress |
-| Cell range selection and clipboard paste           | props      | Integration in progress |
-| Server-side grouping and aggregation               | props      | Integration in progress |
-| Undo/redo                                          | props      | Integration in progress |
-| CSV export and print (Community)                   | default    | Integration in progress |
-
-**Not included:** AI assistant, spreadsheet-style formulas, chart integration, pivoting and Excel
-export.
+<SupportMatrix Doc={GridSupport} idPrefix="grid-support" />
 
 ## Accessibility
 
-{/* INTEGRATION: keyboard and screen-reader notes verified against the implementation. */}
-
-The grid follows the ARIA grid pattern: arrow keys move between cells, <kbd>Enter</kbd> starts editing
-and <kbd>Escape</kbd> cancels, and headers announce their sort state.
-
-## API
-
-The API reference will be generated from the package types when the component is released.
+- The grid follows the ARIA grid pattern (`treegrid` when rows are hierarchical). Arrow keys move
+  between cells, <kbd>Home</kbd>/<kbd>End</kbd> to the first/last cell of a row,
+  <kbd>Page Up</kbd>/<kbd>Page Down</kbd> by a page.
+- <kbd>Enter</kbd> or typing starts editing; <kbd>Escape</kbd> cancels; <kbd>Tab</kbd> leaves the
+  grid.
+- Column headers announce their sort state; secondary sort columns expose their priority as text.
+- Group and tree rows expose `aria-level` and `aria-expanded`; the toggle button in the grouping cell
+  expands and collapses them.
+- Give the grid an accessible name with `aria-label` or `aria-labelledby` when several grids share a
+  page.

@@ -1,6 +1,6 @@
 import { de } from 'date-fns/locale/de';
 import LocalizationProvider from '@tecton-mui/ui/LocalizationProvider';
-import { DatePicker } from '@tecton-mui/ui/DatePicker';
+import DatePicker from '@tecton-mui/ui/DatePicker';
 
 export default function LocalizedDatePicker() {
   return (
