@@ -6,7 +6,9 @@ import RangeSupport from '../../../../../packages/ui/src/internal/range-pickers/
 Range pickers select a start and an end in one component: a period of days (`DateRangePicker`), a
 span of time (`TimeRangePicker`) or a period with times (`DateTimeRangePicker`). Each comes in a
 responsive version plus `Desktop`, `Mobile` and `Static` variants, like the single-value
-[pickers](/components/date-picker). `DateRangeCalendar` and the range fields are available on their own.
+[pickers](/components/date-picker). `DateRangeCalendar` and the range fields are available on their
+own. Preset ranges, the action bar and day rendering are customized as on the
+[Picker Customization](/components/picker-customization) page.
 
 The components are implemented in this library on top of the public MUI X Community picker APIs; no
 commercial MUI X package is used. They read the adapter and locale from the same
@@ -21,6 +23,16 @@ calendar opens in a popover with two months; on touch devices it opens in a dial
 
 <Demo name="BasicDateRangePicker" />
 
+## Variants
+
+The responsive pickers choose a variant from `desktopModeMediaQuery` (default `@media (pointer: fine)`).
+Render `DesktopDateRangePicker` or `MobileDateRangePicker` directly when the presentation must stay the
+same on every device. The desktop variant opens a popover with two months and commits a range as soon
+as both endpoints are chosen; the mobile variant keeps the field read-only and opens a dialog that
+commits on OK.
+
+<Demo name="DateRangeVariants" />
+
 ## Static picker with shortcuts
 
 `Static*` variants render inline without a field. `slotProps.shortcuts.items` adds preset ranges;
@@ -30,7 +42,35 @@ shortcuts whose range is not valid (here: after `maxDate`) are disabled.
 
 ## Time and date-time ranges
 
+`TimeRangePicker` edits two times of the same day; `DateTimeRangePicker` edits two full timestamps,
+so the period can cross midnight.
+
 <Demo name="TimeRanges" />
+
+### Time range variants
+
+`DesktopTimeRangePicker` shows digital lists for both endpoints in a popover. `MobileTimeRangePicker`
+opens a dialog with an analog clock and one tab per endpoint.
+
+<Demo name="TimeRangeVariants" />
+
+`StaticTimeRangePicker` renders the views inline. With `displayStaticWrapperAs="desktop"` it shows the
+digital lists, which fits a roster editor where the shift length is computed while the user picks.
+
+<Demo name="StaticShiftPattern" />
+
+### Date-time range variants
+
+`DesktopDateTimeRangePicker` and `MobileDateTimeRangePicker` follow the same pattern: a popover with
+the calendar and the time lists, or a dialog with date and time tabs.
+
+<Demo name="DateTimeRangeVariants" />
+
+`StaticDateTimeRangePicker` shows the toolbar, the views and Cancel / OK inline. `onChange` reports the
+range while it is being edited and `onAccept` the committed range, so a draft can be previewed before
+it is published.
+
+<Demo name="StaticOutageWindow" />
 
 ## Fields and calendar
 
@@ -41,6 +81,19 @@ months inline.
 <Demo name="RangeFields" />
 
 <Demo name="RangeCalendar" />
+
+### Time and date-time range fields
+
+`SingleInputTimeRangeField` and `SingleInputDateTimeRangeField` hold a time or date-time range in one
+text input, written as `start – end`. They accept the range validation props, such as `minTime` and
+`maxTime`, and report one error per endpoint through `onError`.
+
+<Demo name="TimeRangeFields" />
+
+The fields can be controlled like the pickers. Values set from outside are formatted with `format`;
+typed text is parsed when both endpoints are complete.
+
+<Demo name="ControlledTimeRangeField" />
 
 ## Validation
 

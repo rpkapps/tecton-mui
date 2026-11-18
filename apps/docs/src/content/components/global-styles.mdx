@@ -1,0 +1,23 @@
+## Purpose
+
+`GlobalStyles` inserts CSS rules into the document while it is mounted and removes them when it
+unmounts. Use it for markup you cannot style with `sx`, `styled` or the theme, such as HTML from a
+content system. Rules that belong to the whole application are better placed in
+`components.MuiCssBaseline.styleOverrides` (see [CSS Baseline](/components/css-baseline)).
+
+Global rules affect every application on the page. In a hosted micro-frontend, scope selectors to
+your own root, and never restyle elements or class names you do not own.
+
+## Scoped rules
+
+Pass a stable `styles` object, defined outside the component, and scope its selectors with a class or
+data attribute.
+
+<Demo name="ScopedGlobalStyles" />
+
+## Using the theme
+
+`styles` can be a function of the theme, so colors, spacing and typography follow the shared Tecton
+light/dark mode.
+
+<Demo name="ThemedGlobalStyles" />

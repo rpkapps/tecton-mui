@@ -253,9 +253,9 @@ export default function MuiDocs() {
       </Heading>
       <M.p>
         {'You can use '}
-        <M.a href={'/components/collapse'}>{'Transition components'}</M.a>
+        <M.a href={'/components/transitions'}>{'Transition components'}</M.a>
         {' like '}
-        <M.a href={'/components/collapse#collapse'}>{'Collapse'}</M.a>
+        <M.a href={'/components/transitions#collapse'}>{'Collapse'}</M.a>
         {" to add motion to an Alert's entrance and exit."}
       </M.p>
       <Demo name="TransitionAlerts" />

@@ -28,7 +28,10 @@
     "typography": [{ "slug": "typography" }],
     "alert": [{ "slug": "alert" }],
     "backdrop": [{ "slug": "backdrop" }],
-    "dialogs": [{ "slug": "dialog" }],
+    "dialogs": [
+      { "slug": "dialog" },
+      { "slug": "unstable-trap-focus", "sections": ["non-modal-dialog"] }
+    ],
     "progress": [{ "slug": "progress" }],
     "skeleton": [{ "slug": "skeleton" }],
     "snackbars": [{ "slug": "snackbar" }],
@@ -61,23 +64,7 @@
     "popper": [{ "slug": "popper" }],
     "portal": [{ "slug": "portal" }],
     "textarea-autosize": [{ "slug": "textarea-autosize" }],
-    "transitions": [
-      {
-        "slug": "collapse",
-        "sections": [
-          "collapse",
-          "reduced-motion",
-          "child-requirement",
-          "transitiongroup",
-          "transition-slots",
-          "performance-seo"
-        ]
-      },
-      { "slug": "fade", "sections": ["fade"] },
-      { "slug": "grow", "sections": ["grow"] },
-      { "slug": "slide", "sections": ["slide"] },
-      { "slug": "zoom", "sections": ["zoom"] }
-    ],
+    "transitions": [{ "slug": "transitions" }],
     "masonry": [{ "slug": "masonry" }],
     "timeline": [{ "slug": "timeline" }]
   },

@@ -37,6 +37,29 @@ Fields accept the `TextField` props such as `fullWidth`, `required` and `helperT
 
 <Demo name="FieldStates" />
 
+## Customizing the input
+
+Every field and picker renders its input with `PickersTextField`. It has the familiar `TextField`
+API (`variant`, `size`, `label`, `helperText`, `error`…) but renders the value as a list of editable
+sections instead of a single `<input>`, which is what makes section-by-section editing accessible.
+
+<Demo name="FieldInputVariants" />
+
+To give several fields the same input, replace the `textField` slot with a component built on
+`PickersTextField`. Define it at module level, as here, so the fields do not remount on every render.
+The slot works the same way on the pickers.
+
+<Demo name="CustomTextFieldSlot" />
+
+### Styling sections
+
+Inside the input, `PickersSectionList` (exported as `Unstable_PickersSectionList`) renders one
+element per section (`role="spinbutton"`) with the separators between them. Target them with
+`pickersSectionListClasses` and `pickersInputBaseClasses` to style the sections without replacing
+any component.
+
+<Demo name="SectionStyling" />
+
 ## Localization
 
 The adapter locale sets the section order, separators, digits and meridiem labels. Right-to-left

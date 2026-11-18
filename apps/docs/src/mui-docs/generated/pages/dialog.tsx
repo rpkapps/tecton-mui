@@ -98,7 +98,7 @@ export default function MuiDocs() {
         </M.li>
         <M.li>
           {'Slide: optional '}
-          <M.a href={'/components/slide#slide'}>{'Transition'}</M.a>
+          <M.a href={'/components/transitions#slide'}>{'Transition'}</M.a>
           {' used to slide the Dialog in from the edge of the screen.'}
         </M.li>
       </M.ul>

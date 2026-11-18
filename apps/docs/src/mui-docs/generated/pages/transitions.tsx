@@ -13,6 +13,16 @@ import {
 import { defineDemo } from '../../runtime/demo';
 import SimpleCollapse from '../demos/transitions/SimpleCollapse';
 import SimpleCollapseSource from '../demos/transitions/SimpleCollapse.tsx?raw';
+import SimpleFade from '../demos/transitions/SimpleFade';
+import SimpleFadeSource from '../demos/transitions/SimpleFade.tsx?raw';
+import SimpleGrow from '../demos/transitions/SimpleGrow';
+import SimpleGrowSource from '../demos/transitions/SimpleGrow.tsx?raw';
+import SimpleSlide from '../demos/transitions/SimpleSlide';
+import SimpleSlideSource from '../demos/transitions/SimpleSlide.tsx?raw';
+import SlideFromContainer from '../demos/transitions/SlideFromContainer';
+import SlideFromContainerSource from '../demos/transitions/SlideFromContainer.tsx?raw';
+import SimpleZoom from '../demos/transitions/SimpleZoom';
+import SimpleZoomSource from '../demos/transitions/SimpleZoom.tsx?raw';
 
 const demos = {
   SimpleCollapse: defineDemo(
@@ -21,11 +31,27 @@ const demos = {
     { code: SimpleCollapseSource },
     { bg: true },
   ),
+  SimpleFade: defineDemo('SimpleFade', SimpleFade, { code: SimpleFadeSource }, { bg: true }),
+  SimpleGrow: defineDemo('SimpleGrow', SimpleGrow, { code: SimpleGrowSource }, { bg: true }),
+  SimpleSlide: defineDemo('SimpleSlide', SimpleSlide, { code: SimpleSlideSource }, { bg: true }),
+  SlideFromContainer: defineDemo(
+    'SlideFromContainer',
+    SlideFromContainer,
+    { code: SlideFromContainerSource },
+    { bg: true },
+  ),
+  SimpleZoom: defineDemo('SimpleZoom', SimpleZoom, { code: SimpleZoomSource }, { bg: true }),
 };
 
 export default function MuiDocs() {
   return (
     <MuiDocsContent demos={demos}>
+      <M.p>{'Transitions help to make a UI expressive and easy to use.'}</M.p>
+      <M.p>
+        {'Material UI provides transitions that can be used to introduce some basic '}
+        <M.a href={'https://m2.material.io/design/motion/'}>{'motion'}</M.a>
+        {' to your applications.'}
+      </M.p>
       <Heading level={3} id="collapse">
         {'Collapse'}
       </Heading>
@@ -37,6 +63,66 @@ export default function MuiDocs() {
         {' prop can be used to set the minimum width/height when not expanded.'}
       </M.p>
       <Demo name="SimpleCollapse" />
+      <Heading level={3} id="fade">
+        {'Fade'}
+      </Heading>
+      <M.p>{'Fade in from transparent to opaque.'}</M.p>
+      <Demo name="SimpleFade" />
+      <Heading level={3} id="grow">
+        {'Grow'}
+      </Heading>
+      <M.p>
+        {
+          'Expands outwards from the center of the child element, while also fading in from transparent to opaque.'
+        }
+      </M.p>
+      <M.p>
+        {'The second example demonstrates how to change the '}
+        <M.code>{'transform-origin'}</M.code>
+        {', and conditionally applies\nthe '}
+        <M.code>{'timeout'}</M.code>
+        {' prop to change the entry speed.'}
+      </M.p>
+      <Demo name="SimpleGrow" />
+      <Heading level={3} id="slide">
+        {'Slide'}
+      </Heading>
+      <M.p>
+        {'Slide in from the edge of the screen.\nThe '}
+        <M.code>{'direction'}</M.code>
+        {' prop controls which edge of the screen the transition starts from.'}
+      </M.p>
+      <M.p>
+        {'The '}
+        <M.code>{'mountOnEnter'}</M.code>
+        {' prop prevents the child component from being mounted\nuntil '}
+        <M.code>{'in'}</M.code>
+        {' is '}
+        <M.code>{'true'}</M.code>
+        {
+          '.\nThis prevents the relatively positioned component from scrolling into view\nfrom its off-screen position.\nSimilarly, the '
+        }
+        <M.code>{'unmountOnExit'}</M.code>
+        {' prop removes the component from the DOM after it has been transition off-screen.'}
+      </M.p>
+      <Demo name="SimpleSlide" />
+      <Heading level={4} id="slide-relative-to-a-container">
+        {'Slide relative to a container'}
+      </Heading>
+      <M.p>
+        {'The Slide component also accepts '}
+        <M.code>{'container'}</M.code>
+        {
+          ' prop, which is a reference to a DOM node.\nIf this prop is set, the Slide component will slide from the edge of that DOM node.'
+        }
+      </M.p>
+      <Demo name="SlideFromContainer" />
+      <Heading level={3} id="zoom">
+        {'Zoom'}
+      </Heading>
+      <M.p>{'Expand outwards from the center of the child element.'}</M.p>
+      <M.p>{'This example also demonstrates how to delay the enter transition.'}</M.p>
+      <Demo name="SimpleZoom" />
       <Heading level={3} id="reduced-motion">
         {'Reduced motion'}
       </Heading>

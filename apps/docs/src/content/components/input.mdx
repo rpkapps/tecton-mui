@@ -1,0 +1,24 @@
+## Purpose
+
+`Input` is a bare text input. It has no label or helper text of its own; it is the input that
+`TextField variant="standard"` renders. In the Tecton theme it uses the text-only field style: no box
+and no underline, except a line in the error state. Prefer [Text Field](/components/text-field) for
+form fields. Use `Input` when you compose a field yourself with `FormControl`, `InputLabel` and
+`FormHelperText`, or in compact places such as a toolbar filter.
+
+## States
+
+`Input` supports the native input attributes plus `error`, `disabled`, `readOnly`, `multiline` and
+`fullWidth`. Without a visible label, name the input with `slotProps.input['aria-label']`.
+
+<Demo name="InputStates" />
+
+## Labels and adornments
+
+Inside a `FormControl` the label, input and helper text share their `focused`, `error` and `disabled`
+state. `startAdornment` and `endAdornment` take an `InputAdornment` for units, icons or buttons.
+
+<Demo name="InputWithAdornments" />
+
+The sibling inputs `OutlinedInput` and `FilledInput`, and the unstyled `InputBase`, are documented on
+the [Text Field](/components/text-field#components) page.

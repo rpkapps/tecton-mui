@@ -37,7 +37,7 @@ export default function MuiDocs() {
       </Heading>
       <M.p>
         {'Backdrop uses '}
-        <M.a href={'/components/fade#fade'}>{'Fade'}</M.a>
+        <M.a href={'/components/transitions#fade'}>{'Fade'}</M.a>
         {' by default.\nUse '}
         <M.code>{'slots.transition'}</M.code>
         {' and '}

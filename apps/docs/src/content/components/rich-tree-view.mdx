@@ -43,6 +43,17 @@ no mapping step. `isItemDisabled` disables items from data, here shut-in wells.
 
 <Demo name="LabelEditing" />
 
+### Custom label input
+
+While an item is edited, `TreeItem` renders `TreeItemLabelInput` in place of the label. Replace it
+through the item's `labelInput` slot (`slotProps.item.slots.labelInput`) and render
+`TreeItemLabelInput` inside your component with the props it receives: they carry the value and the
+
+<kbd>Enter</kbd>, <kbd>Escape</kbd> and blur handling. Here the input selects the file name without
+its extension when it opens, and gets an accessible name.
+
+<Demo name="CustomLabelInput" />
+
 ## Reordering
 
 `itemsReordering` lets users drag items: drop on the upper or lower third of an item to place it
@@ -52,6 +63,18 @@ announced. Keep the new order by updating `items` from `onItemPositionChange`.
 
 <Demo name="ReorderingTree" />
 
+### Custom drop indicator
+
+While an item is dragged, every item renders a `TreeItemDragAndDropOverlay` that shows where the item
+would land: a line above or below the target, or a highlight when the item would become a child. The
+overlay receives the drop `action` (`reorder-above`, `reorder-below`, `make-child` or
+`move-to-parent`) and renders nothing without one. Replace it for every item with
+`slotProps.item.slots.dragAndDropOverlay`; this example keeps the stock overlay and adds a hint that
+names the action. `canMoveItemToNewPosition` keeps people inside a group, so no indicator appears
+where a drop is not allowed.
+
+<Demo name="CustomDropIndicator" />
+
 ## Lazy loading
 
 Pass a `dataSource` to fetch children when an item expands. `getChildrenCount` tells the tree which
@@ -60,6 +83,17 @@ the root items when `parentId` is `undefined`. Responses are cached in memory fo
 default.
 
 <Demo name="LazyLoadingTree" />
+
+### Custom loading rows
+
+While children load, the tree shows one `TreeItemLoader` row per expected child: the count from
+`getChildrenCount`, or five rows when it is `-1`. The same rows fill the tree while the root items
+load. `TreeItemLoader` renders a `treeitem` with the indentation and height of a real item; pass your
+own content as its children and the component as `slots.itemLoader`. Spread the props it receives,
+because they set the row's depth. The **Reload directory** button calls
+`apiRef.current.updateItemChildren(null)`, which skips the cache and loads the tree again.
+
+<Demo name="CustomLoadingRows" />
 
 ## Virtualization
 

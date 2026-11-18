@@ -14,6 +14,15 @@ that you render yourself. For sorting, filtering, column resizing, virtualizatio
 
 <Demo name="PaginatedTable" />
 
+## Composing the pagination actions
+
+`TablePaginationActions` renders the first, previous, next and last buttons of `TablePagination`. To
+add something next to them, pass a module-level component to `ActionsComponent` that renders
+`TablePaginationActions` with the props it receives; the built-in tooltips, labels and focus handling
+stay in place. Inside a `Table`, render `TablePagination` in a `TableFooter` row.
+
+<Demo name="ComposedPaginationActions" />
+
 ## Accessibility
 
 - Give the table a name with `aria-label` or a `<caption>`.

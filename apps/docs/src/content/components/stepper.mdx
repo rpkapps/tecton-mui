@@ -1,0 +1,19 @@
+## Purpose
+
+Steppers show where the user is in a numbered sequence, such as a multi-step form or a set-up
+wizard, and what is left. Use them for three to seven steps; for one or two use a single form, and
+for navigation between unrelated views use [Tabs](/components/tabs).
+
+## Parts
+
+- `Stepper` holds the steps and sets `activeStep`, the `orientation` and whether the flow is
+  `nonLinear`.
+- `Step` is one step; `completed`, `disabled` and `active` are derived from `activeStep` unless set.
+- `StepLabel` renders the step number or icon with its title and optional text (for example
+  "Optional" or an error message).
+- `StepButton` replaces `StepLabel` in non-linear steppers so each step can be selected.
+- `StepContent` holds the content of a step in a vertical stepper and animates it open.
+- `StepIcon` and `StepConnector` are the default icon and connecting line; replace them with
+  `slots.stepIcon` on `StepLabel` and the `connector` prop on `Stepper`.
+
+For a compact stepper on small screens, see [Mobile Stepper](/components/mobile-stepper).

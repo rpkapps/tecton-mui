@@ -6,6 +6,7 @@ import {
   Callout,
   CodeBlock,
   Demo,
+  ExcludedDemo,
   Heading,
   M,
   MuiDocsContent,
@@ -21,8 +22,6 @@ import HorizontalStepperWithError from '../demos/steppers/HorizontalStepperWithE
 import HorizontalStepperWithErrorSource from '../demos/steppers/HorizontalStepperWithError.tsx?raw';
 import CustomizedSteppers from '../demos/steppers/CustomizedSteppers';
 import CustomizedSteppersSource from '../demos/steppers/CustomizedSteppers.tsx?raw';
-import VerticalLinearStepper from '../demos/steppers/VerticalLinearStepper';
-import VerticalLinearStepperSource from '../demos/steppers/VerticalLinearStepper.tsx?raw';
 import VerticalLinearAlternativeLabelStepper from '../demos/steppers/VerticalLinearAlternativeLabelStepper';
 import VerticalLinearAlternativeLabelStepperSource from '../demos/steppers/VerticalLinearAlternativeLabelStepper.tsx?raw';
 import TextMobileStepper from '../demos/steppers/TextMobileStepper';
@@ -49,9 +48,6 @@ const demos = {
   }),
   CustomizedSteppers: defineDemo('CustomizedSteppers', CustomizedSteppers, {
     code: CustomizedSteppersSource,
-  }),
-  VerticalLinearStepper: defineDemo('VerticalLinearStepper', VerticalLinearStepper, {
-    code: VerticalLinearStepperSource,
   }),
   VerticalLinearAlternativeLabelStepper: defineDemo(
     'VerticalLinearAlternativeLabelStepper',
@@ -235,7 +231,10 @@ export default function MuiDocs() {
           'Vertical steppers are designed for narrow screen sizes. They are ideal for mobile. All the features of the horizontal stepper can be implemented.'
         }
       </M.p>
-      <Demo name="VerticalLinearStepper" />
+      <ExcludedDemo
+        name="VerticalLinearStepper"
+        reason="upstream demo defect: its focus-management effect also runs on mount and focuses the Continue button, which moves focus and scrolls the page on load (WCAG 3.2.1) and breaks #section links into the Stepper page; VerticalLinearAlternativeLabelStepper still shows the vertical stepper with StepContent"
+      />
       <Heading level={4} id="steppers-alternative-label">
         {'Alternative label'}
       </Heading>
@@ -253,7 +252,7 @@ export default function MuiDocs() {
       <M.p>
         <M.code>{'StepContent'}</M.code>
         {' uses '}
-        <M.a href={'/components/collapse#collapse'}>{'Collapse'}</M.a>
+        <M.a href={'/components/transitions#collapse'}>{'Collapse'}</M.a>
         {' by default.\nUse '}
         <M.code>{'slots.transition'}</M.code>
         {' and '}

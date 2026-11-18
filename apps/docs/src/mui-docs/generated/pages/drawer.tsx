@@ -208,7 +208,7 @@ export default function MuiDocs() {
       </Heading>
       <M.p>
         {'Temporary drawers use '}
-        <M.a href={'/components/slide#slide'}>{'Slide'}</M.a>
+        <M.a href={'/components/transitions#slide'}>{'Slide'}</M.a>
         {' by default.\nUse '}
         <M.code>{'slots.transition'}</M.code>
         {' and '}

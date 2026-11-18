@@ -1,0 +1,11 @@
+## Purpose
+
+Toggle buttons group related options and show which of them are on, such as text alignment, a view
+mode or map layers. Use a group with `exclusive` for a single choice and without it for several.
+
+## Parts
+
+- `ToggleButtonGroup` manages the selected `value` (a value, or an array without `exclusive`) and
+  passes `size`, `color`, `orientation` and `disabled` to its buttons.
+- `ToggleButton` is one option with a `value`; it reports its state with `aria-pressed`. Give icon-only
+  buttons an `aria-label`.

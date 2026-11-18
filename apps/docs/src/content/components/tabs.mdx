@@ -16,6 +16,15 @@ Tabs and their panels are connected with `id`, `aria-controls` and `aria-labelle
 
 <Demo name="PillTabs" />
 
+## Scroll buttons
+
+With `variant="scrollable"`, `Tabs` renders a `TabScrollButton` at each end. Replace it through
+`slots.scrollButtons` (with a stable, module-level component) or pass props through
+`slotProps.scrollButtons`. This example keeps `TabScrollButton` and fades it out when there is nothing
+left to scroll.
+
+<Demo name="CustomScrollButtons" />
+
 ## Accessibility
 
 - Follows the ARIA tabs pattern: `Tabs` is a `tablist`, each `Tab` a `tab`, panels are `tabpanel`s.

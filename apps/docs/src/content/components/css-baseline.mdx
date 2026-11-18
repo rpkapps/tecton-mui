@@ -33,6 +33,23 @@ import ScopedCssBaseline from '@tecton-mui/ui/ScopedCssBaseline';
 `CssBaseline` does not load fonts, icons or tokens; those come from `styles/global.css`. See
 [Shell Integration](/getting-started/shell-integration).
 
+## Scoped baseline
+
+`ScopedCssBaseline` renders a `div` that applies the theme's text color, page background and body
+typography to its own subtree, so plain HTML inside it looks consistent without touching the rest of
+the page.
+
+<Demo name="ScopedBaseline" />
+
+## Theme overrides
+
+Both components read their styles from the theme. Add rules with
+`components.MuiCssBaseline.styleOverrides` (global) or `components.MuiScopedCssBaseline.styleOverrides`
+(scoped), for example to style links and code in content you do not render yourself. Pass the options
+as a stable object so the theme is built once per mode.
+
+<Demo name="BaselineThemeOverrides" />
+
 ## Accessibility
 
 - The baseline sets the document text color and background from the Tecton palette, which keeps

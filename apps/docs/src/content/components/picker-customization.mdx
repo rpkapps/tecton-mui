@@ -1,0 +1,108 @@
+## Overview
+
+The pickers are assembled from public building blocks that you can configure or replace one at a
+time: the action bar (`PickersActionBar`), the shortcuts list (`PickersShortcuts`), the layout that
+arranges toolbar, views and buttons (`PickersLayout`), the calendar header (`PickersCalendarHeader`)
+and the day cells (`PickerDay`). Each one is reached through the picker's `slots` (replace the
+component) and `slotProps` (pass props to the default one).
+
+The examples use the single-value pickers. The [range pickers](/components/date-range-pickers) are
+implemented in this library and support `slotProps.actionBar.actions`, `slotProps.shortcuts.items`,
+`slotProps.layout` and `slots.day`, but not the other slot replacements; see their support matrix.
+
+Keep slot components at module level, outside the component that renders the picker. A component
+defined during render gets a new identity on every render, which remounts the picker's popup.
+
+## Action bar
+
+`slotProps.actionBar.actions` lists the buttons and their order: `clear`, `cancel`, `accept`, `today`,
+`next` and `nextOrAccept`. An empty list hides the bar. Desktop pickers that close on selection show
+no buttons by default; mobile and static pickers show Cancel and OK.
+
+<Demo name="ActionBarActions" />
+
+To add content next to the buttons, replace the `actionBar` slot with a component that renders
+`PickersActionBar` itself. Pass the received `className` to the outer element: the layout uses it to
+place the action bar.
+
+<Demo name="NoticeActionBar" />
+
+A completely custom action bar reads and changes the picker through `usePickerContext`. Calling
+`setValue` with `changeImportance: 'accept'` commits the value and closes the popup, like a click on a
+day.
+
+<Demo name="CustomActionBar" />
+
+## Shortcuts
+
+`slotProps.shortcuts.items` adds a list of preset values next to the calendar. Each item has a `label`
+and a `getValue` function; `getValue` receives `isValid` so that a shortcut can skip dates that the
+picker rejects. A shortcut whose value is invalid is disabled.
+
+<Demo name="DueDateShortcuts" />
+
+By default a shortcut commits the value and closes the popup. With `changeImportance: 'set'` it only
+updates the value, so the user can still adjust it before pressing OK. `onChange` receives the
+shortcut in `context.shortcut`. `PickersShortcuts` renders a `List`, so list props such as `subheader`
+work too.
+
+<Demo name="ReportingShortcuts" />
+
+## Layout
+
+`PickersLayout` is a CSS grid with areas for the toolbar, the shortcuts, the views and the action bar.
+`slotProps.layout` passes props to it, and `pickersLayoutClasses` lets you restyle each area. Here the
+landscape orientation places the toolbar beside the calendar.
+
+<Demo name="LayoutStyling" />
+
+For a different arrangement, replace the `layout` slot. `usePickerLayout` returns the rendered parts
+(`toolbar`, `content`, `actionBar`, `shortcuts`, `tabs`) and the owner state; place them inside
+`PickersLayoutRoot` and `PickersLayoutContentWrapper`, and add your own elements. This layout moves
+the action bar to the top and adds a summary that reads the current value from `usePickerContext`.
+
+<Demo name="SummaryLayout" />
+
+## Calendar header
+
+The `calendarHeader` slot replaces the month title and the navigation arrows of every day view. A
+wrapper can keep `PickersCalendarHeader` and add information below it; this one shows the fiscal
+period of the displayed month, both on an inline calendar and in a picker popup.
+
+<Demo name="FiscalCalendarHeader" />
+
+A header written from scratch receives the displayed month as `currentMonth` and changes it with
+`onMonthChange`. Put `labelId` on the title: the day grid is labelled by it. Buttons need accessible
+names, since they usually show only an icon.
+
+<Demo name="YearStepHeader" />
+
+## Days
+
+The `day` slot renders each day cell. Build replacements on `PickerDay` so that selection, focus,
+keyboard navigation and the grid semantics stay intact, and add visual information on top. When the
+information is shown as color, also provide it as text: here a visually hidden suffix tells screen
+reader users which shift a day belongs to.
+
+<Demo name="ShiftRosterDays" />
+
+For styling that depends only on the day, `slotProps.day` can be a function of the day's owner state
+(`day`, `isDaySelected`, `isDayOutsideMonth`…), with no custom component. Memoize the object so the
+calendar re-renders only when its input changes. This calendar highlights the whole payroll week of
+the selected day.
+
+<Demo name="PayrollWeekPicker" />
+
+The [Date Picker](/components/date-picker#customizing-days) page shows a day slot that marks days with
+data, and the [Calendars](/components/date-calendar#loading-data) page combines day props with data
+loaded per month.
+
+## Accessibility
+
+- Custom slots must keep the semantics of the parts they replace: day cells stay buttons inside the
+  grid, header buttons need accessible names and the header title keeps `labelId`.
+- Information shown only as color, dots or icons needs a text alternative, as in the shift roster.
+- Shortcuts are a list of buttons announced with their label. Disabled shortcuts are announced as
+  unavailable.
+- Action bar buttons use the translated labels of the `LocalizationProvider` locale unless you
+  replace the bar.

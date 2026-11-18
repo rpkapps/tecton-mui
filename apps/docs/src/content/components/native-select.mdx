@@ -1,0 +1,20 @@
+## Purpose
+
+`NativeSelect` styles the browser's own `<select>` element. The platform picker opens on mobile
+devices, keyboard behaviour is native, and the options are plain `<option>` and `<optgroup>`
+elements. Use [Select](/components/select) when options need rich content such as icons, checkboxes
+or chips.
+
+## Option groups
+
+Group related options with `<optgroup>`. Connect the label through `inputProps.id` and the `htmlFor`
+of `InputLabel`.
+
+<Demo name="GroupedNativeSelect" />
+
+## Validation and disabled state
+
+`FormControl` passes `required`, `error` and `disabled` to the label, the select and the helper text.
+A disabled empty `<option>` works as a placeholder that cannot be chosen again.
+
+<Demo name="NativeSelectStates" />

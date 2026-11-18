@@ -47,6 +47,33 @@ The `expandIcon`, `collapseIcon` and `endIcon` slots replace the default chevron
 
 <Demo name="CustomIcons" />
 
+## Custom tree items
+
+When the `TreeItem` slots are not enough, for example to show an avatar, a second line or a
+count, assemble your own item from the same parts:
+
+- `useTreeItem` returns prop getters (`getRootProps`, `getContentProps`, `getIconContainerProps`,
+  `getLabelProps`, `getGroupTransitionProps`) and the item `status` (expanded, selected, focused,
+  disabled). Spread the getters on the styled parts exported by `@tecton-mui/ui/TreeItem`
+  (`TreeItemRoot`, `TreeItemContent`, `TreeItemIconContainer`, `TreeItemLabel`,
+  `TreeItemGroupTransition`) and selection, expansion, focus and keyboard navigation keep working.
+- `TreeItemProvider` wraps the item with the props of `getContextProviderProps()`. It connects the
+  item to the tree, so that the items nested inside it are registered as its children.
+- `TreeItemIcon` renders the expand, collapse or end icon that matches `status`. It reads the
+  icon slots of the item and of the tree, so a custom item still honours `slots` such as the ones in
+  the custom icons example above.
+
+Pass the `treeItemClasses` class names to the parts so that theme and CSS rules written for
+`TreeItem` also apply to your item.
+
+<Demo name="CustomTreeItem" />
+
+Items built this way can also be the `item` slot of the
+[Rich Tree View](/components/rich-tree-view), which passes them `itemId` and `label`. Its
+reordering and lazy-loading features hand their props to the item through `slots` and `slotProps`,
+so with those features on, customize `TreeItem` through its slots instead, as the Rich Tree View
+examples do.
+
 ## Events and expansion trigger
 
 `onItemClick`, `onItemFocus` and `onItemExpansionToggle` report interaction. With

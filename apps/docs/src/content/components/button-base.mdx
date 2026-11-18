@@ -1,0 +1,14 @@
+## Purpose
+
+`ButtonBase` is the foundation of `Button`, `IconButton`, `Tab`, `ListItemButton` and the other
+clickable components. It renders a `<button>` (or the element given by `component`) with keyboard
+activation, focus-visible detection and the ripple, and no visual style of its own. Use it only for
+custom interactive surfaces that no existing component covers.
+
+## Custom selectable tiles
+
+Style `ButtonBase` with `sx` from the theme, set `focusRipple` for keyboard users and describe the
+state with ARIA, here `aria-pressed` for toggles. Provide a visible focus indicator: `ButtonBase`
+adds the `Mui-focusVisible` class while it has keyboard focus.
+
+<Demo name="SelectableTiles" />

@@ -150,9 +150,9 @@ export default function MuiDocs() {
         {' and '}
         <M.code>{'slotProps.transition'}</M.code>
         {' to change the transition of the Snackbar from '}
-        <M.a href={'/components/grow#grow'}>{'Grow'}</M.a>
+        <M.a href={'/components/transitions#grow'}>{'Grow'}</M.a>
         {' (the default) to others such as '}
-        <M.a href={'/components/slide#slide'}>{'Slide'}</M.a>
+        <M.a href={'/components/transitions#slide'}>{'Slide'}</M.a>
         {'.'}
       </M.p>
       <Demo name="TransitionsSnackbar" />

@@ -37,6 +37,17 @@ replaces the day grid; `DayCalendarSkeleton` keeps the layout stable.
 
 <Demo name="LoadingCalendar" />
 
+A typical pattern starts a request in `onMonthChange`, cancels the previous one and sets `loading`
+until the data for the new month has arrived. The booked days are then marked through
+`slotProps.day`, memoized so the calendar only re-renders when the data changes.
+
+<Demo name="AsyncBookingsCalendar" />
+
+The same props work on every picker with a day view, so the popup of a `DatePicker` shows
+`DayCalendarSkeleton` while its month is loading.
+
+<Demo name="LoadingDatePicker" />
+
 ## Localization and week numbers
 
 The adapter locale sets month and weekday names and the first day of the week. `displayWeekNumber`

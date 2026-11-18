@@ -8,6 +8,34 @@ other in a dialog.
 
 <Demo name="BasicDateTimePicker" />
 
+## Variants
+
+`DateTimePicker` is responsive: `DesktopDateTimePicker` with a fine pointer, `MobileDateTimePicker`
+otherwise. The desktop popover shows the calendar and the time lists side by side; the mobile dialog
+shows one view at a time with tabs to switch between the date and the time.
+
+<Demo name="DateTimePickerVariants" />
+
+### Mobile dialog
+
+The mobile dialog commits the value only when the user presses OK, which suits forms where a
+half-chosen date-time must not be saved. Combine `minDateTime` with `shouldDisableTime` to restrict
+both the earliest moment and the hours of the day.
+
+<Demo name="MobileCraneLiftPicker" />
+
+### Static picker
+
+`StaticDateTimePicker` renders the calendar and the clock inline with a tab bar to switch between
+them.
+
+<Demo name="StaticDateTime" />
+
+`orientation="landscape"` moves the toolbar beside the views for wide screens such as a loading-bay
+kiosk. `minTime`, `maxTime` and `minutesStep` limit the clock to the bookable delivery slots.
+
+<Demo name="StaticDeliveryWindow" />
+
 ## Validation
 
 Validation props of both [DatePicker](/components/date-picker) and
@@ -26,13 +54,6 @@ timestamps, and pair it with a matching `format`.
 ## States
 
 <Demo name="DateTimeStates" />
-
-## Static picker
-
-`StaticDateTimePicker` renders the calendar and the clock inline with a tab bar to switch between
-them.
-
-<Demo name="StaticDateTime" />
 
 ## Localization
 

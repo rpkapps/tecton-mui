@@ -12,9 +12,9 @@
   "counts": {
     "pagesConsidered": 63,
     "pagesSynced": 56,
-    "portalSlugs": 65,
-    "demosIncluded": 492,
-    "demosExcluded": 32,
+    "portalSlugs": 62,
+    "demosIncluded": 491,
+    "demosExcluded": 33,
     "icons": 149,
     "iconFallbacks": 12
   },
@@ -25,6 +25,7 @@
     "imports `…`, which @tecton-mui/ui does not export": 2,
     "imports `…`": 1,
     "imports `…` from `…`, which @tecton-mui/ui does not export": 1,
+    "upstream demo defect: its focus-management effect also runs on mount and focuses the Continue button, which moves focus and scrolls the page on load  and breaks #section links into the Stepper page; VerticalLinearAlternativeLabelStepper still shows the vertical stepper with StepContent": 1,
     "does not type-check: the @tecton-mui/ui ThemeProvider `…` prop rejects the partial theme object that MUI's ThemeProvider accepts": 1
   },
   "slugs": {
@@ -108,6 +109,9 @@
       "backdrop"
     ],
     "dialog": [
+      "dialogs"
+    ],
+    "unstable-trap-focus": [
       "dialogs"
     ],
     "progress": [
@@ -203,19 +207,7 @@
     "textarea-autosize": [
       "textarea-autosize"
     ],
-    "collapse": [
-      "transitions"
-    ],
-    "fade": [
-      "transitions"
-    ],
-    "grow": [
-      "transitions"
-    ],
-    "slide": [
-      "transitions"
-    ],
-    "zoom": [
+    "transitions": [
       "transitions"
     ],
     "masonry": [
@@ -1602,7 +1594,8 @@
       "status": "included",
       "target": "dialogs",
       "slugs": [
-        "dialog"
+        "dialog",
+        "unstable-trap-focus#non-modal-dialog"
       ],
       "demos": [
         {
@@ -2361,7 +2354,8 @@
         },
         {
           "name": "VerticalLinearStepper",
-          "status": "included"
+          "status": "excluded",
+          "reason": "upstream demo defect: its focus-management effect also runs on mount and focuses the Continue button, which moves focus and scrolls the page on load (WCAG 3.2.1) and breaks #section links into the Stepper page; VerticalLinearAlternativeLabelStepper still shows the vertical stepper with StepContent"
         },
         {
           "name": "VerticalLinearAlternativeLabelStepper",
@@ -2883,11 +2877,7 @@
       "status": "included",
       "target": "transitions",
       "slugs": [
-        "collapse#collapse,reduced-motion,child-requirement,transitiongroup,transition-slots,performance-seo",
-        "fade#fade",
-        "grow#grow",
-        "slide#slide",
-        "zoom#zoom"
+        "transitions"
       ],
       "demos": [
         {
@@ -4017,7 +4007,6 @@
     "apps/docs/src/mui-docs/generated/demos/steppers/ProgressMobileStepper.tsx": "53020b4904d62dbb721e72efca5a113af20106895f68109e09a0c681fc008356",
     "apps/docs/src/mui-docs/generated/demos/steppers/TextMobileStepper.tsx": "35afcf5e3da74a1b4f61d8f55defe8d467f7c3ea7cc3a14f54ca34979ccb39ef",
     "apps/docs/src/mui-docs/generated/demos/steppers/VerticalLinearAlternativeLabelStepper.tsx": "e5cf417eb3b113850a652f706e86f9b1ed995064a0d43aeae939d3b20cfbdbe2",
-    "apps/docs/src/mui-docs/generated/demos/steppers/VerticalLinearStepper.tsx": "0e877157fdb849072e041f44b76f38f36c0bd8af91b6694a854698c6b1b43f0b",
     "apps/docs/src/mui-docs/generated/demos/switches/BasicSwitches.tsx": "2c06d2222bdbd4e0d907ad3854e3d2ab8ae8941b12b186f89cfa213c82b971ee",
     "apps/docs/src/mui-docs/generated/demos/switches/ColorSwitches.tsx": "81ede332e689638e20f85e47343c771245de04d998e138bf285816db389a44eb",
     "apps/docs/src/mui-docs/generated/demos/switches/ControlledSwitches.tsx": "eb01614537fcdb68002460b87ca244a6a7719d41fadbb2736d342ad81d1aec5c",
@@ -4276,11 +4265,11 @@
     "apps/docs/src/mui-docs/generated/icons/Wifi.tsx": "41101133bd3ce13ecd63105b4f5ae427a96c52b2b65bc178bd217cce8b5bbeaa",
     "apps/docs/src/mui-docs/generated/icons/Work.tsx": "c029d419143dbabe125be4b24b83fda39c314eb17511102b71be19d3921d673b",
     "apps/docs/src/mui-docs/generated/pages/accordion.tsx": "360d2bb247c010f9b0310e92ae4bb8f960ac6a18b85fe6b78f4b05c5e0c3d686",
-    "apps/docs/src/mui-docs/generated/pages/alert.tsx": "e63c6ff4035ca880bd608497350064284341655193c173e5ad4c205c629e413f",
+    "apps/docs/src/mui-docs/generated/pages/alert.tsx": "3713a97bcfc17e973e3d9bee796c8a1ddea669a7748b509dd9af1063e22e671b",
     "apps/docs/src/mui-docs/generated/pages/app-bar.tsx": "31343a972f56020faaadc7333b59d9cb9ec58b723b1ad8b2fa3d1b1db27ab65f",
     "apps/docs/src/mui-docs/generated/pages/autocomplete.tsx": "8d65932107499aef659893ccecea7f2111c3f5e0b8750e4de1b23bcdfb46e50e",
     "apps/docs/src/mui-docs/generated/pages/avatar.tsx": "116bf9d1035d633b5290a8ac3c24d3668d68263f956bd0e973e7d6cee533121c",
-    "apps/docs/src/mui-docs/generated/pages/backdrop.tsx": "930008ae1deaa66473b12c07bc88fcada595dedc5165899d487f58161eaa0594",
+    "apps/docs/src/mui-docs/generated/pages/backdrop.tsx": "38673d83971cb1a4267b503e1e745ddb3f9f24e264285d3b1fd2f11b4e976367",
     "apps/docs/src/mui-docs/generated/pages/badge.tsx": "b2f057f0430e0a867640c5a313bf3ed5b3692f22ac0c78254d39d5e2e5211945",
     "apps/docs/src/mui-docs/generated/pages/bottom-navigation.tsx": "634bfc4e9ca23802203b6f0065cd1ba84aa8bfd20aedb2e694b85625ee9e3d6d",
     "apps/docs/src/mui-docs/generated/pages/box.tsx": "a6a287854546abbc8f6df239bb36cbd69374f420b9081053a44304e6bcd462ba",
@@ -4291,16 +4280,13 @@
     "apps/docs/src/mui-docs/generated/pages/checkbox.tsx": "2e26c3874523df42f981e15a7b49449e8389fea57836e4b64c0f43eb0fca9df8",
     "apps/docs/src/mui-docs/generated/pages/chip.tsx": "d99a3f8af341e8e5b26d126d907219dd6d4d83ed69d733500fbf1cad032c9a52",
     "apps/docs/src/mui-docs/generated/pages/click-away-listener.tsx": "2109d365ff96687a5550a0826bece71a6236ddf529f6087f9533cbfc5b96ea45",
-    "apps/docs/src/mui-docs/generated/pages/collapse.tsx": "8210e51943cd05e23661a720a4fbe127ce3661f8d30837f05644025e1414328c",
     "apps/docs/src/mui-docs/generated/pages/container.tsx": "01ea1fec145896eb9dc679444b31aa4797eea301e81112cc2c1c7c5d5d0e052b",
     "apps/docs/src/mui-docs/generated/pages/css-baseline.tsx": "91a67d912336defa8396ce30a306633764b46025fa9db76cdc89444174a77640",
-    "apps/docs/src/mui-docs/generated/pages/dialog.tsx": "754796951f4c0abfb2e9f4fc57cdf8798eb48096f7887ee1b66aa1c500fb049b",
+    "apps/docs/src/mui-docs/generated/pages/dialog.tsx": "5525927c55201801203b83c8f571e0c9ed3f498746e1b1a9aebbb948ac7d4f25",
     "apps/docs/src/mui-docs/generated/pages/divider.tsx": "beaf7923eaa8762d1a187a10ecde8decfee781801275e1091f3771de5925d710",
-    "apps/docs/src/mui-docs/generated/pages/drawer.tsx": "31887d88d37ff37bf6a8ba5973b28fb9bc192270e3905c3852e3d541d9903af6",
+    "apps/docs/src/mui-docs/generated/pages/drawer.tsx": "ad5ee5fcc5e7650b9462759b7f711a0a6bf621807790bfbf8d208be1db63574c",
     "apps/docs/src/mui-docs/generated/pages/fab.tsx": "f89e758e7b9004f6d6ac77a0a49e7e5f39590ca26173c65bf2388ceca1fcf3d4",
-    "apps/docs/src/mui-docs/generated/pages/fade.tsx": "6a703931f55722c6f0294e1e1b90ed06e03f21029589abcfcecf5b8ef239f927",
     "apps/docs/src/mui-docs/generated/pages/grid.tsx": "47aec572fda1e356e36ddc2aede468e71120f2601424494cc03cc43ee26d01e0",
-    "apps/docs/src/mui-docs/generated/pages/grow.tsx": "8e550c4b1f6ebaac09af07bcf8f2a75d67abde488ae83541c6f83b3ede73fbdd",
     "apps/docs/src/mui-docs/generated/pages/icon-button.tsx": "4aca796fb32dbe0e9658cd84a5498457a1f9cb028e06fa1c606de34677127c57",
     "apps/docs/src/mui-docs/generated/pages/image-list.tsx": "2790b7f87d673688fac6e7ffce44d8b8bf75f5075bd1f18c9ca5cf2ad44cf7b6",
     "apps/docs/src/mui-docs/generated/pages/input.tsx": "be707e56ab442218a514fcd41d182065c4f08e250a85cad95b6b50eb396108d9",
@@ -4314,7 +4300,7 @@
     "apps/docs/src/mui-docs/generated/pages/no-ssr.tsx": "3d1bbd45669f9e003320ebaa98a63af0946791a4a215892b56165b89ed0fec2d",
     "apps/docs/src/mui-docs/generated/pages/pagination.tsx": "7625f2433eb90abe6e2f05cd4ac1fc2b2837009ab6247b5c642470ce90608ad9",
     "apps/docs/src/mui-docs/generated/pages/paper.tsx": "c7d05c9ce4a4c1ac5aaa85b95b27b1507dcd128d9ba9764360f3f726512b89b3",
-    "apps/docs/src/mui-docs/generated/pages/popover.tsx": "8a669c434ad6f16673eb2764203aed1ace4eee2d1e941c1a58ad0cca92ac693c",
+    "apps/docs/src/mui-docs/generated/pages/popover.tsx": "02d3cb6869e794489024e52e8872ec63c673d04b973931ff03ce2cd716533521",
     "apps/docs/src/mui-docs/generated/pages/popper.tsx": "a179699ea1020cfd4397713ef1cd90e4c1b93a0550a7005a69ee3280593927a3",
     "apps/docs/src/mui-docs/generated/pages/portal.tsx": "3ba12c6f4a9b80b59390276c73da195dc325f2a12581549bb4f6862f8b5f1de7",
     "apps/docs/src/mui-docs/generated/pages/progress.tsx": "0ff4c292261b120f82ae1528125eacd72705e10dda9b5b0df7f3b52034b4ff06",
@@ -4322,12 +4308,11 @@
     "apps/docs/src/mui-docs/generated/pages/rating.tsx": "f9829289eec51d2671ee909cd11b0525ac874d356e28fbca769d793de1acc55b",
     "apps/docs/src/mui-docs/generated/pages/select.tsx": "6a497689ca7c9bd8775a92be2213fcec11b54e01acc544791436bf51b6dc1e44",
     "apps/docs/src/mui-docs/generated/pages/skeleton.tsx": "cd98ae2a6b94ebf20402fbc4d291f125b2b6158ef188070d295dc8a1fb9d1c66",
-    "apps/docs/src/mui-docs/generated/pages/slide.tsx": "bf47a26a74acb517d819921ef81b568364a03436639a5e02c869ad4014f0d884",
     "apps/docs/src/mui-docs/generated/pages/slider.tsx": "9f65d6b2b737f84827cc1cf21d4ff000675de1095a0a5e7631fa6973a41703e4",
-    "apps/docs/src/mui-docs/generated/pages/snackbar.tsx": "928a8bcf36e4308c89c225d25da40c339e5b0326414d6a7ad919b9fb38e92c80",
-    "apps/docs/src/mui-docs/generated/pages/speed-dial.tsx": "2e998b3d1f4cf9b4ca0aec5807308b38acf7a91c0f45105382f7dafba0c1f9a5",
+    "apps/docs/src/mui-docs/generated/pages/snackbar.tsx": "3bc1c44fba43922b4c47f3485c0283f8d9f0db75e2e943cb89d043a8d6591e2a",
+    "apps/docs/src/mui-docs/generated/pages/speed-dial.tsx": "a6e988b371e91f48cfc05e50e0ae2f4aea0f524aa2648c36dbdd356485f19c06",
     "apps/docs/src/mui-docs/generated/pages/stack.tsx": "1e5964d013780f836fcdf31e0d2d08c67d31b408cd0c1f00523c2c6ed05651d6",
-    "apps/docs/src/mui-docs/generated/pages/stepper.tsx": "e1194b88c4ba94a734749385e4445344321a5567b5163c8def6157957f89496a",
+    "apps/docs/src/mui-docs/generated/pages/stepper.tsx": "13e9a0e7557a26236c2488e178d5eba4eef99e26e924f49433a1a3b17d848a14",
     "apps/docs/src/mui-docs/generated/pages/svg-icon.tsx": "486d62d62f79fd6203a85680f6b4640f77c2d2e3af528cf9963d410ab36a9adb",
     "apps/docs/src/mui-docs/generated/pages/switch.tsx": "c57ef201d3ee409eefc72f3e19deed70b4ea33859b0d7023b55b388463171936",
     "apps/docs/src/mui-docs/generated/pages/tab-context.tsx": "ce19775893f9cbfb3572288764e3c5f2402906b19e7c825dc01acca0afb759f1",
@@ -4338,7 +4323,8 @@
     "apps/docs/src/mui-docs/generated/pages/timeline.tsx": "b74fc0c71503f8b55c66635a73000a8ba86c6b0add1ea6234129a61cb3d7dee5",
     "apps/docs/src/mui-docs/generated/pages/toggle-button.tsx": "3e9a90e8fa21cb32f72efa506a387a96510cc476b0ca5e1f7ad8f75b6752a949",
     "apps/docs/src/mui-docs/generated/pages/tooltip.tsx": "eab66c8d98ada10de9f22b4eab16f82d380d2f7e77f4d3b8d5492ab9fd8f73c8",
+    "apps/docs/src/mui-docs/generated/pages/transitions.tsx": "f36d1ea2429eea8cb3eaaf6a854aefd0854b51073887b977fa74110cd96a8f5d",
     "apps/docs/src/mui-docs/generated/pages/typography.tsx": "b3befe2debe869fbda2954a9bcfefe892b3da4cd0f88ee8364d0365139897b64",
-    "apps/docs/src/mui-docs/generated/pages/zoom.tsx": "3d545835ebe55cd2c2095b1f3bf45861e7de5a64c9ebc252ab3f4fa282d73a15"
+    "apps/docs/src/mui-docs/generated/pages/unstable-trap-focus.tsx": "1fa26d02bc8bc791805399892e6f5334d7dbae8adae6a9f59deacd685ab28250"
   }
 }

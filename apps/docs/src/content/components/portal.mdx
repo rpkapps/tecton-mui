@@ -1,0 +1,15 @@
+## Purpose
+
+`Portal` renders its children into another DOM node, by default `document.body`, while they stay in
+the React tree: context, events and state work as usual. `Modal`, `Popover`, `Popper`, `Menu` and
+`Tooltip` use it so their popups escape clipped or stacked containers.
+
+## Escaping a clipped container
+
+Pass the target element to `container`, either the element itself or a function that returns it, and
+set `disablePortal` to render in place instead.
+
+<Demo name="PortalTarget" />
+
+In micro-frontends, keep popups inside the application's own root when the shell requires it: pass that
+root as `container`, or set `disablePortal` on the component that renders the popup.

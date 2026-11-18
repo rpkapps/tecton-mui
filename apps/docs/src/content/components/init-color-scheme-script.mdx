@@ -1,0 +1,61 @@
+## Purpose
+
+Material UI's `InitColorSchemeScript` is an inline script for server-rendered pages. Before React
+loads, it reads the stored mode (`mui-mode`) and sets a color-scheme attribute on `<html>` so a theme
+built with `cssVariables` and `colorSchemeSelector` paints the right colors immediately.
+
+`@tecton-mui/ui` exports it unchanged for compatibility, but **a Tecton application does not need it**.
+Light and dark mode belong to Tecton's shared theme manager: it stores the preference under
+`tecton-theme-mode` and sets `data-theme` on `<html>`, which the Tecton tokens and every
+`ThemeProvider` on the page follow. The Tecton theme does not use Material UI's color-scheme CSS
+variables, so the attribute `InitColorSchemeScript` writes has no effect on it.
+
+## Server rendering with Tecton
+
+Render `TectonModeScript` in the document head instead. It runs before the first paint and applies
+the stored Tecton preference, so server-rendered and static pages do not flash the wrong mode:
+
+```tsx
+import { TectonModeScript, initTecton } from '@tecton-mui/ui/styles';
+
+// Shared by the server and client entry points.
+initTecton({ defaultMode: 'light' });
+
+export function Document({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <head>
+        <TectonModeScript defaultMode="light" />
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+Pass the same `storageKey` and `defaultMode` to `TectonModeScript` and `initTecton`. Render the
+script once, in the shell or standalone application that owns the document; hosted micro-frontends
+share the shell's mode and render neither script. See [SSR Setup](/getting-started/ssr) for Emotion
+and hydration details.
+
+## Comparing the scripts
+
+Both components render a small inline `<script>`, and only during a server render (after hydration
+they render nothing). The example renders each one with `renderToStaticMarkup`, as a server would,
+and shows the markup with the default options.
+
+<Demo name="ModeScriptComparison" />
+
+## The shared mode on this page
+
+This portal uses `TectonModeScript`. The table reads the attributes and stored values of this page
+after it renders; switching the mode updates the Tecton values only.
+
+<Demo name="SharedModeAttributes" />
+
+## When to use InitColorSchemeScript
+
+Only for a subtree that you deliberately theme with Material UI's own `createTheme` from
+`@mui/material/styles`, with `cssVariables` and `colorSchemes`, outside the Tecton theme. Such a theme
+keeps its own mode state, separate from the rest of the page, which is why the Tecton documentation does
+not recommend it.

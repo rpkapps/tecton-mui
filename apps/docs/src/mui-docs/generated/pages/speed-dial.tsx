@@ -125,7 +125,7 @@ export default function MuiDocs() {
       </Heading>
       <M.p>
         {'Speed Dial uses '}
-        <M.a href={'/components/zoom#zoom'}>{'Zoom'}</M.a>
+        <M.a href={'/components/transitions#zoom'}>{'Zoom'}</M.a>
         {' by default.\nUse '}
         <M.code>{'slots.transition'}</M.code>
         {' and '}

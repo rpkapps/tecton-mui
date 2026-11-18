@@ -285,7 +285,10 @@
       "package": "@mui/material",
       "source": "docs/data/material/components/steppers/steppers.md",
       "status": "included",
-      "target": "steppers"
+      "target": "steppers",
+      "excludedDemos": {
+        "VerticalLinearStepper": "upstream demo defect: its focus-management effect also runs on mount and focuses the Continue button, which moves focus and scrolls the page on load (WCAG 3.2.1) and breaks #section links into the Stepper page; VerticalLinearAlternativeLabelStepper still shows the vertical stepper with StepContent"
+      }
     },
     {
       "package": "@mui/material",

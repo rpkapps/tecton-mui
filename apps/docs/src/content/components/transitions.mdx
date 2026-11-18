@@ -1,0 +1,15 @@
+## Purpose
+
+The transition components animate a child in and out when their `in` prop changes. They use the
+theme's durations and easing curves, so motion is consistent across the product.
+
+| Component  | Effect                                                           |
+| ---------- | ---------------------------------------------------------------- |
+| `Collapse` | Expands from the start edge, vertically or horizontally          |
+| `Fade`     | Changes opacity                                                  |
+| `Grow`     | Expands from the center and fades in, used by menus and popovers |
+| `Slide`    | Moves in from an edge of the screen or of a container            |
+| `Zoom`     | Scales from the center, used by floating action buttons          |
+
+Components such as `Accordion`, `Dialog`, `Menu` and `Snackbar` already use these transitions; pass
+a different one through their `slots.transition`.

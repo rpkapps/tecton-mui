@@ -11,6 +11,35 @@ shares the first one's value as its default and uses 15-minute steps.
 
 <Demo name="BasicTimePicker" />
 
+## Variants
+
+`TimePicker` is responsive. With a fine pointer it renders `DesktopTimePicker`, a popover with digital
+lists for hours and minutes; otherwise it renders `MobileTimePicker`, a dialog with an analog clock.
+Use a variant directly when the presentation must not change with the device.
+
+<Demo name="TimePickerVariants" />
+
+### Mobile clock
+
+`MobileTimePicker` opens a dialog with a toolbar and Cancel / OK buttons, so a time is only committed
+with `onAccept`. `minutesStep` limits the clock to multiples of a step, and `ampm={false}` switches to
+the 24-hour face.
+
+<Demo name="MobileHandoverPicker" />
+
+### Static picker
+
+`StaticTimePicker` renders the clock inline with its toolbar and action bar, for dialogs or panels that
+are dedicated to choosing a time.
+
+<Demo name="StaticClockPicker" />
+
+`viewRenderers` chooses how each view is drawn. With `renderDigitalClockTimeView` (exported from the
+package root) the inline picker shows one list of times in 30-minute steps instead of the clock face;
+with `minTime` and `maxTime` it becomes a compact list of bookable slots.
+
+<Demo name="StaticPickupSlots" />
+
 ## Views and steps
 
 `views` selects the sections that can be edited (for example only `'hours'`, or add `'seconds'`).
@@ -28,13 +57,6 @@ current value breaks, so the helper text can explain it. Here the initial value 
 ## States
 
 <Demo name="TimePickerStates" />
-
-## Static picker
-
-`StaticTimePicker` renders the clock inline with its toolbar and action bar, for dialogs or panels that
-are dedicated to choosing a time.
-
-<Demo name="StaticClockPicker" />
 
 ## Localization
 

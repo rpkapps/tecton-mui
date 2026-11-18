@@ -1,0 +1,25 @@
+## Purpose
+
+`Unstable_TrapFocus` keeps keyboard focus inside its child while `open` is `true`: <kbd>Tab</kbd> and
+
+<kbd>Shift</kbd>+<kbd>Tab</kbd> wrap around, and focus that moves outside is brought back. When it
+closes, focus returns to the element that had it before. `Modal`, `Dialog`, `Drawer` and `Popover`
+use it internally; use it directly only for custom overlays that need the same behaviour.
+
+The `Unstable_` prefix comes from Material UI: the API may change in a minor release.
+
+## Basic usage
+
+The child must be a single element that can hold a ref and receive focus: give it `tabIndex={-1}`.
+Provide a way to leave, such as <kbd>Escape</kbd> or a close button.
+
+<Demo name="BasicTrapFocus" />
+
+## Turning the trap on and off
+
+`open` can change while the component is mounted. `disableAutoFocus` keeps focus where it is when the
+trap opens, and `disableRestoreFocus` leaves it where it is when the trap closes. `disableEnforceFocus`
+lets focus leave while the trap stays open; only use these options when the focus order stays
+predictable for keyboard and screen-reader users.
+
+<Demo name="ToggleTrapFocus" />

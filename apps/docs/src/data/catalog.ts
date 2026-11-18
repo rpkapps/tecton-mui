@@ -132,6 +132,11 @@ export interface AuthoredPage {
   /** Exports documented on the page; their API tables are rendered from generated data. */
   components: string[];
   summary: string;
+  /**
+   * Section anchor (heading id) that shows a documented export, used when the export's own URL
+   * (`/components/<export-slug>`) redirects to this page. Defaults to the export's API section.
+   */
+  anchors?: Record<string, string>;
   /** Skeleton pages for features still being integrated (no live imports yet). */
   status?: 'integration-pending';
 }
@@ -157,8 +162,29 @@ export const authoredPages: AuthoredPage[] = [
     slug: 'text-field',
     title: 'Text Field',
     category: 'inputs',
-    components: ['TextField'],
+    components: [
+      'TextField',
+      'OutlinedInput',
+      'FilledInput',
+      'InputBase',
+      'InputAdornment',
+      'FormHelperText',
+    ],
+    anchors: {
+      OutlinedInput: 'components',
+      FilledInput: 'components',
+      InputBase: 'customization',
+      InputAdornment: 'input-adornments',
+      FormHelperText: 'components',
+    },
     summary: 'Single- and multi-line text entry with label, helper text and validation state.',
+  },
+  {
+    slug: 'input',
+    title: 'Input',
+    category: 'inputs',
+    components: ['Input'],
+    summary: 'The underlined text input that TextField composes for its standard variant.',
   },
   {
     slug: 'number-field',
@@ -175,6 +201,13 @@ export const authoredPages: AuthoredPage[] = [
     summary: 'Choose one or several values from a list presented in a popup menu.',
   },
   {
+    slug: 'native-select',
+    title: 'Native Select',
+    category: 'inputs',
+    components: ['NativeSelect'],
+    summary: "A styled native <select> that opens the platform's own option picker.",
+  },
+  {
     slug: 'checkbox',
     title: 'Checkbox',
     category: 'inputs',
@@ -185,7 +218,8 @@ export const authoredPages: AuthoredPage[] = [
     slug: 'radio',
     title: 'Radio Group',
     category: 'inputs',
-    components: ['Radio', 'RadioGroup'],
+    components: ['Radio', 'RadioGroup', 'FormLabel'],
+    anchors: { FormLabel: 'radio-group' },
     summary: 'Select exactly one option from a small, visible set.',
   },
   {
@@ -208,6 +242,21 @@ export const authoredPages: AuthoredPage[] = [
     category: 'inputs',
     components: ['Autocomplete'],
     summary: 'A text input that suggests and filters options as the user types.',
+  },
+  {
+    slug: 'toggle-button',
+    title: 'Toggle Button',
+    category: 'inputs',
+    components: ['ToggleButton', 'ToggleButtonGroup'],
+    anchors: { ToggleButtonGroup: 'exclusive-selection' },
+    summary: 'Group related options and show which of them are on.',
+  },
+  {
+    slug: 'button-base',
+    title: 'Button Base',
+    category: 'inputs',
+    components: ['ButtonBase'],
+    summary: 'The unstyled, accessible base of every button: focus, ripple and keyboard handling.',
   },
   // Data display
   {
@@ -256,14 +305,45 @@ export const authoredPages: AuthoredPage[] = [
     slug: 'list',
     title: 'List',
     category: 'data-display',
-    components: ['List', 'ListItem', 'ListItemButton', 'ListItemIcon', 'ListItemText'],
+    components: [
+      'List',
+      'ListItem',
+      'ListItemButton',
+      'ListItemIcon',
+      'ListItemText',
+      'ListItemAvatar',
+      'ListSubheader',
+      'ListItemSecondaryAction',
+    ],
+    anchors: {
+      ListItemAvatar: 'folder-list',
+      ListSubheader: 'sticky-subheader',
+      ListItemSecondaryAction: 'secondary-action-wrapper',
+    },
     summary: 'Vertical collections of text, icons and actions.',
   },
   {
     slug: 'table',
     title: 'Table',
     category: 'data-display',
-    components: ['Table', 'TableContainer', 'TableHead', 'TableBody', 'TableRow', 'TableCell'],
+    components: [
+      'Table',
+      'TableContainer',
+      'TableHead',
+      'TableBody',
+      'TableRow',
+      'TableCell',
+      'TableFooter',
+      'TablePagination',
+      'TablePaginationActions',
+      'TableSortLabel',
+    ],
+    anchors: {
+      TableFooter: 'custom-pagination-actions',
+      TablePagination: 'pagination',
+      TablePaginationActions: 'composing-the-pagination-actions',
+      TableSortLabel: 'sorting-selecting',
+    },
     summary: 'Static tabular data. For sorting, filtering and large data sets use the Data Grid.',
   },
   // Feedback
@@ -278,7 +358,8 @@ export const authoredPages: AuthoredPage[] = [
     slug: 'snackbar',
     title: 'Snackbar',
     category: 'feedback',
-    components: ['Snackbar'],
+    components: ['Snackbar', 'SnackbarContent'],
+    anchors: { SnackbarContent: 'content' },
     summary: 'A brief, temporary notification about an operation that just happened.',
   },
   {
@@ -295,19 +376,28 @@ export const authoredPages: AuthoredPage[] = [
     components: ['CircularProgress', 'LinearProgress'],
     summary: 'Indicators for loading and for operations with known or unknown duration.',
   },
+  {
+    slug: 'backdrop',
+    title: 'Backdrop',
+    category: 'feedback',
+    components: ['Backdrop'],
+    summary: 'A dimmed layer that covers the page or a region to signal a blocking state.',
+  },
   // Surfaces
   {
     slug: 'card',
     title: 'Card',
     category: 'surfaces',
-    components: ['Card', 'CardHeader', 'CardContent', 'CardActions'],
+    components: ['Card', 'CardHeader', 'CardContent', 'CardActions', 'CardMedia', 'CardActionArea'],
+    anchors: { CardMedia: 'media', CardActionArea: 'primary-action' },
     summary: 'A self-contained surface for content and actions about a single subject.',
   },
   {
     slug: 'accordion',
     title: 'Accordion',
     category: 'surfaces',
-    components: ['Accordion', 'AccordionSummary', 'AccordionDetails'],
+    components: ['Accordion', 'AccordionSummary', 'AccordionDetails', 'AccordionActions'],
+    anchors: { AccordionActions: 'introduction' },
     summary: 'Collapsible sections that let users show and hide related content.',
   },
   {
@@ -322,8 +412,56 @@ export const authoredPages: AuthoredPage[] = [
     slug: 'tabs',
     title: 'Tabs',
     category: 'navigation',
-    components: ['Tabs', 'Tab'],
+    components: ['Tabs', 'Tab', 'TabScrollButton'],
+    anchors: { TabScrollButton: 'scroll-buttons' },
     summary: 'Switch between related views at the same level of hierarchy.',
+  },
+  {
+    slug: 'bottom-navigation',
+    title: 'Bottom Navigation',
+    category: 'navigation',
+    components: ['BottomNavigation', 'BottomNavigationAction'],
+    anchors: { BottomNavigationAction: 'bottom-navigation-with-no-label' },
+    summary: 'Switch between three to five top-level destinations on a small screen.',
+  },
+  {
+    slug: 'drawer',
+    title: 'Drawer',
+    category: 'navigation',
+    components: ['Drawer', 'SwipeableDrawer'],
+    anchors: { SwipeableDrawer: 'swipeable' },
+    summary: 'A panel that slides in from a screen edge for navigation or supplementary content.',
+  },
+  {
+    slug: 'speed-dial',
+    title: 'Speed Dial',
+    category: 'navigation',
+    components: ['SpeedDial', 'SpeedDialAction', 'SpeedDialIcon'],
+    anchors: { SpeedDialAction: 'basic-speed-dial', SpeedDialIcon: 'custom-close-icon' },
+    summary: 'A floating action button that reveals up to six related actions.',
+  },
+  {
+    slug: 'stepper',
+    title: 'Stepper',
+    category: 'navigation',
+    components: [
+      'Stepper',
+      'Step',
+      'StepLabel',
+      'StepButton',
+      'StepContent',
+      'StepIcon',
+      'StepConnector',
+    ],
+    anchors: {
+      Step: 'horizontal-stepper',
+      StepLabel: 'linear',
+      StepButton: 'non-linear',
+      StepContent: 'vertical-stepper',
+      StepIcon: 'customized-horizontal-stepper',
+      StepConnector: 'customized-horizontal-stepper',
+    },
+    summary: 'Show progress through a numbered sequence of logical steps.',
   },
   {
     slug: 'breadcrumbs',
@@ -343,7 +481,8 @@ export const authoredPages: AuthoredPage[] = [
     slug: 'pagination',
     title: 'Pagination',
     category: 'navigation',
-    components: ['Pagination'],
+    components: ['Pagination', 'PaginationItem'],
+    anchors: { PaginationItem: 'custom-icons' },
     summary: 'Move between pages of a long, divided result set.',
   },
   // Layout
@@ -368,6 +507,17 @@ export const authoredPages: AuthoredPage[] = [
     components: ['Grid'],
     summary: 'A responsive 12-column layout grid based on CSS flexbox.',
   },
+  {
+    slug: 'image-list',
+    title: 'Image List',
+    category: 'layout',
+    components: ['ImageList', 'ImageListItem', 'ImageListItemBar'],
+    anchors: {
+      ImageListItem: 'standard-image-list',
+      ImageListItemBar: 'image-list-with-title-bars',
+    },
+    summary: 'Display a collection of images in an organized grid.',
+  },
   // Utilities
   {
     slug: 'css-baseline',
@@ -375,6 +525,48 @@ export const authoredPages: AuthoredPage[] = [
     category: 'utilities',
     components: ['CssBaseline', 'ScopedCssBaseline'],
     summary: 'The global (or scoped) CSS reset aligned with the Tecton theme.',
+  },
+  {
+    slug: 'global-styles',
+    title: 'Global Styles',
+    category: 'utilities',
+    components: ['GlobalStyles'],
+    summary: 'Inject global CSS rules that are added on mount and removed on unmount.',
+  },
+  {
+    slug: 'init-color-scheme-script',
+    title: 'Init Color Scheme Script',
+    category: 'utilities',
+    components: ['InitColorSchemeScript'],
+    summary: "Material UI's pre-paint color-scheme script, and Tecton's shared-mode equivalent.",
+  },
+  {
+    slug: 'portal',
+    title: 'Portal',
+    category: 'utilities',
+    components: ['Portal'],
+    summary: 'Render children into another part of the DOM while keeping them in the React tree.',
+  },
+  {
+    slug: 'unstable-trap-focus',
+    title: 'Trap Focus',
+    category: 'utilities',
+    components: ['Unstable_TrapFocus'],
+    summary: 'Keep keyboard focus inside a region while it is open, then restore it.',
+  },
+  {
+    slug: 'transitions',
+    title: 'Transitions',
+    category: 'utilities',
+    components: ['Collapse', 'Fade', 'Grow', 'Slide', 'Zoom'],
+    anchors: {
+      Collapse: 'collapse',
+      Fade: 'fade',
+      Grow: 'grow',
+      Slide: 'slide',
+      Zoom: 'zoom',
+    },
+    summary: 'Animate components in and out with the theme durations and easing curves.',
   },
   // Lab
   {
@@ -420,28 +612,55 @@ export const authoredPages: AuthoredPage[] = [
     slug: 'date-picker',
     title: 'Date Picker',
     category: 'date-time-pickers',
-    components: ['DatePicker', 'LocalizationProvider'],
+    components: [
+      'DatePicker',
+      'DesktopDatePicker',
+      'MobileDatePicker',
+      'StaticDatePicker',
+      'LocalizationProvider',
+    ],
+    anchors: {
+      DesktopDatePicker: 'variants',
+      MobileDatePicker: 'mobile-dialog',
+      StaticDatePicker: 'static-calendar',
+    },
     summary: 'Enter a date by typing or by choosing it from a calendar popup.',
   },
   {
     slug: 'time-picker',
     title: 'Time Picker',
     category: 'date-time-pickers',
-    components: ['TimePicker'],
+    components: ['TimePicker', 'DesktopTimePicker', 'MobileTimePicker', 'StaticTimePicker'],
+    anchors: {
+      DesktopTimePicker: 'variants',
+      MobileTimePicker: 'mobile-clock',
+      StaticTimePicker: 'static-picker',
+    },
     summary: 'Enter a time of day by typing or by choosing it from a clock or list.',
   },
   {
     slug: 'date-time-picker',
     title: 'Date Time Picker',
     category: 'date-time-pickers',
-    components: ['DateTimePicker'],
+    components: [
+      'DateTimePicker',
+      'DesktopDateTimePicker',
+      'MobileDateTimePicker',
+      'StaticDateTimePicker',
+    ],
+    anchors: {
+      DesktopDateTimePicker: 'variants',
+      MobileDateTimePicker: 'mobile-dialog',
+      StaticDateTimePicker: 'static-picker',
+    },
     summary: 'Enter a date and a time of day in one field.',
   },
   {
     slug: 'date-calendar',
     title: 'Calendars',
     category: 'date-time-pickers',
-    components: ['DateCalendar', 'MonthCalendar', 'YearCalendar'],
+    components: ['DateCalendar', 'MonthCalendar', 'YearCalendar', 'DayCalendarSkeleton'],
+    anchors: { DayCalendarSkeleton: 'loading-data' },
     summary: 'Inline calendars for choosing a day, month or year without a text field.',
   },
   {
@@ -455,7 +674,14 @@ export const authoredPages: AuthoredPage[] = [
     slug: 'date-field',
     title: 'Fields',
     category: 'date-time-pickers',
-    components: ['DateField', 'TimeField', 'DateTimeField'],
+    components: [
+      'DateField',
+      'TimeField',
+      'DateTimeField',
+      'PickersTextField',
+      'PickersSectionList',
+    ],
+    anchors: { PickersTextField: 'customizing-the-input', PickersSectionList: 'styling-sections' },
     summary: 'Keyboard-first date and time inputs without a popup.',
   },
   {
@@ -466,25 +692,80 @@ export const authoredPages: AuthoredPage[] = [
       'DateRangePicker',
       'TimeRangePicker',
       'DateTimeRangePicker',
+      'DesktopDateRangePicker',
+      'MobileDateRangePicker',
+      'StaticDateRangePicker',
+      'DesktopTimeRangePicker',
+      'MobileTimeRangePicker',
+      'StaticTimeRangePicker',
+      'DesktopDateTimeRangePicker',
+      'MobileDateTimeRangePicker',
+      'StaticDateTimeRangePicker',
       'DateRangeCalendar',
       'SingleInputDateRangeField',
       'MultiInputDateRangeField',
+      'SingleInputTimeRangeField',
+      'SingleInputDateTimeRangeField',
     ],
+    anchors: {
+      DesktopDateRangePicker: 'variants',
+      MobileDateRangePicker: 'variants',
+      StaticDateRangePicker: 'static-picker-with-shortcuts',
+      DesktopTimeRangePicker: 'time-range-variants',
+      MobileTimeRangePicker: 'time-range-variants',
+      StaticTimeRangePicker: 'time-range-variants',
+      DesktopDateTimeRangePicker: 'date-time-range-variants',
+      MobileDateTimeRangePicker: 'date-time-range-variants',
+      StaticDateTimeRangePicker: 'date-time-range-variants',
+      SingleInputTimeRangeField: 'time-and-date-time-range-fields',
+      SingleInputDateTimeRangeField: 'time-and-date-time-range-fields',
+    },
     summary: 'Pick a start and end date, time or date-time in one component.',
+  },
+  {
+    slug: 'picker-customization',
+    title: 'Picker Customization',
+    category: 'date-time-pickers',
+    components: [
+      'PickersActionBar',
+      'PickersShortcuts',
+      'PickersLayout',
+      'PickersCalendarHeader',
+      'PickerDay',
+    ],
+    anchors: {
+      PickersActionBar: 'action-bar',
+      PickersShortcuts: 'shortcuts',
+      PickersLayout: 'layout',
+      PickersCalendarHeader: 'calendar-header',
+      PickerDay: 'days',
+    },
+    summary: 'Building blocks of the picker popup: action bar, shortcuts, layout, header and days.',
   },
   // Tree View
   {
     slug: 'simple-tree-view',
     title: 'Simple Tree View',
     category: 'tree-view',
-    components: ['SimpleTreeView', 'TreeItem'],
+    components: ['SimpleTreeView', 'TreeItem', 'TreeItemProvider', 'TreeItemIcon'],
+    anchors: { TreeItemProvider: 'custom-tree-items', TreeItemIcon: 'custom-tree-items' },
     summary: 'A hierarchy declared with JSX children: folders, outlines and nested navigation.',
   },
   {
     slug: 'rich-tree-view',
     title: 'Rich Tree View',
     category: 'tree-view',
-    components: ['RichTreeView'],
+    components: [
+      'RichTreeView',
+      'TreeItemLabelInput',
+      'TreeItemLoader',
+      'TreeItemDragAndDropOverlay',
+    ],
+    anchors: {
+      TreeItemLabelInput: 'custom-label-input',
+      TreeItemLoader: 'custom-loading-rows',
+      TreeItemDragAndDropOverlay: 'custom-drop-indicator',
+    },
     summary: 'A data-driven tree for large hierarchies, with selection, editing and reordering.',
   },
 ];
@@ -512,6 +793,7 @@ export interface ComponentPageRef {
   summary: string;
   components: string[];
   kind: 'authored' | 'auto';
+  anchors?: Record<string, string>;
   status?: 'integration-pending';
 }
 

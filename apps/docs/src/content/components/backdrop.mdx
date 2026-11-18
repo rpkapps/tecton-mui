@@ -1,0 +1,16 @@
+## Purpose
+
+`Backdrop` dims the page, or one region of it, to signal that the content behind is temporarily
+unavailable: while it loads, or under a dialog. `Modal`, `Dialog` and `Drawer` render one for you; use
+`Backdrop` directly for loading states.
+
+## Loading a region
+
+Position the backdrop over a single container with `sx={{ position: 'absolute' }}` inside a
+`position: relative` parent. Mark the container with `aria-busy` and name the progress indicator so
+the state is announced.
+
+<Demo name="LocalBackdrop" />
+
+A backdrop does not trap focus or block the keyboard. When the user must not interact with the rest
+of the page, use a [Dialog](/components/dialog) or [Modal](/components/modal), which manage focus.

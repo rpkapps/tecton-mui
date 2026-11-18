@@ -1,0 +1,12 @@
+## Purpose
+
+A speed dial is a floating action button that reveals three to six related actions when it is
+hovered, focused or pressed. Use it only when a screen has one clear set of primary actions.
+
+## Parts
+
+- `SpeedDial` is the floating button; it controls the open state and the `direction` the actions
+  appear in. Give it an `ariaLabel`.
+- `SpeedDialIcon` shows the icon of the closed button and, with `openIcon`, a second icon while open.
+- `SpeedDialAction` is one action: an icon button with a tooltip (or a persistent label with
+  `slotProps.tooltip.open`) that names it for every user.

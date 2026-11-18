@@ -153,7 +153,7 @@ export default function MuiDocs() {
       </Heading>
       <M.p>
         {'Popover uses '}
-        <M.a href={'/components/grow#grow'}>{'Grow'}</M.a>
+        <M.a href={'/components/transitions#grow'}>{'Grow'}</M.a>
         {' by default.\nUse '}
         <M.code>{'slots.transition'}</M.code>
         {' and '}

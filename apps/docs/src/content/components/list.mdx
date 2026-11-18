@@ -15,6 +15,14 @@ Use `ListItemButton` for rows that act as one control, and `selected` for the cu
 
 <Demo name="ListWithActions" />
 
+## Secondary action wrapper
+
+`ListItemSecondaryAction` is the element that `secondaryAction` renders for you. Use it directly when
+the action must be part of the row's children, for example when a list item is composed by another
+component. Place it as the last child of `ListItem` and leave room for it with end padding.
+
+<Demo name="SecondaryActionWrapper" />
+
 ## Accessibility
 
 - `List` renders a `<ul>`; rows render `<li>`. Keep that structure when inserting dividers

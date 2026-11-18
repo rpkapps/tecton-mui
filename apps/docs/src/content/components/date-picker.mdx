@@ -2,7 +2,7 @@
 
 `DatePicker` lets users type a date or pick it from a calendar. It adapts to the device: a popover
 calendar on desktop, a full-screen dialog on touch devices. Use `DesktopDatePicker`,
-`MobileDatePicker` or `StaticDatePicker` to force one presentation.
+`MobileDatePicker` or `StaticDatePicker` to force one presentation (see [Variants](#variants)).
 
 Pickers need a [`LocalizationProvider`](/guides/localization) above them. The one from
 `@tecton-mui/ui` defaults to `date-fns` and `en-US`, so no adapter setup is required. Values are
@@ -11,6 +11,36 @@ native `Date` objects (or `null`).
 ## Basic usage
 
 <Demo name="BasicDatePicker" />
+
+## Variants
+
+`DatePicker` is responsive: it renders `DesktopDatePicker` when the `desktopModeMediaQuery` (default
+`@media (pointer: fine)`) matches and `MobileDatePicker` otherwise. Use a variant directly when the
+presentation must not depend on the device, for example a kiosk with a touch screen and a mouse. All
+three variants accept the same props.
+
+<Demo name="DatePickerVariants" />
+
+### Mobile dialog
+
+`MobileDatePicker` opens a modal dialog with a toolbar and Cancel / OK buttons from the calendar
+button next to the field; the field itself stays editable from the keyboard. The value is only committed when the user confirms: `onChange` follows every tap in the
+dialog, `onAccept` fires once on OK. `localeText.toolbarTitle` names the dialog for screen readers.
+
+<Demo name="MobileInspectionPicker" />
+
+### Static calendar
+
+`StaticDatePicker` renders the picker inline, without a field or popup. By default it uses the mobile
+layout with a toolbar and action bar; `displayWeekNumber` adds ISO week numbers and
+`slotProps.actionBar.actions` chooses the buttons.
+
+<Demo name="StaticCalendarPicker" />
+
+With `displayStaticWrapperAs="desktop"` the toolbar is dropped, so the calendar fits into a side
+panel. An empty `actions` array hides the action bar and every click updates the value.
+
+<Demo name="StaticAvailabilityPicker" />
 
 ## Controlled value
 
@@ -41,17 +71,12 @@ value selectable for copying but prevents changes; `disabled` blocks all interac
 
 <Demo name="DatePickerStates" />
 
-## Static calendar
-
-`StaticDatePicker` renders the picker inline with its toolbar and action bar. `displayWeekNumber` adds
-ISO week numbers, and `slotProps.actionBar.actions` chooses the buttons.
-
-<Demo name="StaticCalendarPicker" />
-
 ## Customizing days
 
 Replace the `day` slot to decorate dates, for example to mark days that have data. Build the slot on
-`PickerDay` and define it at module level so its identity stays stable between renders.
+`PickerDay` and define it at module level so its identity stays stable between renders. More day,
+header, layout and action bar examples are on the [Picker Customization](/components/picker-customization)
+page.
 
 <Demo name="ReportDaysPicker" />
 
