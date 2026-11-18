@@ -61,18 +61,6 @@ export const muiCompatOverrides: ThemeOptions = {
   },
 };
 
-/**
- * MUI X 9 renders PickerDay `selected`/`disabled` as the global state classes `Mui-selected` /
- * `Mui-disabled`, while Tecton 0.11.2 styles `.MuiPickerDay-selected` / `.MuiPickerDay-disabled`,
- * which never match. Alias the Tecton rules onto the classes MUI actually renders (values are
- * copied from the generated theme, never re-declared here).
- */
-const PICKER_DAY_STATE_ALIASES: Record<string, string> = {
-  '&.MuiPickerDay-selected': '&.Mui-selected',
-  '&.MuiPickerDay-disabled': '&.Mui-disabled',
-  '&.MuiPickerDay-today:not(.MuiPickerDay-selected)': '&.MuiPickerDay-today:not(.Mui-selected)',
-};
-
 export function applyThemeCompat(theme: Theme): Theme {
   const components = (theme.components ?? {}) as Record<
     string,
@@ -82,14 +70,9 @@ export function applyThemeCompat(theme: Theme): Theme {
   if (components.MuiSimpleTreeView && !components.MuiRichTreeView) {
     components.MuiRichTreeView = components.MuiSimpleTreeView;
   }
-  const root = (
-    theme.components as Record<string, { styleOverrides?: { root?: unknown } }> | undefined
-  )?.MuiPickerDay?.styleOverrides?.root;
-  if (root && typeof root === 'object') {
-    const rules = root as Record<string, unknown>;
-    for (const [from, to] of Object.entries(PICKER_DAY_STATE_ALIASES)) {
-      if (rules[from] !== undefined && rules[to] === undefined) rules[to] = rules[from];
-    }
-  }
+  // PickerDay states are intentionally NOT aliased. Tecton 0.11.2 styles `.MuiPickerDay-selected`
+  // / `-disabled`, which MUI X 9 never renders (it renders `Mui-selected` / `Mui-disabled`), so the
+  // official Tecton Storybook shows MUI's own selected day (`primary.main` fill) under Tecton's text
+  // color. We match that rendering; see tests/e2e/storybook-parity/REPORT.md.
   return theme;
 }

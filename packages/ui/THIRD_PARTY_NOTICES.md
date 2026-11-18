@@ -5,17 +5,27 @@ open-source packages below, which are installed as runtime dependencies and keep
 files in `node_modules`. No commercially licensed MUI X (Pro/Premium) code, assets or documentation
 is included; the advanced Data Grid, picker and Tree View features are written independently.
 
-| Package                                               | License                                                | Use                                             |
-| ----------------------------------------------------- | ------------------------------------------------------ | ----------------------------------------------- |
-| `@mui/material`, `@mui/system`, `@mui/utils`          | MIT, Copyright (c) 2014 Call-Em-All                    | Core components, passthrough re-exports         |
-| `@mui/lab`                                            | MIT, Copyright (c) 2014 Call-Em-All                    | Lab components, passthrough re-exports          |
-| `@mui/x-data-grid`                                    | MIT, Copyright (c) 2020 Material-UI SAS                | Community Data Grid foundation                  |
-| `@mui/x-date-pickers`                                 | MIT, Copyright (c) 2020 Material-UI SAS                | Community pickers, foundation for range pickers |
-| `@mui/x-tree-view`                                    | MIT, Copyright (c) 2020 Material-UI SAS                | Community Tree View foundation                  |
-| `@mui/stylis-plugin-rtl`, `stylis`                    | MIT                                                    | RTL style processing                            |
-| `@emotion/react`, `@emotion/styled`, `@emotion/cache` | MIT, Copyright (c) Emotion team and other contributors | Styling engine                                  |
-| `date-fns`                                            | MIT, Copyright (c) 2021 Sasha Koss and Lesha Koss      | Default date adapter library                    |
-| `clsx`                                                | MIT, Copyright (c) Luke Edwards                        | Class name utility                              |
+| Package                                                    | License                                                                              | Use                                                     |
+| ---------------------------------------------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------- |
+| `@mui/material`, `@mui/system`, `@mui/utils`               | MIT, Copyright (c) 2014 Call-Em-All                                                  | Core components, passthrough re-exports                 |
+| `@mui/lab`                                                 | MIT, Copyright (c) 2014 Call-Em-All                                                  | Lab components, passthrough re-exports                  |
+| `@mui/x-data-grid`                                         | MIT, Copyright (c) 2020 Material-UI SAS                                              | Community Data Grid foundation                          |
+| `@mui/x-date-pickers`                                      | MIT, Copyright (c) 2020 Material-UI SAS                                              | Community pickers, foundation for range pickers         |
+| `@mui/x-tree-view`                                         | MIT, Copyright (c) 2020 Material-UI SAS                                              | Community Tree View foundation                          |
+| `@mui/stylis-plugin-rtl`, `stylis`                         | MIT                                                                                  | RTL style processing                                    |
+| `@emotion/react`, `@emotion/styled`, `@emotion/cache`      | MIT, Copyright (c) Emotion team and other contributors                               | Styling engine                                          |
+| `date-fns`                                                 | MIT, Copyright (c) 2021 Sasha Koss and Lesha Koss                                    | Default date adapter library                            |
+| `clsx`                                                     | MIT, Copyright (c) Luke Edwards                                                      | Class name utility                                      |
+| `@base-ui/react`, `@base-ui/utils` (with `@floating-ui/*`) | MIT, Copyright (c) 2019 Material-UI SAS (Floating UI: MIT, Floating UI contributors) | Number field behavior of `NumberField`, `NumberSpinner` |
+
+## Adapted Material UI recipes
+
+`NumberField` and `NumberSpinner` (`src/NumberField/`, `src/NumberSpinner/`,
+`src/internal/number-field/`) are adapted from the "Number Field" recipes in the Material UI
+documentation (`docs/data/material/components/number-field/` of
+[mui/material-ui](https://github.com/mui/material-ui) at tag `v9.5.0`), MIT License, Copyright (c)
+2014 Call-Em-All. Changes: packaged as components with configurable label, helper text, size,
+`slotProps` and refs; Tecton icons instead of `@mui/icons-material`; theme-based styling.
 
 ## Tecton design system
 

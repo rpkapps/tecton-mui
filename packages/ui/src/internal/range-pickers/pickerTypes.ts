@@ -39,7 +39,11 @@ export interface RangePickerSlotProps {
   dialog?: Partial<Omit<DialogProps, 'open' | 'children'>>;
   actionBar?: { actions?: PickersRangeActionBarAction[] };
   shortcuts?: { items?: PickersShortcutsItem[] };
-  toolbar?: { hidden?: boolean };
+  toolbar?: {
+    hidden?: boolean;
+    /** Format of the endpoint values in the toolbar. Defaults to `shortDate` for date ranges, the field format otherwise. */
+    toolbarFormat?: string;
+  };
   day?: Partial<PickerDayProps>;
   layout?: { className?: string; sx?: SxProps<Theme> };
 }

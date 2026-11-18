@@ -27,21 +27,22 @@ in [SPEC.md](../SPEC.md) §4, §5 and §13.
 
 ## Packages
 
-| Package                        | Kind                 | Depends on                                       |
-| ------------------------------ | -------------------- | ------------------------------------------------ |
-| `@tecton-mui/ui`               | Published library    | MUI Core/Lab/X Community, Emotion, date-fns      |
-| `@tecton-mui/tecton-adapter`   | Private build tool   | Node.js only; writes into `packages/ui`          |
-| `@tecton-mui/mcp`              | Published dev tool   | `@mui/mcp` (exact pin)                           |
-| `@tecton-mui/docs`             | Private static site  | `@tecton-mui/ui`, TanStack Router, MDX, Pagefind |
-| `@tecton-mui/e2e-harness`      | Private test app     | `@tecton-mui/ui`                                 |
-| `@tecton-mui/consumer-fixture` | Private test fixture | `@tecton-mui/ui` (through its built `exports`)   |
+| Package                        | Kind                 | Depends on                                           |
+| ------------------------------ | -------------------- | ---------------------------------------------------- |
+| `@tecton-mui/ui`               | Published library    | MUI Core/Lab/X Community, Base UI, Emotion, date-fns |
+| `@tecton-mui/tecton-adapter`   | Private build tool   | Node.js only; writes into `packages/ui`              |
+| `@tecton-mui/mcp`              | Published dev tool   | `@mui/mcp` (exact pin)                               |
+| `@tecton-mui/docs`             | Private static site  | `@tecton-mui/ui`, TanStack Router, MDX, Pagefind     |
+| `@tecton-mui/e2e-harness`      | Private test app     | `@tecton-mui/ui`                                     |
+| `@tecton-mui/consumer-fixture` | Private test fixture | `@tecton-mui/ui` (through its built `exports`)       |
 
 Dependency rules (SPEC §4.1):
 
 - React and React DOM are **peer** dependencies of the UI package.
-- MUI, Emotion, `stylis`/`@mui/stylis-plugin-rtl`, `clsx` and `date-fns` are runtime dependencies of
-  the UI package, pinned to exact versions. Other date libraries (`dayjs`, `luxon`, `moment`) are
-  not. Consumers install them when they use the matching adapter subpath.
+- MUI, Base UI (`@base-ui/react`, for the number fields), Emotion, `stylis`/`@mui/stylis-plugin-rtl`,
+  `clsx` and `date-fns` are runtime dependencies of the UI package, pinned to exact versions. Other
+  date libraries (`dayjs`, `luxon`, `moment`) are not. Consumers install them when they use the
+  matching adapter subpath.
 - Tecton is not a runtime dependency. The adapter copies normalized Tecton code and assets into the
   UI package at build time.
 - Documentation tooling (TanStack, MDX, Pagefind, react-docgen-typescript) is used only by
@@ -100,7 +101,8 @@ generated, because the package pins date-fns v4.
 listed as `customModules` in the inventory. Today: `Icon`, `LocalizationProvider`, `DataGrid`,
 `RichTreeView`, the range pickers (`DateRangePicker`, `TimeRangePicker`, `DateTimeRangePicker` and
 their `Desktop*`, `Mobile*` and `Static*` variants), `DateRangeCalendar`,
-`MultiInputDateRangeField` and the `SingleInput*RangeField` fields.
+`MultiInputDateRangeField`, the `SingleInput*RangeField` fields, and `NumberField`/`NumberSpinner`
+(Base UI number field with Material form components; shared code in `internal/number-field/`).
 
 `pnpm inventory:check` fails if any generated output is stale.
 

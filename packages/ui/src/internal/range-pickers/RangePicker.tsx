@@ -140,8 +140,10 @@ export const RangePicker = React.forwardRef<HTMLDivElement, RangePickerEnginePro
     const layoutVariant = variant === 'static' ? displayStaticWrapperAs : variant;
     const ampm = ampmProp ?? adapter.is12HourCycleInCurrentLocale();
     const format = formatProp ?? getDefaultRangeFormat(adapter, valueType, ampm);
+    // As in the Community pickers, only the desktop popup commits on the last selection by default;
+    // the mobile dialog and the static pickers commit with OK.
     const closeOnSelect =
-      closeOnSelectProp ?? (variant === 'static' || layoutVariant === 'desktop');
+      closeOnSelectProp ?? (variant !== 'static' && layoutVariant === 'desktop');
     const popupId = `${React.useId()}-range-picker`;
     const titleId = `${popupId}-title`;
 
@@ -254,7 +256,8 @@ export const RangePicker = React.forwardRef<HTMLDivElement, RangePickerEnginePro
     });
 
     const cancel = useEventCallback(() => {
-      setValue(valueAtOpenRef.current);
+      // Static pickers have no open state: Cancel restores the last accepted value.
+      setValue(variant === 'static' ? lastAcceptedRef.current : valueAtOpenRef.current);
       closePicker();
     });
 
@@ -367,7 +370,9 @@ export const RangePicker = React.forwardRef<HTMLDivElement, RangePickerEnginePro
 
     const defaultActions: PickersRangeActionBarAction[] =
       variant === 'static'
-        ? []
+        ? closeOnSelect
+          ? []
+          : ['cancel', 'accept']
         : layoutVariant === 'mobile'
           ? ['cancel', 'accept']
           : valueType === 'date'
@@ -402,7 +407,11 @@ export const RangePicker = React.forwardRef<HTMLDivElement, RangePickerEnginePro
             value={value}
             rangePosition={rangePosition}
             onRangePositionChange={setRangePosition}
-            format={format}
+            format={
+              slotProps?.toolbar?.toolbarFormat ??
+              (valueType === 'date' ? adapter.formats.shortDate : format)
+            }
+            valueVariant={valueType === 'date' ? 'h4' : 'h6'}
             title={title}
             titleId={titleId}
             labels={labels}

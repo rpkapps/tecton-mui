@@ -125,6 +125,30 @@ describe('ThemeProvider', () => {
     expect(screen.getByTestId('rtl')).toHaveAttribute('data-dir', 'rtl');
   });
 
+  it('accepts a partial theme nested inside the Tecton theme (MUI semantics)', () => {
+    function Primary() {
+      return <span data-testid="primary">{useTheme().palette.primary.main}</span>;
+    }
+    render(
+      <ThemeProvider>
+        <ThemeProvider
+          theme={(outer) => ({
+            ...outer,
+            palette: { ...outer.palette, primary: { ...outer.palette.primary, main: '#007FFF' } },
+          })}
+        >
+          <Primary />
+        </ThemeProvider>
+        <ThemeProvider theme={{ shape: { borderRadius: 2 } }}>
+          <ThemeProbe id="partial" />
+        </ThemeProvider>
+      </ThemeProvider>,
+    );
+    expect(screen.getByTestId('primary')).toHaveTextContent('#007FFF');
+    // The partial theme keeps the outer palette.
+    expect(screen.getByTestId('partial')).toHaveAttribute('data-mode', 'light');
+  });
+
   it('renders inputs with placeholders in rtl (Tecton input styles use ::placeholder)', () => {
     expect(() =>
       render(
@@ -220,13 +244,16 @@ describe('createTheme', () => {
 });
 
 describe('Tecton compat corrections', () => {
-  it('aliases PickerDay state rules onto the classes MUI X renders', () => {
+  it('keeps the PickerDay state rules as Tecton ships them (Storybook parity)', () => {
     const root = createTheme().components?.MuiPickerDay?.styleOverrides?.root as Record<
       string,
       unknown
     >;
-    expect(root['&.Mui-selected']).toBe(root['&.MuiPickerDay-selected']);
-    expect(root['&.Mui-disabled']).toBe(root['&.MuiPickerDay-disabled']);
+    // The Tecton Storybook renders MUI's own selected/disabled day styles, because Tecton's
+    // `.MuiPickerDay-selected` / `-disabled` rules never match MUI X 9; no alias is added.
+    expect(root['&.MuiPickerDay-selected']).toBeDefined();
+    expect(root['&.Mui-selected']).toBeUndefined();
+    expect(root['&.Mui-disabled']).toBeUndefined();
   });
 });
 

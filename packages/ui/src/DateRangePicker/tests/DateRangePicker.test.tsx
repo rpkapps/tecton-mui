@@ -19,6 +19,10 @@ function openButton() {
   return screen.getByRole('button', { name: /choose range/i });
 }
 
+function clickDay(n: number) {
+  fireEvent.click(screen.getAllByRole('gridcell', { name: String(n) })[0]);
+}
+
 function pickDays(...numbers: number[]) {
   const dialog = screen.getByRole('dialog');
   for (const n of numbers) {
@@ -265,7 +269,8 @@ describe('MobileDateRangePicker', () => {
     pickDays(5, 9);
     // Mobile does not close on select.
     expect(onAccept).not.toHaveBeenCalled();
-    expect(within(dialog).getByRole('button', { name: 'Start: 01/05/2026' })).toBeInTheDocument();
+    // The toolbar shows the endpoints in the short date format, like the Community date toolbar.
+    expect(within(dialog).getByRole('button', { name: 'Start: Jan 5' })).toBeInTheDocument();
     fireEvent.click(within(dialog).getByRole('button', { name: 'OK' }));
     expect(days(onAccept.mock.calls[0][0])).toEqual(['2026-01-05', '2026-01-09']);
   });
@@ -344,7 +349,7 @@ describe('StaticDateRangePicker', () => {
     expect(onChange).toHaveBeenCalledTimes(1);
   });
 
-  it('desktop layout shows two calendars and accepts on completion', () => {
+  it('desktop layout shows two calendars; OK accepts, as in the Community static pickers', () => {
     const onAccept = vi.fn();
     renderWithProvider(
       <StaticDateRangePicker
@@ -356,7 +361,49 @@ describe('StaticDateRangePicker', () => {
     expect(screen.getAllByRole('grid')).toHaveLength(2);
     fireEvent.click(screen.getAllByRole('gridcell', { name: '5' })[0]);
     fireEvent.click(screen.getAllByRole('gridcell', { name: '9' })[0]);
+    expect(onAccept).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'OK' }));
+    expect(days(onAccept.mock.calls[0][0])).toEqual(['2026-01-05', '2026-01-09']);
+  });
+
+  it('Cancel restores the last accepted value', () => {
+    const onChange = vi.fn();
+    renderWithProvider(
+      <StaticDateRangePicker
+        defaultValue={[day(2026, 0, 2), day(2026, 0, 3)]}
+        onChange={onChange}
+      />,
+    );
+    clickDay(5);
+    clickDay(9);
+    expect(days(onChange.mock.lastCall![0])).toEqual(['2026-01-05', '2026-01-09']);
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(days(onChange.mock.lastCall![0])).toEqual(['2026-01-02', '2026-01-03']);
+  });
+
+  it('closeOnSelect accepts on completion and hides the action bar', () => {
+    const onAccept = vi.fn();
+    renderWithProvider(
+      <StaticDateRangePicker referenceDate={JAN_2026} closeOnSelect onAccept={onAccept} />,
+    );
+    expect(screen.queryByRole('button', { name: 'OK' })).not.toBeInTheDocument();
+    clickDay(5);
+    clickDay(9);
     expect(onAccept).toHaveBeenCalledTimes(1);
+  });
+
+  it('formats the toolbar endpoints with slotProps.toolbar.toolbarFormat', () => {
+    renderWithProvider(
+      <StaticDateRangePicker
+        defaultValue={[day(2026, 0, 2), null]}
+        slotProps={{ toolbar: { toolbarFormat: 'yyyy-MM-dd' } }}
+      />,
+    );
+    expect(screen.getByRole('button', { name: 'Start: 2026-01-02' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    expect(screen.getByRole('button', { name: 'End' })).toBeInTheDocument();
   });
 });
 

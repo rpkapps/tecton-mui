@@ -4,7 +4,7 @@
 //   1. every exported subpath has a JS file and a declaration file
 //   2. root and representative subpaths import in plain Node ESM and render on the server
 //   3. tree shaking: bundling `@tecton-mui/ui/Button` (or `{ Button }` from the root) does not
-//      pull in Data Grid, pickers, tree view, date adapters or Tecton token data
+//      pull in Data Grid, pickers, tree view, Base UI, date adapters or Tecton token data
 //   4. the documented stylesheet entry points exist and component CSS contains no globals
 import { existsSync, readFileSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
@@ -61,6 +61,7 @@ import DataGrid from '@tecton-mui/ui/DataGrid';
 import DateRangePicker from '@tecton-mui/ui/DateRangePicker';
 import RichTreeView from '@tecton-mui/ui/RichTreeView';
 import Icon from '@tecton-mui/ui/Icon';
+import NumberField from '@tecton-mui/ui/NumberField';
 import LocalizationProvider from '@tecton-mui/ui/LocalizationProvider';
 import { ThemeProvider, TectonModeScript } from '@tecton-mui/ui/styles';
 if (root.Button !== Button) throw new Error('root Button differs from subpath Button');
@@ -72,11 +73,12 @@ const html = renderToString(h(ThemeProvider, null,
   h(TectonModeScript),
   h(Button, { variant: 'contained' }, 'Save'),
   h(Icon, { name: 'add' }),
+  h(NumberField, { label: 'Depth', defaultValue: 1200, locale: 'en-US' }),
   h(LocalizationProvider, null, h(DateRangePicker, { label: 'Range' })),
   h(RichTreeView, { items: [{ id: 'a', label: 'A' }] }),
   h('div', { style: { height: 300 } }, h(DataGrid, { rows: [{ id: 1, a: 'x' }], columns: [{ field: 'a' }] }))));
 // The MIT Community grid renders client-side only (useIsSSR), so it must merely not throw here.
-for (const marker of ['Save', 'tecton-add-outline', 'MuiRichTreeView', 'Range']) if (!html.includes(marker)) throw new Error('SSR output missing ' + marker);
+for (const marker of ['Save', 'tecton-add-outline', 'MuiRichTreeView', 'Range', 'value="1,200"']) if (!html.includes(marker)) throw new Error('SSR output missing ' + marker);
 console.log(Object.keys(root).length);
 `,
 );
@@ -88,7 +90,7 @@ try {
     .toString()
     .trim();
   pass(
-    `root exports ${count} names; Button/DataGrid/DateRangePicker/RichTreeView render on the server`,
+    `root exports ${count} names; Button/NumberField/DataGrid/DateRangePicker/RichTreeView render on the server`,
   );
 } catch (error) {
   fail(`SSR import check failed:\n${error.stderr?.toString() ?? error}`);
@@ -114,6 +116,7 @@ const forbidden = {
   'Data Grid': /gridColumnDefinitionsSelector|GridRootStyles/,
   'Date pickers': /getPickerDayUtilityClass|usePickerAdapter/,
   'Tree view': /getTreeItemUtilityClass|useTreeViewApiRef/,
+  'Base UI': /NumberFieldRootContext|useNumberFieldRootContext|@base-ui\//,
   'date-fns': /startOfWeek|differenceInCalendarDays/,
   'Tecton token CSS': /--tecton-color-text-primary:/,
   'docs tooling': /@tanstack|pagefind|@mdx-js/,
@@ -147,7 +150,7 @@ for (const [name, source] of Object.entries(entries)) {
     if (leaks.length) fail(`${name} (${kb} KiB) pulls in: ${leaks.map(([l]) => l).join(', ')}`);
     else
       pass(
-        `${name} bundle (${kb} KiB unminified) has no Data Grid / pickers / tree / date-fns / tokens / docs code`,
+        `${name} bundle (${kb} KiB unminified) has no Data Grid / pickers / tree / Base UI / date-fns / tokens / docs code`,
       );
   } finally {
     rmSync(file, { force: true });

@@ -13,10 +13,11 @@ import { getRtlCache } from './rtl.js';
 export interface ThemeProviderProps {
   children?: React.ReactNode;
   /**
-   * A complete theme (or MUI nested-theme function). When provided it is used as-is, following
-   * MUI semantics. When omitted, the Tecton theme for the shared light/dark mode is used.
+   * A theme object (complete, or partial to override the outer theme when nested) or an MUI
+   * nested-theme function. When provided it is used as-is, following MUI semantics. When omitted,
+   * the Tecton theme for the shared light/dark mode is used.
    */
-  theme?: Theme | ((outerTheme: Theme) => Theme);
+  theme?: Partial<Theme> | ((outerTheme: Theme) => Theme);
   /**
    * MUI ThemeOptions applied on top of the Tecton defaults for the current shared mode.
    * Pass a stable (memoized/module-level) object to avoid rebuilding the theme.

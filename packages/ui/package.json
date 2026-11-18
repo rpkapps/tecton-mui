@@ -30,6 +30,7 @@
     }
   },
   "dependencies": {
+    "@base-ui/react": "1.9.0",
     "@emotion/cache": "11.14.0",
     "@emotion/react": "11.14.0",
     "@emotion/styled": "11.14.1",
@@ -615,6 +616,16 @@
       "@tecton-mui/source": "./src/NoSsr/index.ts",
       "types": "./dist/NoSsr/index.d.ts",
       "default": "./dist/NoSsr/index.js"
+    },
+    "./NumberField": {
+      "@tecton-mui/source": "./src/NumberField/index.ts",
+      "types": "./dist/NumberField/index.d.ts",
+      "default": "./dist/NumberField/index.js"
+    },
+    "./NumberSpinner": {
+      "@tecton-mui/source": "./src/NumberSpinner/index.ts",
+      "types": "./dist/NumberSpinner/index.d.ts",
+      "default": "./dist/NumberSpinner/index.js"
     },
     "./OutlinedInput": {
       "@tecton-mui/source": "./src/OutlinedInput/index.ts",

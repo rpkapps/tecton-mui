@@ -12,6 +12,8 @@ customization APIs, preconfigured with the **Tecton** design system.
   Pickers and `SimpleTreeView` are included.
 - One unified `DataGrid`, range pickers and one unified `RichTreeView` add advanced features,
   implemented independently on public MUI X Community APIs. No commercial MUI X code is used.
+- `NumberField` and `NumberSpinner`, numeric inputs that Material UI 9.5.0 does not ship, built on
+  Base UI's number field (`@base-ui/react`, MIT) and Material form components.
 - Tecton fonts, icons and tokens, with a typed `Icon` (no `@mui/icons-material` needed). Light and
   dark mode shared by every React root on the page, RTL and SSR helpers.
 - ESM only, TypeScript declarations for every public path, tree-shakeable imports.
@@ -292,6 +294,31 @@ import { AdapterDayjs } from '@tecton-mui/ui/AdapterDayjs'; // requires `dayjs` 
 ```
 
 Available adapters: `AdapterDateFns` (default), `AdapterDayjs`, `AdapterLuxon`, `AdapterMoment`.
+
+## Number fields
+
+Material UI 9.5.0 has no number field component; its documentation offers copy-paste recipes
+instead. This package ships them as components, so there is nothing to copy:
+
+```tsx
+import NumberField from '@tecton-mui/ui/NumberField';
+import NumberSpinner from '@tecton-mui/ui/NumberSpinner';
+
+<NumberField
+  label="Budget"
+  defaultValue={250000}
+  step={1000}
+  format={{ style: 'currency', currency: 'USD' }}
+/>;
+<NumberSpinner label="Crew" defaultValue={4} min={0} max={12} />;
+```
+
+Both take the Base UI `NumberField.Root` props (`value`, `defaultValue`, `onValueChange`,
+`onValueCommitted`, `min`, `max`, `step`, `smallStep`, `largeStep`, `format`, `locale`,
+`snapOnStep`, `allowWheelScrub`, `name`, …) plus the Material field props `label`, `helperText`,
+`error`, `required`, `disabled`, `readOnly`, `size`, `fullWidth`, `placeholder`, `inputRef`, `sx`
+and `slotProps`. The value is a `number` or `null`. Pass `locale` when server and browser locales
+can differ, so that server-rendered text matches.
 
 ## Advanced components
 

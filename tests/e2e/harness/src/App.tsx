@@ -27,10 +27,13 @@ import {
   StaticDatePicker,
 } from '@tecton-mui/ui';
 import Icon from '@tecton-mui/ui/Icon';
+import NumberField from '@tecton-mui/ui/NumberField';
+import NumberSpinner from '@tecton-mui/ui/NumberSpinner';
 import LocalizationProvider from '@tecton-mui/ui/LocalizationProvider';
 import DataGrid from '@tecton-mui/ui/DataGrid';
 import { GridScenarios } from './GridScenarios.js';
 import { PickerScenarios, TreeScenarios } from './AdvancedScenarios.js';
+import { StorybookScenario } from './storybook/StorybookScenario.js';
 
 const rows = Array.from({ length: 8 }, (_, i) => ({
   id: i + 1,
@@ -99,6 +102,17 @@ export function Showcase() {
             <MenuItem value="north">North Sea</MenuItem>
             <MenuItem value="gulf">Gulf of Mexico</MenuItem>
           </TextField>
+          <Stack direction="row" spacing={2} sx={{ alignItems: 'flex-start' }}>
+            <NumberField
+              label="Pump rate"
+              defaultValue={120}
+              min={0}
+              step={10}
+              locale="en-US"
+              format={{ style: 'unit', unit: 'liter-per-minute' }}
+            />
+            <NumberSpinner label="Crew" defaultValue={4} min={0} max={12} locale="en-US" />
+          </Stack>
           <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
             <FormControlLabel control={<Checkbox defaultChecked />} label="Checkbox" />
             <FormControlLabel control={<Radio checked />} label="Radio" />
@@ -186,6 +200,8 @@ export function App({ scenario, rtl }: { scenario: string; rtl: boolean }) {
           <PickerScenarios />
         ) : scenario === 'tree' ? (
           <TreeScenarios />
+        ) : scenario.startsWith('sb:') ? (
+          <StorybookScenario id={scenario.slice(3)} />
         ) : null}
       </div>
     </ThemeProvider>

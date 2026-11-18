@@ -148,9 +148,11 @@ Written by `emit` and listed with checksums in
   - **TablePagination icon slots:** Tecton passes the previous/next icons through
     `slotProps.actions.slots`, which MUI 9 ignores. The correction sets them through
     `MuiTablePagination.defaultProps.slots.actions`.
-  - **PickerDay state classes:** MUI X 9 renders `Mui-selected` / `Mui-disabled`, while Tecton
-    styles `.MuiPickerDay-selected` / `.MuiPickerDay-disabled`. The correction copies the Tecton
-    rules onto the classes MUI renders (including the `today:not(selected)` rule).
+  - **PickerDay state classes (deliberately not corrected):** MUI X 9 renders `Mui-selected` /
+    `Mui-disabled`, while Tecton styles `.MuiPickerDay-selected` / `.MuiPickerDay-disabled`, so
+    those Tecton rules never match. The official Tecton Storybook (same MUI X 9 and Tecton 0.11.2)
+    therefore shows MUI's own selected day (`primary.main` fill, Tecton text color). We match the
+    Storybook and do not alias the rules (see `tests/e2e/storybook-parity/REPORT.md`).
   - **RichTreeView defaults:** Tecton themes only `MuiSimpleTreeView`. The correction makes
     `MuiRichTreeView` share the same theme entry.
 - `tecton/augmentations.ts` re-declares the Tecton prop augmentations (`activated`, `shape`,

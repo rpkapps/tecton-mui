@@ -47,6 +47,11 @@ test.describe('SSR and hydration', () => {
     const button = page.getByRole('button', { name: 'Clicked 0' });
     await button.click();
     await expect(page.getByRole('button', { name: 'Clicked 1' })).toBeVisible();
+    // NumberField (Base UI) server-renders its formatted value and steps after hydration.
+    const depth = page.getByLabel('Depth');
+    await expect(depth).toHaveValue('1,200');
+    await page.getByRole('button', { name: 'Increase' }).click();
+    await expect(depth).toHaveValue('1,201');
     // The client-only Community Data Grid mounts after hydration.
     await expect(page.locator('.MuiDataGrid-root')).toBeVisible();
   });
@@ -94,14 +99,28 @@ test.describe('RTL', () => {
     const root = page.getByTestId('grid-grouping').locator('.MuiDataGrid-root');
     await expect(root).toBeVisible();
     const box = await root.boundingBox();
+    // The left-pinned ("start") section renders at the right edge in RTL. The grouping column
+    // joins the start section ahead of the pinned `name` column.
+    const start = await root.locator('.MuiDataGrid-columnHeader--pinnedLeft').first().boundingBox();
+    expect(start!.x + start!.width).toBeGreaterThan(box!.x + box!.width - 5);
     const name = await root.locator('.MuiDataGrid-columnHeader[data-field="name"]').boundingBox();
-    // Left-pinned ("start") column renders at the right edge in RTL.
-    expect(name!.x + name!.width).toBeGreaterThan(box!.x + box!.width - 5);
+    expect(Math.abs(name!.x + name!.width - start!.x)).toBeLessThan(2);
     const direction = await page.evaluate(
       () => getComputedStyle(document.querySelector('.MuiDataGrid-root')!).direction,
     );
     expect(direction).toBe('rtl');
   });
+
+  for (const scenario of ['showcase', 'pickers', 'grid:all', 'tree']) {
+    test(`${scenario} renders in rtl without errors`, async ({ page }) => {
+      const errors: string[] = [];
+      page.on('pageerror', (error) => errors.push(String(error)));
+      await page.goto(`/?scenario=${scenario}&dir=rtl`);
+      await page.waitForLoadState('networkidle');
+      expect(errors).toEqual([]);
+      await expect(page.locator('[dir="rtl"]').first()).toBeVisible();
+    });
+  }
 });
 
 const scenarios = ['showcase', 'grid:all', 'pickers', 'tree'];

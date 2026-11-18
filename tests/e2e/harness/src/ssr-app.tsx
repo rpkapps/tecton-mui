@@ -2,6 +2,7 @@ import * as React from 'react';
 import { ThemeProvider } from '@tecton-mui/ui/styles';
 import { Button, CssBaseline, Paper, TextField, Typography } from '@tecton-mui/ui';
 import Icon from '@tecton-mui/ui/Icon';
+import NumberField from '@tecton-mui/ui/NumberField';
 import RichTreeView from '@tecton-mui/ui/RichTreeView';
 import DataGrid from '@tecton-mui/ui/DataGrid';
 
@@ -24,6 +25,7 @@ export function SsrApp() {
           {`Clicked ${count}`}
         </Button>
         <TextField label="Name" defaultValue="Alpha-7" sx={{ ml: 2 }} />
+        <NumberField label="Depth" defaultValue={1200} locale="en-US" sx={{ ml: 2 }} />
         <RichTreeView items={items} defaultExpandedItems={['a']} />
         <div style={{ height: 200 }}>
           <DataGrid rows={rows} columns={columns} />

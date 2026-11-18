@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
 import DialogActions from '@mui/material/DialogActions';
@@ -36,8 +35,42 @@ export const RangePickerLayoutRoot = styled('div', {
     display: 'flex',
     flexDirection: 'row',
     overflowX: 'auto',
+    // Center the view in a wide layout, like the Community picker views (`margin: 0 auto`).
+    '& > :last-child': { marginLeft: 'auto', marginRight: 'auto' },
   },
 }));
+
+// Same geometry as the Community picker toolbar (MuiPickersToolbar): 16px 24px padding, an
+// overline title in `text.secondary` above the value row.
+const ToolbarRoot = styled('div', { name: 'TectonRangePickerToolbar', slot: 'Root' })(
+  ({ theme }) => ({
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    padding: theme.spacing(2, 3),
+  }),
+);
+
+const ToolbarContent = styled('div', { name: 'TectonRangePickerToolbar', slot: 'Content' })({
+  display: 'flex',
+  flexWrap: 'wrap',
+  alignItems: 'center',
+  width: '100%',
+  flex: 1,
+});
+
+// Endpoint buttons look like the Community toolbar values: plain text in `text.secondary`, the
+// endpoint being edited in `text.primary`.
+const ToolbarButton = styled(Button, { name: 'TectonRangePickerToolbar', slot: 'Button' })(
+  ({ theme }) => ({
+    // Doubled class: wins over the theme's Button size rules (Tecton sets a fixed button height).
+    '&&': { padding: 0, minWidth: 16, minHeight: 0, height: 'auto' },
+    textTransform: 'none',
+    color: (theme.vars || theme).palette.text.secondary,
+    '&[aria-pressed="true"]': { color: (theme.vars || theme).palette.text.primary },
+  }),
+);
 
 // ---- Toolbar --------------------------------------------------------------------------------
 
@@ -49,40 +82,51 @@ export interface RangePickerToolbarProps {
   title: string;
   titleId: string;
   labels: { start: string; end: string };
+  /** Typography variant of the endpoint values: `h4` (date ranges, as the date toolbar) or smaller. */
+  valueVariant?: 'h4' | 'h5' | 'h6';
 }
 
 /** Title plus one button per endpoint; the pressed button is the endpoint being edited. */
 export function RangePickerToolbar(props: RangePickerToolbarProps) {
-  const { value, rangePosition, onRangePositionChange, format, title, titleId, labels } = props;
+  const {
+    value,
+    rangePosition,
+    onRangePositionChange,
+    format,
+    title,
+    titleId,
+    labels,
+    valueVariant = 'h4',
+  } = props;
   const adapter = usePickerAdapter();
   const renderEndpoint = (position: RangePosition) => {
     const formatted = formatEndpoint(adapter, value[positionIndex(position)], format);
     return (
-      <Button
+      <ToolbarButton
         variant="text"
-        size="small"
         aria-pressed={rangePosition === position}
         aria-label={formatted ? `${labels[position]}: ${formatted}` : labels[position]}
         onClick={() => onRangePositionChange(position)}
-        sx={{ fontWeight: rangePosition === position ? 700 : 400, textTransform: 'none' }}
       >
-        {formatted || labels[position]}
-      </Button>
+        <Typography variant={valueVariant} component="span" color="inherit">
+          {formatted || labels[position]}
+        </Typography>
+      </ToolbarButton>
     );
   };
   return (
-    <Box className={rangePickerLayoutClasses.toolbar} sx={{ px: 3, pt: 2, pb: 1 }}>
-      <Typography variant="overline" component="h2" id={titleId} sx={{ display: 'block' }}>
+    <ToolbarRoot className={rangePickerLayoutClasses.toolbar}>
+      <Typography variant="overline" component="h2" id={titleId} sx={{ color: 'text.secondary' }}>
         {title}
       </Typography>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+      <ToolbarContent>
         {renderEndpoint('start')}
-        <Typography component="span" aria-hidden>
+        <Typography variant={valueVariant} component="span" aria-hidden sx={{ mx: 1 }}>
           –
         </Typography>
         {renderEndpoint('end')}
-      </Box>
-    </Box>
+      </ToolbarContent>
+    </ToolbarRoot>
   );
 }
 
