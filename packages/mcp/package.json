@@ -14,9 +14,13 @@
   "publishConfig": {
     "access": "restricted"
   },
+  "engines": {
+    "node": ">=22.12"
+  },
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "build": "tsc -p tsconfig.build.json && node -e \"require('node:fs').chmodSync('dist/cli.js', 0o755)\"",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --root ../.. packages/mcp"
   },
   "dependencies": {
     "@mui/mcp": "0.1.10"
