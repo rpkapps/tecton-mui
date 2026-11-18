@@ -995,7 +995,7 @@ function DataGridInner<R extends GridValidRowModel>(
       for (const node of nodes) {
         const nodeKeys =
           node.groupingKey !== undefined ? [...keys, String(node.groupingKey)] : keys;
-        const count = (node as GridNode<R> & { serverChildrenCount?: number }).serverChildrenCount;
+        const count = node.childrenCount;
         if (count && (!node.children || node.children.length === 0)) {
           const meta = flat.meta.get(node.id);
           if (isExpandedFromMeta(node.id, meta, ui.getState())) ds.fetchChildren(nodeKeys);
@@ -1379,7 +1379,7 @@ function buildServerHierarchy<R extends GridValidRowModel>(
     level.map((row) => {
       const count = depth < maxGroupDepth ? (dataSource.getChildrenCount?.(row) ?? 0) : 0;
       const key = dataSource.getGroupKey?.(row);
-      const node: GridNode<R> & { serverChildrenCount?: number } = {
+      const node: GridNode<R> = {
         id: getRowId(row),
         depth,
         row,
@@ -1389,7 +1389,7 @@ function buildServerHierarchy<R extends GridValidRowModel>(
         label: key,
       };
       if (count !== 0) {
-        node.serverChildrenCount = count;
+        node.childrenCount = count;
         const path = [...keys, String(key)];
         const loaded = children.get(JSON.stringify(path));
         node.children = loaded ? build(loaded.rows, depth + 1, path) : [];

@@ -184,7 +184,7 @@ export function buildCommunityColumns<R extends GridValidRowModel>(
         renderCell: (params: GridRenderCellParams<R>) => {
           const syn = getSynthetic(params.row);
           if (syn && syn.kind !== 'group') return null;
-          if (!syn && onlyFor) return null;
+          if (!syn && onlyFor && !args.metaRef.current.get(params.id)?.isGroup) return null;
           return (
             <GroupingCell
               id={params.id}

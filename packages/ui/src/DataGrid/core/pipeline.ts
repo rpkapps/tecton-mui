@@ -6,7 +6,7 @@ import {
   type SyntheticMeta,
   type VisibleRowInfo,
 } from './rows.js';
-import type { GridNode } from './tree.js';
+import { isGroupNode, type GridNode } from './tree.js';
 import type { AggregationResult } from '../features/grouping-aggregation/aggregation.js';
 import type { GridGroupNodeInfo } from '../public-types.js';
 
@@ -89,8 +89,8 @@ export function flattenTree<R extends GridValidRowModel>(
 
   const visit = (nodes: readonly GridNode<R>[]) => {
     for (const node of nodes) {
-      const hasChildren = node.children !== null && node.children.length > 0;
-      const childrenCount = node.children?.length ?? 0;
+      const hasChildren = isGroupNode(node);
+      const childrenCount = node.children?.length || Math.max(0, node.childrenCount ?? 0);
       meta.set(node.id, {
         depth: node.depth,
         childrenCount,
@@ -146,7 +146,7 @@ export function flattenTree<R extends GridValidRowModel>(
           })) as R,
         );
       }
-      if (hasChildren && isNodeExpanded(node, expansion)) visit(node.children!);
+      if (hasChildren && node.children && isNodeExpanded(node, expansion)) visit(node.children);
     }
   };
   visit(roots);

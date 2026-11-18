@@ -204,3 +204,14 @@ describe('createTheme', () => {
     expect(slots.actions).toHaveProperty('nextButtonIcon');
   });
 });
+
+describe('Tecton compat corrections', () => {
+  it('aliases PickerDay state rules onto the classes MUI X renders', () => {
+    const root = createTheme().components?.MuiPickerDay?.styleOverrides?.root as Record<
+      string,
+      unknown
+    >;
+    expect(root['&.Mui-selected']).toBe(root['&.MuiPickerDay-selected']);
+    expect(root['&.Mui-disabled']).toBe(root['&.MuiPickerDay-disabled']);
+  });
+});

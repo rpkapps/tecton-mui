@@ -15,10 +15,12 @@ export interface GridNode<R extends GridValidRowModel = GridValidRowModel> {
   groupingKey: unknown;
   /** Tree data: last path segment. */
   label?: string;
+  /** Server-side groups: children reported by the data source before they are loaded. */
+  childrenCount?: number;
 }
 
 export const isGroupNode = (node: GridNode): boolean =>
-  node.children !== null && node.children.length > 0;
+  (node.children !== null && node.children.length > 0) || (node.childrenCount ?? 0) !== 0;
 
 export function forEachNode<R extends GridValidRowModel>(
   nodes: readonly GridNode<R>[],
