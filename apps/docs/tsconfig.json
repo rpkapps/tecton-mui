@@ -5,6 +5,7 @@
     "moduleResolution": "Bundler",
     "customConditions": ["@tecton-mui/source"],
     "noEmit": true,
+    "allowImportingTsExtensions": true,
     "types": ["vite/client", "node", "mdx"],
     "paths": {
       "date-fns": ["../../packages/ui/node_modules/date-fns/index.d.ts"],

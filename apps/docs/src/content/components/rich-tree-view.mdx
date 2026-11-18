@@ -19,6 +19,30 @@ Selection, checkboxes and expansion work as in the Simple Tree View.
 
 <Demo name="BasicRichTree" />
 
+## Checkbox selection and propagation
+
+With `multiSelect` and `checkboxSelection`, `selectionPropagation` keeps parents and children in sync:
+`descendants` selects the children of a selected parent, `parents` selects a parent once all its
+children are selected.
+
+<Demo name="SelectionPropagation" />
+
+## Your data shape
+
+`getItemId`, `getItemLabel` and `getItemChildren` read items in the shape your API returns, so there is
+no mapping step. `isItemDisabled` disables items from data, here shut-in wells.
+
+<Demo name="CustomDataShape" />
+
+## Label editing
+
+`isItemEditable` (a boolean or a function of the item) allows renaming: double-click the item or press
+
+<kbd>Enter</kbd> on it, then <kbd>Enter</kbd> to save or <kbd>Escape</kbd> to cancel.
+`onItemLabelChange` receives the new label so you can persist it.
+
+<Demo name="LabelEditing" />
+
 ## Reordering
 
 `itemsReordering` lets users drag items: drop on the upper or lower third of an item to place it

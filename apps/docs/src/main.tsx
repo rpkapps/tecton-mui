@@ -1,9 +1,11 @@
 import '@tecton-mui/ui/styles/global.css';
+import './styles/docs.css';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { RouterProvider } from '@tanstack/react-router';
 import { initTecton } from '@tecton-mui/ui/styles';
 import { createAppRouter } from './router';
+import { primeHighlightCache } from './components/CodeBlock';
 
 // Explicit host step: initialize Tecton's shared theme manager (mode + `data-theme` on <html>).
 initTecton();
@@ -14,6 +16,8 @@ async function start() {
   // render replaces the prerendered markup in one step without a loading state.
   await router.load();
   const container = document.getElementById('root')!;
+  // Reuse the build-time/prerender syntax highlighting of this page (no highlighter download).
+  primeHighlightCache(container);
   createRoot(container).render(
     <StrictMode>
       <RouterProvider router={router} />

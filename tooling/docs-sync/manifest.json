@@ -1,8 +1,17 @@
 {
-  "$comment": "Controlled upstream documentation synchronization (SPEC §8.5). Every upstream page considered for the portal is listed with a status: `included` (copied verbatim, license notice retained), `modified` (adapted; our edits preserved via the patch file), or `excluded` (with a reason). Only MIT-licensed MUI Core docs may be included or modified; commercial MUI X docs are always excluded.",
+  "$comment": "Controlled upstream documentation synchronization (SPEC §8.4–8.5; repo-docs/documentation-sync.md). Every upstream page considered for the portal is listed with a status: `included` (synced with the mechanical adaptation rules), `modified` (synced plus the page's declarative `edits`, each matching exactly once, or a `patch`), or `excluded` (with a reason). `target` is the page id used for the generated files and in slug-map.json; `excludedDemos` lists examples of a synced page that are left out by hand, with the reason. Only the MIT-licensed mui/material-ui documentation (Material UI and Lab) may be synced; MUI X documentation is never synced and commercial MUI X docs are always excluded.",
   "upstream": {
-    "@mui/material": { "repo": "mui/material-ui", "tagPrefix": "v", "license": "MIT" },
-    "@mui/lab": { "repo": "mui/material-ui", "tagPrefix": "v", "license": "MIT" },
+    "@mui/material": {
+      "repo": "mui/material-ui",
+      "tagPrefix": "v",
+      "license": "MIT"
+    },
+    "@mui/lab": {
+      "repo": "mui/material-ui",
+      "tagPrefix": "v",
+      "license": "MIT",
+      "versionFrom": "@mui/material"
+    },
     "@mui/x-data-grid": {
       "repo": "mui/mui-x",
       "tagPrefix": "v",
@@ -22,9 +31,391 @@
   "pages": [
     {
       "package": "@mui/material",
+      "source": "docs/data/material/components/autocomplete/autocomplete.md",
+      "status": "included",
+      "target": "autocomplete"
+    },
+    {
+      "package": "@mui/material",
       "source": "docs/data/material/components/buttons/buttons.md",
+      "status": "included",
+      "target": "buttons"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/button-group/button-group.md",
+      "status": "included",
+      "target": "button-group"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/checkboxes/checkboxes.md",
+      "status": "included",
+      "target": "checkboxes"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/floating-action-button/floating-action-button.md",
+      "status": "included",
+      "target": "floating-action-button"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/number-field/number-field.md",
       "status": "excluded",
-      "reason": "Portal page is originally authored for Tecton usage."
+      "reason": "Copy-paste recipes composing Base UI (`@base-ui/react`) with Material components. @tecton-mui/ui ships them as the `NumberField` and `NumberSpinner` components, documented on the portal's own page (/components/number-field)."
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/radio-buttons/radio-buttons.md",
+      "status": "included",
+      "target": "radio-buttons"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/rating/rating.md",
+      "status": "included",
+      "target": "rating"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/selects/selects.md",
+      "status": "included",
+      "target": "selects"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/slider/slider.md",
+      "status": "included",
+      "target": "slider"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/switches/switches.md",
+      "status": "included",
+      "target": "switches"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/text-fields/text-fields.md",
+      "status": "included",
+      "target": "text-fields"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/transfer-list/transfer-list.md",
+      "status": "excluded",
+      "reason": "A composition pattern (List + Checkbox), not an exported component; the portal has no Transfer List page."
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/toggle-button/toggle-button.md",
+      "status": "included",
+      "target": "toggle-button"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/avatars/avatars.md",
+      "status": "included",
+      "target": "avatars"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/badges/badges.md",
+      "status": "included",
+      "target": "badges"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/chips/chips.md",
+      "status": "included",
+      "target": "chips"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/dividers/dividers.md",
+      "status": "included",
+      "target": "dividers"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/icons/icons.md",
+      "status": "included",
+      "target": "icons"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/material-icons/material-icons.md",
+      "status": "excluded",
+      "reason": "Icon search for @mui/icons-material, which is not part of @tecton-mui/ui (the Tecton icon set is documented on the Icon page)."
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/lists/lists.md",
+      "status": "included",
+      "target": "lists"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/table/table.md",
+      "status": "included",
+      "target": "table"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/tooltips/tooltips.md",
+      "status": "included",
+      "target": "tooltips"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/typography/typography.md",
+      "status": "included",
+      "target": "typography"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/alert/alert.md",
+      "status": "included",
+      "target": "alert"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/backdrop/backdrop.md",
+      "status": "included",
+      "target": "backdrop"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/dialogs/dialogs.md",
+      "status": "included",
+      "target": "dialogs"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/progress/progress.md",
+      "status": "included",
+      "target": "progress"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/skeleton/skeleton.md",
+      "status": "included",
+      "target": "skeleton"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/snackbars/snackbars.md",
+      "status": "included",
+      "target": "snackbars"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/accordion/accordion.md",
+      "status": "included",
+      "target": "accordion"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/app-bar/app-bar.md",
+      "status": "included",
+      "target": "app-bar"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/cards/cards.md",
+      "status": "included",
+      "target": "cards"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/paper/paper.md",
+      "status": "included",
+      "target": "paper"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/bottom-navigation/bottom-navigation.md",
+      "status": "included",
+      "target": "bottom-navigation"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/breadcrumbs/breadcrumbs.md",
+      "status": "included",
+      "target": "breadcrumbs"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/drawers/drawers.md",
+      "status": "included",
+      "target": "drawers"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/links/links.md",
+      "status": "included",
+      "target": "links"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/menus/menus.md",
+      "status": "included",
+      "target": "menus"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/menubar/menubar.md",
+      "status": "excluded",
+      "reason": "Not a Material UI component: the page composes Base UI (`@base-ui/react`), which is not part of @tecton-mui/ui, and the portal has no Menubar page."
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/pagination/pagination.md",
+      "status": "included",
+      "target": "pagination"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/speed-dial/speed-dial.md",
+      "status": "included",
+      "target": "speed-dial"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/steppers/steppers.md",
+      "status": "included",
+      "target": "steppers"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/tabs/tabs.md",
+      "status": "included",
+      "target": "tabs"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/box/box.md",
+      "status": "included",
+      "target": "box",
+      "excludedDemos": {
+        "BoxSx": "does not type-check: the @tecton-mui/ui ThemeProvider `theme` prop rejects the partial theme object that MUI's ThemeProvider accepts (library typing gap)"
+      }
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/container/container.md",
+      "status": "included",
+      "target": "container"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/grid/grid.md",
+      "status": "modified",
+      "target": "grid",
+      "edits": [
+        {
+          "find": "check out [the MUI\u00a0X `DataGrid` component](/x/react-data-grid/)",
+          "replace": "check out [the `DataGrid` component](/x/react-data-grid/)",
+          "reason": "The portal DataGrid is this library's unified grid, not the MUI X package."
+        }
+      ]
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/stack/stack.md",
+      "status": "included",
+      "target": "stack"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/image-list/image-list.md",
+      "status": "included",
+      "target": "image-list"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/click-away-listener/click-away-listener.md",
+      "status": "included",
+      "target": "click-away-listener"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/css-baseline/css-baseline.md",
+      "status": "included",
+      "target": "css-baseline"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/init-color-scheme-script/init-color-scheme-script.md",
+      "status": "excluded",
+      "reason": "Conflicts with Tecton mode management: light/dark mode is owned by the Tecton theme manager (use TectonModeScript; see the SSR guide)."
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/modal/modal.md",
+      "status": "included",
+      "target": "modal"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/no-ssr/no-ssr.md",
+      "status": "included",
+      "target": "no-ssr"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/popover/popover.md",
+      "status": "included",
+      "target": "popover"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/popper/popper.md",
+      "status": "included",
+      "target": "popper"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/portal/portal.md",
+      "status": "included",
+      "target": "portal"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/textarea-autosize/textarea-autosize.md",
+      "status": "included",
+      "target": "textarea-autosize"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/transitions/transitions.md",
+      "status": "included",
+      "target": "transitions"
+    },
+    {
+      "package": "@mui/material",
+      "source": "docs/data/material/components/use-media-query/use-media-query.md",
+      "status": "excluded",
+      "reason": "Hook page; the portal has no component page for useMediaQuery (it is exported unchanged from @mui/material)."
+    },
+    {
+      "package": "@mui/lab",
+      "source": "docs/data/material/components/about-the-lab/about-the-lab.md",
+      "status": "excluded",
+      "reason": "MUI process page (Lab installation and graduation policy) with no component content."
+    },
+    {
+      "package": "@mui/lab",
+      "source": "docs/data/material/components/masonry/masonry.md",
+      "status": "included",
+      "target": "masonry"
+    },
+    {
+      "package": "@mui/lab",
+      "source": "docs/data/material/components/timeline/timeline.md",
+      "status": "included",
+      "target": "timeline"
     },
     {
       "package": "@mui/x-data-grid",

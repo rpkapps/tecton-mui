@@ -1,0 +1,101 @@
+## Purpose
+
+`NumberField` and `NumberSpinner` collect a number. Unlike a `TextField` with `type="number"`, they
+keep a real numeric value (`number | null`), format it for the user's locale, step it with buttons and
+the keyboard, and clamp it to `min` and `max`. Use them for counts, measurements, rates and amounts.
+For a value where the position on a scale matters more than the exact number, use a
+[Slider](/components/slider).
+
+Both components ship in `@tecton-mui/ui`. They build on the number field of Base UI
+(`@base-ui/react`, MIT) for value handling and on Material form components for the visuals, so the
+Tecton theme styles them like the other fields. You do not need to copy any recipe code.
+
+## Number field
+
+`NumberField` is an outlined field with stacked increase and decrease buttons at its end. It accepts
+the familiar field props: `label`, `helperText`, `error`, `required`, `size`, `fullWidth`,
+`placeholder`, `sx` and `inputRef`.
+
+<Demo name="BasicNumberField" />
+
+## Number spinner
+
+`NumberSpinner` places decrease and increase buttons on both sides of the value. It suits small whole
+numbers that people usually change by one, such as quantities. Its label is also a scrub area: drag it
+sideways to change the value. Set `disableScrub` to turn that off.
+
+<Demo name="SpinnerNumberField" />
+
+## Sizes
+
+Both components come in `medium` (default) and `small`, matching the heights of the other Tecton
+fields.
+
+<Demo name="NumberFieldSizes" />
+
+## Minimum, maximum and step
+
+`min` and `max` bound the value: stepping stops at the limits, the matching button is disabled, and
+typed values are clamped when the field loses focus (set `allowOutOfRange` to keep typed values and
+rely on form validation instead). `step` is the amount for one button press or arrow key.
+Holding <kbd>Alt</kbd> uses `smallStep` and holding <kbd>Shift</kbd> uses `largeStep`. Set `snapOnStep`
+to round stepped values to a multiple of the step.
+
+<Demo name="MinMaxStep" />
+
+## Currency, percent and units
+
+`format` takes
+[`Intl.NumberFormatOptions`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat/NumberFormat#options).
+The field shows the formatted text while the value stays a plain number: `0.18` with
+`{ style: 'percent' }` shows as "18%". Typed input is parsed with the same options when the field
+loses focus. `locale` sets the formatting locale; without it the runtime locale is used. If the server
+and the browser can use different locales, pass `locale` so that server-rendered text matches.
+
+<Demo name="FormattedNumberFields" />
+
+## Disabled, read-only and error
+
+`disabled` blocks all interaction. `readOnly` keeps the field focusable and its text selectable but
+ignores changes. `error` marks the field invalid; describe the problem in `helperText`.
+
+<Demo name="NumberFieldStates" />
+
+## Controlled value
+
+Pass `value` and `onValueChange` to control the field. The value is `null` when the field is empty.
+`onValueChange` fires on every change, including each keystroke that parses to a number;
+`onValueCommitted` fires once the change is complete (on blur after typing, when a button is released,
+or per key press), which is a good moment to save or validate.
+
+<Demo name="ControlledNumberField" />
+
+## Customization
+
+- `slotProps.input` goes to the `OutlinedInput` (for example `startAdornment`), `slotProps.htmlInput`
+  to the native `<input>`, and `slotProps.inputLabel` and `slotProps.formHelperText` to the label and
+  helper text.
+- `slotProps.incrementButton` and `slotProps.decrementButton` reach the stepper buttons. Use them to
+  translate the accessible names, which default to "Increase" and "Decrease".
+- `NumberField` also has `slotProps.stepper` for the adornment that holds the buttons.
+- Style the parts with `sx`, `className` or the `TectonNumberField-*` and `TectonNumberSpinner-*`
+  classes (`numberFieldClasses`, `numberSpinnerClasses`).
+- `name` and `form` submit the value through a hidden native number input, so the fields work in plain
+  HTML forms.
+
+## Accessibility
+
+- Always give the field a `label`. It is associated with the input, and `helperText` is linked
+  through `aria-describedby`.
+- Keyboard: <kbd>Arrow Up</kbd>/<kbd>Arrow Down</kbd> step the value, <kbd>Home</kbd>/<kbd>End</kbd>
+  jump to `min`/`max` when set, and the modifier keys select the small and large steps.
+- The stepper buttons are skipped in the tab order because the keyboard covers the same actions;
+  pointer and screen-reader users can still activate them.
+- The input uses a numeric `inputmode`, so touch devices show a number keyboard.
+
+## Limitations
+
+- The components are not part of Material UI 9.5.0. Their props follow Base UI's number field plus the
+  Material field props listed above; `variant` and `multiline` are not supported.
+- While scrubbing, the custom cursor uses the Pointer Lock API, which browsers may announce with a
+  notification. Safari shows the regular cursor instead.

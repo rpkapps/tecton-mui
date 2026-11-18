@@ -1,15 +1,75 @@
 ## Purpose
 
-Clock components render time selection inline. `TimeClock` is an analog clock face, `DigitalClock` a
-single scrollable list of times, and `MultiSectionDigitalClock` separate lists for hours, minutes and
-the meridiem.
+Clock components render time selection inline, without a field or popup. `TimeClock` is an analog
+clock face, `DigitalClock` a single scrollable list of times, and `MultiSectionDigitalClock` one list
+per section (hours, minutes, seconds, meridiem). They are the views the time pickers open, so
+everything here also applies to `TimePicker` and `DateTimePicker`.
 
-## Basic usage
+Clocks need a [`LocalizationProvider`](/guides/localization) above them, like every picker.
 
-<Demo name="Clocks" />
+## Analog clock
+
+Select the hour, then the minute: the clock moves to the next view after each choice. `ampmInClock`
+places the AM/PM toggle inside the face instead of in a toolbar.
+
+<Demo name="AnalogClock" />
+
+## Views
+
+`views` lists the sections the clock cycles through. Control the visible one with `view` and
+`onViewChange`, for example from your own tabs or toggle buttons. `ampm={false}` uses a 24-hour face.
+
+<Demo name="ClockViews" />
+
+## Digital clock
+
+`DigitalClock` lists times at a fixed interval (`timeStep`, in minutes). It stretches to the width of
+its container, so place it in a sized element such as a `Paper` or a side panel. The selected option is
+scrolled into view when the clock mounts.
+
+<Demo name="DigitalClockList" />
+
+## Multi-section digital clock
+
+`MultiSectionDigitalClock` shows one column per section. `timeSteps` sets the interval of each
+section, for example `{ minutes: 5 }`. Add `'seconds'` to `views` for precise timestamps.
+
+<Demo name="MultiSectionClock" />
+
+## Validation and limits
+
+`minTime`, `maxTime` and `shouldDisableTime` restrict the options. `shouldDisableTime` receives the
+candidate time and the view, so you can disable a whole hour or single minutes. With `skipDisabled`,
+the digital clocks hide disabled options instead of greying them out.
+
+<Demo name="ClockValidation" />
+
+## Read-only and disabled
+
+`readOnly` keeps the value visible and focusable but ignores changes; `disabled` also removes the clock
+from the tab order.
+
+<Demo name="ClockStates" />
+
+## Localization
+
+The adapter locale sets the time format: the 12/24-hour default, the meridiem labels and digits.
+Override the 12/24-hour choice with `ampm`.
+
+<Demo name="LocalizedClock" />
 
 ## Accessibility
 
-- The digital clocks are listboxes: arrow keys move between options and <kbd>Enter</kbd> selects.
-- The analog clock is operable with arrow keys and announces the selected hour and minute; for
-  keyboard-heavy users the digital variants are usually faster.
+- The digital clocks are listboxes: <kbd>Up</kbd>/<kbd>Down</kbd> move between options,
+  <kbd>Home</kbd>/<kbd>End</kbd> jump to the first and last option and <kbd>Enter</kbd> selects. In
+  the multi-section clock, <kbd>Tab</kbd> moves between sections.
+- The analog clock is operable with the arrow keys and announces the selected hour and minute. For
+  keyboard-heavy workflows the digital variants are usually faster.
+- Inline clocks have no field label: name them with `aria-label` or `aria-labelledby`, as in the
+  demos above.
+
+## Limitations
+
+- `DigitalClock` and `MultiSectionDigitalClock` take the full width of their container (upstream
+  behaviour). Give them a sized parent rather than placing them directly in a flex row.
+- Time ranges are provided by the separate [range pickers](/components/date-range-pickers).

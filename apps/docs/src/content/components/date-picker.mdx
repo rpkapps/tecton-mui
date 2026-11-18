@@ -12,12 +12,55 @@ native `Date` objects (or `null`).
 
 <Demo name="BasicDatePicker" />
 
+## Controlled value
+
+Pass `value` and `onChange` to own the state. `onChange` receives `null` when the field is cleared and
+an invalid `Date` while a typed value is incomplete, so check `isNaN(value.getTime())` before saving.
+
+<Demo name="ControlledDatePicker" />
+
 ## Validation
 
 `minDate`, `maxDate`, `disablePast`, `disableFuture` and `shouldDisableDate` restrict the selectable
 dates. `onError` reports why the current value is invalid so you can show a message.
 
 <Demo name="ValidatedDatePicker" />
+
+## Views: month and year pickers
+
+`views` selects which calendar views exist and `openTo` the first one. With `['year', 'month']` the
+picker returns the first day of the chosen month, which suits reporting periods.
+
+<Demo name="ReportingMonthPicker" />
+
+## States
+
+Field props go through `slotProps.textField` (helper text, error, required). `readOnly` keeps the
+value selectable for copying but prevents changes; `disabled` blocks all interaction.
+`slotProps.field.clearable` adds a clear button.
+
+<Demo name="DatePickerStates" />
+
+## Static calendar
+
+`StaticDatePicker` renders the picker inline with its toolbar and action bar. `displayWeekNumber` adds
+ISO week numbers, and `slotProps.actionBar.actions` chooses the buttons.
+
+<Demo name="StaticCalendarPicker" />
+
+## Customizing days
+
+Replace the `day` slot to decorate dates, for example to mark days that have data. Build the slot on
+`PickerDay` and define it at module level so its identity stays stable between renders.
+
+<Demo name="ReportDaysPicker" />
+
+## Keyboard entry and formats
+
+`format` sets the typing format with `date-fns` tokens; `formatDensity="spacious"` adds space around
+separators. `openTo` and `reduceAnimations` tune the popup for keyboard users.
+
+<Demo name="KeyboardEntryPicker" />
 
 ## Locale
 
@@ -35,6 +78,7 @@ the week.
   arrow keys move between days (or time options), <kbd>Page Up</kbd>/<kbd>Page Down</kbd> change the
   month, <kbd>Enter</kbd> selects and <kbd>Escape</kbd> closes and returns focus to the field.
 - Always give the picker a `label`; describe constraints (minimum date, format) in helper text.
+- Decorations added through slots (such as the report dots above) need a text alternative.
 - On touch devices without a fine pointer the responsive variant opens a full-screen dialog.
 
 ## Limitations

@@ -8,8 +8,9 @@ type MdxModule = { default: ComponentType<MDXProps> };
 
 const componentContent = import.meta.glob<MdxModule>('../content/components/*.mdx');
 const demoModules = import.meta.glob<{ default: ComponentType }>('../demos/*/*.tsx');
-const demoSources = import.meta.glob<string>('../demos/*/*.tsx', {
-  query: '?raw',
+// Demo source, highlighted at build time (scripts/highlight-plugin.ts).
+const demoSources = import.meta.glob<{ code: string; html: string }>('../demos/*/*.tsx', {
+  query: '?highlight',
   import: 'default',
 });
 const apiData = import.meta.glob<ApiDoc>('../generated/api/*.json', { import: 'default' });
@@ -22,6 +23,8 @@ export interface ApiProp {
   defaultValue: string | null;
   description: string;
   deprecated: string | boolean | null;
+  /** Interface that declares the prop (e.g. `ButtonBaseOwnProps`), when known. */
+  declaredBy?: string | null;
 }
 
 export interface ApiDoc {
@@ -49,9 +52,9 @@ export async function loadDemos(folder: string): Promise<Record<string, LoadedDe
   const keys = Object.keys(demoModules).filter((k) => k.startsWith(prefix));
   const entries = await Promise.all(
     keys.map(async (key) => {
-      const [mod, code] = await Promise.all([demoModules[key](), demoSources[key]()]);
+      const [mod, source] = await Promise.all([demoModules[key](), demoSources[key]()]);
       const name = key.slice(prefix.length).replace(/\.tsx$/, '');
-      return [name, { Component: mod.default, code }] as const;
+      return [name, { Component: mod.default, code: source.code, html: source.html }] as const;
     }),
   );
   return Object.fromEntries(entries);

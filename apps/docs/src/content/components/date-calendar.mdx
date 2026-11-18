@@ -6,16 +6,57 @@ calendar is the main content.
 
 ## Basic usage
 
-<Demo name="Calendars" />
+<Demo name="BasicDateCalendar" />
+
+## Validation and limits
+
+`minDate` and `maxDate` bound the navigation; `shouldDisableDate` disables single days. Disabled days
+stay visible and are announced as unavailable. `shouldDisableMonth` and `shouldDisableYear` work the
+same way on the other views.
+
+<Demo name="CalendarValidation" />
+
+## Month and year calendars
+
+`MonthCalendar` and `YearCalendar` are standalone grids of months and years. Both edit a full `Date`,
+so they can share one value.
+
+<Demo name="MonthAndYearCalendars" />
+
+## Views
+
+`views` and `openTo` turn `DateCalendar` into a year → month → day flow, useful for dates far from
+today such as commissioning or birth dates.
+
+<Demo name="CalendarViews" />
+
+## Loading data
+
+Set `loading` while the data behind a month (bookings, reports, shifts) is fetched. `renderLoading`
+replaces the day grid; `DayCalendarSkeleton` keeps the layout stable.
+
+<Demo name="LoadingCalendar" />
+
+## Localization and week numbers
+
+The adapter locale sets month and weekday names and the first day of the week. `displayWeekNumber`
+adds a column of week numbers; `fixedWeekNumber` keeps the height constant between months.
+
+<Demo name="LocalizedCalendar" />
+
+## Read-only and disabled
+
+<Demo name="CalendarStates" />
 
 ## Accessibility
 
 - `DateCalendar` is a grid: arrow keys move by day and week, <kbd>Page Up</kbd>/<kbd>Page Down</kbd>
   by month, <kbd>Home</kbd>/<kbd>End</kbd> to the start/end of the week.
 - Today's date is marked visually and announced. Disabled dates are announced as unavailable.
-- Label the surrounding region (for example with a heading) because inline calendars have no field
-  label.
+- Inline calendars have no field label: name them with `aria-label` or `aria-labelledby`, or place them
+  in a labelled region.
 
 ## Limitations
 
-- `DayCalendarSkeleton` is available as a loading placeholder while data for a month is fetched.
+- Range selection on an inline calendar is provided by `DateRangeCalendar` on the
+  [range pickers](/components/date-range-pickers) page.

@@ -9,12 +9,51 @@ such as navigation or settings. For large or data-driven trees, use the
 
 <Demo name="FileTree" />
 
-## Selection
+## Multi-selection
 
-`multiSelect` and `checkboxSelection` enable multiple selection with checkboxes. Control the state with
-`selectedItems` and `onSelectedItemsChange`; expansion works the same way with `expandedItems`.
+`multiSelect` lets users select several items with <kbd>Ctrl</kbd>/<kbd>Cmd</kbd>+click,
+
+<kbd>Shift</kbd>+click and <kbd>Shift</kbd>+arrow keys. `defaultSelectedItems` sets the initial
+selection.
+
+<Demo name="MultiSelectTree" />
+
+## Checkbox selection
+
+`checkboxSelection` adds a checkbox to every item. Control the state with `selectedItems` and
+`onSelectedItemsChange`.
 
 <Demo name="ControlledSelection" />
+
+## Controlled expansion
+
+`expandedItems` and `onExpandedItemsChange` let you expand or collapse items from outside the tree, for
+example with "Expand all" buttons or to reveal a search result.
+
+<Demo name="ExpansionControl" />
+
+## Disabled items
+
+A `disabled` item and its children cannot be selected or expanded. By default disabled items are
+skipped by keyboard navigation; `disabledItemsFocusable` keeps them reachable so their label can be
+read. Explain why an item is disabled in its label or nearby text.
+
+<Demo name="DisabledItems" />
+
+## Custom icons
+
+The `expandIcon`, `collapseIcon` and `endIcon` slots replace the default chevrons. Use Tecton
+[icons](/components/icon) to show what an item is.
+
+<Demo name="CustomIcons" />
+
+## Events and expansion trigger
+
+`onItemClick`, `onItemFocus` and `onItemExpansionToggle` report interaction. With
+`expansionTrigger="iconContainer"` only the icon expands an item, so clicking the label selects it
+without toggling.
+
+<Demo name="ItemEvents" />
 
 ## Accessibility
 

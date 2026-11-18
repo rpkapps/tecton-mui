@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { createLink } from '@tanstack/react-router';
+import { createLink, useRouterState } from '@tanstack/react-router';
 import MuiLink, { type LinkProps as MuiLinkProps } from '@tecton-mui/ui/Link';
 import ListItemButton, { type ListItemButtonProps } from '@tecton-mui/ui/ListItemButton';
 import Button, { type ButtonProps } from '@tecton-mui/ui/Button';
@@ -28,3 +28,14 @@ const ButtonLinkBase = React.forwardRef<HTMLAnchorElement, ButtonProps<'a'>>(
 
 /** Router-aware `Button` rendered as an anchor. */
 export const ButtonLink = createLink(ButtonLinkBase);
+
+const BASEPATH = import.meta.env.BASE_URL.replace(/\/$/, '') || '/';
+
+/** Current router path without the base path and trailing slash (e.g. `/components/button`). */
+export function usePathname(): string {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const withoutBase =
+    BASEPATH !== '/' && pathname.startsWith(BASEPATH) ? pathname.slice(BASEPATH.length) : pathname;
+  const path = withoutBase.replace(/\/+$/, '');
+  return path === '' ? '/' : path;
+}

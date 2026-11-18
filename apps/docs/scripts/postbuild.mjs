@@ -6,15 +6,19 @@
 //   4. indexes the prerendered pages with Pagefind (`dist/pagefind/`)
 //   5. checks internal links (scripts/check-links.mjs)
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { build } from 'vite';
 import * as pagefind from 'pagefind';
 import { checkLinks } from './check-links.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const dist = join(root, 'dist');
-const serverOut = join(root, 'dist-server');
+// `DOCS_OUT_DIR` (default `dist`) lets parallel builds write to separate folders. The prerender
+// bundle stays inside the app so Node resolves React from this app's dependencies.
+const dist = resolve(root, process.env.DOCS_OUT_DIR || 'dist');
+const serverOut = process.env.DOCS_OUT_DIR
+  ? join(root, 'node_modules/.cache/docs-prerender', basename(dist))
+  : join(root, 'dist-server');
 const started = Date.now();
 
 // 1. Prerender bundle (same vite.config.ts; SSR-specific options live in its `ssr` block).

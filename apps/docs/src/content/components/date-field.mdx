@@ -1,16 +1,53 @@
 ## Purpose
 
-Fields are the text inputs used inside the pickers, without the popup. They are ideal when users know
-the value and type it, such as dates of birth or timestamps copied from another system.
+Fields are the text inputs used inside the pickers, without the popup: `DateField`, `TimeField` and
+`DateTimeField`. They are ideal when users know the value and type it, such as dates copied from
+another system or timestamps in a data-entry form.
 
 ## Basic usage
 
-`format` sets the display and typing format using `date-fns` tokens.
+<Demo name="BasicFields" />
 
-<Demo name="Fields" />
+## Controlled value
+
+`onChange` fires on every section edit. While the value is incomplete it is an invalid `Date`; check
+it before you convert or send it, as in this demo.
+
+<Demo name="ControlledFields" />
+
+## Formats
+
+`format` sets the display and typing format using `date-fns` tokens. Letters (month and weekday
+names) can be typed as well: the field matches them against the locale.
+`formatDensity="spacious"` adds space around separators.
+
+<Demo name="FieldFormats" />
+
+## Validation
+
+Fields accept the validation props of their picker (`minDate`, `maxDate`, `shouldDisableDate`,
+`minTime`…). `onError` reports the failing rule so the helper text can explain it.
+
+<Demo name="FieldValidation" />
+
+## States
+
+Fields accept the `TextField` props such as `fullWidth`, `required` and `helperText`, plus `clearable`,
+`readOnly` and `disabled`.
+
+<Demo name="FieldStates" />
+
+## Localization
+
+The adapter locale sets the section order, separators, digits and meridiem labels. Right-to-left
+locales keep the sections in reading order.
+
+<Demo name="LocalizedFields" />
 
 ## Accessibility
 
 - Each section of the value is announced separately as you move with <kbd>Left</kbd>/<kbd>Right</kbd>;
-  <kbd>Up</kbd>/<kbd>Down</kbd> increment, digits type, <kbd>Backspace</kbd> clears a section.
+  <kbd>Up</kbd>/<kbd>Down</kbd> increment, digits type, <kbd>Backspace</kbd> clears a section and
+  <kbd>Ctrl</kbd>+<kbd>A</kbd> then <kbd>Backspace</kbd> clears the field.
 - Empty sections show placeholders such as `MM/DD/YYYY` that reflect the locale format.
+- Pasting a complete value in the field's format fills every section at once.

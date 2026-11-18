@@ -1,26 +1,59 @@
 ## Purpose
 
-`TimePicker` enters a time of day. On desktop it opens a digital list of hours and minutes; on touch
-devices an analog clock in a dialog. The date part of the value is preserved.
+`TimePicker` enters a time of day. On desktop it opens digital lists of hours and minutes; on touch
+devices an analog clock in a dialog. The date part of the value is preserved, so a time picker can edit
+the time of an existing timestamp.
 
 ## Basic usage
 
-`ampm` switches between 12- and 24-hour display (the default follows the locale). `minutesStep`
-limits the available minutes. `views` selects which sections appear (for example add `'seconds'`).
+`ampm` switches between 12- and 24-hour display (the default follows the locale). The second picker
+shares the first one's value as its default and uses 15-minute steps.
 
 <Demo name="BasicTimePicker" />
 
+## Views and steps
+
+`views` selects the sections that can be edited (for example only `'hours'`, or add `'seconds'`).
+`timeSteps` sets the interval of each section in the popup lists; typed values are not rounded.
+
+<Demo name="TimePickerSteps" />
+
+## Validation
+
+`minTime`, `maxTime` and `shouldDisableTime` restrict the options. `onError` reports which rule the
+current value breaks, so the helper text can explain it. Here the initial value is too early.
+
+<Demo name="TimePickerValidation" />
+
+## States
+
+<Demo name="TimePickerStates" />
+
+## Static picker
+
+`StaticTimePicker` renders the clock inline with its toolbar and action bar, for dialogs or panels that
+are dedicated to choosing a time.
+
+<Demo name="StaticClockPicker" />
+
+## Localization
+
+The adapter locale decides the default 12/24-hour display and the meridiem labels.
+
+<Demo name="LocalizedTimePicker" />
+
 ## Accessibility
 
-- The field is keyboard-first: each part of the date (month, day, year, hours…) is a section. Arrow
+- The field is keyboard-first: each part of the time (hours, minutes, meridiem) is a section. Arrow
   keys <kbd>Left</kbd>/<kbd>Right</kbd> move between sections, <kbd>Up</kbd>/<kbd>Down</kbd> change the
   value, digits type it directly.
-- The open-picker button has an accessible label that includes the current value. In the popup,
-  arrow keys move between days (or time options), <kbd>Page Up</kbd>/<kbd>Page Down</kbd> change the
-  month, <kbd>Enter</kbd> selects and <kbd>Escape</kbd> closes and returns focus to the field.
-- Always give the picker a `label`; describe constraints (minimum date, format) in helper text.
+- The open-picker button has an accessible label that includes the current value. In the popup, the
+  lists are listboxes: arrow keys move, <kbd>Enter</kbd> selects and <kbd>Escape</kbd> closes and returns
+  focus to the field.
+- Always give the picker a `label`; describe constraints (allowed window, steps) in helper text.
 - On touch devices without a fine pointer the responsive variant opens a full-screen dialog.
 
 ## Limitations
 
 - Time ranges are provided by the separate [range pickers](/components/date-range-pickers).
+- For inline time selection without a field, see the [clocks](/components/time-clock).

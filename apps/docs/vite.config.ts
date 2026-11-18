@@ -6,6 +6,7 @@ import react from '@vitejs/plugin-react';
 import mdx from '@mdx-js/rollup';
 import remarkGfm from 'remark-gfm';
 import { tanstackRouter } from '@tanstack/router-plugin/vite';
+import { docsHighlight, rehypeHighlightCode } from './scripts/highlight-plugin.ts';
 
 /**
  * Public base path. GitHub Pages project sites are served from `/<repository>/`, so CI sets
@@ -17,6 +18,8 @@ function normalizeBase(raw: string | undefined): string {
 }
 
 const base = normalizeBase(process.env.DOCS_BASE);
+/** Output directory (default `dist`); `DOCS_OUT_DIR` lets parallel builds use separate folders. */
+const outDir = process.env.DOCS_OUT_DIR || 'dist';
 // Demos import date-fns locales exactly like consumer code does. date-fns is a dependency of
 // @tecton-mui/ui (not of this app), so resolve it from the UI package to share one instance.
 const dateFnsDir = dirname(
@@ -39,9 +42,15 @@ export default defineConfig(({ isSsrBuild }) => ({
       quoteStyle: 'single',
       semicolons: true,
     }),
+    // Build-time Shiki highlighting: `?highlight` source imports and MDX code fences.
+    docsHighlight(),
     {
       enforce: 'pre',
-      ...mdx({ remarkPlugins: [remarkGfm], providerImportSource: '@mdx-js/react' }),
+      ...mdx({
+        remarkPlugins: [remarkGfm],
+        rehypePlugins: [rehypeHighlightCode],
+        providerImportSource: '@mdx-js/react',
+      }),
     },
     react({ include: /\.(mdx|md|js|jsx|ts|tsx)$/ }),
   ],
@@ -60,6 +69,13 @@ export default defineConfig(({ isSsrBuild }) => ({
         find: /^@tecton-mui\/ui\/styles\/global\.css$/,
         replacement: fileURLToPath(new URL('./src/styles/tecton-global.css', import.meta.url)),
       },
+      // Synced MUI examples (src/mui-docs): `@mui/icons-material/<Name>` -> docs-only Tecton icon shim.
+      {
+        find: /^@mui\/icons-material\/(\w+)$/,
+        replacement: fileURLToPath(
+          new URL('./src/mui-docs/generated/icons/$1.tsx', import.meta.url),
+        ),
+      },
     ],
   },
   ssr: {
@@ -73,5 +89,5 @@ export default defineConfig(({ isSsrBuild }) => ({
   },
   build: isSsrBuild
     ? { outDir: 'dist-server', emptyOutDir: true, copyPublicDir: false, minify: false }
-    : { outDir: 'dist', emptyOutDir: true, chunkSizeWarningLimit: 1500 },
+    : { outDir, emptyOutDir: true, chunkSizeWarningLimit: 1500 },
 }));

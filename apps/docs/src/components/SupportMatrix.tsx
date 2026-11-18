@@ -1,8 +1,8 @@
 import type { ComponentType } from 'react';
 import type { MDXComponents, MDXProps } from 'mdx/types';
 import Box from '@tecton-mui/ui/Box';
-import Typography from '@tecton-mui/ui/Typography';
 import { toAnchor } from '../lib/slug';
+import { SectionHeading } from './mdx';
 
 function textOf(node: unknown): string {
   if (typeof node === 'string' || typeof node === 'number') return String(node);
@@ -28,19 +28,14 @@ export function SupportMatrix({
   const components: MDXComponents = {
     h1: () => null,
     h2: ({ children }) => (
-      <Typography
-        variant="h6"
-        component="h3"
-        id={`${idPrefix}-${toAnchor(textOf(children))}`}
-        sx={{ mt: 4, mb: 1.5, scrollMarginTop: 80 }}
-      >
+      <SectionHeading level={3} id={`${idPrefix}-${toAnchor(textOf(children))}`}>
         {children}
-      </Typography>
+      </SectionHeading>
     ),
     h3: ({ children }) => (
-      <Typography variant="subtitle1" component="h4" sx={{ mt: 3, mb: 1 }}>
+      <SectionHeading level={4} id={`${idPrefix}-${toAnchor(textOf(children))}`}>
         {children}
-      </Typography>
+      </SectionHeading>
     ),
   };
   return (

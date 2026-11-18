@@ -11,3 +11,5 @@ apps/docs/src/routeTree.gen.ts
 packages/ui/src/index.ts
 packages/ui/package.json
 tests/e2e/harness/dist-gallery
+apps/docs/src/mui-docs/generated
+tooling/docs-sync/sync-lock.json

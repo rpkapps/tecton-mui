@@ -1,0 +1,89 @@
+{
+  "$comment": "Explicit mapping of synced upstream Material UI pages (docs/data/material/components/<page>/<page>.md) to portal component slugs (/components/<slug>). Each entry renders the page on that slug, optionally only the listed h2 sections (anchors as on mui.com). A slug that lists several pages renders them in this file's order; later pages get their own h2. Pages that are not listed here are not rendered; see the manifest for why.",
+  "pages": {
+    "autocomplete": [{ "slug": "autocomplete" }],
+    "buttons": [
+      { "slug": "button" },
+      { "slug": "icon-button", "sections": ["icon-button"] },
+      { "slug": "button-base", "sections": ["complex-button", "third-party-routing-library"] }
+    ],
+    "button-group": [{ "slug": "button" }],
+    "checkboxes": [{ "slug": "checkbox" }],
+    "floating-action-button": [{ "slug": "fab" }],
+    "radio-buttons": [{ "slug": "radio" }],
+    "rating": [{ "slug": "rating" }],
+    "selects": [{ "slug": "select" }, { "slug": "native-select", "sections": ["native-select"] }],
+    "slider": [{ "slug": "slider" }],
+    "switches": [{ "slug": "switch" }],
+    "text-fields": [{ "slug": "text-field" }, { "slug": "input", "sections": ["inputs"] }],
+    "toggle-button": [{ "slug": "toggle-button" }],
+    "avatars": [{ "slug": "avatar" }],
+    "badges": [{ "slug": "badge" }],
+    "chips": [{ "slug": "chip" }],
+    "dividers": [{ "slug": "divider" }],
+    "icons": [{ "slug": "svg-icon", "sections": ["svgicon", "accessibility"] }],
+    "lists": [{ "slug": "list" }],
+    "table": [{ "slug": "table" }],
+    "tooltips": [{ "slug": "tooltip" }],
+    "typography": [{ "slug": "typography" }],
+    "alert": [{ "slug": "alert" }],
+    "backdrop": [{ "slug": "backdrop" }],
+    "dialogs": [{ "slug": "dialog" }],
+    "progress": [{ "slug": "progress" }],
+    "skeleton": [{ "slug": "skeleton" }],
+    "snackbars": [{ "slug": "snackbar" }],
+    "accordion": [{ "slug": "accordion" }],
+    "app-bar": [{ "slug": "app-bar" }],
+    "cards": [{ "slug": "card" }],
+    "paper": [{ "slug": "paper" }],
+    "bottom-navigation": [{ "slug": "bottom-navigation" }],
+    "breadcrumbs": [{ "slug": "breadcrumbs" }],
+    "drawers": [{ "slug": "drawer" }],
+    "links": [{ "slug": "link" }],
+    "menus": [{ "slug": "menu" }],
+    "pagination": [{ "slug": "pagination" }],
+    "speed-dial": [{ "slug": "speed-dial" }],
+    "steppers": [
+      { "slug": "stepper" },
+      { "slug": "mobile-stepper", "sections": ["mobile-stepper"] }
+    ],
+    "tabs": [{ "slug": "tabs" }, { "slug": "tab-context", "sections": ["experimental-api"] }],
+    "box": [{ "slug": "box" }],
+    "container": [{ "slug": "container" }],
+    "grid": [{ "slug": "grid" }],
+    "stack": [{ "slug": "stack" }],
+    "image-list": [{ "slug": "image-list" }],
+    "click-away-listener": [{ "slug": "click-away-listener" }],
+    "css-baseline": [{ "slug": "css-baseline" }],
+    "modal": [{ "slug": "modal" }],
+    "no-ssr": [{ "slug": "no-ssr" }],
+    "popover": [{ "slug": "popover" }],
+    "popper": [{ "slug": "popper" }],
+    "portal": [{ "slug": "portal" }],
+    "textarea-autosize": [{ "slug": "textarea-autosize" }],
+    "transitions": [
+      {
+        "slug": "collapse",
+        "sections": [
+          "collapse",
+          "reduced-motion",
+          "child-requirement",
+          "transitiongroup",
+          "transition-slots",
+          "performance-seo"
+        ]
+      },
+      { "slug": "fade", "sections": ["fade"] },
+      { "slug": "grow", "sections": ["grow"] },
+      { "slug": "slide", "sections": ["slide"] },
+      { "slug": "zoom", "sections": ["zoom"] }
+    ],
+    "masonry": [{ "slug": "masonry" }],
+    "timeline": [{ "slug": "timeline" }]
+  },
+  "externalRoutes": {
+    "/x/react-data-grid/": "/components/data-grid",
+    "/x/react-date-pickers/": "/components/date-picker",
+    "/x/react-tree-view/": "/components/simple-tree-view"
+  }
+}

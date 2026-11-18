@@ -28,16 +28,13 @@ function ApiPage() {
         searchWeight={3}
       />
       {page && (
-        <Typography sx={{ mb: 2 }}>
-          Usage guidance:{' '}
+        <Typography sx={{ mb: 2, lineHeight: 1.7 }}>
+          Usage guidance and demos:{' '}
           <RouterLink to="/components/$slug" params={{ slug: page.slug }}>
             {page.title}
           </RouterLink>
         </Typography>
       )}
-      <Typography variant="h5" component="h2" sx={{ mt: 3 }}>
-        Import
-      </Typography>
       <ImportSnippet docs={[doc]} />
       <ApiReference doc={doc} level={2} />
     </article>

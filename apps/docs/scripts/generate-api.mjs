@@ -182,6 +182,7 @@ for (const name of modules) {
       defaultValue: prop.defaultValue?.value != null ? String(prop.defaultValue.value) : null,
       description: plain(prop.description),
       deprecated: tags.deprecated != null ? plain(String(tags.deprecated)) || true : null,
+      declaredBy: prop.parent?.name ?? null,
     });
   }
   own.sort((a, b) => Number(b.required) - Number(a.required) || a.name.localeCompare(b.name));

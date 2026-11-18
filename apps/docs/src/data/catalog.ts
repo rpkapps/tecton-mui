@@ -87,7 +87,7 @@ const group = (id: CategoryId, names: string) =>
 export const componentCategory: Record<string, CategoryId> = {
   ...group(
     'inputs',
-    'Autocomplete Button ButtonBase ButtonGroup Checkbox Fab FilledInput FormControl FormControlLabel FormGroup FormHelperText FormLabel IconButton Input InputAdornment InputBase InputLabel NativeSelect OutlinedInput Radio RadioGroup Rating Select Slider Switch TextField TextareaAutosize ToggleButton ToggleButtonGroup',
+    'Autocomplete Button ButtonBase ButtonGroup Checkbox Fab FilledInput FormControl FormControlLabel FormGroup FormHelperText FormLabel IconButton Input InputAdornment InputBase InputLabel NativeSelect NumberField NumberSpinner OutlinedInput Radio RadioGroup Rating Select Slider Switch TextField TextareaAutosize ToggleButton ToggleButtonGroup',
   ),
   ...group(
     'data-display',
@@ -159,6 +159,13 @@ export const authoredPages: AuthoredPage[] = [
     category: 'inputs',
     components: ['TextField'],
     summary: 'Single- and multi-line text entry with label, helper text and validation state.',
+  },
+  {
+    slug: 'number-field',
+    title: 'Number Field',
+    category: 'inputs',
+    components: ['NumberField', 'NumberSpinner'],
+    summary: 'Numeric entry with stepper buttons, keyboard stepping, limits and locale formatting.',
   },
   {
     slug: 'select',

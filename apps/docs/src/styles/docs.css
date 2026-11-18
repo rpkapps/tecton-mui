@@ -1,0 +1,241 @@
+/*
+ * Portal-only styles (never shipped by @tecton-mui/ui): code highlighting colors, thin themed
+ * scrollbars, code block and demo frame chrome. Every color is a Tecton token, so light/dark
+ * follow `data-theme` on <html> without re-rendering.
+ */
+
+:root {
+  /* Code highlighting palette (see src/lib/highlight/theme.ts for the scope mapping). */
+  --docs-code-bg: var(--tecton-color-bg-paper);
+  --docs-code-fg: var(--tecton-color-text-primary);
+  --docs-code-comment: var(--tecton-color-text-subtlest);
+  --docs-code-keyword: var(--tecton-color-accent-lilac-main);
+  --docs-code-punctuation: var(--tecton-color-text-secondary);
+  --docs-code-string: var(--tecton-color-accent-lime-text);
+  --docs-code-constant: var(--tecton-color-accent-saffron-text);
+  --docs-code-function: var(--tecton-color-accent-blue-text);
+  --docs-code-tag: var(--tecton-color-accent-pink-text);
+  --docs-code-component: var(--tecton-color-accent-azure-text);
+  --docs-code-attribute: var(--tecton-color-accent-saffron-text);
+  --docs-code-type: var(--tecton-color-accent-azure-text);
+
+  /* Scrollbars */
+  --docs-scrollbar-thumb: var(--tecton-color-divider);
+  --docs-scrollbar-thumb-hover: var(--tecton-color-divider-strong);
+  --docs-scrollbar-track: transparent;
+
+  /* Accent text (links, active navigation, eyebrows): readable in both modes. */
+  --docs-accent: var(--tecton-color-text-primary-default);
+
+  --docs-header-height: 64px;
+}
+
+/* ------------------------------------------------------------------------------------------ */
+/* Thin themed scrollbars everywhere in the portal                                            */
+
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--docs-scrollbar-thumb) var(--tecton-color-bg-default);
+  scroll-padding-top: calc(var(--docs-header-height) + 16px);
+}
+
+*,
+*::before,
+*::after {
+  scrollbar-width: thin;
+  scrollbar-color: var(--docs-scrollbar-thumb) var(--docs-scrollbar-track);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--docs-scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--docs-scrollbar-thumb);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--docs-scrollbar-thumb-hover);
+}
+
+::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Long URLs and identifiers in prose wrap instead of widening the page on small screens. */
+#main-content {
+  overflow-wrap: break-word;
+}
+
+/* ------------------------------------------------------------------------------------------ */
+/* Code blocks                                                                                 */
+
+.docs-code {
+  position: relative;
+  border: 1px solid var(--tecton-color-divider-subtle);
+  border-radius: var(--tecton-radius-150);
+  background: var(--docs-code-bg);
+  color: var(--docs-code-fg);
+  overflow: hidden;
+}
+
+.docs-code--bare {
+  border: 0;
+  border-radius: 0;
+}
+
+.docs-code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 36px;
+  padding-inline: 16px 4px;
+  border-bottom: 1px solid var(--tecton-color-divider-subtle);
+  color: var(--tecton-color-text-secondary);
+}
+
+.docs-code-label {
+  font-family: var(--tecton-font-family-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  color: var(--tecton-color-text-subtlest);
+}
+
+.docs-code-pre {
+  margin: 0;
+  padding: 14px 18px;
+  overflow-x: auto;
+  white-space: pre;
+  word-wrap: normal;
+  tab-size: 2;
+  font-family: var(--tecton-font-family-mono), monospace;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--docs-code-fg);
+  background: transparent;
+  outline: none;
+}
+
+.docs-code-pre:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--tecton-color-focus-ring);
+}
+
+.docs-code-pre code {
+  font: inherit;
+  display: block;
+  min-width: max-content;
+}
+
+.docs-code-pre .line {
+  display: inline;
+}
+
+.docs-code-expand {
+  display: flex;
+  justify-content: center;
+  padding: 4px;
+  border-top: 1px solid var(--tecton-color-divider-subtle);
+  position: relative;
+}
+
+.docs-code-expand.is-collapsed::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  bottom: 100%;
+  height: 48px;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent, var(--docs-code-bg));
+}
+
+/* ------------------------------------------------------------------------------------------ */
+/* Demo frame                                                                                  */
+
+.docs-demo {
+  border: 1px solid var(--tecton-color-divider-subtle);
+  border-radius: var(--tecton-radius-200);
+  background: var(--tecton-color-bg-default);
+  overflow: hidden;
+}
+
+.docs-demo-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 40px 24px;
+  min-height: 120px;
+  overflow-x: auto;
+  background: var(--tecton-color-bg-paper);
+  /* Faint dot grid makes the stage read as a canvas, like design tools. */
+  background-image: radial-gradient(var(--tecton-color-divider-subtle) 1px, transparent 1px);
+  background-size: 16px 16px;
+  background-position: -8px -8px;
+}
+
+@media (max-width: 599.95px) {
+  .docs-demo-preview {
+    padding: 24px 16px;
+  }
+}
+
+.docs-demo-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 40px;
+  padding-inline: 12px 6px;
+  border-top: 1px solid var(--tecton-color-divider-subtle);
+  background: var(--tecton-color-bg-default);
+  color: var(--tecton-color-text-secondary);
+}
+
+.docs-demo-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.docs-demo-code {
+  border-top: 1px solid var(--tecton-color-divider-subtle);
+}
+
+/* ------------------------------------------------------------------------------------------ */
+/* Pagefind excerpts in the search dialog                                                      */
+
+.docs-search-excerpt mark {
+  background: transparent;
+  color: var(--docs-accent);
+  font-weight: 600;
+}
+
+/* Heading anchor links: visible on hover/focus of the heading. */
+.docs-anchor {
+  opacity: 0;
+  transition: opacity 120ms;
+}
+
+.docs-heading:hover .docs-anchor,
+.docs-anchor:focus-visible {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}

@@ -1,9 +1,7 @@
 import * as React from 'react';
 import { useRouter } from '@tanstack/react-router';
 import Dialog from '@tecton-mui/ui/Dialog';
-import DialogContent from '@tecton-mui/ui/DialogContent';
-import TextField from '@tecton-mui/ui/TextField';
-import InputAdornment from '@tecton-mui/ui/InputAdornment';
+import InputBase from '@tecton-mui/ui/InputBase';
 import List from '@tecton-mui/ui/List';
 import ListItemButton from '@tecton-mui/ui/ListItemButton';
 import ListItemText from '@tecton-mui/ui/ListItemText';
@@ -28,6 +26,15 @@ interface PagefindApi {
 }
 
 const BASE = import.meta.env.BASE_URL;
+
+const visuallyHidden = {
+  position: 'absolute',
+  width: 1,
+  height: 1,
+  overflow: 'hidden',
+  clip: 'rect(0 0 0 0)',
+  whiteSpace: 'nowrap',
+} as const;
 let pagefindPromise: Promise<PagefindApi | null> | null = null;
 
 /** Lazily loads the Pagefind runtime generated next to the built site (`<base>pagefind/`). */
@@ -82,6 +89,13 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
     router.history.push(url.length > BASE.length ? url.replace(/\/$/, '') : url);
   };
 
+  const focusResult = (delta: number) => {
+    const items = [...(listRef.current?.querySelectorAll<HTMLElement>('a') ?? [])];
+    if (!items.length) return;
+    const index = items.indexOf(document.activeElement as HTMLElement);
+    items[Math.min(items.length - 1, Math.max(0, index + delta))]?.focus();
+  };
+
   return (
     <Dialog
       open={open}
@@ -89,16 +103,38 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
       fullWidth
       maxWidth="sm"
       aria-labelledby="docs-search-label"
-      slotProps={{ paper: { sx: { alignSelf: 'flex-start', mt: 10 } } }}
+      slotProps={{
+        paper: {
+          sx: {
+            alignSelf: 'flex-start',
+            mt: { xs: 2, sm: 10 },
+            mx: { xs: 2, sm: 4 },
+            width: { xs: 'calc(100% - 32px)', sm: undefined },
+            borderRadius: 3,
+            border: '1px solid var(--tecton-color-divider-subtle)',
+            overflow: 'hidden',
+          },
+        },
+      }}
     >
-      <DialogContent>
-        <Typography id="docs-search-label" variant="subtitle2" component="h2" gutterBottom>
-          Search the documentation
-        </Typography>
-        <TextField
+      <Typography id="docs-search-label" component="h2" sx={visuallyHidden}>
+        Search the documentation
+      </Typography>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1.5,
+          px: 2,
+          borderBottom: '1px solid var(--tecton-color-divider-subtle)',
+          color: 'text.secondary',
+        }}
+      >
+        <Icon name="search" size="medium" />
+        <InputBase
           autoFocus
           fullWidth
-          placeholder="Components, guides, props…"
+          placeholder="Search components, guides, props…"
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
@@ -107,58 +143,121 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
           onKeyDown={(e) => {
             if (e.key === 'ArrowDown') {
               e.preventDefault();
-              listRef.current?.querySelector<HTMLElement>('[role="option"], a, button')?.focus();
+              focusResult(0);
             }
           }}
-          slotProps={{
-            htmlInput: { 'aria-label': 'Search query', type: 'search' },
-            input: {
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Icon name="search" size="small" />
-                </InputAdornment>
-              ),
-            },
-          }}
+          inputProps={{ 'aria-label': 'Search query', type: 'search' }}
+          sx={{ height: 56, typography: 'body1', color: 'text.primary' }}
         />
-        <Box sx={{ minHeight: 4, mt: 1 }}>{status === 'loading' && <LinearProgress />}</Box>
+        <Box
+          component="kbd"
+          onClick={onClose}
+          sx={{
+            fontFamily: 'var(--tecton-font-family-mono), monospace',
+            fontSize: 11,
+            px: 0.75,
+            py: 0.25,
+            borderRadius: 0.75,
+            border: '1px solid var(--tecton-color-divider-subtle)',
+            cursor: 'pointer',
+          }}
+        >
+          Esc
+        </Box>
+      </Box>
+      <Box sx={{ height: 2 }}>{status === 'loading' && <LinearProgress />}</Box>
+      <Box
+        className="docs-scroll"
+        sx={{ maxHeight: { xs: '65vh', sm: 480 }, overflowY: 'auto', px: 1, pb: 1 }}
+        onKeyDown={(e) => {
+          if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            focusResult(e.key === 'ArrowDown' ? 1 : -1);
+          }
+        }}
+      >
+        {status === 'idle' && !query.trim() && (
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ px: 1.5, py: 3, textAlign: 'center' }}
+          >
+            Type to search every page, prop and guide.
+          </Typography>
+        )}
         {status === 'unavailable' && (
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+          <Typography variant="body2" color="text.secondary" sx={{ px: 1.5, py: 3 }}>
             The search index is generated by the production build. Run the docs build and preview
             the output to search.
           </Typography>
         )}
         {status === 'ready' && results.length === 0 && query.trim() && (
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ px: 1.5, py: 3, textAlign: 'center' }}
+          >
             No results for “{query.trim()}”.
           </Typography>
         )}
-        <List ref={listRef} aria-label="Search results">
+        <List ref={listRef} aria-label="Search results" sx={{ py: 0.5 }}>
           {results.map((r) => (
-            <ListItemButton
-              key={r.url}
-              component="a"
-              href={r.url}
-              onClick={(e: React.MouseEvent) => {
-                if (e.metaKey || e.ctrlKey || e.shiftKey) return;
-                e.preventDefault();
-                go(r.url);
-              }}
-              sx={{ borderRadius: 1, alignItems: 'flex-start' }}
-            >
-              <ListItemText
-                primary={r.meta.title ?? r.url}
-                secondary={
-                  <span
-                    // Excerpts come from our own prerendered pages; Pagefind marks hits with <mark>.
-                    dangerouslySetInnerHTML={{ __html: r.excerpt }}
-                  />
-                }
-              />
-            </ListItemButton>
+            <li key={r.url}>
+              <ListItemButton
+                component="a"
+                href={r.url}
+                onClick={(e: React.MouseEvent) => {
+                  if (e.metaKey || e.ctrlKey || e.shiftKey) return;
+                  e.preventDefault();
+                  go(r.url);
+                }}
+                sx={{
+                  borderRadius: 1.5,
+                  alignItems: 'flex-start',
+                  gap: 1.5,
+                  py: 1,
+                  '&:focus-visible, &:hover': { bgcolor: 'var(--tecton-color-content-bg-hover)' },
+                }}
+              >
+                <Box sx={{ color: 'var(--docs-accent)', mt: 0.25, display: 'inline-flex' }}>
+                  <Icon name={r.url.includes('/api/') ? 'code' : 'project'} size="small" />
+                </Box>
+                <ListItemText
+                  sx={{ m: 0 }}
+                  primary={r.meta.title ?? r.url}
+                  slotProps={{
+                    primary: { variant: 'subtitle2' },
+                    secondary: { variant: 'body2', sx: { lineHeight: 1.5, mt: 0.25 } },
+                  }}
+                  secondary={
+                    <span
+                      className="docs-search-excerpt"
+                      // Excerpts come from our own prerendered pages; Pagefind marks hits with <mark>.
+                      dangerouslySetInnerHTML={{ __html: r.excerpt }}
+                    />
+                  }
+                />
+              </ListItemButton>
+            </li>
           ))}
         </List>
-      </DialogContent>
+      </Box>
+      <Box
+        sx={{
+          display: { xs: 'none', sm: 'flex' },
+          gap: 2,
+          px: 2,
+          py: 1,
+          borderTop: '1px solid var(--tecton-color-divider-subtle)',
+          bgcolor: 'var(--tecton-color-bg-default)',
+          color: 'text.secondary',
+          typography: 'caption',
+        }}
+      >
+        <span>↑ ↓ to move</span>
+        <span>Enter to open</span>
+        <span>Esc to close</span>
+      </Box>
     </Dialog>
   );
 }

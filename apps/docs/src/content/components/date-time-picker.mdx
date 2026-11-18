@@ -1,18 +1,49 @@
 ## Purpose
 
 `DateTimePicker` combines date and time entry in one field, for scheduling and timestamps. On desktop
-the popup shows the calendar and the time lists side by side.
+the popup shows the calendar and the time lists side by side; on touch devices the views follow each
+other in a dialog.
 
 ## Basic usage
 
 <Demo name="BasicDateTimePicker" />
 
+## Validation
+
 Validation props of both [DatePicker](/components/date-picker) and
-[TimePicker](/components/time-picker) apply, plus `minDateTime` and `maxDateTime`.
+[TimePicker](/components/time-picker) apply, plus `minDateTime` and `maxDateTime`, which limit the
+date and the time together: on the first day of the window, earlier hours are disabled.
+
+<Demo name="DateTimeValidation" />
+
+## Views and formats
+
+`views` lists the editable sections. Leave out minutes for hourly data, or add seconds for event
+timestamps, and pair it with a matching `format`.
+
+<Demo name="DateTimeViews" />
+
+## States
+
+<Demo name="DateTimeStates" />
+
+## Static picker
+
+`StaticDateTimePicker` renders the calendar and the clock inline with a tab bar to switch between
+them.
+
+<Demo name="StaticDateTime" />
+
+## Localization
+
+The adapter locale changes the format, month and weekday names, the first day of the week and the
+12/24-hour default.
+
+<Demo name="LocalizedDateTimePicker" />
 
 ## Accessibility
 
-- The field is keyboard-first: each part of the date (month, day, year, hours…) is a section. Arrow
+- The field is keyboard-first: each part of the value (month, day, year, hours…) is a section. Arrow
   keys <kbd>Left</kbd>/<kbd>Right</kbd> move between sections, <kbd>Up</kbd>/<kbd>Down</kbd> change the
   value, digits type it directly.
 - The open-picker button has an accessible label that includes the current value. In the popup,
