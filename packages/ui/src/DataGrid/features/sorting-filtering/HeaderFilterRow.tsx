@@ -125,7 +125,7 @@ function HeaderFilterInput({ col }: { col: Col }) {
     item?.value == null
       ? ''
       : item.value instanceof Date
-        ? toDateInput(item.value)
+        ? toDateInput(item.value, type === 'dateTime')
         : String(item.value);
 
   // Local draft so typing is instant; commits are debounced.
@@ -296,8 +296,15 @@ function normalizeOptions(options: unknown): Array<{ value: string; label: strin
   );
 }
 
-function toDateInput(d: Date): string {
-  return Number.isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10);
+/**
+ * Formats a Date for a native `date` / `datetime-local` input in the user's local time zone
+ * (`toISOString()` would show the UTC calendar day and has no `datetime-local` form).
+ */
+export function toDateInput(d: Date, withTime = false): string {
+  if (Number.isNaN(d.getTime())) return '';
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const date = `${String(d.getFullYear()).padStart(4, '0')}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  return withTime ? `${date}T${pad(d.getHours())}:${pad(d.getMinutes())}` : date;
 }
 
 function parseValue(raw: string, type: string): unknown {

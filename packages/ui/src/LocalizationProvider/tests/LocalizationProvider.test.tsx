@@ -27,4 +27,15 @@ describe('LocalizationProvider', () => {
     );
     expect(screen.getByTestId('p')).toHaveTextContent('date-fns|fr');
   });
+
+  it('keeps the parent adapter and locale when nested without dateAdapter (MUI semantics)', () => {
+    render(
+      <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={fr}>
+        <LocalizationProvider localeText={{ okButtonLabel: 'Valider' }}>
+          <AdapterProbe />
+        </LocalizationProvider>
+      </LocalizationProvider>,
+    );
+    expect(screen.getByTestId('p')).toHaveTextContent('date-fns|fr');
+  });
 });

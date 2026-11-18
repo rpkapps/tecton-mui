@@ -34,6 +34,8 @@ export interface DataSourceState<R> {
   loading: boolean;
   fetchChildren: (groupKeys: string[]) => void;
   refetch: (options?: { clearCache?: boolean }) => void;
+  /** Drops cached responses (after a server-side row update, cached pages are stale). */
+  clearCache: () => void;
 }
 
 export interface UseDataSourceOptions<R extends GridValidRowModel> {
@@ -93,8 +95,12 @@ export function useDataSource<R extends GridValidRowModel>(
   const [lazyRowCount, setLazyRowCount] = React.useState(0);
   const [aggregateRow, setAggregateRow] = React.useState<Partial<R> | null>(null);
   const [version, setVersion] = React.useState(0);
+  const versionRef = React.useRef(version);
+  versionRef.current = version;
   const generation = React.useRef(0);
   const inFlight = React.useRef(new Set<string>());
+  /** Set by `refetch()`: the next generation's requests go to the server, not the cache. */
+  const skipCacheGen = React.useRef(-1);
 
   const baseParams = React.useMemo(
     () => ({ sortModel, filterModel, groupFields, aggregationModel }),
@@ -102,11 +108,14 @@ export function useDataSource<R extends GridValidRowModel>(
   );
 
   const request = React.useCallback(
-    async (params: GridGetRowsParams): Promise<GridGetRowsResponse<R> | null> => {
+    async (
+      params: GridGetRowsParams,
+      skipCache = false,
+    ): Promise<GridGetRowsResponse<R> | null> => {
       const ds = optsRef.current.dataSource;
       if (!ds) return null;
       const key = cacheKey(params);
-      const cached = cache?.get(key);
+      const cached = skipCache ? undefined : cache?.get(key);
       if (cached) return cached as GridGetRowsResponse<R>;
       const response = await ds.getRows(params);
       cache?.set(key, response as GridGetRowsResponse);
@@ -125,6 +134,7 @@ export function useDataSource<R extends GridValidRowModel>(
     if (!active) return;
     const gen = ++generation.current;
     inFlight.current.clear();
+    const skipCache = skipCacheGen.current === version;
     const chunk = paginationModel.pageSize;
     const params: GridGetRowsParams = lazyLoading
       ? { ...baseParams, start: 0, end: chunk - 1, groupKeys: [] }
@@ -140,7 +150,7 @@ export function useDataSource<R extends GridValidRowModel>(
     // Starting a request is the effect's purpose; the loading flag must render immediately.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setTop((prev) => ({ ...prev, loading: true }));
-    request(params).then(
+    request(params, skipCache).then(
       (res) => {
         if (!res || gen !== generation.current) return;
         const rowCount = res.rowCount ?? -1;
@@ -190,7 +200,10 @@ export function useDataSource<R extends GridValidRowModel>(
       inFlight.current.add(key);
       const gen = generation.current;
       setChildren(gen, key, { rows: [], rowCount: 0, loading: true });
-      request({ ...baseParams, start: 0, end: Number.MAX_SAFE_INTEGER, groupKeys }).then(
+      request(
+        { ...baseParams, start: 0, end: Number.MAX_SAFE_INTEGER, groupKeys },
+        skipCacheGen.current === versionRef.current,
+      ).then(
         (res) => {
           if (!res || gen !== generation.current) return;
           setChildren(gen, key, {
@@ -201,7 +214,8 @@ export function useDataSource<R extends GridValidRowModel>(
         },
         (error) => {
           if (gen !== generation.current) return;
-          inFlight.current.delete(key);
+          // The key stays in flight: the expanded-groups effect must not retry a failing group on
+          // every render. `refetch()` or a model change starts a new generation and retries.
           setChildren(gen, key, { rows: [], rowCount: 0, loading: false, error });
           fail(error);
         },
@@ -241,7 +255,10 @@ export function useDataSource<R extends GridValidRowModel>(
         if (!missing || inFlight.current.has(key)) continue;
         inFlight.current.add(key);
         const gen = generation.current;
-        request({ ...baseParams, start, end: start + chunk - 1, groupKeys: [] }).then(
+        request(
+          { ...baseParams, start, end: start + chunk - 1, groupKeys: [] },
+          skipCacheGen.current === versionRef.current,
+        ).then(
           (res) => {
             inFlight.current.delete(key);
             if (!res || gen !== generation.current) return;
@@ -276,10 +293,15 @@ export function useDataSource<R extends GridValidRowModel>(
   const refetch = React.useCallback(
     (opts?: { clearCache?: boolean }) => {
       if (opts?.clearCache) cache?.clear();
-      setVersion((v) => v + 1);
+      setVersion((v) => {
+        skipCacheGen.current = v + 1;
+        return v + 1;
+      });
     },
     [cache],
   );
+
+  const clearCache = React.useCallback(() => cache?.clear(), [cache]);
 
   const children = childrenState.gen === generation.current ? childrenState.map : EMPTY_CHILDREN;
   const loading = top.loading || [...children.values()].some((c) => c.loading);
@@ -293,5 +315,6 @@ export function useDataSource<R extends GridValidRowModel>(
     loading,
     fetchChildren,
     refetch,
+    clearCache,
   };
 }

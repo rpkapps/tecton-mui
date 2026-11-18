@@ -70,6 +70,8 @@ import { moveField, useColumnReorder } from './features/pinning-reordering/useCo
 import { useScrollEdges } from './features/pinning-reordering/useScrollEdges.js';
 import { moveId, useRowReorder } from './features/pinning-reordering/useRowReorder.js';
 import { useCellSelection } from './features/selection-clipboard/useCellSelection.js';
+import { rangeModel } from './features/selection-clipboard/cellSelection.js';
+import { useShallowStable } from '../internal/useShallowStable.js';
 import {
   HistoryStack,
   isRedoShortcut,
@@ -203,8 +205,8 @@ function DataGridInner<R extends GridValidRowModel>(
     isCellEditable,
     getRowClassName,
     onColumnHeaderClick,
-    slots: slotsProp,
-    slotProps: slotPropsProp,
+    slots: slotsInput,
+    slotProps: slotPropsInput,
     sx,
     className,
     loading,
@@ -217,6 +219,10 @@ function DataGridInner<R extends GridValidRowModel>(
     checkboxSelectionVisibleOnly = false,
     ...other
   } = inProps;
+  // Inline `slots={{…}}` / `slotProps={{…}}` keep their identity while shallowly equal, so a parent
+  // re-render does not hand the Community grid new slot objects.
+  const slotsProp = useShallowStable(slotsInput);
+  const slotPropsProp = useShallowStable(slotPropsInput);
 
   // ---------------------------------------------------------------- setup
   const ownApiRef = useGridApiRef();
@@ -293,22 +299,14 @@ function DataGridInner<R extends GridValidRowModel>(
 
   const [rowOrder, setRowOrder] = React.useState<readonly GridRowId[] | null>(null);
 
-  // Local row patches (edits, paste, batched updates). Reset whenever the rows prop changes.
+  // Local row patches (edits, paste, batched updates). Reset whenever the source rows change: the
+  // rows prop, or (server data) a new top-level response. See the check after `useDataSource`.
   const [patches, setPatches] = React.useState<RowPatches<R>>({
-    base: rowsProp as R[] | undefined,
+    base: dataSource ? undefined : (rowsProp as R[] | undefined),
     updates: new Map(),
     deleted: new Set(),
     inserted: [],
   });
-  if (patches.base !== rowsProp) {
-    setPatches({
-      base: rowsProp as R[] | undefined,
-      updates: new Map(),
-      deleted: new Set(),
-      inserted: [],
-    });
-    if (rowOrder) setRowOrder(null);
-  }
 
   // ---------------------------------------------------------------- stores
   const [ui] = React.useState(
@@ -359,10 +357,15 @@ function DataGridInner<R extends GridValidRowModel>(
     throttleMs: lazyLoadingRequestThrottleMs,
     onError: onDataSourceError,
   });
+  const patchBase = (dataSource ? ds.top.rows : rowsProp) as readonly R[] | undefined;
+  if (patches.base !== patchBase) {
+    setPatches({ base: patchBase, updates: new Map(), deleted: new Set(), inserted: [] });
+    if (rowOrder) setRowOrder(null);
+  }
   const skeletonCache = React.useRef(new Map<number, R>());
 
   // ---------------------------------------------------------------- pipeline
-  const baseRows = React.useMemo((): readonly R[] => {
+  const sourceRows = React.useMemo((): readonly R[] => {
     let rows: readonly R[];
     if (server && ds.lazy) {
       const count = ds.lazyRowCount < 0 ? ds.lazy.size + 1 : ds.lazyRowCount;
@@ -391,6 +394,12 @@ function DataGridInner<R extends GridValidRowModel>(
     } else {
       rows = (rowsProp ?? EMPTY_ROWS) as readonly R[];
     }
+    return rows;
+  }, [server, ds.lazy, ds.lazyRowCount, ds.top.rows, rowsProp]);
+  const sourceRowsRef = useLatest(sourceRows);
+
+  const baseRows = React.useMemo((): readonly R[] => {
+    let rows = sourceRows;
     if (patches.updates.size || patches.deleted.size || patches.inserted.length) {
       const out: R[] = [];
       for (const row of rows) {
@@ -416,7 +425,7 @@ function DataGridInner<R extends GridValidRowModel>(
       rows = [...ordered, ...byId.values()];
     }
     return rows;
-  }, [server, ds.lazy, ds.lazyRowCount, ds.top.rows, rowsProp, patches, rowOrder, getRowId]);
+  }, [sourceRows, patches, rowOrder, getRowId]);
 
   const serverChildren = ds.children;
   const hierarchy = React.useMemo((): GridNode<R>[] => {
@@ -532,16 +541,29 @@ function DataGridInner<R extends GridValidRowModel>(
       return { ...prev, updates };
     });
   });
-  const latestRow = (id: GridRowId): R | undefined =>
-    baseRowsRef.current.find((r) => getRowId(r) === id);
+  // id -> row maps, built once per rows array (copy, paste and row lookups stay O(1) per cell).
+  const rowMaps = React.useRef(
+    new WeakMap<readonly R[], { getRowId: typeof getRowId; map: Map<GridRowId, R> }>(),
+  );
+  const rowsById = (rows: readonly R[]): Map<GridRowId, R> => {
+    let entry = rowMaps.current.get(rows);
+    if (!entry || entry.getRowId !== getRowId) {
+      entry = { getRowId, map: new Map(rows.map((r) => [getRowId(r), r])) };
+      rowMaps.current.set(rows, entry);
+    }
+    return entry.map;
+  };
+  const latestRow = (id: GridRowId): R | undefined => rowsById(baseRowsRef.current).get(id);
   const baseRowsRef = useLatest(baseRows);
 
   const persistRow = useEventCallback(async (id: GridRowId, newRow: R, oldRow: R): Promise<R> => {
     let result = newRow;
     if (processRowUpdate)
       result = (await processRowUpdate(newRow, oldRow, { rowId: id } as never)) as R;
-    if (dataSource?.updateRow)
+    if (dataSource?.updateRow) {
       result = await dataSource.updateRow({ rowId: id, updatedRow: result, previousRow: oldRow });
+      ds.clearCache();
+    }
     return result;
   });
 
@@ -599,21 +621,25 @@ function DataGridInner<R extends GridValidRowModel>(
       const updates = new Map(prev.updates);
       const deleted = new Set(prev.deleted);
       const inserted = [...prev.inserted];
-      const known = new Set(baseRowsRef.current.map(getRowId));
+      // Ids with a slot in the output: source rows (replaced in place by `updates`) and inserts.
+      const source = new Map(sourceRowsRef.current.map((r) => [getRowId(r), r]));
+      const insertedIds = new Set(inserted.map(getRowId));
       for (const u of queue) {
         const id = getRowId(u as R);
         if (u._action === 'delete') {
           deleted.add(id);
+          updates.delete(id);
           continue;
         }
-        deleted.delete(id);
-        const current =
-          updates.get(id) ??
-          baseRowsRef.current.find((r) => getRowId(r) === id) ??
-          inserted.find((r) => getRowId(r) === id);
+        // Re-adding a deleted id creates a new row (MUI semantics): it does not merge old fields.
+        const wasDeleted = deleted.delete(id);
+        const current = wasDeleted ? undefined : (updates.get(id) ?? source.get(id));
         const { _action: _ignored, ...data } = u;
         const next = { ...(current ?? {}), ...data } as unknown as R;
-        if (!current && !known.has(id)) inserted.push(next);
+        if (!source.has(id) && !insertedIds.has(id)) {
+          inserted.push(next);
+          insertedIds.add(id);
+        }
         updates.set(id, next);
       }
       return { ...prev, updates, deleted, inserted };
@@ -926,6 +952,11 @@ function DataGridInner<R extends GridValidRowModel>(
         : pinnedNormalized.right.includes(field)
           ? 'right'
           : 'center',
+    // All visible columns, not only the headers column virtualization has rendered.
+    columnLayout: () =>
+      apiRef.current
+        ?.getVisibleColumns()
+        .map((c) => ({ field: c.field, width: c.computedWidth })) ?? null,
     onMove: reorderColumns,
   });
   const domIdMap = React.useMemo(() => {
@@ -967,7 +998,7 @@ function DataGridInner<R extends GridValidRowModel>(
       .map((c) => c.field)
       .filter((f) => !f.startsWith('__'));
   const cellText = (id: GridRowId, field: string) => {
-    const row = pageRowsRef.current.find((r) => getRowId(r) === id);
+    const row = rowsById(pageRowsRef.current).get(id);
     const col = lookup[field];
     if (!row || !col) return '';
     const value = getCellValue(row, col, apiRef);
@@ -982,22 +1013,32 @@ function DataGridInner<R extends GridValidRowModel>(
   };
   const handlePaste = useEventCallback(
     async (origin: { id: GridRowId; field: string }, matrix: string[][]) => {
-      onClipboardPasteStart?.();
       const rowIds = visibleRowIds();
       const fields = visibleFields();
       const r0 = rowIds.indexOf(origin.id);
       const c0 = fields.indexOf(origin.field);
       if (r0 < 0 || c0 < 0) return;
+      onClipboardPasteStart?.();
+      const byId = rowsById(pageRowsRef.current);
+      const api = apiRef.current;
+      // Same rule as editing: the column must be editable and `isCellEditable` (if any) must agree.
+      const canEdit = (id: GridRowId, field: string, col: GridColDef<R>) => {
+        if (!col.editable) return false;
+        if (!isCellEditable) return true;
+        const params = api?.getCellParams(id, field);
+        return !!params && isCellEditable(params as never);
+      };
       const updates: Array<{ id: GridRowId; newRow: R; oldRow: R }> = [];
       matrix.forEach((cells, r) => {
         const id = rowIds[r0 + r];
         if (id === undefined) return;
-        const oldRow = pageRowsRef.current.find((row) => getRowId(row) === id)!;
+        const oldRow = byId.get(id);
+        if (!oldRow) return;
         let newRow = oldRow;
         cells.forEach((text, c) => {
           const field = fields[c0 + c];
           const col = lookup[field];
-          if (!col || !col.editable) return;
+          if (!col || !canEdit(id, field, col)) return;
           const parsed = col.valueParser
             ? col.valueParser(text as never, newRow, col, apiRef as never)
             : parseByType(text, col.type);
@@ -1007,9 +1048,15 @@ function DataGridInner<R extends GridValidRowModel>(
         });
         if (newRow !== oldRow) updates.push({ id, newRow, oldRow });
       });
-      const results = await Promise.all(
+      const settled = await Promise.allSettled(
         updates.map(async (u) => ({ ...u, newRow: await persistRow(u.id, u.newRow, u.oldRow) })),
       );
+      const results: typeof updates = [];
+      for (const outcome of settled) {
+        if (outcome.status === 'fulfilled') results.push(outcome.value);
+        else if (inProps.onProcessRowUpdateError) inProps.onProcessRowUpdateError(outcome.reason);
+        else if (process.env.NODE_ENV !== 'production') console.error(outcome.reason);
+      }
       applyRows(results.map((u) => ({ id: u.id, row: u.newRow })));
       if (results.length)
         historyRef.current!.record({
@@ -1093,22 +1140,7 @@ function DataGridInner<R extends GridValidRowModel>(
   const rangeFor = (
     start: { id: GridRowId; field: string },
     end: { id: GridRowId; field: string },
-  ) => {
-    const rows = visibleRowIds();
-    const fields = visibleFields();
-    const r1 = rows.indexOf(start.id);
-    const r2 = rows.indexOf(end.id);
-    const c1 = fields.indexOf(start.field);
-    const c2 = fields.indexOf(end.field);
-    const model: GridCellSelectionModel = {};
-    if (r1 < 0 || r2 < 0 || c1 < 0 || c2 < 0) return model;
-    for (let r = Math.min(r1, r2); r <= Math.max(r1, r2); r++) {
-      model[rows[r]] = Object.fromEntries(
-        fields.slice(Math.min(c1, c2), Math.max(c1, c2) + 1).map((f) => [f, true]),
-      );
-    }
-    return model;
-  };
+  ): GridCellSelectionModel => rangeModel(start, end, visibleRowIds(), visibleFields());
 
   // ---------------------------------------------------------------- imperative API
   const visibleInfoRef = useLatest(flat.info);
@@ -1649,7 +1681,9 @@ function buildServerHierarchy<R extends GridValidRowModel>(
   const build = (level: readonly R[], depth: number, keys: string[]): GridNode<R>[] =>
     level.map((row) => {
       const count = depth < maxGroupDepth ? (dataSource.getChildrenCount?.(row) ?? 0) : 0;
-      const key = dataSource.getGroupKey?.(row);
+      // Without `getGroupKey` (server tree data), the row id identifies the parent in `groupKeys`.
+      const groupKey = dataSource.getGroupKey?.(row);
+      const key = groupKey ?? (count !== 0 ? String(getRowId(row)) : undefined);
       const node: GridNode<R> = {
         id: getRowId(row),
         depth,
@@ -1657,7 +1691,7 @@ function buildServerHierarchy<R extends GridValidRowModel>(
         children: null,
         groupingField: null,
         groupingKey: key,
-        label: key,
+        label: groupKey,
       };
       if (count !== 0) {
         node.childrenCount = count;

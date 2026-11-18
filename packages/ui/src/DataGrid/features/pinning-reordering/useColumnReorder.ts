@@ -9,6 +9,11 @@ export interface ColumnReorderOptions {
   /** Section of a field ('left' | 'right' | 'center'); drops are restricted to the same section. */
   sectionOf: (field: string) => string;
   onMove: (field: string, targetField: string, placeAfter: boolean) => void;
+  /**
+   * Visible columns in visual order with their widths. With column virtualization only some
+   * headers are in the DOM; this lets columns scrolled into view during the drag be targets.
+   */
+  columnLayout?: () => ReadonlyArray<{ field: string; width: number }> | null;
 }
 
 const DRAG_THRESHOLD_PX = 6;
@@ -75,21 +80,22 @@ export function useColumnReorder(options: ColumnReorderOptions): React.RefObject
         const scroller = root.querySelector<HTMLElement>('.MuiDataGrid-virtualScroller');
         const center = section === 'center';
         const scroll = center ? logicalScrollLeft(scroller, rtl) : 0;
-        const slots = Array.from(
-          root.querySelectorAll<HTMLElement>('.MuiDataGrid-columnHeader[data-field]'),
-        )
-          .filter(
-            (h) => opts.sectionOf(h.dataset.field!) === section && opts.canMove(h.dataset.field!),
-          )
-          .map((h) => {
-            const rect = h.getBoundingClientRect();
-            return {
-              field: h.dataset.field!,
-              start: (rtl ? -rect.right : rect.left) + scroll,
-              size: rect.width,
-            };
-          })
-          .sort((a, b) => a.start - b.start);
+        const sourceRect = header.getBoundingClientRect();
+        const slots =
+          layoutSlots(opts, section, field, (rtl ? -sourceRect.right : sourceRect.left) + scroll) ??
+          Array.from(root.querySelectorAll<HTMLElement>('.MuiDataGrid-columnHeader[data-field]'))
+            .filter(
+              (h) => opts.sectionOf(h.dataset.field!) === section && opts.canMove(h.dataset.field!),
+            )
+            .map((h) => {
+              const rect = h.getBoundingClientRect();
+              return {
+                field: h.dataset.field!,
+                start: (rtl ? -rect.right : rect.left) + scroll,
+                size: rect.width,
+              };
+            })
+            .sort((a, b) => a.start - b.start);
         const sourceIndex = slots.findIndex((s) => s.field === field);
         if (sourceIndex < 0) return false;
         session = {
@@ -246,6 +252,34 @@ export function useColumnReorder(options: ColumnReorderOptions): React.RefObject
   }, [options.enabled, options.rootRef]);
 
   return suppressClick;
+}
+
+/**
+ * Slots for every visible column of `section` from the grid's column layout, anchored on the
+ * dragged header's rendered position (`sourceStart`, logical content coordinates).
+ */
+export function layoutSlots(
+  opts: ColumnReorderOptions,
+  section: string,
+  field: string,
+  sourceStart: number,
+): Slot[] | null {
+  const layout = opts.columnLayout?.();
+  if (!layout) return null;
+  const inSection = layout.filter((c) => opts.sectionOf(c.field) === section);
+  let offset = 0;
+  let sourceOffset: number | null = null;
+  const positioned = inSection.map((c) => {
+    if (c.field === field) sourceOffset = offset;
+    const slot = { field: c.field, start: offset, size: c.width };
+    offset += c.width;
+    return slot;
+  });
+  if (sourceOffset === null) return null;
+  const origin = sourceStart - sourceOffset;
+  return positioned
+    .filter((slot) => opts.canMove(slot.field))
+    .map((slot) => ({ ...slot, start: origin + slot.start }));
 }
 
 /** Pure helper: moves `field` before/after `targetField` in `order`. */

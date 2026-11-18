@@ -60,6 +60,31 @@ describe('DesktopTimeRangePicker', () => {
     expect(screen.getByRole('textbox', { name: 'Shift' })).toHaveValue('09:30 – 17:00');
   });
 
+  it('finishing the end time with no start stays open and moves to the start', () => {
+    const onAccept = vi.fn();
+    const onChange = vi.fn();
+    renderWithProvider(
+      <DesktopTimeRangePicker
+        label="Shift"
+        referenceDate={REF}
+        ampm={false}
+        onChange={onChange}
+        onAccept={onAccept}
+      />,
+    );
+    const dialog = openPicker();
+    const [endHours, endMinutes] = columns(dialog, 'End time');
+    pick(endHours, '17 hours');
+    pick(endMinutes, '0 minutes');
+    expect(onAccept).not.toHaveBeenCalled();
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(times(onChange.mock.lastCall![0])).toEqual([null, '17:00']);
+    const [startHours, startMinutes] = columns(screen.getByRole('dialog'), 'Start time');
+    pick(startHours, '9 hours');
+    pick(startMinutes, '0 minutes');
+    expect(onAccept).toHaveBeenCalledTimes(1);
+  });
+
   it('uses a 12-hour format with AM/PM and the accept button', () => {
     const onAccept = vi.fn();
     renderWithProvider(

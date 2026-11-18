@@ -160,6 +160,16 @@ export const RangePicker = React.forwardRef<HTMLDivElement, RangePickerEnginePro
     });
     const lastAcceptedRef = React.useRef(value);
     const valueAtOpenRef = React.useRef(value);
+    // The last value this picker emitted. A controlled value that differs from it was set by the
+    // parent (e.g. a "Clear filters" button) and becomes the committed baseline, as in MUI: closing
+    // the picker without changes must not fire `onAccept`.
+    const emittedRef = React.useRef(value);
+    useEnhancedEffect(() => {
+      if (valueProp === undefined || areRangesEqual(adapter, valueProp, emittedRef.current)) return;
+      emittedRef.current = valueProp;
+      lastAcceptedRef.current = valueProp;
+      valueAtOpenRef.current = valueProp;
+    }, [valueProp, adapter]);
 
     const validationProps = {
       minDate,
@@ -246,6 +256,7 @@ export const RangePicker = React.forwardRef<HTMLDivElement, RangePickerEnginePro
     const setValue = useEventCallback((next: PickerRangeValue, options: SetValueOptions = {}) => {
       if (!areRangesEqual(adapter, next, valueRef.current)) {
         valueRef.current = next;
+        emittedRef.current = next;
         setValueState(next);
         onChange?.(next, { validationError: validate(next), shortcut: options.shortcut });
       }

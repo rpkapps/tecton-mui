@@ -7,15 +7,10 @@ import Icon from '../../Icon/Icon.js';
 import { useStoreSelector } from '../core/store.js';
 import { useGridAdvanced, type DerivedState, type UiState } from '../core/context.js';
 import { isExpandedFromMeta } from '../core/expansion.js';
+import muiVisuallyHidden from '@mui/utils/visuallyHidden';
 
-const visuallyHidden: React.CSSProperties = {
-  position: 'absolute',
-  width: 1,
-  height: 1,
-  overflow: 'hidden',
-  clip: 'rect(0 0 0 0)',
-  whiteSpace: 'nowrap',
-};
+// MUI's own screen-reader-only style (includes margin/padding/border resets).
+const visuallyHidden = muiVisuallyHidden as React.CSSProperties;
 
 /** Indentation + expand toggle + label + child count for group rows and tree-data rows. */
 export const GroupingCell = React.memo(function GroupingCell({

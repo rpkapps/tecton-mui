@@ -92,6 +92,8 @@ export function TimeRangeView(props: TimeRangeViewProps) {
   };
   const idBase = React.useId();
 
+  // The end was finished while the start was empty: finishing the start then completes the range.
+  const [endFirst, setEndFirst] = React.useState(false);
   const handleChange = (
     position: RangePosition,
     date: PickerValidDate | null,
@@ -100,13 +102,23 @@ export function TimeRangeView(props: TimeRangeViewProps) {
     const index = positionIndex(position);
     const next: PickerRangeValue = index === 0 ? [date, value[1]] : [value[0], date];
     const finished = selectionState === 'finish';
-    if (finished && position === 'start') {
+    // Finishing the start moves to the end, unless the end was finished first (start was empty).
+    if (finished && position === 'start' && !(endFirst && isValidDate(adapter, next[1]))) {
       onChange(next, 'partial', position);
       onRangePositionChange('end');
       return;
     }
     const complete = isValidDate(adapter, next[0]) && isValidDate(adapter, next[1]);
-    onChange(next, finished && complete ? 'finish' : (selectionState ?? 'partial'), position);
+    if (finished && !complete) {
+      // Finishing one end of an incomplete range moves to the missing end instead of closing.
+      onChange(next, 'partial', position);
+      const missing: RangePosition = isValidDate(adapter, next[0]) ? 'end' : 'start';
+      setEndFirst(position === 'end');
+      if (missing !== position) onRangePositionChange(missing);
+      return;
+    }
+    if (finished && endFirst) setEndFirst(false);
+    onChange(next, selectionState ?? 'partial', position);
   };
 
   const referenceFor = (position: RangePosition) => {

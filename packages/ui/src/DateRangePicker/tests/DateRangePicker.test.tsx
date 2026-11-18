@@ -102,6 +102,20 @@ describe('DesktopDateRangePicker', () => {
     expect(onAccept).not.toHaveBeenCalled();
   });
 
+  it('does not fire onAccept on close after the parent replaced a controlled value', () => {
+    const onAccept = vi.fn();
+    const a: DateRange<Date> = [day(2026, 0, 5), day(2026, 0, 7)];
+    const b: DateRange<Date> = [day(2026, 0, 10), day(2026, 0, 12)];
+    const { rerender } = renderWithProvider(
+      <DesktopDateRangePicker value={a} onAccept={onAccept} />,
+    );
+    // e.g. a "Clear filters" button in the parent.
+    rerender(<DesktopDateRangePicker value={b} onAccept={onAccept} />);
+    fireEvent.click(openButton());
+    fireEvent.keyDown(document.activeElement!, { key: 'Escape' });
+    expect(onAccept).not.toHaveBeenCalled();
+  });
+
   it('closes on click away', async () => {
     renderWithProvider(
       <div>

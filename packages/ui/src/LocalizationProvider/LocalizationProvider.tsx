@@ -18,23 +18,39 @@ export type LocalizationProviderProps<TLocale = unknown> = Omit<
   dateAdapter?: MuiLocalizationProviderProps<TLocale>['dateAdapter'];
 };
 
+/** True below a Tecton LocalizationProvider, which always provides an adapter. */
+const HasAdapterContext = React.createContext(false);
+
 /**
  * MUI X LocalizationProvider defaulting to date-fns with the `en-US` locale. It stays separate
- * from ThemeProvider (MUI's model); render it wherever pickers are used.
+ * from ThemeProvider (MUI's model); render it wherever pickers are used. Nested without
+ * `dateAdapter` (e.g. only to override `localeText`), it keeps the parent's adapter, as MUI does.
  */
 export function LocalizationProvider<TLocale = unknown>(props: LocalizationProviderProps<TLocale>) {
-  const { dateAdapter, adapterLocale, ...other } = props;
-  if (dateAdapter) {
-    return (
-      <MuiLocalizationProvider dateAdapter={dateAdapter} adapterLocale={adapterLocale} {...other} />
+  const { dateAdapter, adapterLocale, children, ...other } = props;
+  const nested = React.useContext(HasAdapterContext);
+  let provider: React.ReactNode;
+  if (dateAdapter || nested) {
+    provider = (
+      <MuiLocalizationProvider dateAdapter={dateAdapter} adapterLocale={adapterLocale} {...other}>
+        {children}
+      </MuiLocalizationProvider>
+    );
+  } else {
+    provider = (
+      <MuiLocalizationProvider
+        dateAdapter={AdapterDateFns}
+        adapterLocale={(adapterLocale as typeof enUS | undefined) ?? enUS}
+        {...(other as Omit<MuiLocalizationProviderProps<typeof enUS>, 'dateAdapter'>)}
+      >
+        {children}
+      </MuiLocalizationProvider>
     );
   }
-  return (
-    <MuiLocalizationProvider
-      dateAdapter={AdapterDateFns}
-      adapterLocale={(adapterLocale as typeof enUS | undefined) ?? enUS}
-      {...(other as Omit<MuiLocalizationProviderProps<typeof enUS>, 'dateAdapter'>)}
-    />
+  return nested ? (
+    provider
+  ) : (
+    <HasAdapterContext.Provider value>{provider}</HasAdapterContext.Provider>
   );
 }
 

@@ -163,7 +163,11 @@ export interface GridAdvancedApi<R extends GridValidRowModel = GridValidRowModel
   canUndo: () => boolean;
   canRedo: () => boolean;
   clearHistory: () => void;
-  /** Re-fetch server data (data source), optionally clearing the cache. */
+  /**
+   * Re-fetch server data (data source). The requests bypass the cache and refresh it;
+   * `clearCache` also drops every other cached response. Local row patches are reset when the new
+   * data arrives.
+   */
   refetchRows: (options?: { clearCache?: boolean }) => void;
   /** Rows after filtering/sorting/grouping, in display order (leaves and group rows). */
   getVisibleRows: () => Array<{ id: GridRowId; depth: number; isGroup: boolean }>;

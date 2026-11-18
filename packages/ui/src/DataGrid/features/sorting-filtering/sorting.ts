@@ -5,7 +5,7 @@ import type {
   GridSortModel,
   GridValidRowModel,
 } from '@mui/x-data-grid';
-import { getCellValue, getComparator, type ApiRef } from '../../core/columns.js';
+import { getCellValue, getComparator, resolveColumn, type ApiRef } from '../../core/columns.js';
 import type { GridNode } from '../../core/tree.js';
 import type { AggregationResult } from '../grouping-aggregation/aggregation.js';
 
@@ -30,13 +30,24 @@ function prepare<R extends GridValidRowModel>(
   const out: PreparedItem[] = [];
   for (const item of model) {
     if (!item.sort) continue;
-    const col = ctx.lookup[item.field];
+    // Generated grouping columns are not in the lookup; they sort group keys / tree labels with the
+    // default string-or-number comparator.
+    const col =
+      ctx.lookup[item.field] ??
+      (ctx.groupingFields.has(item.field) ? groupingColumn(item.field) : undefined);
     if (!col || col.sortable === false) continue;
     const base = col.getSortComparator?.(item.sort);
     const comparator = base ?? directional(getComparator(col, item.sort), item);
     out.push({ field: item.field, comparator, col });
   }
   return out;
+}
+
+const groupingColumns = new Map<string, GridColDef>();
+function groupingColumn(field: string): GridColDef {
+  let col = groupingColumns.get(field);
+  if (!col) groupingColumns.set(field, (col = resolveColumn({ field })));
+  return col;
 }
 
 const directional = (cmp: GridComparatorFn, item: GridSortItem): GridComparatorFn =>
