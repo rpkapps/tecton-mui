@@ -2,8 +2,7 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
-import InputBase from '@mui/material/InputBase';
-import type { GridColDef, GridRowId } from '@mui/x-data-grid';
+import type { GridRowId } from '@mui/x-data-grid';
 import Icon from '../../Icon/Icon.js';
 import { useStoreSelector } from '../core/store.js';
 import { useGridAdvanced, type DerivedState, type UiState } from '../core/context.js';
@@ -180,96 +179,6 @@ export const RowReorderHandle = React.memo(function RowReorderHandle({ id }: { i
   );
 });
 const selectReorderDisabled = (s: DerivedState) => s.sortingDisabledForReorder;
-
-export const HEADER_FILTER_DEBOUNCE_MS = 300;
-
-const DEFAULT_OPERATOR: Record<string, string> = {
-  string: 'contains',
-  number: '=',
-  date: 'is',
-  dateTime: 'is',
-  boolean: 'is',
-  singleSelect: 'is',
-};
-
-/** Column title + inline filter input (header filters). */
-export const HeaderWithFilter = React.memo(function HeaderWithFilter({
-  colDef,
-  title,
-}: {
-  colDef: GridColDef;
-  title: React.ReactNode;
-}) {
-  const { derived, actions } = useGridAdvanced();
-  const field = colDef.field;
-  const value = useStoreSelector(
-    derived,
-    React.useCallback(
-      (s: DerivedState) => {
-        const item = s.filterModel.items.find((i) => i.id === `header-filter-${field}`);
-        return item?.value == null ? '' : String(item.value);
-      },
-      [field],
-    ),
-  );
-  const [draft, setDraft] = React.useState(value);
-  // Resync the draft when the committed value changes externally (derived-state pattern).
-  const [committed, setCommitted] = React.useState(value);
-  if (committed !== value) {
-    setCommitted(value);
-    setDraft(value);
-  }
-  const timer = React.useRef<ReturnType<typeof setTimeout>>(undefined);
-  React.useEffect(() => () => clearTimeout(timer.current), []);
-  const type = colDef.type ?? 'string';
-  const operator = DEFAULT_OPERATOR[type] ?? 'contains';
-  const commit = (next: string) => {
-    const parsed =
-      type === 'number' ? (next === '' ? undefined : Number(next)) : next === '' ? undefined : next;
-    actions.upsertHeaderFilter(field, operator, parsed);
-  };
-  const filterable = colDef.filterable !== false;
-  return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%', minWidth: 0, gap: 0.5 }}>
-      <Box
-        className="MuiDataGrid-columnHeaderTitle"
-        sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}
-      >
-        {title}
-      </Box>
-      {filterable && colDef.type !== 'actions' ? (
-        <InputBase
-          size="small"
-          value={draft}
-          type={type === 'number' ? 'number' : type === 'date' ? 'date' : 'text'}
-          placeholder="Filter…"
-          inputProps={{ 'aria-label': `Filter ${colDef.headerName ?? field}` }}
-          onClick={(e) => e.stopPropagation()}
-          onMouseDown={(e) => e.stopPropagation()}
-          onKeyDown={(e) => {
-            e.stopPropagation();
-            if (e.key === 'Escape') {
-              setDraft('');
-              commit('');
-            }
-          }}
-          onChange={(e) => {
-            const next = e.target.value;
-            setDraft(next);
-            clearTimeout(timer.current);
-            timer.current = setTimeout(() => commit(next), HEADER_FILTER_DEBOUNCE_MS);
-          }}
-          sx={{
-            fontSize: 'inherit',
-            borderBottom: 1,
-            borderColor: 'divider',
-            '& input': { py: 0.25 },
-          }}
-        />
-      ) : null}
-    </Box>
-  );
-});
 
 /** Title with the aggregation function label underneath (aggregated columns). */
 export function AggregatedHeader({ title, fn }: { title: React.ReactNode; fn: string }) {

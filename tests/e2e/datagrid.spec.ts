@@ -6,7 +6,7 @@ const header = (root: Locator, field: string) =>
 const cellTexts = (root: Locator, field: string) =>
   root
     .locator(
-      `.MuiDataGrid-row:not(.TectonDataGrid-row--detail) .MuiDataGrid-cell[data-field="${field}"]`,
+      `.MuiDataGrid-row:not(.TectonDataGrid-row--detail):not(.TectonDataGrid-headerFilterRow):not(.TectonDataGrid-pinnedRow) .MuiDataGrid-cell[data-field="${field}"]`,
     )
     .allInnerTexts();
 

@@ -2,10 +2,12 @@
 // Community slot implementations that render the wrapper's multi-model state. They subscribe to
 // narrow store slices so a sort/filter/page change re-renders only the affected header widgets.
 import * as React from 'react';
+import useEnhancedEffect from '@mui/utils/useEnhancedEffect';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import ListSubheader from '@mui/material/ListSubheader';
 import MenuItem from '@mui/material/MenuItem';
 import TablePagination from '@mui/material/TablePagination';
 import {
@@ -31,6 +33,7 @@ import { isExpandedFromMeta } from '../core/expansion.js';
 import { getCellValue, getFormattedValue } from '../core/columns.js';
 import { availableAggregationFunctions } from '../features/grouping-aggregation/aggregation.js';
 import { visuallyHidden } from './cells.js';
+import { HeaderFilterRow } from '../features/sorting-filtering/HeaderFilterRow.js';
 
 type SortIconProps = React.ComponentProps<typeof GridColumnHeaderSortIcon> & { field: string };
 
@@ -210,15 +213,35 @@ const selectPinnedBottom = (s: DerivedState) => s.pinnedBottom;
 export function PinnedRowsSlot({ position }: { position: 'top' | 'bottom' }) {
   const { derived } = useGridAdvanced();
   const rows = useStoreSelector(derived, position === 'top' ? selectPinnedTop : selectPinnedBottom);
+  const headerFilters = useStoreSelector(derived, selectHeaderFilters) && position === 'top';
   const apiRef = useGridApiContext();
   const columns = useGridSelector(apiRef, gridVisibleColumnDefinitionsSelector);
   const dimensions = useGridSelector(apiRef, gridDimensionsSelector);
-  if (rows.length === 0) return null;
+  const ref = React.useRef<HTMLDivElement>(null);
+  // Community offsets rows by the header height only; it does not know about these rows. The top
+  // section publishes its height so rows start below it (applied in CSS before paint).
+  useEnhancedEffect(() => {
+    if (position !== 'top') return undefined;
+    const root = ref.current?.closest<HTMLElement>('.MuiDataGrid-root') ?? null;
+    const el = ref.current;
+    const publish = () => root?.style.setProperty('--tdg-pinned-top', `${el?.offsetHeight ?? 0}px`);
+    publish();
+    const observer =
+      el && typeof ResizeObserver !== 'undefined' ? new ResizeObserver(publish) : null;
+    if (el) observer?.observe(el);
+    return () => {
+      observer?.disconnect();
+      root?.style.removeProperty('--tdg-pinned-top');
+    };
+  }, [position, rows.length, headerFilters]);
+  if (rows.length === 0 && !headerFilters) return null;
   return (
     <div
+      ref={ref}
       role="presentation"
-      className={`MuiDataGrid-pinnedRows MuiDataGrid-pinnedRows--${position} TectonDataGrid-pinnedRows`}
+      className={`MuiDataGrid-pinnedRows MuiDataGrid-pinnedRows--${position} TectonDataGrid-pinnedRows TectonDataGrid-pinnedRows--${position}`}
     >
+      {headerFilters ? <HeaderFilterRow columns={columns} height={dimensions.rowHeight} /> : null}
       {rows.map((row, index) => (
         <StaticRow
           key={index}
@@ -231,6 +254,7 @@ export function PinnedRowsSlot({ position }: { position: 'top' | 'bottom' }) {
     </div>
   );
 }
+const selectHeaderFilters = (s: DerivedState) => s.headerFilters;
 
 const StaticRow = React.memo(function StaticRow({
   row,
@@ -314,17 +338,13 @@ export function ColumnMenuSlot(props: GridColumnMenuProps) {
       {...props}
       slots={{
         columnMenuSortItem: SortMenuItems,
-        columnMenuPinningItem: PinMenuItems,
-        columnMenuGroupingItem: GroupingMenuItem,
-        columnMenuAggregationItem: AggregationMenuItems,
-        columnMenuMoveItem: MoveMenuItems,
+        columnMenuPinningItem: PositionMenuItems,
+        columnMenuGroupingItem: GroupingAggregationMenuItems,
         ...props.slots,
       }}
       slotProps={{
         columnMenuPinningItem: { displayOrder: 15 },
         columnMenuGroupingItem: { displayOrder: 25 },
-        columnMenuAggregationItem: { displayOrder: 26 },
-        columnMenuMoveItem: { displayOrder: 27 },
         ...props.slotProps,
       }}
     />
@@ -384,6 +404,26 @@ function SortMenuItems({ colDef, onClick }: MenuItemProps) {
 }
 const selectSortModel = (s: DerivedState) => s.sortModel;
 const selectPinnedColumns = (s: DerivedState) => s.pinnedColumns;
+
+/** Pinning and keyboard-accessible column moves in one menu block. */
+function PositionMenuItems(props: MenuItemProps) {
+  return (
+    <>
+      <PinMenuItems {...props} />
+      <MoveMenuItems {...props} />
+    </>
+  );
+}
+
+/** Row grouping and aggregation in one menu block. */
+function GroupingAggregationMenuItems(props: MenuItemProps) {
+  return (
+    <>
+      <GroupingMenuItem {...props} />
+      <AggregationMenuItems {...props} />
+    </>
+  );
+}
 
 function PinMenuItems({ colDef, onClick }: MenuItemProps) {
   const { derived, actions, features } = useGridAdvanced();
@@ -447,6 +487,9 @@ function AggregationMenuItems({ colDef, onClick }: MenuItemProps) {
   const current = model[colDef.field];
   return (
     <Box role="group" aria-label="Aggregation">
+      <ListSubheader disableSticky className="TectonDataGrid-menuSubheader">
+        Aggregation
+      </ListSubheader>
       {names.map((name) => (
         <MenuItem
           key={name}
@@ -457,9 +500,9 @@ function AggregationMenuItems({ colDef, onClick }: MenuItemProps) {
           }}
         >
           <ListItemIcon>
-            <Icon name="numeric" size="small" />
+            {current === name ? <Icon name="check" size="small" /> : null}
           </ListItemIcon>
-          <ListItemText>{`Aggregate: ${features.aggregationFunctions[name].label ?? name}`}</ListItemText>
+          <ListItemText>{features.aggregationFunctions[name].label ?? name}</ListItemText>
         </MenuItem>
       ))}
     </Box>

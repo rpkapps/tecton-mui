@@ -19,6 +19,7 @@ import {
   type GridEventListener,
 } from '@mui/x-data-grid';
 import { Store, useStoreSelector } from './core/store.js';
+import { cssVar } from '../styles/tecton/index.js';
 import {
   GridAdvancedContext,
   type DerivedState,
@@ -65,6 +66,7 @@ import {
   usePinnedColumnOffsets,
 } from './features/pinning-reordering/columnPinning.js';
 import { moveField, useColumnReorder } from './features/pinning-reordering/useColumnReorder.js';
+import { useScrollEdges } from './features/pinning-reordering/useScrollEdges.js';
 import { moveId, useRowReorder } from './features/pinning-reordering/useRowReorder.js';
 import { useCellSelection } from './features/selection-clipboard/useCellSelection.js';
 import {
@@ -620,10 +622,31 @@ function DataGridInner<R extends GridValidRowModel>(
   React.useEffect(() => () => clearTimeout(flushTimer.current), []);
 
   // ---------------------------------------------------------------- actions
-  const pinnedNormalized = React.useMemo(
-    () => normalizePinned(pinnedColumns, [...columnOrder, ...SYSTEM_FIELDS]),
-    [pinnedColumns, columnOrder],
-  );
+  // System columns (checkbox, detail toggle, row-reorder handle, grouping) belong to the leading
+  // edge: when anything is pinned left they join the left section so they never scroll under it.
+  const systemFields = React.useMemo(() => {
+    const fields: string[] = [];
+    if (getDetailPanelContent) fields.push('__detail_panel_toggle__');
+    if (checkboxSelection || (!checkboxSelection && disableMultipleRowSelection === false))
+      fields.push(GRID_CHECKBOX_SELECTION_FIELD);
+    if (rowReordering) fields.push('__reorder__');
+    return fields;
+  }, [getDetailPanelContent, checkboxSelection, disableMultipleRowSelection, rowReordering]);
+  const pinnedNormalized = React.useMemo(() => {
+    const base = normalizePinned(pinnedColumns, [...columnOrder, ...SYSTEM_FIELDS]);
+    if (base.left.length === 0) return base;
+    const grouping = treeData
+      ? [TREE_DATA_GROUPING_FIELD]
+      : rowGroupingModel.length
+        ? rowGroupingColumnMode === 'multiple'
+          ? rowGroupingModel.map(rowGroupingMultipleField)
+          : [ROW_GROUPING_SINGLE_FIELD]
+        : [];
+    const lead = [...systemFields, ...grouping].filter(
+      (f) => !base.left.includes(f) && !base.right.includes(f),
+    );
+    return { left: [...lead, ...base.left], right: base.right };
+  }, [pinnedColumns, columnOrder, systemFields, treeData, rowGroupingModel, rowGroupingColumnMode]);
   const rowReorderDisabled = sortModel.length > 0 || groupingMode !== 'none' || server;
   const actions = React.useMemo<GridActions>(
     () => ({
@@ -812,7 +835,10 @@ function DataGridInner<R extends GridValidRowModel>(
       labels[field] = aggregationFunctions[fn]?.label ?? fn;
     return labels;
   }, [aggregationActive, aggregationModel, aggregationFunctions]);
-  const filterCounts = React.useMemo(() => countFiltersByField(filterModel), [filterModel]);
+  const filterCounts = React.useMemo(
+    () => countFiltersByField(filterModel, lookup as Record<string, GridColDef>),
+    [filterModel, lookup],
+  );
 
   useEnhancedEffect(() => {
     derived.setState({
@@ -831,6 +857,7 @@ function DataGridInner<R extends GridValidRowModel>(
       aggregationLabels,
       rowGroupingModel,
       sortingDisabledForReorder: rowReorderDisabled,
+      headerFilters,
       columnLookup: lookup as Record<string, GridColDef>,
     });
   });
@@ -865,6 +892,24 @@ function DataGridInner<R extends GridValidRowModel>(
 
   // ---------------------------------------------------------------- DOM-level features
   usePinnedColumnOffsets(apiRef, rootRef, disableColumnPinning ? NO_PINNED : pinnedNormalized);
+  useScrollEdges(rootRef, true);
+  // Sticky pinned cells must stay mounted, but the virtualizer drops columns behind the scroll
+  // direction regardless of the buffer size. Turn column virtualization off while columns are
+  // pinned (public grid virtualization API; rows stay virtualized).
+  const pinnedAny =
+    !disableColumnPinning &&
+    (pinnedNormalized.left.length > 0 || pinnedNormalized.right.length > 0);
+  React.useEffect(() => {
+    const api = apiRef.current as unknown as {
+      unstable_setColumnVirtualization?: (enabled: boolean) => void;
+      updateColumns?: (cols: GridColDef[]) => void;
+    } | null;
+    if (!pinnedAny || !api?.unstable_setColumnVirtualization) return undefined;
+    api.unstable_setColumnVirtualization(false);
+    // A (no-op) columns update makes the grid recompute its render context with all columns.
+    api.updateColumns?.([]);
+    return () => api.unstable_setColumnVirtualization?.(true);
+  }, [apiRef, pinnedAny]);
   const suppressHeaderClick = useColumnReorder({
     enabled: !disableColumnReorder,
     rootRef,
@@ -1252,10 +1297,6 @@ function DataGridInner<R extends GridValidRowModel>(
     return rest;
   }, [initialState]);
 
-  const hasPinnedColumns =
-    !disableColumnPinning &&
-    (pinnedNormalized.left.length > 0 || pinnedNormalized.right.length > 0);
-
   return (
     <GridAdvancedContext.Provider value={contextValue}>
       {cellSelection ? <style ref={styleRef} data-tecton-grid-selection={scope} /> : null}
@@ -1292,8 +1333,8 @@ function DataGridInner<R extends GridValidRowModel>(
         isCellEditable={handleIsCellEditable as never}
         getRowClassName={handleGetRowClassName as never}
         onColumnHeaderClick={handleHeaderClick}
-        columnHeaderHeight={headerFilters ? (columnHeaderHeight ?? 56) + 32 : columnHeaderHeight}
-        columnBufferPx={hasPinnedColumns ? PINNED_COLUMN_BUFFER_PX : columnBufferPx}
+        columnHeaderHeight={columnHeaderHeight}
+        columnBufferPx={columnBufferPx}
         slots={slots}
         slotProps={slotProps}
       />
@@ -1301,8 +1342,6 @@ function DataGridInner<R extends GridValidRowModel>(
   );
 }
 
-// Sticky pinned cells must stay mounted: render every column when pinning is active.
-const PINNED_COLUMN_BUFFER_PX = 100_000;
 const SYSTEM_FIELDS = [
   '__check__',
   '__detail_panel_toggle__',
@@ -1330,10 +1369,95 @@ const INITIAL_DERIVED: DerivedState = {
   aggregationLabels: {},
   rowGroupingModel: [],
   sortingDisabledForReorder: false,
+  headerFilters: false,
   columnLookup: {},
 };
 
+// Table dividers: Tecton action/outlined/border (rows, header, footer, pinned sections).
+const divider = cssVar('color-action-outlined-border');
+// Shadows are always dark (never derived from the text color, which is light in dark mode).
+const pinShadow = 'var(--tdg-shadow-color)';
+const leftEdge =
+  '& .MuiDataGrid-cell--pinnedLeft.MuiDataGrid-cell--withRightBorder, & .MuiDataGrid-columnHeader--pinnedLeft.MuiDataGrid-columnHeader--withRightBorder';
+const rightEdge =
+  '& .MuiDataGrid-cell--pinnedRight.MuiDataGrid-cell--withLeftBorder, & .MuiDataGrid-columnHeader--pinnedRight.MuiDataGrid-columnHeader--withLeftBorder';
+
 const BASE_SX = {
+  // All columns stay mounted while columns are pinned; inline-size containment keeps that wide
+  // content from widening flex/grid parents (the grid always sizes to its container).
+  contain: 'inline-size',
+  '--tdg-shadow-color': 'rgba(0, 0, 0, 0.18)',
+  '[data-theme="dark"] &': { '--tdg-shadow-color': 'rgba(0, 0, 0, 0.55)' },
+  // Rows start below the header-filter row and top pinned rows (see PinnedRowsSlot).
+  '& .MuiDataGrid-virtualScrollerRenderZone': { marginTop: 'var(--tdg-pinned-top, 0px)' },
+  // Thin themed scrollbars instead of platform defaults.
+  '& .MuiDataGrid-scrollbar, & .MuiDataGrid-virtualScroller': {
+    scrollbarWidth: 'thin',
+    scrollbarColor: `${cssVar('color-divider-strong')} transparent`,
+  },
+  // Pinned sections: a divider on the inner edge, plus a shadow once content scrolls beneath.
+  [leftEdge]: { borderRight: `1px solid ${divider}` },
+  [rightEdge]: { borderLeft: `1px solid ${divider}` },
+  '&[data-tdg-scroll-x="middle"], &[data-tdg-scroll-x="end"]': {
+    [leftEdge]: { boxShadow: `4px 0 8px -4px ${pinShadow}` },
+  },
+  '&[data-tdg-scroll-x="start"], &[data-tdg-scroll-x="middle"]': {
+    [rightEdge]: { boxShadow: `-4px 0 8px -4px ${pinShadow}` },
+  },
+  '& .TectonDataGrid-pinnedRows--top': {
+    position: 'relative',
+    zIndex: 3,
+    borderBottom: `1px solid ${divider}`,
+  },
+  '&[data-tdg-scroll-y="middle"] .TectonDataGrid-pinnedRows--top, &[data-tdg-scroll-y="end"] .TectonDataGrid-pinnedRows--top':
+    { boxShadow: `0 4px 8px -4px ${pinShadow}` },
+  '& .TectonDataGrid-pinnedRows--bottom': {
+    position: 'relative',
+    zIndex: 3,
+    borderTop: `1px solid ${divider}`,
+  },
+  '&[data-tdg-scroll-y="start"] .TectonDataGrid-pinnedRows--bottom, &[data-tdg-scroll-y="middle"] .TectonDataGrid-pinnedRows--bottom':
+    { boxShadow: `0 -4px 8px -4px ${pinShadow}` },
+  // Pinned rows are not interactive rows: no zebra/hover treatment.
+  '& .TectonDataGrid-pinnedRow, & .TectonDataGrid-pinnedRow:hover, & .TectonDataGrid-pinnedRow:nth-of-type(even)':
+    {
+      backgroundColor: cssVar('color-table-cell-bg'),
+      border: 'none',
+    },
+  '& .TectonDataGrid-pinnedRow.TectonDataGrid-aggregationRow, & .TectonDataGrid-pinnedRow.TectonDataGrid-aggregationRow:hover':
+    { backgroundColor: cssVar('color-table-footer-bg') },
+  // Header filter row: header surface, compact filled inputs.
+  '& .TectonDataGrid-headerFilterRow, & .TectonDataGrid-headerFilterRow:hover, & .TectonDataGrid-headerFilterRow:nth-of-type(even)':
+    {
+      backgroundColor: cssVar('color-table-header-bg'),
+      border: 'none',
+    },
+  '& .TectonDataGrid-headerFilterCell': {
+    backgroundColor: cssVar('color-table-header-bg'),
+    padding: `0 ${cssVar('space-75')}`,
+  },
+  '& .TectonDataGrid-headerFilterControl': {
+    display: 'flex',
+    alignItems: 'center',
+    gap: cssVar('space-25'),
+    width: '100%',
+    height: cssVar('space-400'),
+    paddingInline: cssVar('space-50'),
+    borderRadius: cssVar('radius-50'),
+    backgroundColor: cssVar('color-input-filled-bg'),
+    color: cssVar('color-input-filled-text-value'),
+    fontSize: cssVar('font-size-medium'),
+    '&:hover': { backgroundColor: cssVar('color-input-filled-bg-hover') },
+    '&:focus-within': { boxShadow: `inset 0 0 0 1px ${cssVar('color-focus-ring')}` },
+    '& input::placeholder': { color: cssVar('color-input-filled-text-placeholder'), opacity: 1 },
+  },
+  '& .TectonDataGrid-headerFilterOperator, & .TectonDataGrid-headerFilterClear': {
+    width: cssVar('space-300'),
+    height: cssVar('space-300'),
+    padding: 0,
+    fontSize: cssVar('font-size-medium'),
+    color: cssVar('color-input-filled-adornment'),
+  },
   // Community reveals header icons only for its own (single) sorted/filtered column; reveal them
   // for every column of the multi-sort / multi-filter models.
   '& .MuiDataGrid-columnHeader:has(.TectonDataGrid-headerMarker) .MuiDataGrid-iconButtonContainer':
@@ -1357,7 +1481,7 @@ const BASE_SX = {
     padding: 0,
   },
   '& .TectonDataGrid-aggregationRow': {
-    fontWeight: 'var(--tecton-font-weight-medium-strong, 500)',
+    fontWeight: cssVar('font-weight-medium-strong'),
   },
   '&.TectonDataGrid--columnDragging, &.TectonDataGrid--rowDragging': {
     userSelect: 'none',

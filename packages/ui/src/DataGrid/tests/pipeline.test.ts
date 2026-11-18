@@ -238,7 +238,10 @@ describe('filtering', () => {
     expect(merged.items).toHaveLength(2);
     expect(merged.items[0].value).toBe('y');
     expect(merged.quickFilterValues).toEqual(['q']);
-    expect(countFiltersByField(merged)).toEqual({ name: 1, dept: 1 });
+    expect(countFiltersByField(merged)).toEqual({ name: 1 });
+    expect(
+      countFiltersByField({ items: [{ field: 'name', operator: 'isEmpty' }] }, lookup),
+    ).toEqual({ name: 1 });
   });
 });
 

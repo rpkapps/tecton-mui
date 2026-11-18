@@ -33,6 +33,7 @@ export interface DerivedState {
   aggregationLabels: Record<string, string>;
   rowGroupingModel: readonly string[];
   sortingDisabledForReorder: boolean;
+  headerFilters: boolean;
   columnLookup: Record<string, GridColDef>;
 }
 

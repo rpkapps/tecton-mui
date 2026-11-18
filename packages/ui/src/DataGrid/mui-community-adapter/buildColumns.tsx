@@ -29,7 +29,6 @@ import {
   DetailPanelContent,
   DetailPanelToggleCell,
   GroupingCell,
-  HeaderWithFilter,
   RowReorderHandle,
 } from './cells.js';
 
@@ -262,19 +261,10 @@ export function buildCommunityColumns<R extends GridValidRowModel>(
         };
       }
     }
-    if (aggFn || args.headerFilters) {
-      wrapped.renderHeader = (params) => {
-        const title = aggFn ? (
-          <AggregatedHeader title={titleOf(col, params)} fn={aggFn.label ?? aggName} />
-        ) : (
-          titleOf(col, params)
-        );
-        return args.headerFilters ? (
-          <HeaderWithFilter colDef={params.colDef} title={title} />
-        ) : (
-          title
-        );
-      };
+    if (aggFn) {
+      wrapped.renderHeader = (params) => (
+        <AggregatedHeader title={titleOf(col, params)} fn={aggFn.label ?? aggName} />
+      );
     }
     out.set(field, wrapped);
   }

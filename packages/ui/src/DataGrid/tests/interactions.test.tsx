@@ -82,7 +82,7 @@ describe('DataGrid column menu', () => {
     expect(headerFields().at(-1)).toBe('name');
 
     await openColumnMenu(api, 'salary');
-    fireEvent.click(screen.getByText('Aggregate: sum'));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'sum' }));
     expect(onAggregationModelChange).toHaveBeenCalledWith({ salary: 'sum' });
 
     await openColumnMenu(api, 'dept');

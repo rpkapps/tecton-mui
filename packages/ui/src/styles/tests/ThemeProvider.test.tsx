@@ -222,3 +222,19 @@ describe('Tecton tree view defaults', () => {
     expect(components.MuiRichTreeView).toBe(components.MuiSimpleTreeView);
   });
 });
+
+describe('Tecton Data Grid compat', () => {
+  it('uses the Tecton action/outlined/border token for grid dividers and aligns the header checkbox', () => {
+    const overrides = createTheme().components?.MuiDataGrid?.styleOverrides as Record<
+      string,
+      Record<string, unknown>
+    >;
+    expect(overrides.root['&&']).toEqual({
+      '--DataGrid-t-color-border-base': 'var(--tecton-color-action-outlined-border)',
+    });
+    expect(String(overrides.columnHeaders.borderBottom)).toContain(
+      '--tecton-color-action-outlined-border',
+    );
+    expect(overrides.columnHeader['&.MuiDataGrid-columnHeaderCheckbox']).toEqual({ padding: 0 });
+  });
+});

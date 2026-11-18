@@ -138,9 +138,23 @@ export function mergeCommunityFilterModel(
   };
 }
 
-/** Number of active filter items per field (for header filter icon counters). */
-export function countFiltersByField(model: GridFilterModel): Record<string, number> {
+/** Number of active (complete) filter items per field, for header filter icon counters. */
+export function countFiltersByField(
+  model: GridFilterModel,
+  lookup: Record<string, GridColDef> = {},
+): Record<string, number> {
   const counts: Record<string, number> = {};
-  for (const item of model.items) counts[item.field] = (counts[item.field] ?? 0) + 1;
+  for (const item of model.items) {
+    const op = lookup[item.field]?.filterOperators?.find((o) => o.value === item.operator);
+    const needsValue = op ? op.requiresFilterValue !== false : true;
+    const hasValue = !(
+      item.value === undefined ||
+      item.value === null ||
+      item.value === '' ||
+      (Array.isArray(item.value) && item.value.length === 0)
+    );
+    if (needsValue && !hasValue) continue;
+    counts[item.field] = (counts[item.field] ?? 0) + 1;
+  }
   return counts;
 }
