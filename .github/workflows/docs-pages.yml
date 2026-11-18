@@ -1,0 +1,51 @@
+name: Docs site (GitHub Pages)
+
+# Builds the docs portal (prerendered pages, Pagefind search, live examples) and publishes it to
+# GitHub Pages at https://<owner>.github.io/<repository>/. Requires Settings -> Pages -> Source:
+# "GitHub Actions". The github-pages environment only accepts the branches its deployment rules
+# allow (by default the default branch).
+on:
+  push:
+    branches: [dev, claude/focused-brahmagupta-13bb9z]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build the docs portal
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Build (API generation, prerender, Pagefind index, link check)
+        run: pnpm --filter @tecton-mui/docs build
+        env:
+          DOCS_BASE: /${{ github.event.repository.name }}/
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/docs/dist
+
+  deploy:
+    name: Publish to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
