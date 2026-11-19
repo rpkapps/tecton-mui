@@ -74,6 +74,7 @@ test.describe('Menubar', () => {
     const csv = page.getByRole('menuitem', { name: 'CSV' });
     await expect(csv).toBeFocused();
     // The submenu opens on the inline-start side (left in RTL).
+    await expect(page.locator('.TectonMenubar-popup')).toHaveCount(2);
     const [parentLeft, childRight] = await page.evaluate(() => [
       document.querySelector('.TectonMenubar-submenuTrigger')!.getBoundingClientRect().left,
       document.querySelectorAll('.TectonMenubar-popup')[1]!.getBoundingClientRect().right,

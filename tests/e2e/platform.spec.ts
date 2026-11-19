@@ -93,6 +93,29 @@ test.describe('shared light/dark mode across independent React roots', () => {
   });
 });
 
+test.describe('menus', () => {
+  // Tecton's inside-border trick used to overflow the menu paper by 1px: a scrollbar on every menu.
+  test('a short menu does not overflow its paper', async ({ page }) => {
+    await page.goto('/?scenario=multi-root');
+    await page.getByTestId('panel-mfe').getByRole('button', { name: 'Open menu' }).click();
+    const paper = page.locator('.MuiMenu-paper');
+    await expect(paper).toBeVisible();
+    const { scroll, client } = await paper.evaluate((e) => ({
+      scroll: e.scrollHeight,
+      client: e.clientHeight,
+    }));
+    expect(scroll).toBeLessThanOrEqual(client);
+  });
+
+  test('a menu bar menu does not overflow its paper', async ({ page }) => {
+    await page.goto('/?scenario=menubar');
+    await page.getByRole('menubar').getByRole('menuitem', { name: 'File' }).click();
+    const popup = page.locator('.TectonMenubar-popup');
+    await expect(popup).toBeVisible();
+    expect(await popup.evaluate((e) => e.scrollHeight - e.clientHeight)).toBeLessThanOrEqual(0);
+  });
+});
+
 test.describe('RTL', () => {
   test('flips layout, keeps pinned columns sticky on the leading edge', async ({ page }) => {
     await page.goto('/?scenario=grid:grouping&dir=rtl');

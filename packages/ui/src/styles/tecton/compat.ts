@@ -16,6 +16,15 @@ const gridFocusRing = {
   },
 };
 
+const menuBorder = cssVar('border-width-100');
+const menuListBottomPadding = {
+  // MUI List padding (8px) and Tecton's dense menu list padding (space-50), one border less.
+  '& > .MuiList-padding:last-child': { paddingBottom: `calc(8px - ${menuBorder})` },
+  '& > .MuiList-dense.MuiList-padding:last-child': {
+    paddingBottom: `calc(${cssVar('space-50')} - ${menuBorder})`,
+  },
+};
+
 export const muiCompatOverrides: ThemeOptions = {
   components: {
     MuiDataGrid: {
@@ -60,6 +69,19 @@ export const muiCompatOverrides: ThemeOptions = {
         cell: gridFocusRing,
       },
     } as NonNullable<ThemeOptions['components']>['MuiDataGrid'],
+    // Tecton draws the menu border "inside" the paper by pulling the list back one border width
+    // with negative margins. The bottom margin leaves the list's last pixel row outside the paper's
+    // padding box, so the scrollable paper overflows by 1px and every menu shows a scrollbar. Keep
+    // the top pull (overflow above the box is not scrollable) and take the bottom pixel from the
+    // list's own bottom padding instead: same height and pixels, no overflow.
+    MuiMenu: {
+      styleOverrides: {
+        paper: {
+          '& > :last-child': { marginBottom: 0 },
+          ...menuListBottomPadding,
+        },
+      },
+    },
     MuiTreeItem: {
       styleOverrides: {
         content: {
@@ -129,6 +151,19 @@ export function applyThemeCompat(theme: Theme): Theme {
       const { disableRipple: _ignored, ...rest } = defaults;
       components[name] = { ...components[name], defaultProps: rest };
     }
+  }
+  // Tecton repeats the menu border pull on the Select menu paper (`defaultProps.MenuProps`), where
+  // `sx` outranks the MuiMenu correction above: apply the same fix there.
+  const selectPaper = (
+    components.MuiSelect?.defaultProps as
+      { MenuProps?: { slotProps?: { paper?: { sx?: Record<string, unknown> } } } } | undefined
+  )?.MenuProps?.slotProps?.paper;
+  if (selectPaper?.sx && '& > :last-child' in selectPaper.sx) {
+    selectPaper.sx = {
+      ...selectPaper.sx,
+      '& > :last-child': { marginBottom: 0 },
+      ...menuListBottomPadding,
+    };
   }
   // MUI X 9 paints the TimeClock face `rgba(0,0,0,.07)` in both modes and Tecton 0.11.2 has no
   // MuiClock override, so in dark mode the face was invisible. Dark mode only: light keeps the

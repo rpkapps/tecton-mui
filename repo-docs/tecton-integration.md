@@ -166,6 +166,11 @@ Written by `emit` and listed with checksums in
   - **Nested tree loading rows:** Tecton indents nested items with group padding and fixed content
     padding; `TreeItemLoader` keeps MUI's depth-based padding and was indented twice inside a
     group. The correction gives loaders inside a group the content padding.
+  - **Menu paper scroll overflow:** Tecton draws the menu border inside the paper by pulling the
+    list back one border width with negative top and bottom margins (on `MuiMenu` and again on the
+    Select menu paper). The bottom margin leaves the list 1px outside the scrollable paper, so every
+    menu showed a scrollbar. The correction keeps the top pull, drops the bottom margin and takes the
+    pixel from the list's bottom padding instead (same height and pixels).
   - **Data Grid focus indicator:** Tecton sets `outline: none` on focused cells and column headers
     and draws nothing instead, so keyboard focus was invisible (WCAG 2.4.7). The correction draws a
     2px `color-focus-ring` outline inside the cell or header on `:focus-visible` (also when focus is

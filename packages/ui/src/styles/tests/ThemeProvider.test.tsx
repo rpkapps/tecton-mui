@@ -314,6 +314,24 @@ describe('Tecton data grid corrections', () => {
   });
 });
 
+describe('Tecton menu corrections', () => {
+  it('pulls the menu list back without a bottom margin (no 1px scroll overflow)', () => {
+    const components = createTheme().components as Record<string, Record<string, any>>;
+    for (const paper of [
+      components.MuiMenu.styleOverrides.paper,
+      components.MuiSelect.defaultProps.MenuProps.slotProps.paper.sx,
+    ]) {
+      expect(paper['& > :first-child']).toEqual({
+        marginTop: 'calc(-1 * var(--tecton-border-width-100))',
+      });
+      expect(paper['& > :last-child']).toEqual({ marginBottom: 0 });
+      expect(paper['& > .MuiList-padding:last-child']).toEqual({
+        paddingBottom: 'calc(8px - var(--tecton-border-width-100))',
+      });
+    }
+  });
+});
+
 describe('Tecton tree item corrections', () => {
   it('draws the focus ring on keyboard focus and aligns nested loading rows', () => {
     const components = createTheme().components as Record<
