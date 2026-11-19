@@ -30,7 +30,7 @@ export const GroupingCell = React.memo(function GroupingCell({
       (s: DerivedState) => {
         const m = s.meta.get(id);
         return m
-          ? `${m.depth}|${m.childrenCount}|${m.isGroup ? 1 : 0}|${m.groupingField ?? ''}`
+          ? `${m.depth}|${m.descendantCount}|${m.isGroup ? 1 : 0}|${m.groupingField ?? ''}`
           : '';
       },
       [id],

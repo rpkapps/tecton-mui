@@ -51,6 +51,8 @@ export interface GridActions {
   setAggregation: (field: string, fn: string | null) => void;
   moveRow: (id: GridRowId, delta: number) => void;
   getDetailPanelContent: (id: GridRowId, row: object) => React.ReactNode;
+  /** Measured height of the pinned top (header filters + pinned rows) or bottom section. */
+  setPinnedExtent: (position: 'top' | 'bottom', height: number) => void;
 }
 
 export interface GridAdvancedContextValue {

@@ -197,6 +197,11 @@ export interface DataGridAdvancedProps<R extends GridValidRowModel = any> {
   // Pagination
   /** `false` disables pagination (all rows virtualized). @default true */
   pagination?: boolean;
+  /**
+   * Hides the total row count that the footer shows without pagination. No effect while the grid
+   * paginates. @default false
+   */
+  hideFooterRowCount?: boolean;
   // Column pinning & reordering
   pinnedColumns?: GridPinnedColumnFields;
   onPinnedColumnsChange?: (model: GridPinnedColumnFields) => void;

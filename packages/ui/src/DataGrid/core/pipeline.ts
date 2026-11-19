@@ -37,6 +37,12 @@ export function isNodeExpanded(node: GridNode, config: ExpansionConfig): boolean
 export interface RowMeta {
   depth: number;
   childrenCount: number;
+  /**
+   * Rows inside the group (all levels, after filtering), shown next to the group label as MUI
+   * does. Generated group rows are not counted; tree-data parents are. Falls back to
+   * `childrenCount` when children are not loaded (server data).
+   */
+  descendantCount: number;
   label?: string;
   groupingField: string | null;
   groupingKey: unknown;
@@ -87,6 +93,16 @@ export function flattenTree<R extends GridValidRowModel>(
   const alive = new Set<GridRowId>();
   let detailCount = 0;
 
+  const descendants = new Map<GridRowId, number>();
+  const countDescendants = (node: GridNode<R>): number => {
+    if (!node.children?.length) return 0;
+    let count = 0;
+    for (const child of node.children) count += (child.row ? 1 : 0) + countDescendants(child);
+    descendants.set(node.id, count);
+    return count;
+  };
+  for (const root of roots) countDescendants(root);
+
   const visit = (nodes: readonly GridNode<R>[]) => {
     for (const node of nodes) {
       const hasChildren = isGroupNode(node);
@@ -94,6 +110,7 @@ export function flattenTree<R extends GridValidRowModel>(
       meta.set(node.id, {
         depth: node.depth,
         childrenCount,
+        descendantCount: descendants.get(node.id) || childrenCount,
         label: node.label,
         groupingField: node.groupingField,
         groupingKey: node.groupingKey,

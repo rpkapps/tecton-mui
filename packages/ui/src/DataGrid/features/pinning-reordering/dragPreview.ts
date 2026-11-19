@@ -2,11 +2,17 @@
 // pointer and a scoped stylesheet that slides the other columns/rows aside to open the drop slot.
 // Nothing here touches React state, so a drag re-renders no cells; React updates once, on drop.
 
+import { cssVar } from '../../../styles/tecton/index.js';
+
 let sequence = 0;
 
 /** Shadow for floating drag feedback. Always black: light shadows read as glows in dark mode. */
 const GHOST_SHADOW = '0 2px 4px rgba(0, 0, 0, 0.14), 0 6px 16px rgba(0, 0, 0, 0.2)';
 const SLIDE_MS = 150;
+/** Paint of the drop slot (the dragged column or row while it slides with the others). */
+export const SLOT_BACKGROUND = cssVar('color-action-tertiary-bg-hover');
+export const SLOT_EDGE = cssVar('color-action-primary-bg');
+export const SLOT_TEXT = cssVar('color-text-disabled');
 
 export class DragPreview {
   private readonly scope = `tdg-drag-${++sequence}`;
@@ -15,6 +21,12 @@ export class DragPreview {
   private ghostOffset = { x: 0, y: 0 };
   private observer: MutationObserver | null = null;
   private fallback: ReturnType<typeof setTimeout> | undefined;
+  private slotCss = '';
+  /**
+   * Whether shifts slide. Off while the drag auto-scrolls: rows or columns that scroll into view
+   * would otherwise visibly slide into their shifted place.
+   */
+  animate = true;
 
   constructor(private readonly root: HTMLElement) {}
 
@@ -37,11 +49,23 @@ export class DragPreview {
     let css = `${transitionTargets
       .split(',')
       .map((s) => prefix(s.trim()))
-      .join(',')}{transition:transform ${SLIDE_MS}ms ease;}`;
+      .join(',')}{transition:${this.animate ? `transform ${SLIDE_MS}ms ease` : 'none'};}`;
     for (const { targets, transform } of shifts) {
       css += `${targets.map(prefix).join(',')}{transform:${transform};position:relative;z-index:1;}`;
     }
-    this.style.textContent = css;
+    this.style.textContent = `${css}/*slot*/${this.slotCss}`;
+  }
+
+  /**
+   * Marks the drop slot (the dragged column or row, which slides with the others) so it reads as
+   * "the item goes here": `targets` are selector lists without the scope prefix.
+   */
+  setSlot(targets: string[], declarations: string, nested: Array<[string, string]> = []): void {
+    const prefix = (s: string) => `${this.selector} ${s}`;
+    this.slotCss = `${targets.map(prefix).join(',')}{${declarations}}`;
+    for (const [inner, decl] of nested)
+      this.slotCss += `${targets.map((t) => `${prefix(t)} ${inner}`).join(',')}{${decl}}`;
+    if (this.style && !this.style.textContent) this.style.textContent = `/*slot*/${this.slotCss}`;
   }
 
   /** Floating ghost styled from the grid's own tokens, positioned so the grab point stays put. */
@@ -103,6 +127,10 @@ export class DragPreview {
   end(until?: () => boolean): void {
     this.ghost?.remove();
     this.ghost = null;
+    this.slotBox?.remove();
+    this.slotBox = null;
+    this.slotCss = '';
+    if (this.style) this.style.textContent = this.style.textContent?.split('/*slot*/')[0] ?? '';
     if (until && this.style) {
       this.observer = new MutationObserver(() => {
         if (until()) this.dispose();
@@ -118,12 +146,55 @@ export class DragPreview {
   cancel(transitionTargets: string): void {
     this.ghost?.remove();
     this.ghost = null;
+    this.slotBox?.remove();
+    this.slotBox = null;
+    this.slotCss = '';
+    this.animate = true;
     this.setShifts(transitionTargets, []);
     this.fallback = setTimeout(() => this.dispose(), SLIDE_MS + 20);
   }
 
+  private slotBox: HTMLElement | null = null;
+
+  /**
+   * A box painted like the slot, for when the dragged item itself is not rendered (a virtualized
+   * row scrolled out of view): `rect` in viewport coordinates, `null` hides it.
+   */
+  showSlotBox(rect: { left: number; top: number; width: number; height: number } | null): void {
+    if (!rect || rect.height <= 0 || rect.width <= 0) {
+      if (this.slotBox) this.slotBox.style.display = 'none';
+      return;
+    }
+    if (!this.slotBox) {
+      const box = document.createElement('div');
+      box.setAttribute('aria-hidden', 'true');
+      box.className = 'TectonDataGrid-dragSlot';
+      Object.assign(box.style, {
+        position: 'fixed',
+        left: '0px',
+        top: '0px',
+        zIndex: '1599',
+        pointerEvents: 'none',
+        boxSizing: 'border-box',
+        background: SLOT_BACKGROUND,
+        boxShadow: `inset 0 2px 0 ${SLOT_EDGE}, inset 0 -2px 0 ${SLOT_EDGE}`,
+      });
+      document.body.appendChild(box);
+      this.slotBox = box;
+    }
+    Object.assign(this.slotBox.style, {
+      display: 'block',
+      width: `${rect.width}px`,
+      height: `${rect.height}px`,
+      transform: `translate(${rect.left}px, ${rect.top}px)`,
+    });
+  }
+
   dispose(): void {
     clearTimeout(this.fallback);
+    this.slotCss = '';
+    this.slotBox?.remove();
+    this.slotBox = null;
     this.observer?.disconnect();
     this.observer = null;
     this.ghost?.remove();

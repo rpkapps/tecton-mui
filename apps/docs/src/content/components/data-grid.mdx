@@ -44,7 +44,9 @@ section; the column menu offers the same moves for keyboard users.
 
 `rowGroupingModel` groups rows by one or more fields. `aggregationModel` maps a field to a function
 (`sum`, `avg`, `min`, `max`, `size`, or your own via `aggregationFunctions`). Group rows show their
-aggregates inline, and a grand total row is pinned at the bottom.
+aggregates inline, and a grand total row is pinned at the bottom. The grouping column shows the
+grouping values, so the example hides the source columns with `columnVisibilityModel`, as is usual
+with row grouping.
 
 <Demo name="GroupingAggregation" />
 
@@ -89,6 +91,14 @@ disabled while rows are sorted, grouped or loaded from a server.
 
 <Demo name="RowReordering" />
 
+Row reordering works in scrolling, virtualized grids. Dragging near the top or bottom edge of the
+rows scrolls them. While the dragged row is on screen the other rows slide aside to open its slot;
+once it has scrolled out of view, a drop line between the rows shows where it lands. This example
+also sets `pagination={false}`; the footer then shows the total row count (`hideFooterRowCount`
+hides it).
+
+<Demo name="RowReorderingVirtualized" />
+
 ## Undo and redo
 
 `historyStackSize` keeps that many cell edits, pastes and row moves for
@@ -118,11 +128,19 @@ and the props that enable it.
 
 - The grid follows the ARIA grid pattern (`treegrid` when rows are hierarchical). Arrow keys move
   between cells, <kbd>Home</kbd>/<kbd>End</kbd> to the first/last cell of a row,
-  <kbd>Page Up</kbd>/<kbd>Page Down</kbd> by a page.
+  <kbd>Page Up</kbd>/<kbd>Page Down</kbd> by a page. The focused cell or header is outlined with the
+  Tecton focus ring while you navigate with the keyboard.
+- With `headerFilters`, the filter row is part of the navigation: <kbd>Arrow Down</kbd> from a
+  column header moves to its filter and on to the first row, <kbd>Arrow Up</kbd> goes back.
+  <kbd>Arrow Left</kbd>/<kbd>Arrow Right</kbd> move to the neighbouring filter once the text cursor
+  is at the start or end of the input.
+- Detail panels are not navigation stops: <kbd>Arrow Up</kbd>/<kbd>Arrow Down</kbd> move from a
+  row to the next row past an open panel.
 - <kbd>Enter</kbd> or typing starts editing; <kbd>Escape</kbd> cancels; <kbd>Tab</kbd> leaves the
   grid.
 - Column headers announce their sort state; secondary sort columns expose their priority as text.
-- Group and tree rows expose `aria-level` and `aria-expanded`; the toggle button in the grouping cell
-  expands and collapses them.
+- Group and tree rows expose `aria-level` and `aria-expanded`; <kbd>Space</kbd> on the grouping
+  cell, or the toggle button in it, expands and collapses them. The count next to a group label is
+  the number of rows in the group.
 - Give the grid an accessible name with `aria-label` or `aria-labelledby` when several grids share a
   page.

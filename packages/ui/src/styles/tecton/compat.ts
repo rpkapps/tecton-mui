@@ -4,6 +4,18 @@ import type { Theme, ThemeOptions } from '@mui/material/styles';
 import { focusRingShadow, slotIcon } from './generated/mui/components/shared.js';
 import { cssVar } from './generated/core/index.js';
 
+// Tecton sets `outline: none` on focused Data Grid cells and column headers and draws nothing
+// instead, so keyboard focus is invisible while navigating with the arrow keys (WCAG 2.4.7).
+// Draw Tecton's 2px focus-ring colour inside the cell (an outer ring would be clipped by the
+// neighbouring cells), for keyboard focus only (`:focus-visible`, also when the focus is on a
+// control inside the cell: checkbox, row reorder handle).
+const gridFocusRing = {
+  '&:focus-visible, &:has(:focus-visible)': {
+    outline: `${cssVar('border-width-200')} solid ${cssVar('color-focus-ring')}`,
+    outlineOffset: `calc(-1 * ${cssVar('border-width-200')})`,
+  },
+};
+
 export const muiCompatOverrides: ThemeOptions = {
   components: {
     MuiDataGrid: {
@@ -43,7 +55,9 @@ export const muiCompatOverrides: ThemeOptions = {
           // padding") but not of the header checkbox cell, which shifts the select-all checkbox
           // 10px off the row checkboxes. Mirror the body rule on the header cell.
           '&.MuiDataGrid-columnHeaderCheckbox': { padding: 0 },
+          ...gridFocusRing,
         },
+        cell: gridFocusRing,
       },
     } as NonNullable<ThemeOptions['components']>['MuiDataGrid'],
     MuiTreeItem: {

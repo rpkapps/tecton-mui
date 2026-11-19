@@ -195,6 +195,19 @@ export function GridScenarios({ which }: { which: string }) {
           </Box>
         </Paper>
       )}
+      {show('virtual') && (
+        <Paper variant="outlined" sx={{ p: 2 }} data-testid="grid-virtual">
+          <Typography variant="h5" gutterBottom>
+            Row reordering in a virtualized grid (2,000 rows, no pagination)
+          </Typography>
+          <Box sx={{ height: 400 }}>
+            <DataGrid rows={manyRows} columns={manyColumns} rowReordering pagination={false} />
+          </Box>
+        </Paper>
+      )}
     </Box>
   );
 }
+
+const manyRows = Array.from({ length: 2000 }, (_, i) => ({ id: i + 1, label: `Item ${i + 1}` }));
+const manyColumns: GridColDef[] = [{ field: 'label', headerName: 'Label', width: 200 }];

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { DragPreview, cssString } from './dragPreview.js';
+import { DragPreview, SLOT_BACKGROUND, SLOT_EDGE, SLOT_TEXT, cssString } from './dragPreview.js';
 
 export interface RowReorderOptions {
   enabled: boolean;
@@ -24,6 +24,22 @@ interface Block {
   elements: HTMLElement[];
   top: number;
   height: number;
+}
+
+/**
+ * The part of the scroller that shows rows: below the headers (and header filters / pinned top
+ * rows), above the pinned bottom rows and the horizontal scrollbar.
+ */
+function rowsViewport(root: HTMLElement, scroller: HTMLElement) {
+  const rect = scroller.getBoundingClientRect();
+  const top = root.querySelector('.MuiDataGrid-topContainer')?.getBoundingClientRect().bottom;
+  const bottom = root.querySelector('.MuiDataGrid-bottomContainer')?.getBoundingClientRect().top;
+  return {
+    left: rect.left,
+    width: scroller.clientWidth,
+    top: Math.max(rect.top, top ?? rect.top),
+    bottom: Math.min(rect.bottom, bottom ?? rect.bottom),
+  };
 }
 
 /**
@@ -98,8 +114,12 @@ export function useRowReorder(options: RowReorderOptions): void {
         return blocks;
       };
 
-      const writeShifts = (blocks: Block[]) => {
+      const writeShifts = (blocks: Block[], sourceRendered: boolean) => {
         const shifts: Array<{ targets: string[]; transform: string }> = [];
+        if (!sourceRendered) {
+          preview.setShifts(TRANSITION_TARGETS, shifts);
+          return;
+        }
         const selectorsOf = (block: Block) =>
           block.elements.map((el) => `.MuiDataGrid-row[data-id="${cssString(el.dataset.id!)}"]`);
         const downward = insertAt > sourceIndex;
@@ -126,6 +146,28 @@ export function useRowReorder(options: RowReorderOptions): void {
         preview.setShifts(TRANSITION_TARGETS, shifts);
       };
 
+      // With virtualization the dragged row unmounts once scrolled out of view. Rows then do not
+      // slide (the ones that would fill the opened gap may not be rendered either); a drop line
+      // between the rows shows where the row lands instead.
+      const placeDropLine = (blocks: Block[], sourceRendered: boolean) => {
+        if (sourceRendered || !scroller || insertAt === sourceIndex) {
+          preview.showSlotBox(null);
+          return;
+        }
+        const others = blocks.filter((b) => b.id !== sourceId);
+        const before = others.find((b) => b.index >= insertAt);
+        const after = others.filter((b) => b.index < insertAt).pop();
+        const y = before ? before.top : after ? after.top + after.height : null;
+        const view = rowsViewport(root, scroller);
+        if (y === null || y < view.top - 1 || y > view.bottom + 1) {
+          preview.showSlotBox(null);
+          return;
+        }
+        const thickness = 4;
+        const top = Math.min(Math.max(y - thickness / 2, view.top), view.bottom - thickness);
+        preview.showSlotBox({ left: view.left, width: view.width, top, height: thickness });
+      };
+
       const update = () => {
         const blocks = readBlocks();
         const source = blocks.find((b) => b.id === sourceId);
@@ -146,19 +188,24 @@ export function useRowReorder(options: RowReorderOptions): void {
         const following = blocks.find((b) => b.id !== sourceId && b.index > sourceIndex);
         if (following && next === following.index) next = sourceIndex;
         insertAt = next;
-        writeShifts(blocks);
+        writeShifts(blocks, !!source);
+        placeDropLine(blocks, !!source);
         preview.moveGhost(pointer.x, pointer.y);
       };
 
       const tick = () => {
         if (scroller) {
-          const rect = scroller.getBoundingClientRect();
+          // Edge zones are measured from the rows area: the scroller box also covers the sticky
+          // headers, which would push the upper zone off the rows.
+          const rect = rowsViewport(root, scroller);
           const above = pointer.y - rect.top;
           const below = rect.bottom - pointer.y;
           const step = (distance: number) =>
             Math.ceil(MAX_SCROLL_STEP * (1 - Math.max(0, distance) / EDGE_PX));
+          const before = scroller.scrollTop;
           if (above < EDGE_PX) scroller.scrollTop -= step(above);
           else if (below < EDGE_PX) scroller.scrollTop += step(below);
+          preview.animate = scroller.scrollTop === before;
         }
         update();
         raf = requestAnimationFrame(tick);
@@ -169,6 +216,19 @@ export function useRowReorder(options: RowReorderOptions): void {
         root.classList.add('TectonDataGrid--rowDragging');
         sourceRow.classList.add(BEING_DRAGGED_CLASS);
         preview.begin();
+        // Mark the slot by row id, so a virtualized source row keeps the paint when it remounts.
+        const rowSelector = `.MuiDataGrid-row[data-id="${cssString(sourceId)}"]`;
+        preview.setSlot(
+          [rowSelector],
+          `background-color:${SLOT_BACKGROUND} !important;` +
+            `box-shadow:inset 0 2px 0 ${SLOT_EDGE},inset 0 -2px 0 ${SLOT_EDGE};`,
+          [
+            [
+              '.MuiDataGrid-cell',
+              `color:${SLOT_TEXT} !important;background-color:transparent !important;`,
+            ],
+          ],
+        );
         const ghost = document.createElement('div');
         const icon = handle.querySelector('svg, span, i')?.cloneNode(true);
         if (icon) ghost.appendChild(icon);

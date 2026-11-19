@@ -36,6 +36,8 @@ export default function GroupingAggregation() {
         rowGroupingModel={['department', 'site']}
         aggregationModel={{ salary: 'sum', name: 'size' }}
         defaultGroupingExpansionDepth={1}
+        // The Group column shows the grouping values; hide the columns they come from.
+        initialState={{ columns: { columnVisibilityModel: { department: false, site: false } } }}
       />
     </Box>
   );

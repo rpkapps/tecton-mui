@@ -230,4 +230,224 @@ test.describe('DataGrid advanced features', () => {
     await page.keyboard.press(' ');
     await expect(row).toHaveAttribute('aria-expanded', 'false');
   });
+  test('the virtual scroller keeps its native scrollbars hidden (one set of scrollbars)', async ({
+    page,
+  }) => {
+    await page.goto('/?scenario=grid:pinning');
+    const root = grid(page, 'grid-pinning');
+    const scroller = root.locator('.MuiDataGrid-virtualScroller');
+    expect(await scroller.evaluate((e) => getComputedStyle(e).scrollbarWidth)).toBe('none');
+    // Scroll down, then right: rows stay put (the scroll range is not clamped back).
+    await scroller.evaluate((e) => (e.scrollTop = e.scrollHeight));
+    await page.waitForTimeout(100);
+    const top = await scroller.evaluate((e) => e.scrollTop);
+    await scroller.evaluate((e) => (e.scrollLeft = 300));
+    await page.waitForTimeout(400);
+    expect(await scroller.evaluate((e) => e.scrollTop)).toBe(top);
+  });
+
+  test('the last rows scroll fully into view above the total row and below header filters', async ({
+    page,
+  }) => {
+    await page.goto('/?scenario=grid:pinning');
+    const root = grid(page, 'grid-pinning');
+    const scroller = root.locator('.MuiDataGrid-virtualScroller');
+    await scroller.evaluate((e) => (e.scrollTop = e.scrollHeight));
+    await page.waitForTimeout(600);
+    const { lastBottom, totalTop } = await root.evaluate((r) => {
+      const rows = r.querySelectorAll('.MuiDataGrid-virtualScrollerRenderZone > .MuiDataGrid-row');
+      return {
+        lastBottom: rows[rows.length - 1]!.getBoundingClientRect().bottom,
+        totalTop: r.querySelector('.TectonDataGrid-pinnedRows--bottom')!.getBoundingClientRect()
+          .top,
+      };
+    });
+    expect(lastBottom).toBeLessThanOrEqual(totalTop + 1);
+  });
+
+  test('the multi-sort priority badge sits on the sort arrow', async ({ page }) => {
+    await page.goto('/?scenario=grid:sorting');
+    const root = grid(page, 'grid-sorting');
+    const head = header(root, 'department');
+    const badge = await head.locator('.MuiBadge-badge').boundingBox();
+    const button = await head.locator('.MuiDataGrid-sortButton').boundingBox();
+    const box = await head.boundingBox();
+    expect(badge!.y).toBeGreaterThanOrEqual(box!.y);
+    // Overlaps the button's top end corner.
+    expect(badge!.x).toBeGreaterThan(button!.x);
+    expect(badge!.y).toBeLessThan(button!.y + button!.height / 2);
+  });
+
+  test('group labels count the rows in the group; the column menu has no doubled dividers', async ({
+    page,
+  }) => {
+    await page.goto('/?scenario=grid:grouping');
+    const root = grid(page, 'grid-grouping');
+    // 200 employees in 4 departments: the first department group holds 50 rows (in 3 site groups).
+    await expect(root.locator('.MuiDataGrid-row[data-rowindex="0"]')).toContainText('(50)');
+    const groupColumn = root.locator('.MuiDataGrid-columnHeader').first();
+    await groupColumn.hover();
+    await groupColumn.locator('.MuiDataGrid-menuIconButton').click();
+    const layout = await page.locator('.MuiDataGrid-menuList').evaluate((list) =>
+      Array.from(list.children)
+        .filter((e) => getComputedStyle(e).display !== 'none')
+        .map((e) => (e.tagName === 'HR' ? '|' : 'item')),
+    );
+    expect(layout[0]).not.toBe('|');
+    expect(layout[layout.length - 1]).not.toBe('|');
+    expect(layout.join(' ')).not.toContain('| |');
+  });
+
+  test('keyboard focus is visible on cells and headers, not on mouse focus', async ({ page }) => {
+    await page.goto('/?scenario=grid:sorting');
+    const root = grid(page, 'grid-sorting');
+    const cell = root.locator(
+      '.MuiDataGrid-row[data-rowindex="2"] .MuiDataGrid-cell[data-field="site"]',
+    );
+    await cell.click();
+    const outline = () =>
+      page.evaluate(() => getComputedStyle(document.activeElement!).outlineStyle);
+    expect(await outline()).toBe('none');
+    await page.keyboard.press('ArrowRight');
+    expect(await outline()).toBe('solid');
+    await page.keyboard.press('ArrowUp');
+    await page.keyboard.press('ArrowUp');
+    await page.keyboard.press('ArrowUp');
+    await page.keyboard.press('ArrowUp');
+    await expect(header(root, 'salary')).toBeFocused();
+    expect(await outline()).toBe('solid');
+  });
+
+  test('arrow keys move through the header filter row', async ({ page }) => {
+    await page.goto('/?scenario=grid:sorting');
+    const root = grid(page, 'grid-sorting');
+    const filter = (field: string) =>
+      root.locator(`.TectonDataGrid-headerFilterCell[data-field="${field}"] input`);
+    await root
+      .locator('.MuiDataGrid-row[data-rowindex="0"] .MuiDataGrid-cell[data-field="name"]')
+      .click();
+    await page.keyboard.press('ArrowUp');
+    await expect(filter('name')).toBeFocused();
+    await page.keyboard.press('ArrowUp');
+    await expect(header(root, 'name')).toBeFocused();
+    await page.keyboard.press('ArrowDown');
+    await expect(filter('name')).toBeFocused();
+    // Left/Right move between filters once the caret is at the edge of the text.
+    await page.keyboard.type('Em');
+    await page.keyboard.press('ArrowRight');
+    await expect(filter('department')).toBeFocused();
+    await page.keyboard.press('ArrowLeft');
+    await expect(filter('name')).toBeFocused();
+    await page.keyboard.press('ArrowLeft');
+    await page.keyboard.press('ArrowLeft');
+    await page.keyboard.press('ArrowLeft');
+    await expect(filter('id')).toBeFocused();
+    await page.keyboard.press('ArrowDown');
+    await expect(
+      root.locator('.MuiDataGrid-row[data-rowindex="0"] .MuiDataGrid-cell[data-field="id"]'),
+    ).toBeFocused();
+  });
+
+  test('arrow keys step over detail panels', async ({ page }) => {
+    await page.goto('/?scenario=grid:sorting');
+    const root = grid(page, 'grid-sorting');
+    await root
+      .locator('.MuiDataGrid-row[data-rowindex="0"] .TectonDataGrid-detailPanelToggle')
+      .click();
+    const detail = root.locator('.TectonDataGrid-row--detail').first();
+    const index = Number(await detail.getAttribute('data-rowindex'));
+    await root
+      .locator(
+        `.MuiDataGrid-row[data-rowindex="${index - 1}"] .MuiDataGrid-cell[data-field="name"]`,
+      )
+      .click();
+    await page.keyboard.press('ArrowDown');
+    const below = root.locator(
+      `.MuiDataGrid-row[data-rowindex="${index + 1}"] .MuiDataGrid-cell[data-field="name"]`,
+    );
+    await expect(below).toBeFocused();
+    await page.keyboard.press('ArrowUp');
+    await expect(
+      root.locator(
+        `.MuiDataGrid-row[data-rowindex="${index - 1}"] .MuiDataGrid-cell[data-field="name"]`,
+      ),
+    ).toBeFocused();
+  });
+
+  test('the dragged column is painted as the drop slot', async ({ page }) => {
+    await page.goto('/?scenario=grid:sorting');
+    const root = grid(page, 'grid-sorting');
+    const source = await header(root, 'site')
+      .locator('.MuiDataGrid-columnHeaderTitle')
+      .boundingBox();
+    await page.mouse.move(source!.x + 10, source!.y + 8);
+    await page.mouse.down();
+    await page.mouse.move(source!.x - 120, source!.y + 8, { steps: 8 });
+    const slot = (sel: string) =>
+      root
+        .locator(sel)
+        .first()
+        .evaluate((e) => getComputedStyle(e).boxShadow);
+    expect(await slot('.MuiDataGrid-columnHeader[data-field="site"]')).toContain('inset');
+    expect(await slot('.MuiDataGrid-row .MuiDataGrid-cell[data-field="site"]')).toContain('inset');
+    // Header tooltips and hover paint are off during the drag.
+    expect(
+      await root
+        .locator('.MuiDataGrid-columnHeaders')
+        .evaluate((e) => getComputedStyle(e).pointerEvents),
+    ).toBe('none');
+    await page.keyboard.press('Escape');
+    await page.mouse.up();
+  });
+
+  test('row drag scrolls a virtualized grid both ways and drops; shows the total row count', async ({
+    page,
+  }) => {
+    await page.goto('/?scenario=grid:virtual');
+    const root = grid(page, 'grid-virtual');
+    await expect(root.locator('.MuiDataGrid-footerContainer')).toContainText('2,000');
+    const scroller = root.locator('.MuiDataGrid-virtualScroller');
+    const rows = await root.locator('.MuiDataGrid-virtualScrollerRenderZone').boundingBox();
+    const view = await scroller.boundingBox();
+    const headerBottom = await root
+      .locator('.MuiDataGrid-topContainer')
+      .evaluate((e) => e.getBoundingClientRect().bottom);
+    const drag = async (rowIndex: number, toY: number, waitMs: number) => {
+      const handle = root.locator(
+        `.MuiDataGrid-row[data-rowindex="${rowIndex}"] [data-row-reorder-handle]`,
+      );
+      const hb = await handle.boundingBox();
+      await page.mouse.move(hb!.x + hb!.width / 2, hb!.y + hb!.height / 2);
+      await page.mouse.down();
+      await page.mouse.move(hb!.x + hb!.width / 2, hb!.y + hb!.height / 2 + 10, { steps: 2 });
+      await page.mouse.move(hb!.x + hb!.width / 2, toY, { steps: 6 });
+      await page.waitForTimeout(waitMs);
+    };
+    // Down: near the bottom edge of the rows.
+    await drag(1, view!.y + view!.height - 16, 800);
+    const scrolledDown = await scroller.evaluate((e) => e.scrollTop);
+    expect(scrolledDown).toBeGreaterThan(200);
+    // The source row is out of view: a slot box marks where it will land.
+    await expect(page.locator('.TectonDataGrid-dragSlot')).toBeVisible();
+    await page.mouse.up();
+    await page.waitForTimeout(300);
+    // Up: just below the headers (not over them).
+    const visible = await root.evaluate(
+      (r) =>
+        Array.from(r.querySelectorAll<HTMLElement>('.MuiDataGrid-row[data-rowindex]'))
+          .filter(
+            (row) =>
+              row.getBoundingClientRect().top >
+              r.querySelector('.MuiDataGrid-topContainer')!.getBoundingClientRect().bottom + 60,
+          )
+          .map((row) => Number(row.dataset.rowindex))[0],
+    );
+    await drag(visible!, headerBottom + 12, 600);
+    expect(await scroller.evaluate((e) => e.scrollTop)).toBeLessThan(scrolledDown);
+    await page.mouse.up();
+    expect(rows).not.toBeNull();
+    // The first drop moved "Item 2" down: row 2 now shows "Item 3".
+    await scroller.evaluate((e) => (e.scrollTop = 0));
+    await expect(root.locator('.MuiDataGrid-row[data-rowindex="1"]')).toContainText('Item 3');
+  });
 });

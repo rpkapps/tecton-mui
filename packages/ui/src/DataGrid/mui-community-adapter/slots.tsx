@@ -17,6 +17,7 @@ import {
   GridFilterForm,
   type GridLogicOperator,
   GridRow,
+  GridRowCount,
   gridVisibleColumnDefinitionsSelector,
   gridDimensionsSelector,
   useGridApiContext,
@@ -26,7 +27,9 @@ import {
   type GridFilterItem,
   type GridRowProps,
 } from '@mui/x-data-grid';
+import { styled } from '@mui/material/styles';
 import Icon from '../../Icon/Icon.js';
+import { cssVar } from '../../styles/tecton/index.js';
 import { useStoreSelector } from '../core/store.js';
 import { useGridAdvanced, type DerivedState, type UiState } from '../core/context.js';
 import { isExpandedFromMeta } from '../core/expansion.js';
@@ -206,34 +209,52 @@ export function PaginationSlot() {
   );
 }
 
+const selectRowCount = (s: DerivedState) => s.rowCount;
+
+/**
+ * Footer content without pagination (`pagination={false}`, lazy loading): the total row count, as
+ * the MUI grid shows when it does not paginate. `hideFooterRowCount` hides it.
+ */
+export function TotalRowCountSlot({ hideRowCount }: { hideRowCount?: boolean }) {
+  const { derived } = useGridAdvanced();
+  const rowCount = useStoreSelector(derived, selectRowCount);
+  if (hideRowCount || rowCount < 0) return null;
+  return <GridRowCount rowCount={rowCount} visibleRowCount={rowCount} />;
+}
+
 const selectPinnedTop = (s: DerivedState) => s.pinnedTop;
 const selectPinnedBottom = (s: DerivedState) => s.pinnedBottom;
 
 /** Pinned (top/bottom) rows rendered in Community's sticky pinned-row containers. */
 export function PinnedRowsSlot({ position }: { position: 'top' | 'bottom' }) {
-  const { derived } = useGridAdvanced();
+  const { derived, actions } = useGridAdvanced();
   const rows = useStoreSelector(derived, position === 'top' ? selectPinnedTop : selectPinnedBottom);
   const headerFilters = useStoreSelector(derived, selectHeaderFilters) && position === 'top';
   const apiRef = useGridApiContext();
   const columns = useGridSelector(apiRef, gridVisibleColumnDefinitionsSelector);
   const dimensions = useGridSelector(apiRef, gridDimensionsSelector);
   const ref = React.useRef<HTMLDivElement>(null);
-  // Community offsets rows by the header height only; it does not know about these rows. The top
-  // section publishes its height so rows start below it (applied in CSS before paint).
+  // Community offsets rows by the header height only and sizes its scroll range without these
+  // sections. Each section reports its height: the top one as a CSS variable so rows start below
+  // it (applied before paint), both to the grid, which adds them to the scroll range.
   useEnhancedEffect(() => {
-    if (position !== 'top') return undefined;
-    const root = ref.current?.closest<HTMLElement>('.MuiDataGrid-root') ?? null;
     const el = ref.current;
-    const publish = () => root?.style.setProperty('--tdg-pinned-top', `${el?.offsetHeight ?? 0}px`);
+    const root = el?.closest<HTMLElement>('.MuiDataGrid-root') ?? null;
+    const publish = () => {
+      const height = el?.offsetHeight ?? 0;
+      if (position === 'top') root?.style.setProperty('--tdg-pinned-top', `${height}px`);
+      actions.setPinnedExtent(position, height);
+    };
     publish();
     const observer =
       el && typeof ResizeObserver !== 'undefined' ? new ResizeObserver(publish) : null;
     if (el) observer?.observe(el);
     return () => {
       observer?.disconnect();
-      root?.style.removeProperty('--tdg-pinned-top');
+      if (position === 'top') root?.style.removeProperty('--tdg-pinned-top');
+      actions.setPinnedExtent(position, 0);
     };
-  }, [position, rows.length, headerFilters]);
+  }, [position, rows.length, headerFilters, actions]);
   if (rows.length === 0 && !headerFilters) return null;
   return (
     <div
@@ -332,9 +353,18 @@ const StaticRow = React.memo(function StaticRow({
 const selectAggregationLabels = (s: DerivedState) => s.aggregationLabels;
 
 /** Column menu with sort (multi-aware), pinning, grouping, aggregation and move items. */
+// Community puts a divider after every menu section, also after one that renders nothing for
+// the column (not sortable, not pinnable, a system column ...). Hide the dividers that would then
+// touch, start or end the list, and give the rest the theme's menu spacing.
+const StyledColumnMenu = styled(GridColumnMenu, { name: 'TectonDataGrid', slot: 'ColumnMenu' })({
+  '&& > .MuiDivider-root': { marginBlock: cssVar('space-50') },
+  '& > .MuiDivider-root + .MuiDivider-root, & > .MuiDivider-root:first-child, & > .MuiDivider-root:last-child':
+    { display: 'none' },
+});
+
 export function ColumnMenuSlot(props: GridColumnMenuProps) {
   return (
-    <GridColumnMenu
+    <StyledColumnMenu
       {...props}
       slots={{
         columnMenuSortItem: SortMenuItems,

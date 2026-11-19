@@ -393,6 +393,8 @@ describe('flatten & paginate', () => {
     expect(expanded.rows[0]).toBe(collapsed.rows[0]);
     expect(expanded.rows[4]).toBe(collapsed.rows[1]);
     expect(expanded.meta.get(grouped[0].id)).toMatchObject({ isGroup: true, childrenCount: 2 });
+    // The label count is the number of rows in the group, also while it is collapsed.
+    expect(collapsed.meta.get(grouped[0].id)?.descendantCount).toBe(2);
     const noInline = flattenTree(
       grouped,
       expansionAll,
@@ -402,6 +404,29 @@ describe('flatten & paginate', () => {
       () => false,
     );
     expect(getSynthetic(noInline.rows[0])?.aggregates).toBeUndefined();
+  });
+
+  it('counts rows in nested groups, not the sub-groups', () => {
+    const data = Array.from({ length: 6 }, (_, i) => ({
+      id: i + 1,
+      dept: i < 4 ? 'A' : 'B',
+      site: ['x', 'y'][i % 2],
+    }));
+    const columns = {
+      dept: resolveColumn({ field: 'dept' }),
+      site: resolveColumn({ field: 'site' }),
+    };
+    const grouped = buildRowGroupingHierarchy(data, (r) => r.id, ['dept', 'site'], columns, apiRef);
+    const out = flattenTree(
+      grouped,
+      { overrides: new Map(), defaultDepth: 0 },
+      { byGroup: new Map(), total: {} },
+      null,
+      new SyntheticRowCache(),
+      inline,
+    );
+    const a = out.meta.get(grouped[0].id)!;
+    expect(a).toMatchObject({ childrenCount: 2, descendantCount: 4 });
   });
 
   it('attaches aggregates to tree-data parent copies without mutating user rows', () => {

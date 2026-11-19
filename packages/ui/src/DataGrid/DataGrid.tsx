@@ -18,8 +18,11 @@ import {
   type GridColumnHeaderParams,
   type GridEventListener,
   type GridRowSelectionModel,
+  type GridRowSpacing,
+  type GridRowSpacingParams,
 } from '@mui/x-data-grid';
 import { Store, useStoreSelector } from './core/store.js';
+import { useKeyboardNavigation } from './core/keyboardNavigation.js';
 import { cssVar } from '../styles/tecton/index.js';
 import {
   GridAdvancedContext,
@@ -90,6 +93,7 @@ import {
   MultiFilterPanel,
   PaginationSlot,
   PinnedRowsSlot,
+  TotalRowCountSlot,
   SortIconSlot,
 } from './mui-community-adapter/slots.js';
 import type {
@@ -105,7 +109,6 @@ const EMPTY_SORT: GridSortModel = [];
 const DEFAULT_PAGE_SIZE_OPTIONS = [25, 50, 100];
 const DEFAULT_SORTING_ORDER = ['asc', 'desc', null] as const;
 const COMMUNITY_PAGINATION: GridPaginationModel = { page: 0, pageSize: 100 };
-const NoPagination = () => null;
 
 interface RowPatches<R> {
   base: readonly R[] | undefined;
@@ -142,6 +145,8 @@ function DataGridInner<R extends GridValidRowModel>(
     sortingOrder = DEFAULT_SORTING_ORDER as unknown as DataGridProps<R>['sortingOrder'],
     // pagination
     pagination = true,
+    // Community forces `hideFooterRowCount: false`; the wrapper's own row count reads it.
+    hideFooterRowCount = false,
     paginationModel: paginationModelProp,
     onPaginationModelChange,
     pageSizeOptions = DEFAULT_PAGE_SIZE_OPTIONS,
@@ -679,6 +684,10 @@ function DataGridInner<R extends GridValidRowModel>(
     return { left: [...lead, ...base.left], right: base.right };
   }, [pinnedColumns, columnOrder, systemFields, treeData, rowGroupingModel, rowGroupingColumnMode]);
   const rowReorderDisabled = sortModel.length > 0 || groupingMode !== 'none' || server;
+  // Heights of the sections rendered in Community's pinned-row containers (header filter row,
+  // pinned rows, aggregation footer). Community does not know them, so they are added to its
+  // scroll range as spacing below the last row (see handleGetRowSpacing).
+  const [pinnedExtent, setPinnedExtent] = React.useState({ top: 0, bottom: 0 });
   const actions = React.useMemo<GridActions>(
     () => ({
       toggleExpansion: (id) => {
@@ -734,6 +743,8 @@ function DataGridInner<R extends GridValidRowModel>(
       moveRow: (id, delta) => moveRowBy(id, delta),
       getDetailPanelContent: (id, row) =>
         getDetailPanelContentRef.current?.({ id, row: row as R }) ?? null,
+      setPinnedExtent: (position, height) =>
+        setPinnedExtent((e) => (e[position] === height ? e : { ...e, [position]: height })),
     }),
     // Setters are stable; refs carry the latest values.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -992,6 +1003,14 @@ function DataGridInner<R extends GridValidRowModel>(
   });
 
   const pageRowsRef = useLatest(pageRows);
+  useKeyboardNavigation({
+    rootRef,
+    apiRef,
+    headerFilters,
+    pageRows: () => pageRowsRef.current,
+    isDetailRow,
+    getRowId: getRowId as (row: object) => GridRowId,
+  });
   const visibleRowIds = () => pageRowsRef.current.filter((r) => !getSynthetic(r)).map(getRowId);
   const visibleFields = () =>
     (apiRef.current?.getVisibleColumns() ?? [])
@@ -1273,6 +1292,20 @@ function DataGridInner<R extends GridValidRowModel>(
     return api.subscribeEvent('cellKeyDown', onCellKeyDown, { isFirst: true });
   }, [apiRef, groupingMode, derived, actions]);
 
+  // Community sizes its scroll range from the headers and rows only. Without the pinned sections'
+  // heights the last rows end up under the bottom section (or below the viewport with header
+  // filters) and cannot be scrolled into view. Spacing below the last row adds them to the range;
+  // it is margin (no background), so nothing is painted there.
+  const getRowSpacingProp = (other as { getRowSpacing?: GetRowSpacing }).getRowSpacing;
+  const pinnedSpace = pinnedExtent.top + pinnedExtent.bottom;
+  const handleGetRowSpacing = React.useMemo<GetRowSpacing | undefined>(() => {
+    if (!pinnedSpace) return getRowSpacingProp;
+    return (params) => {
+      const own = getRowSpacingProp?.(params) ?? {};
+      return params.isLastVisible ? { ...own, bottom: (own.bottom ?? 0) + pinnedSpace } : own;
+    };
+  }, [pinnedSpace, getRowSpacingProp]);
+
   const handleGetRowHeight = React.useMemo(() => {
     if (!detailPanel && !getRowHeight) return undefined;
     return (params: Parameters<NonNullable<DataGridProps<R>['getRowHeight']>>[0]) => {
@@ -1411,7 +1444,7 @@ function DataGridInner<R extends GridValidRowModel>(
       columnHeaderFilterIconButton: FilterIconSlot,
       filterPanel: MultiFilterPanel,
       pagination:
-        clientPaging || (server && pagination && !lazyLoading) ? PaginationSlot : NoPagination,
+        clientPaging || (server && pagination && !lazyLoading) ? PaginationSlot : TotalRowCountSlot,
       pinnedRows: PinnedRowsSlot,
       columnMenu: ColumnMenuSlot,
       ...(groupingMode !== 'none' ? { row: HierarchyRowSlot } : null),
@@ -1421,13 +1454,15 @@ function DataGridInner<R extends GridValidRowModel>(
   );
 
   // Hierarchical rows expose aria-level/aria-expanded, which are only valid inside a treegrid.
-  const slotProps = React.useMemo(
-    () =>
+  const slotProps = React.useMemo(() => {
+    const own =
       groupingMode === 'none'
         ? slotPropsProp
-        : { ...slotPropsProp, main: { role: 'treegrid', ...slotPropsProp?.main } },
-    [groupingMode, slotPropsProp],
-  );
+        : { ...slotPropsProp, main: { role: 'treegrid', ...slotPropsProp?.main } };
+    return hideFooterRowCount
+      ? { ...own, pagination: { hideRowCount: true, ...own?.pagination } }
+      : own;
+  }, [groupingMode, slotPropsProp, hideFooterRowCount]);
 
   const pinnedSx = React.useMemo(
     () =>
@@ -1490,6 +1525,7 @@ function DataGridInner<R extends GridValidRowModel>(
         onColumnVisibilityModelChange={handleVisibilityChange}
         processRowUpdate={handleProcessRowUpdate as never}
         getRowHeight={handleGetRowHeight as never}
+        getRowSpacing={handleGetRowSpacing}
         isRowSelectable={handleIsRowSelectable as never}
         isCellEditable={handleIsCellEditable as never}
         getRowClassName={handleGetRowClassName as never}
@@ -1552,8 +1588,10 @@ const BASE_SX = {
   '[data-theme="dark"] &': { '--tdg-shadow-color': 'rgba(0, 0, 0, 0.55)' },
   // Rows start below the header-filter row and top pinned rows (see PinnedRowsSlot).
   '& .MuiDataGrid-virtualScrollerRenderZone': { marginTop: 'var(--tdg-pinned-top, 0px)' },
-  // Thin themed scrollbars instead of platform defaults.
-  '& .MuiDataGrid-scrollbar, & .MuiDataGrid-virtualScroller': {
+  // Thin themed scrollbars instead of platform defaults. Only on the Community grid's own
+  // scrollbar elements: the virtual scroller hides its native scrollbars (`scrollbar-width: none`)
+  // and must keep doing so, or both sets show and the content area shrinks by the native size.
+  '& .MuiDataGrid-scrollbar': {
     scrollbarWidth: 'thin',
     scrollbarColor: `${cssVar('color-divider-strong')} transparent`,
   },
@@ -1577,6 +1615,19 @@ const BASE_SX = {
     position: 'relative',
     zIndex: 3,
     borderTop: `1px solid ${divider}`,
+    // Community keeps a lane for the horizontal scrollbar below this section; fill it with the
+    // section's surface so rows do not show through between the last pinned row and the footer.
+    '&::after': {
+      content: '""',
+      position: 'absolute',
+      insetInline: 0,
+      top: '100%',
+      height: 'calc(var(--DataGrid-hasScrollX) * var(--DataGrid-scrollbarSize))',
+      backgroundColor: cssVar('color-table-cell-bg'),
+    },
+    '&:has(> .TectonDataGrid-aggregationRow:last-child)::after': {
+      backgroundColor: cssVar('color-table-footer-bg'),
+    },
   },
   '&[data-tdg-scroll-y="start"] .TectonDataGrid-pinnedRows--bottom, &[data-tdg-scroll-y="middle"] .TectonDataGrid-pinnedRows--bottom':
     { boxShadow: `0 -4px 8px -4px ${pinShadow}` },
@@ -1588,12 +1639,25 @@ const BASE_SX = {
     },
   '& .TectonDataGrid-pinnedRow.TectonDataGrid-aggregationRow, & .TectonDataGrid-pinnedRow.TectonDataGrid-aggregationRow:hover':
     { backgroundColor: cssVar('color-table-footer-bg') },
+  // When the columns are narrower than the grid, Community fills the rest of the header with an
+  // empty filler. The last column's separator then reads as the edge of an extra, empty column:
+  // keep the resize handle but draw its line only while the header is hovered.
+  '& .MuiDataGrid-columnHeader--last .MuiDataGrid-columnSeparator': { color: 'transparent' },
+  '& .MuiDataGrid-columnHeader--last:hover .MuiDataGrid-columnSeparator': { color: 'inherit' },
+  // The header filter row is as wide as the columns; paint the rest of its section like the header.
+  '& .TectonDataGrid-pinnedRows--top:has(> .TectonDataGrid-headerFilterRow)': {
+    backgroundColor: cssVar('color-table-header-bg'),
+  },
   // Header filter row: header surface, compact filled inputs.
-  '& .TectonDataGrid-headerFilterRow, & .TectonDataGrid-headerFilterRow:hover, & .TectonDataGrid-headerFilterRow:nth-of-type(even)':
+  '&& .TectonDataGrid-headerFilterRow, && .TectonDataGrid-headerFilterRow:hover, && .TectonDataGrid-headerFilterRow:nth-of-type(even), && .TectonDataGrid-headerFilterRow:nth-of-type(odd)':
     {
       backgroundColor: cssVar('color-table-header-bg'),
       border: 'none',
     },
+  '& .TectonDataGrid-headerFilterFiller': {
+    alignSelf: 'stretch',
+    backgroundColor: cssVar('color-table-header-bg'),
+  },
   '& .TectonDataGrid-headerFilterCell': {
     backgroundColor: cssVar('color-table-header-bg'),
     padding: `0 ${cssVar('space-75')}`,
@@ -1629,25 +1693,46 @@ const BASE_SX = {
   '& .MuiDataGrid-columnHeader:has(.TectonDataGrid-sortedMarker) .MuiDataGrid-sortButton': {
     opacity: 1,
   },
+  // Multi-sort priority: a small count on the arrow's top end corner. The theme Badge offsets
+  // (-10px / -11px) are drawn for 32px icon buttons and would lift the number above the header
+  // text of the small sort button.
+  '& .MuiDataGrid-iconButtonContainer .MuiBadge-root': { display: 'inline-flex' },
+  '& .MuiDataGrid-iconButtonContainer .MuiBadge-badge': {
+    top: 0,
+    right: 0,
+    transform: 'none',
+    height: 14,
+    minWidth: 14,
+    padding: `0 ${cssVar('space-25')}`,
+    fontSize: cssVar('font-size-tiny'),
+    lineHeight: '14px',
+    fontWeight: cssVar('font-weight-medium-strong'),
+    color: cssVar('color-action-tertiary-text-active'),
+    backgroundColor: cssVar('color-table-header-bg'),
+    pointerEvents: 'none',
+  },
   // Tecton rows are opaque (zebra/hover/selected); pinned cells follow the row instead of a flat color.
   '&& .MuiDataGrid-row .MuiDataGrid-cell--pinnedLeft, && .MuiDataGrid-row .MuiDataGrid-cell--pinnedRight':
     {
       backgroundColor: 'inherit',
     },
-  '& .TectonDataGrid-row--group': { fontWeight: 'var(--tecton-font-weight-medium-strong, 500)' },
+  // Group and total rows read as headings of their rows. The weight goes on the cells: the theme
+  // sets the cell font weight, which a row-level weight would not reach.
+  '& .TectonDataGrid-row--group .MuiDataGrid-cell, & .TectonDataGrid-aggregationRow .MuiDataGrid-cell':
+    { fontWeight: cssVar('font-weight-medium-strong') },
   '& .TectonDataGrid-row--detail': { '&:hover': { backgroundColor: 'transparent' } },
   '& .TectonDataGrid-row--detail .MuiDataGrid-cell': {
     alignItems: 'stretch',
     justifyContent: 'flex-start',
     padding: 0,
   },
-  '& .TectonDataGrid-aggregationRow': {
-    fontWeight: cssVar('font-weight-medium-strong'),
-  },
   '&.TectonDataGrid--columnDragging, &.TectonDataGrid--rowDragging': {
     userSelect: 'none',
     cursor: 'grabbing',
   },
+  // No hover paint, header tooltips or sort/menu buttons reacting under the pointer mid-drag
+  // (the drag itself listens on the window).
+  '&.TectonDataGrid--columnDragging .MuiDataGrid-columnHeaders': { pointerEvents: 'none' },
   '&.TectonDataGrid--cellSelecting': { userSelect: 'none' },
   // The row being dragged stays in place as a dimmed placeholder (Community `row--beingDragged`).
   '& .MuiDataGrid-row--beingDragged, & .MuiDataGrid-row--beingDragged .MuiDataGrid-cell': {
@@ -1705,6 +1790,8 @@ function buildServerHierarchy<R extends GridValidRowModel>(
 }
 
 export { collectRows };
+
+type GetRowSpacing = (params: GridRowSpacingParams) => GridRowSpacing;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- matches MUI's DataGrid<R = any> default
 type DataGridComponent = <R extends GridValidRowModel = any>(

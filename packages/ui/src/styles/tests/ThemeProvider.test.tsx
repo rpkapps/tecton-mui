@@ -297,6 +297,23 @@ describe('Tecton compat corrections', () => {
   });
 });
 
+describe('Tecton data grid corrections', () => {
+  it('draws a visible keyboard focus indicator on cells and column headers', () => {
+    const grid = (
+      createTheme().components as Record<
+        string,
+        { styleOverrides: Record<string, Record<string, unknown>> }
+      >
+    ).MuiDataGrid.styleOverrides;
+    for (const slot of ['cell', 'columnHeader']) {
+      expect(grid[slot]['&:focus-visible, &:has(:focus-visible)']).toEqual({
+        outline: 'var(--tecton-border-width-200) solid var(--tecton-color-focus-ring)',
+        outlineOffset: 'calc(-1 * var(--tecton-border-width-200))',
+      });
+    }
+  });
+});
+
 describe('Tecton tree item corrections', () => {
   it('draws the focus ring on keyboard focus and aligns nested loading rows', () => {
     const components = createTheme().components as Record<

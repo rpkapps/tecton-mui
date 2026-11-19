@@ -166,6 +166,10 @@ Written by `emit` and listed with checksums in
   - **Nested tree loading rows:** Tecton indents nested items with group padding and fixed content
     padding; `TreeItemLoader` keeps MUI's depth-based padding and was indented twice inside a
     group. The correction gives loaders inside a group the content padding.
+  - **Data Grid focus indicator:** Tecton sets `outline: none` on focused cells and column headers
+    and draws nothing instead, so keyboard focus was invisible (WCAG 2.4.7). The correction draws a
+    2px `color-focus-ring` outline inside the cell or header on `:focus-visible` (also when focus is
+    on a control inside it). Mouse focus stays unmarked.
   - **RichTreeView defaults:** Tecton themes only `MuiSimpleTreeView`. The correction makes
     `MuiRichTreeView` share the same theme entry.
 - `tecton/augmentations.ts` re-declares the Tecton prop augmentations (`activated`, `shape`,

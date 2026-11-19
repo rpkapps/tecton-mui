@@ -1,5 +1,13 @@
 import * as React from 'react';
-import { DragPreview, cssString, isInteractiveTarget, logicalScrollLeft } from './dragPreview.js';
+import {
+  DragPreview,
+  SLOT_BACKGROUND,
+  SLOT_EDGE,
+  SLOT_TEXT,
+  cssString,
+  isInteractiveTarget,
+  logicalScrollLeft,
+} from './dragPreview.js';
 
 export interface ColumnReorderOptions {
   enabled: boolean;
@@ -111,6 +119,16 @@ export function useColumnReorder(options: ColumnReorderOptions): React.RefObject
         root.classList.add('TectonDataGrid--columnDragging');
         header.classList.add(MOVING_CLASS);
         preview.begin();
+        // The dragged column slides with the others: tint it and outline its edges so the slot
+        // where it will land is obvious, and mute its content (the ghost carries the label).
+        const f = cssString(field);
+        preview.setSlot(
+          [`.MuiDataGrid-columnHeader[data-field="${f}"]`, `.MuiDataGrid-cell[data-field="${f}"]`],
+          `background-color:${SLOT_BACKGROUND} !important;` +
+            `box-shadow:inset 2px 0 0 ${SLOT_EDGE},inset -2px 0 0 ${SLOT_EDGE};` +
+            `color:${SLOT_TEXT} !important;`,
+          [['*', 'opacity:0.5;']],
+        );
         const ghost = document.createElement('div');
         ghost.textContent =
           header.querySelector('.MuiDataGrid-columnHeaderTitle')?.textContent ??
@@ -173,8 +191,10 @@ export function useColumnReorder(options: ColumnReorderOptions): React.RefObject
           const after = rect.right - pointer.x;
           const step = (distance: number) =>
             Math.ceil(MAX_SCROLL_STEP * (1 - Math.max(0, distance) / EDGE_PX));
+          const left = s.scroller.scrollLeft;
           if (before < EDGE_PX) s.scroller.scrollLeft -= step(before);
           else if (after < EDGE_PX) s.scroller.scrollLeft += step(after);
+          preview.animate = s.scroller.scrollLeft === left;
         }
         update();
         raf = requestAnimationFrame(tick);

@@ -63,6 +63,33 @@ const PLACEHOLDER_SX = {
 
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
+const FILTER_CONTROL = 'input, select, button';
+
+/** Moves keyboard focus to the header filter of `field`. Returns false when it has none. */
+export function focusHeaderFilter(root: Element, field: string): boolean {
+  const cell = root.querySelector(
+    `.TectonDataGrid-headerFilterCell[data-field="${field.replace(/["\\]/g, '\\$&')}"]`,
+  );
+  const control =
+    cell?.querySelector<HTMLElement>('input:not([disabled]), select') ??
+    cell?.querySelector<HTMLElement>(FILTER_CONTROL);
+  if (!control) return false;
+  control.focus();
+  control.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+  return true;
+}
+
+/** Whether the caret of a text input sits at the edge the arrow key moves towards. */
+function caretAtEdge(target: EventTarget, key: 'ArrowLeft' | 'ArrowRight', rtl: boolean): boolean {
+  if (!(target instanceof HTMLInputElement)) return true;
+  // Date and time inputs use the arrow keys for their own segments.
+  if (/^(date|datetime-local|time|month|week)$/.test(target.type)) return false;
+  const { selectionStart: start, selectionEnd: end, value } = target;
+  if (start === null || end === null) return true; // number inputs expose no caret
+  const towardsStart = (key === 'ArrowLeft') !== rtl;
+  return towardsStart ? start === 0 && end === 0 : start === value.length && end === value.length;
+}
+
 type Col = GridColDef & { computedWidth?: number };
 
 export function HeaderFilterRow({ columns, height }: { columns: Col[]; height: number }) {
@@ -71,11 +98,20 @@ export function HeaderFilterRow({ columns, height }: { columns: Col[]; height: n
       role="row"
       aria-label="Column filters"
       className="MuiDataGrid-row TectonDataGrid-headerFilterRow"
-      style={{ display: 'flex', height, minHeight: height, width: 'var(--DataGrid-rowWidth)' }}
+      style={{ display: 'flex', height, minHeight: height, minWidth: 'var(--DataGrid-rowWidth)' }}
     >
       {columns.map((col) => (
         <HeaderFilterCell key={col.field} col={col} height={height} />
       ))}
+      {/* Rest of the row and the vertical scrollbar lane, as the header row's fillers. */}
+      <div
+        aria-hidden
+        className="TectonDataGrid-headerFilterFiller"
+        style={{
+          flex: '1 0 auto',
+          minWidth: 'calc(var(--DataGrid-hasScrollY) * var(--DataGrid-scrollbarSize))',
+        }}
+      />
     </div>
   );
 }
@@ -160,6 +196,47 @@ function HeaderFilterInput({ col }: { col: Col }) {
     }
   };
   const stop = (e: React.SyntheticEvent) => e.stopPropagation();
+  // Arrow keys move between the header filter row, the column headers and the rows, as in the
+  // rest of the grid: Up to this column's header, Down to its first row, Left/Right to the
+  // neighbouring filter once the caret is at the edge of the text.
+  const onControlKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
+    event.stopPropagation();
+    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    const api = apiRef.current;
+    if (!api) return;
+    const colIndex = api.getColumnIndex(field);
+    if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      api.scrollToIndexes({ colIndex });
+      api.setColumnHeaderFocus(field);
+      return;
+    }
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      const id = api.getRowIdFromRowIndex(0);
+      if (id === undefined || id === null) return;
+      api.scrollToIndexes({ rowIndex: 0, colIndex });
+      api.setCellFocus(id, field);
+      return;
+    }
+    if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+      const cell = event.currentTarget.closest('.TectonDataGrid-headerFilterCell');
+      const rtl = !!cell && getComputedStyle(cell).direction === 'rtl';
+      if (event.target instanceof HTMLButtonElement || !caretAtEdge(event.target, event.key, rtl))
+        return;
+      const towardsStart = (event.key === 'ArrowLeft') !== rtl;
+      let sibling = towardsStart ? cell?.previousElementSibling : cell?.nextElementSibling;
+      while (sibling && !sibling.querySelector(FILTER_CONTROL)) {
+        sibling = towardsStart ? sibling.previousElementSibling : sibling.nextElementSibling;
+      }
+      const nextField = (sibling as HTMLElement | null)?.dataset.field;
+      const root = cell?.closest('.MuiDataGrid-root');
+      if (!nextField || !root) return;
+      event.preventDefault();
+      api.scrollToIndexes({ colIndex: api.getColumnIndex(nextField) });
+      focusHeaderFilter(root, nextField);
+    }
+  };
 
   let input: React.ReactNode;
   if (type === 'boolean' || type === 'singleSelect') {
@@ -209,7 +286,6 @@ function HeaderFilterInput({ col }: { col: Col }) {
         slotProps={{ input: { sx: PLACEHOLDER_SX } as never }}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={(e) => {
-          e.stopPropagation();
           if (e.key === 'Escape' && draft) {
             setDraft('');
             commit(operator, '');
@@ -230,7 +306,7 @@ function HeaderFilterInput({ col }: { col: Col }) {
       className="TectonDataGrid-headerFilterControl"
       onClick={stop}
       onMouseDown={stop}
-      onKeyDown={stop}
+      onKeyDown={onControlKeyDown}
     >
       {operators.length > 1 ? (
         <>

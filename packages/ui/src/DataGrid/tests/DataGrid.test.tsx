@@ -120,6 +120,12 @@ describe('DataGrid (unified)', () => {
     rerender(<Grid rows={many} pagination={false} />);
     expect(cellsOf('name')).toHaveLength(250);
     expect(document.querySelector('.TectonDataGrid-pagination')).toBeNull();
+    // Without pagination the footer shows the total row count (as the MUI grid does).
+    expect(document.querySelector('.MuiDataGrid-footerContainer')).toHaveTextContent(
+      'Total Rows: 250',
+    );
+    rerender(<Grid rows={many} pagination={false} hideFooterRowCount />);
+    expect(document.querySelector('.MuiDataGrid-footerContainer')).not.toHaveTextContent('Total');
   });
 
   it('keeps row selection across pages and selects every filtered row from the header', async () => {
