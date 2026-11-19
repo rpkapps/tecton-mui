@@ -8,8 +8,8 @@ customization APIs, preconfigured with the **Tecton** design system.
   Pickers and `SimpleTreeView` are included.
 - One unified `DataGrid`, range pickers and one unified `RichTreeView` add advanced features,
   implemented independently on public MUI X Community APIs. No commercial MUI X code is used.
-- `NumberField` and `NumberSpinner`, numeric inputs that Material UI 9.5.0 does not ship, built on
-  Base UI's number field (`@base-ui/react`, MIT) and Material form components.
+- `NumberField`, `NumberSpinner` and `Menubar`, which Material UI 9.5.0 offers only as copy-paste
+  recipes, packaged as components: built on Base UI (`@base-ui/react`, MIT) and styled by the theme.
 - Tecton fonts, icons and tokens, with a typed `Icon` (no `@mui/icons-material` needed). Light and
   dark mode shared by every React root on the page, RTL and SSR helpers.
 - ESM only, TypeScript declarations for every public path, tree-shakeable imports.
@@ -309,6 +309,41 @@ Both take the Base UI `NumberField.Root` props (`value`, `defaultValue`, `onValu
 `error`, `required`, `disabled`, `readOnly`, `size`, `fullWidth`, `placeholder`, `inputRef`, `sx`
 and `slotProps`. The value is a `number` or `null`. Pass `locale` when server and browser locales
 can differ, so that server-rendered text matches.
+
+## Menubar
+
+A desktop-style row of application menus (File, Edit, View) with full keyboard support:
+
+```tsx
+import Menubar, {
+  MenubarItem,
+  MenubarMenu,
+  MenubarPopup,
+  MenubarPortal,
+  MenubarPositioner,
+  MenubarTrigger,
+} from '@tecton-mui/ui/Menubar';
+
+<Menubar aria-label="Editor">
+  <MenubarMenu>
+    <MenubarTrigger>File</MenubarTrigger>
+    <MenubarPortal>
+      <MenubarPositioner>
+        <MenubarPopup>
+          <MenubarItem hint="Ctrl+S" onClick={save}>
+            Save
+          </MenubarItem>
+        </MenubarPopup>
+      </MenubarPositioner>
+    </MenubarPortal>
+  </MenubarMenu>
+</Menubar>;
+```
+
+The parts wrap the Base UI `Menubar` and `Menu` parts and take their props, plus `sx` and
+`className`. Items use the theme's `MenuItem` styles and popups the `Menu` paper. Submenus,
+checkbox items, radio groups and labelled groups are available as `MenubarSubmenu`,
+`MenubarCheckboxItem`, `MenubarRadioGroup`/`MenubarRadioItem` and `MenubarGroup`/`MenubarGroupLabel`.
 
 ## Advanced components
 

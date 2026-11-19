@@ -313,6 +313,8 @@ export { default as Icon, getIconClassName } from './Icon/index.js';
 export type { IconName, IconProps, IconSize, IconVariant } from './Icon/index.js';
 export { default as LocalizationProvider } from './LocalizationProvider/index.js';
 export type { LocalizationProviderProps } from './LocalizationProvider/index.js';
+export { default as Menubar, MenubarCheckboxItem, MenubarGroup, MenubarGroupLabel, MenubarItem, MenubarMenu, MenubarPopup, MenubarPortal, MenubarPositioner, MenubarRadioGroup, MenubarRadioItem, MenubarSeparator, MenubarSubmenu, MenubarSubmenuTrigger, MenubarTrigger, menubarClasses } from './Menubar/index.js';
+export type { MenubarCheckboxItemProps, MenubarGroupLabelProps, MenubarGroupProps, MenubarItemProps, MenubarMenuProps, MenubarPopupProps, MenubarPortalProps, MenubarPositionerProps, MenubarProps, MenubarRadioGroupProps, MenubarRadioItemProps, MenubarSeparatorProps, MenubarSubmenuProps, MenubarSubmenuTriggerProps, MenubarTriggerProps } from './Menubar/index.js';
 export { default as MobileDateRangePicker } from './MobileDateRangePicker/index.js';
 export type { MobileDateRangePickerProps } from './MobileDateRangePicker/index.js';
 export { default as MobileDateTimeRangePicker } from './MobileDateTimeRangePicker/index.js';

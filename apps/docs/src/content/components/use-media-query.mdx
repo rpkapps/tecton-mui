@@ -1,0 +1,23 @@
+## Purpose
+
+`useMediaQuery` reads a CSS media query from React and re-renders when the result changes. Use it
+for behavior that CSS alone cannot change, such as rendering a `Drawer` as temporary on small
+screens or opening a picker in its mobile variant. For styling, prefer responsive `sx` values and
+`theme.breakpoints`, which need no JavaScript.
+
+```tsx
+import { useMediaQuery } from '@tecton-mui/ui';
+import { useTheme } from '@tecton-mui/ui/styles';
+
+const theme = useTheme();
+const compact = useMediaQuery(theme.breakpoints.down('md'));
+```
+
+It is exported unchanged from Material UI, with the same options.
+
+## Server rendering
+
+On the server there is no viewport, so the hook returns `false` (or `defaultMatches`) and updates
+after hydration. Pass `{ noSsr: true }` only for client-only views. For light and dark mode, do not
+query `prefers-color-scheme`: read the mode the Tecton theme manager applies with
+`useTectonModeValue()`.

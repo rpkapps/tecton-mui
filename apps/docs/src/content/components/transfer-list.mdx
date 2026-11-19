@@ -1,0 +1,19 @@
+## Purpose
+
+A transfer list moves items between two lists: the items on offer and the items chosen. It suits
+choices from a long list where the chosen set also needs an order or a review, such as the columns
+of a report or the wells in a study. For a short list, checkboxes or a multiple `Autocomplete` are
+simpler.
+
+There is no `TransferList` component, in Material UI or here: it is a pattern built from `List`,
+`ListItemButton`, `Checkbox` and `Button`, which carry the Tecton styles. The examples below come
+from the Material UI documentation; copy the one that fits and adapt its data.
+
+## Accessibility
+
+- Name each list (for example with a heading and `aria-labelledby`) so that screen reader users know
+  which side they are on.
+- Name the move buttons with `aria-label` ("Move selected right"); the arrow glyphs alone are not
+  descriptive.
+- After moving items, keep focus on the button that was used and announce the result if it is not
+  visible, for example with a live region.

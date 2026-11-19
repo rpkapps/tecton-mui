@@ -17,6 +17,7 @@
     "switches": [{ "slug": "switch" }],
     "text-fields": [{ "slug": "text-field" }, { "slug": "input", "sections": ["inputs"] }],
     "toggle-button": [{ "slug": "toggle-button" }],
+    "transfer-list": [{ "slug": "transfer-list" }],
     "avatars": [{ "slug": "avatar" }],
     "badges": [{ "slug": "badge" }],
     "chips": [{ "slug": "chip" }],
@@ -65,6 +66,7 @@
     "portal": [{ "slug": "portal" }],
     "textarea-autosize": [{ "slug": "textarea-autosize" }],
     "transitions": [{ "slug": "transitions" }],
+    "use-media-query": [{ "slug": "use-media-query" }],
     "masonry": [{ "slug": "masonry" }],
     "timeline": [{ "slug": "timeline" }]
   },

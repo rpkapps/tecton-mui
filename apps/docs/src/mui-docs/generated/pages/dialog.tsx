@@ -216,7 +216,7 @@ export default function MuiDocs() {
       </Heading>
       <M.p>
         {'You may make a dialog responsively full screen using '}
-        <M.a href={'https://mui.com/material-ui/react-use-media-query/'}>
+        <M.a href={'/components/use-media-query'}>
           <M.code>{'useMediaQuery'}</M.code>
         </M.a>
         {'.'}

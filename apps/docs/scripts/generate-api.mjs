@@ -31,6 +31,12 @@ const apiDir = join(outDir, 'api');
 const PENDING = [];
 /** Non-component subpaths that start with an uppercase letter. */
 const NOT_COMPONENTS = [/^Adapter/];
+/**
+ * Modules that export a family of part components next to the main one (`Menubar` with
+ * `MenubarItem`, `MenubarPopup` ...). Each matching named value export gets its own API entry; its
+ * import is a named import from the module's subpath.
+ */
+const PART_EXPORTS = { Menubar: /^Menubar[A-Z]/ };
 
 const inventory = JSON.parse(
   readFileSync(join(repo, 'tooling/compatibility/export-inventory.json'), 'utf8'),
@@ -141,13 +147,34 @@ mkdirSync(apiDir, { recursive: true });
 
 const index = [];
 const skipped = [];
-for (const name of modules) {
-  const sourceFile = program.getSourceFile(join(ui, 'src', name, 'index.ts'));
-  const resolved = sourceFile && resolveComponentSymbol(sourceFile, name);
-  if (!resolved) {
-    skipped.push(`${name} (no component export)`);
-    continue;
+/** The main component of each module, then its part components (see PART_EXPORTS). */
+function* documentedExports() {
+  for (const module of modules) {
+    const sourceFile = program.getSourceFile(join(ui, 'src', module, 'index.ts'));
+    const resolved = sourceFile && resolveComponentSymbol(sourceFile, module);
+    if (!resolved) {
+      skipped.push(`${module} (no component export)`);
+      continue;
+    }
+    yield { name: module, module, sourceFile, resolved };
+    const parts = PART_EXPORTS[module];
+    if (!parts) continue;
+    for (const symbol of checker.getExportsOfModule(checker.getSymbolAtLocation(sourceFile))) {
+      const exportName = String(symbol.escapedName);
+      const target =
+        symbol.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(symbol) : symbol;
+      if (!parts.test(exportName) || !(target.flags & ts.SymbolFlags.Value)) continue;
+      yield {
+        name: exportName,
+        module,
+        sourceFile,
+        resolved: { exportSymbol: symbol, hasDefault: false, exportName },
+      };
+    }
   }
+}
+
+for (const { name, module, sourceFile, resolved } of documentedExports()) {
   const props = propsOf(resolved.exportSymbol, sourceFile);
   if (!props) {
     skipped.push(`${name} (not a component)`);
@@ -187,11 +214,11 @@ for (const name of modules) {
   }
   own.sort((a, b) => Number(b.required) - Number(a.required) || a.name.localeCompare(b.name));
 
-  const roots = rootExports.get(name) ?? [];
+  const roots = rootExports.get(module) ?? [];
   const entry = {
     name,
-    package: sourcePackage.get(name) ?? '@tecton-mui/ui',
-    subpath: `${pkg.name}/${name}`,
+    package: sourcePackage.get(module) ?? '@tecton-mui/ui',
+    subpath: `${pkg.name}/${module}`,
     exportName: resolved.exportName,
     hasDefault: resolved.hasDefault,
     rootExport: roots.includes(resolved.exportName),

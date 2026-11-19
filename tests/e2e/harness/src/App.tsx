@@ -34,6 +34,7 @@ import DataGrid from '@tecton-mui/ui/DataGrid';
 import { GridScenarios } from './GridScenarios.js';
 import { PickerScenarios, TreeScenarios } from './AdvancedScenarios.js';
 import { StorybookScenario } from './storybook/StorybookScenario.js';
+import { MenubarScenario } from './MenubarScenario.js';
 
 const rows = Array.from({ length: 8 }, (_, i) => ({
   id: i + 1,
@@ -200,6 +201,8 @@ export function App({ scenario, rtl }: { scenario: string; rtl: boolean }) {
           <PickerScenarios />
         ) : scenario === 'tree' ? (
           <TreeScenarios />
+        ) : scenario === 'menubar' ? (
+          <MenubarScenario />
         ) : scenario.startsWith('sb:') ? (
           <StorybookScenario id={scenario.slice(3)} />
         ) : null}

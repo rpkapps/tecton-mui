@@ -104,8 +104,8 @@
     {
       "package": "@mui/material",
       "source": "docs/data/material/components/transfer-list/transfer-list.md",
-      "status": "excluded",
-      "reason": "A composition pattern (List + Checkbox), not an exported component; the portal has no Transfer List page."
+      "status": "included",
+      "target": "transfer-list"
     },
     {
       "package": "@mui/material",
@@ -267,7 +267,7 @@
       "package": "@mui/material",
       "source": "docs/data/material/components/menubar/menubar.md",
       "status": "excluded",
-      "reason": "Not a Material UI component: the page composes Base UI (`@base-ui/react`), which is not part of @tecton-mui/ui, and the portal has no Menubar page."
+      "reason": "Copy-paste recipe composing Base UI (`@base-ui/react`) with Material components. @tecton-mui/ui ships it as the `Menubar` component family, documented on the portal's own Menubar page."
     },
     {
       "package": "@mui/material",
@@ -399,8 +399,8 @@
     {
       "package": "@mui/material",
       "source": "docs/data/material/components/use-media-query/use-media-query.md",
-      "status": "excluded",
-      "reason": "Hook page; the portal has no component page for useMediaQuery (it is exported unchanged from @mui/material)."
+      "status": "included",
+      "target": "use-media-query"
     },
     {
       "package": "@mui/lab",

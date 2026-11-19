@@ -14,7 +14,8 @@ Material UI components styled with the **Tecton** design system, for internal Re
   data. Date, time and date-time **range pickers**. A `RichTreeView` with drag-and-drop
   reordering, lazy loading and virtualization. These are written from scratch on public MUI X
   Community APIs; no commercial MUI X code is used.
-- **Extras MUI does not ship:** `NumberField`, `NumberSpinner` and a typed Tecton `Icon`.
+- **Extras MUI does not ship:** `NumberField`, `NumberSpinner`, `Menubar` (the mui.com recipes,
+  packaged as components) and a typed Tecton `Icon`.
 
 ## See it
 

@@ -1,0 +1,116 @@
+## Purpose
+
+A menu bar is the row of menus at the top of a desktop-style application (File, Edit, View, Help).
+It stays visible and gives access to the same set of commands from every screen. Use it for
+tools with many commands, such as editors and workspaces. For a few actions on one element, use a
+[Menu](/components/menu) opened from a button instead.
+
+Material UI has no menu bar component; mui.com shows how to compose one from Base UI. `@tecton-mui/ui`
+ships that composition as `Menubar`, so you do not copy any recipe code. Base UI (`@base-ui/react`,
+MIT) provides the behavior. The visuals come from the theme: triggers are tertiary text buttons,
+popups use the `Menu` paper, and items use the `MenuItem` styles, so a menu bar menu looks like any
+other Tecton menu.
+
+## Basic menu bar
+
+A `Menubar` holds one `MenubarMenu` per top-level menu. Each menu has a `MenubarTrigger` and a
+`MenubarPortal` > `MenubarPositioner` > `MenubarPopup` with the items. A `MenubarSubmenu` nests a
+menu inside an item.
+
+<Demo name="BasicMenubar" />
+
+## Icons and shortcut hints
+
+`icon` adds a leading icon and `hint` shows trailing text, usually the keyboard shortcut. The hint is
+only a label: register the shortcut itself in your application. `onClick` runs the command, after
+which the menu closes; pass `closeOnClick={false}` to keep it open. A `disabled` item stays
+focusable, so keyboard users still find it, but cannot be activated.
+
+<Demo name="MenubarHints" />
+
+## Checkbox and radio items
+
+`MenubarCheckboxItem` toggles a setting (`checked`, `defaultChecked`, `onCheckedChange`).
+`MenubarRadioItem`s inside a `MenubarRadioGroup` pick one value (`value`, `defaultValue`,
+`onValueChange`). Both keep the menu open, so several settings can be changed in one go.
+`MenubarGroup` with a `MenubarGroupLabel` gives a set of items a heading that is also its accessible
+name.
+
+<Demo name="MenubarSelection" />
+
+## In an app bar
+
+The menu bar has no surface of its own, so it sits on whatever contains it, such as a `Toolbar`.
+Popups render in a portal on the same layer as `Menu`, above app bars and drawers.
+
+<Demo name="AppBarMenubar" />
+
+## Vertical menu bar
+
+`orientation="vertical"` stacks the triggers. The arrow keys follow the orientation (Up and Down
+between triggers). Open the menus to the side with the `MenubarPositioner` props `side` and `align`.
+
+<Demo name="VerticalMenubar" />
+
+## Disabled menus
+
+`disabled` on a `MenubarMenu` disables its trigger; `disabled` on the `Menubar` disables the whole
+bar.
+
+<Demo name="DisabledMenubar" />
+
+## Keyboard
+
+| Key                                 | Action                                                                |
+| ----------------------------------- | --------------------------------------------------------------------- |
+| <kbd>Tab</kbd>                      | Moves focus into and out of the bar (the bar is one tab stop)         |
+| <kbd>←</kbd> <kbd>→</kbd>           | Moves between triggers; with a menu open, opens the neighbouring menu |
+| <kbd>↓</kbd> <kbd>↑</kbd>           | Opens the menu and moves between its items                            |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Opens a menu, runs an item, toggles a checkbox or radio item          |
+| <kbd>→</kbd> (on a submenu item)    | Opens the submenu; <kbd>←</kbd> closes it (mirrored in RTL)           |
+| <kbd>Esc</kbd>                      | Closes the menu and returns focus to its trigger                      |
+| Letters                             | Moves to the next item that starts with the typed text                |
+
+While one menu is open, pointing at another trigger switches to its menu.
+
+## Accessibility
+
+- The bar has `role="menubar"`; give it a name with `aria-label` (or `aria-labelledby`) when the page
+  has more than one.
+- Triggers and items have the `menuitem`, `menuitemcheckbox` or `menuitemradio` roles with
+  `aria-haspopup`, `aria-expanded` and `aria-checked` as appropriate. Group labels name their group.
+- Focus moves into an opened menu and returns to its trigger when the menu closes.
+- Shortcut hints are text, so screen readers announce them with the item name. Icons are decorative.
+
+## Parts
+
+| Part                    | Renders                         | Base UI part          |
+| ----------------------- | ------------------------------- | --------------------- |
+| `Menubar`               | The bar (`div`)                 | `Menubar`             |
+| `MenubarMenu`           | Nothing (state of one menu)     | `Menu.Root`           |
+| `MenubarTrigger`        | Tertiary text `Button`          | `Menu.Trigger`        |
+| `MenubarPortal`         | Portal into `document.body`     | `Menu.Portal`         |
+| `MenubarPositioner`     | Positioning wrapper (`div`)     | `Menu.Positioner`     |
+| `MenubarPopup`          | `Paper` with the `Menu` styles  | `Menu.Popup`          |
+| `MenubarItem`           | Item with the `MenuItem` styles | `Menu.Item`           |
+| `MenubarSubmenu`        | Nothing (state of one submenu)  | `Menu.SubmenuRoot`    |
+| `MenubarSubmenuTrigger` | Item with a trailing chevron    | `Menu.SubmenuTrigger` |
+| `MenubarCheckboxItem`   | Item with a check indicator     | `Menu.CheckboxItem`   |
+| `MenubarRadioGroup`     | Nothing (value of the group)    | `Menu.RadioGroup`     |
+| `MenubarRadioItem`      | Item with a radio indicator     | `Menu.RadioItem`      |
+| `MenubarGroup`          | Group (`div`)                   | `Menu.Group`          |
+| `MenubarGroupLabel`     | `ListSubheader`                 | `Menu.GroupLabel`     |
+| `MenubarSeparator`      | `Divider`                       | `Menu.Separator`      |
+
+Each part takes the props of its Base UI part (see the
+[Base UI Menubar](https://base-ui.com/react/components/menubar) and
+[Menu](https://base-ui.com/react/components/menu) references) plus `className`, and the visible parts
+also take `sx`. `menubarClasses` lists the class names (`TectonMenubar-root`, `TectonMenubar-item`
+...) for global styles.
+
+## Coming from the mui.com recipe
+
+The mui.com Menubar page asks you to copy a `Menubar` file. With `@tecton-mui/ui`, import the parts
+instead and rename them with the `Menubar` prefix (`MenuRoot` → `MenubarMenu`, `MenuItem` →
+`MenubarItem`, `MenuSubmenuRoot` → `MenubarSubmenu` ...); the props are the same. The prefix keeps
+them apart from the Material `Menu` and `MenuItem`, which are exported under their own names.

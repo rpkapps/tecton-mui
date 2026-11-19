@@ -552,6 +552,11 @@
       "types": "./dist/MenuList/index.d.ts",
       "default": "./dist/MenuList/index.js"
     },
+    "./Menubar": {
+      "@tecton-mui/source": "./src/Menubar/index.ts",
+      "types": "./dist/Menubar/index.d.ts",
+      "default": "./dist/Menubar/index.js"
+    },
     "./MobileDatePicker": {
       "@tecton-mui/source": "./src/MobileDatePicker/index.ts",
       "types": "./dist/MobileDatePicker/index.d.ts",

@@ -103,7 +103,7 @@ export const componentCategory: Record<string, CategoryId> = {
   ),
   ...group(
     'navigation',
-    'BottomNavigation BottomNavigationAction Breadcrumbs Drawer SwipeableDrawer Link Menu MenuItem MenuList MobileStepper Pagination PaginationItem SpeedDial SpeedDialAction SpeedDialIcon Stepper Step StepButton StepConnector StepContent StepIcon StepLabel Tabs Tab TabScrollButton',
+    'BottomNavigation BottomNavigationAction Breadcrumbs Drawer SwipeableDrawer Link Menu MenuItem MenuList Menubar MobileStepper Pagination PaginationItem SpeedDial SpeedDialAction SpeedDialIcon Stepper Step StepButton StepConnector StepContent StepIcon StepLabel Tabs Tab TabScrollButton',
   ),
   ...group('layout', 'Box Container Grid Stack ImageList ImageListItem ImageListItemBar'),
   ...group(
@@ -250,6 +250,14 @@ export const authoredPages: AuthoredPage[] = [
     components: ['ToggleButton', 'ToggleButtonGroup'],
     anchors: { ToggleButtonGroup: 'exclusive-selection' },
     summary: 'Group related options and show which of them are on.',
+  },
+  {
+    slug: 'transfer-list',
+    title: 'Transfer List',
+    category: 'inputs',
+    // A pattern built from List, Checkbox and Button; their API is on their own pages.
+    components: [],
+    summary: 'Move items between two lists, for example to choose the columns of a report.',
   },
   {
     slug: 'button-base',
@@ -478,6 +486,29 @@ export const authoredPages: AuthoredPage[] = [
     summary: 'A temporary list of choices anchored to the element that opened it.',
   },
   {
+    slug: 'menubar',
+    title: 'Menubar',
+    category: 'navigation',
+    components: [
+      'Menubar',
+      'MenubarMenu',
+      'MenubarTrigger',
+      'MenubarPortal',
+      'MenubarPositioner',
+      'MenubarPopup',
+      'MenubarItem',
+      'MenubarSubmenu',
+      'MenubarSubmenuTrigger',
+      'MenubarCheckboxItem',
+      'MenubarRadioGroup',
+      'MenubarRadioItem',
+      'MenubarGroup',
+      'MenubarGroupLabel',
+      'MenubarSeparator',
+    ],
+    summary: 'A persistent row of application menus, as in desktop software (File, Edit, View).',
+  },
+  {
     slug: 'pagination',
     title: 'Pagination',
     category: 'navigation',
@@ -567,6 +598,14 @@ export const authoredPages: AuthoredPage[] = [
       Zoom: 'zoom',
     },
     summary: 'Animate components in and out with the theme durations and easing curves.',
+  },
+  {
+    slug: 'use-media-query',
+    title: 'useMediaQuery',
+    category: 'utilities',
+    // A hook, not a component: no API table.
+    components: [],
+    summary: 'Read a CSS media query (breakpoint, color scheme, reduced motion) from React.',
   },
   // Lab
   {

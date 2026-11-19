@@ -153,11 +153,21 @@ export function importLines(
     lines.push('// Root named import', `import { ${root.join(', ')} } from '@tecton-mui/ui';`, '');
   }
   lines.push('// Per-component import (smallest bundles)');
+  // One line per subpath: `import Default, { Named } from '<subpath>';`.
+  const bySubpath = new Map<string, { def?: string; named: string[] }>();
   for (const d of docs) {
+    const entry = bySubpath.get(d.subpath) ?? { named: [] };
+    if (d.hasDefault && !entry.def) entry.def = d.exportName;
+    else entry.named.push(d.exportName);
+    bySubpath.set(d.subpath, entry);
+  }
+  for (const [subpath, { def, named }] of bySubpath) {
+    const specifiers = [def, named.length ? `{ ${named.join(', ')} }` : undefined].filter(Boolean);
+    const line = `import ${specifiers.join(', ')} from '${subpath}';`;
     lines.push(
-      d.hasDefault
-        ? `import ${d.exportName} from '${d.subpath}';`
-        : `import { ${d.exportName} } from '${d.subpath}';`,
+      line.length <= 100
+        ? line
+        : `import ${def ? `${def}, ` : ''}{\n${named.map((n) => `  ${n},`).join('\n')}\n} from '${subpath}';`,
     );
   }
   return lines.join('\n');

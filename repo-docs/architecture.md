@@ -101,8 +101,9 @@ generated, because the package pins date-fns v4.
 listed as `customModules` in the inventory. Today: `Icon`, `LocalizationProvider`, `DataGrid`,
 `RichTreeView`, the range pickers (`DateRangePicker`, `TimeRangePicker`, `DateTimeRangePicker` and
 their `Desktop*`, `Mobile*` and `Static*` variants), `DateRangeCalendar`,
-`MultiInputDateRangeField`, the `SingleInput*RangeField` fields, and `NumberField`/`NumberSpinner`
-(Base UI number field with Material form components; shared code in `internal/number-field/`).
+`MultiInputDateRangeField`, the `SingleInput*RangeField` fields, `NumberField`/`NumberSpinner`
+(Base UI number field with Material form components; shared code in `internal/number-field/`) and
+`Menubar` (Base UI menubar and menu; one module exporting the `Menubar*` parts).
 
 `pnpm inventory:check` fails if any generated output is stale.
 
