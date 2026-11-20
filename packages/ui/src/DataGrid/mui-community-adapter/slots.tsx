@@ -130,7 +130,24 @@ export function MultiFilterPanel() {
       className="TectonDataGrid-filterPanel"
       sx={{ display: 'flex', flexDirection: 'column', minWidth: 'min(640px, 90vw)' }}
     >
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, p: 1.5, overflow: 'auto' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 1,
+          p: 1.5,
+          overflow: 'auto',
+          // The And/Or selector's label is empty and collapses, and the delete button has none:
+          // give the empty label one line of text height and move the button down by the label
+          // block (Tecton's static label: small line height + space-50 below) so every control
+          // lines up on the inputs, also when a multi-value input grows taller.
+          '& .MuiDataGrid-filterForm': { alignItems: 'flex-start' },
+          '& .MuiDataGrid-filterForm .MuiInputLabel-root:empty::before': { content: '"\\200B"' },
+          '& .MuiDataGrid-filterFormDeleteIcon': {
+            marginTop: `calc(${cssVar('line-height-small')} + ${cssVar('space-50')})`,
+          },
+        }}
+      >
         {items.map((item, index) => (
           <GridFilterForm
             key={item.id ?? index}

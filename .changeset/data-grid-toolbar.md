@@ -11,4 +11,6 @@ DataGrid toolbar and filter panel:
   `render` / `className` functions receive the real `filterCount`.
 - Theme correction: the toolbar, filter panel, density, undo/redo and actions icons use Tecton icons
   instead of Material icons.
+- Filter panel: the And/Or selector and the delete buttons line up with the condition inputs
+  (they sat level with the labels).
 - Docs: default toolbar, custom toolbar and filter panel examples.
