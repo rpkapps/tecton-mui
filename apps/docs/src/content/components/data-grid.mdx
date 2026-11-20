@@ -32,6 +32,38 @@ input below each header. The filter panel combines several conditions with AND/O
 
 <Demo name="MultiSortHeaderFilters" />
 
+## Toolbar
+
+`showToolbar` adds the default toolbar above the grid: buttons for the columns panel, the filter
+panel (marked while filters are active) and export (print and CSV), and a quick filter that searches
+every visible column. The quick filter matches rows that contain all the words you type. Options go
+through `slotProps.toolbar`: `showQuickFilter`, `quickFilterProps`, `csvOptions`, `printOptions`
+and `additionalExportMenuItems`.
+
+<Demo name="ToolbarDefault" />
+
+### Custom toolbar
+
+Pass your own component in `slots.toolbar` (together with `showToolbar`) and build it from the
+toolbar parts: `Toolbar` and `ToolbarButton` for the layout and keyboard navigation,
+`ColumnsPanelTrigger`, `FilterPanelTrigger`, `ExportCsv` and `ExportPrint` for the actions, and
+`QuickFilter` with `QuickFilterControl` and `QuickFilterClear` for search. Each part takes a `render`
+prop to render your own element, and `FilterPanelTrigger` passes the active filter count to it. Define
+the toolbar at module level, outside the component that renders the grid.
+
+<Demo name="ToolbarCustom" />
+
+## Filter panel
+
+Besides header filters, conditions can be edited in the filter panel. Open it from the toolbar's
+filter button or from a column menu (**Filter**). Each row of the panel is one condition (column,
+operator, value); **Add filter** adds another, and the first operator chooses whether all conditions
+(**And**) or any of them (**Or**) must match. The panel reads and writes `filterModel`, so the model
+can be controlled, saved and restored. `disableMultipleColumnsFiltering` limits the panel to one
+condition.
+
+<Demo name="FilterPanel" />
+
 ## Column pinning and reordering
 
 Pinned columns stay visible while scrolling horizontally. Pin with `pinnedColumns` /

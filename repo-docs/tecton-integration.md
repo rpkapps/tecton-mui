@@ -171,6 +171,9 @@ Written by `emit` and listed with checksums in
     Select menu paper). The bottom margin leaves the list 1px outside the scrollable paper, so every
     menu showed a scrollbar. The correction keeps the top pull, drops the bottom margin and takes the
     pixel from the list's bottom padding instead (same height and pixels).
+  - **Data Grid icons:** Tecton maps only the column header and column menu icon slots to Tecton
+    icons; the toolbar, filter panel, density, undo/redo and actions slots kept MUI's filled
+    Material icons. The correction maps them to their Tecton outline icons.
   - **Data Grid focus indicator:** Tecton sets `outline: none` on focused cells and column headers
     and draws nothing instead, so keyboard focus was invisible (WCAG 2.4.7). The correction draws a
     2px `color-focus-ring` outline inside the cell or header on `:focus-visible` (also when focus is

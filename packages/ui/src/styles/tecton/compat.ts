@@ -28,6 +28,26 @@ const menuListBottomPadding = {
 export const muiCompatOverrides: ThemeOptions = {
   components: {
     MuiDataGrid: {
+      // Tecton sets Tecton icons for the column header and column menu slots only, so the toolbar,
+      // filter panel and density controls showed MUI's filled Material icons next to Tecton's
+      // outline icons. Map the remaining Data Grid icon slots to their Tecton icons.
+      defaultProps: {
+        slots: {
+          columnSelectorIcon: slotIcon('tecton-view-column-outline'),
+          openFilterButtonIcon: slotIcon('tecton-filter-outline'),
+          columnFilteredIcon: slotIcon('tecton-filter-outline'),
+          filterPanelDeleteIcon: slotIcon('tecton-close-small-outline'),
+          exportIcon: slotIcon('tecton-download-outline'),
+          quickFilterIcon: slotIcon('tecton-search-outline'),
+          quickFilterClearIcon: slotIcon('tecton-close-small-outline'),
+          densityCompactIcon: slotIcon('tecton-density-compact-outline'),
+          densityStandardIcon: slotIcon('tecton-density-standard-outline'),
+          densityComfortableIcon: slotIcon('tecton-density-comfortable-outline'),
+          moreActionsIcon: slotIcon('tecton-more-vert-outline'),
+          undoIcon: slotIcon('tecton-undo-outline'),
+          redoIcon: slotIcon('tecton-redo-outline'),
+        },
+      },
       styleOverrides: {
         root: {
           // Table dividers use Tecton's action/outlined/border token. MUI X otherwise derives a

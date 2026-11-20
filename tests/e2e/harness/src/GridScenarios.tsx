@@ -195,6 +195,16 @@ export function GridScenarios({ which }: { which: string }) {
           </Box>
         </Paper>
       )}
+      {show('toolbar') && (
+        <Paper variant="outlined" sx={{ p: 2 }} data-testid="grid-toolbar">
+          <Typography variant="h5" gutterBottom>
+            Toolbar and filter panel
+          </Typography>
+          <Box sx={{ height: 420 }}>
+            <DataGrid rows={employees.slice(0, 40)} columns={employeeColumns} showToolbar />
+          </Box>
+        </Paper>
+      )}
       {show('virtual') && (
         <Paper variant="outlined" sx={{ p: 2 }} data-testid="grid-virtual">
           <Typography variant="h5" gutterBottom>

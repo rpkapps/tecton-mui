@@ -298,6 +298,26 @@ describe('Tecton compat corrections', () => {
 });
 
 describe('Tecton data grid corrections', () => {
+  it('uses Tecton icons for the toolbar and filter panel slots', () => {
+    const slots = (
+      createTheme().components as Record<
+        string,
+        { defaultProps: { slots: Record<string, unknown> } }
+      >
+    ).MuiDataGrid.defaultProps.slots;
+    for (const name of [
+      'columnSelectorIcon',
+      'openFilterButtonIcon',
+      'exportIcon',
+      'quickFilterIcon',
+      'filterPanelDeleteIcon',
+      // Tecton's own column menu icons are kept.
+      'columnMenuIcon',
+    ]) {
+      expect((slots[name] as { displayName?: string }).displayName).toBe('TectonSlotIcon');
+    }
+  });
+
   it('draws a visible keyboard focus indicator on cells and column headers', () => {
     const grid = (
       createTheme().components as Record<

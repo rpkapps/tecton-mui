@@ -23,6 +23,7 @@ import {
 } from '@mui/x-data-grid';
 import { Store, useStoreSelector } from './core/store.js';
 import { useKeyboardNavigation } from './core/keyboardNavigation.js';
+import { DefaultToolbar } from './mui-community-adapter/toolbar.js';
 import { cssVar } from '../styles/tecton/index.js';
 import {
   GridAdvancedContext,
@@ -1447,6 +1448,7 @@ function DataGridInner<R extends GridValidRowModel>(
         clientPaging || (server && pagination && !lazyLoading) ? PaginationSlot : TotalRowCountSlot,
       pinnedRows: PinnedRowsSlot,
       columnMenu: ColumnMenuSlot,
+      toolbar: DefaultToolbar,
       ...(groupingMode !== 'none' ? { row: HierarchyRowSlot } : null),
       ...slotsProp,
     }),

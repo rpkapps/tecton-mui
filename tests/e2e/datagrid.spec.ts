@@ -450,4 +450,32 @@ test.describe('DataGrid advanced features', () => {
     await scroller.evaluate((e) => (e.scrollTop = 0));
     await expect(root.locator('.MuiDataGrid-row[data-rowindex="1"]')).toContainText('Item 3');
   });
+  test('toolbar: quick filter, filter panel with an active-filter marker, export menu', async ({
+    page,
+  }) => {
+    await page.goto('/?scenario=grid:toolbar');
+    const root = grid(page, 'grid-toolbar');
+    const footer = root.locator('.MuiDataGrid-footerContainer');
+    await expect(footer).toContainText('of 40');
+    // Quick filter: rows containing every word.
+    await root.getByRole('searchbox').fill('Research Houston');
+    await expect(footer).toContainText('1–3 of 3');
+    await root.getByRole('searchbox').fill('');
+    await expect(footer).toContainText('of 40');
+    // Filter panel opened from the toolbar; the button is marked while a filter is active.
+    const filters = root.getByRole('button', { name: 'Filters' });
+    await expect(filters.locator('.MuiBadge-badge')).toHaveClass(/MuiBadge-invisible/);
+    await filters.click();
+    const panel = page.locator('.TectonDataGrid-filterPanel');
+    await expect(panel).toBeVisible();
+    // The first condition targets the first column (ID, "=").
+    await panel.locator('.MuiDataGrid-filterFormValueInput input').first().fill('5');
+    await expect(footer).toContainText('1–1 of 1');
+    await page.keyboard.press('Escape');
+    await expect(filters.locator('.MuiBadge-badge')).not.toHaveClass(/MuiBadge-invisible/);
+    // Toolbar icons are Tecton icons, not Material SVGs.
+    expect(await root.locator('.MuiDataGrid-toolbar svg').count()).toBe(0);
+    await root.getByRole('button', { name: 'Export' }).click();
+    await expect(page.getByRole('menuitem', { name: 'Download as CSV' })).toBeVisible();
+  });
 });
