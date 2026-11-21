@@ -22,8 +22,6 @@ const useEnhancedEffect = typeof window === 'undefined' ? React.useEffect : Reac
 
 const LEFT = 1;
 const RIGHT = 2;
-/** `LEFT` / `RIGHT` shifted: the strip can scroll that way from where it is right now. */
-const NOW = 2;
 
 /** Same width as the Home (fixed) tab cell, so the start arrow and Home take the same room. */
 export const SCROLL_ARROW_WIDTH = 48;
@@ -50,8 +48,8 @@ type Target = () => number | null;
 export interface TabStripStore {
   subscribe: (listener: () => void) => () => void;
   /**
-   * Bit field. 1 / 2: the left / right arrow shows (the strip can scroll that way from where it is,
-   * or from where a slide is taking it). 4 / 8: it can scroll that way from where it is now.
+   * Bit field: 1 / 2 = the left / right arrow shows (the strip can scroll that way from where it
+   * is, or from where a slide is taking it).
    */
   getSnapshot: () => number;
   /** Re-measures the strip; notifies when the arrows change. */
@@ -68,8 +66,13 @@ export interface TabStripStore {
   isSliding: () => boolean;
   /** Slide duration in ms (the theme's standard duration). 0 jumps. */
   setDuration: (ms: number) => void;
-  /** The slide duration, which the arrows also take to show or hide (0 with reduced motion). */
+  /** The slide duration, which an arrow also takes to show (0 with reduced motion). */
   getDuration: () => number;
+  /**
+   * Moves the strip `delta` px toward its end, keeping a slide in progress on course: used when the
+   * start arrow shows or hides during a slide, so that the tabs do not jump by its width.
+   */
+  shift: (delta: number) => void;
 }
 
 const isRtl = (el: HTMLElement) => getComputedStyle(el).direction === 'rtl';
@@ -133,15 +136,17 @@ export function createTabStripStore(): TabStripStore {
   let snapshot = 0;
   let scroller: HTMLElement | null = null;
   let duration = 300;
-  let slide: { frame: number; end: () => number | null } | null = null;
+  /** `from`: where the slide started; `at`: where it last put the strip (both move with `shift`). */
+  let slide: { frame: number; end: () => number | null; from: number; at: number } | null = null;
   const listeners = new Set<() => void>();
 
   const measure = () => {
     if (!scroller) return;
     const max = scroller.scrollWidth - scroller.clientWidth;
     const rtl = isRtl(scroller);
-    // During a slide the arrows show where the strip is going, so that they grow or shrink along
-    // with it rather than pop in or out when it arrives (which would make the tabs jump).
+    // During a slide the arrows show where the strip is going: an arrow that goes away does so as
+    // the slide starts, when the room it leaves only shows more of the tabs, rather than when the
+    // strip arrives at its edge (where the tabs would jump by its width).
     const ways = (position: number) => {
       // Distance scrolled from the start (scrollLeft is negative in RTL).
       const fromStart = rtl ? -position : position;
@@ -152,8 +157,7 @@ export function createTabStripStore(): TabStripStore {
       return ((rtl ? canEnd : canStart) ? LEFT : 0) | ((rtl ? canStart : canEnd) ? RIGHT : 0);
     };
     const to = slide?.end();
-    const now = ways(scroller.scrollLeft);
-    const next = (to == null ? now : ways(clampScroll(scroller, to))) | (now << NOW);
+    const next = ways(to == null ? scroller.scrollLeft : clampScroll(scroller, to));
     if (next !== snapshot) {
       snapshot = next;
       listeners.forEach((listener) => listener());
@@ -179,9 +183,10 @@ export function createTabStripStore(): TabStripStore {
       measure();
       return;
     }
+    const current = { frame: 0, end: target, from, at: from };
     let start: number | null = null;
     const step = (now: number) => {
-      if (!slide) return;
+      if (slide !== current) return;
       start ??= now;
       const t = Math.min(1, (now - start) / duration);
       const to = target();
@@ -190,14 +195,17 @@ export function createTabStripStore(): TabStripStore {
         measure();
         return;
       }
-      writeScrollLeft(el, from + (clampScroll(el, to) - from) * ease(t));
-      if (t < 1) slide.frame = requestAnimationFrame(step);
+      // `from` moves with `shift`, so the slide stays on course when the strip's edge moves.
+      current.at = current.from + (clampScroll(el, to) - current.from) * ease(t);
+      writeScrollLeft(el, current.at);
+      if (t < 1) current.frame = requestAnimationFrame(step);
       else {
         slide = null;
         measure();
       }
     };
-    slide = { frame: requestAnimationFrame(step), end: target };
+    slide = current;
+    current.frame = requestAnimationFrame(step);
     measure();
   };
 
@@ -217,6 +225,20 @@ export function createTabStripStore(): TabStripStore {
       duration = ms;
     },
     getDuration: () => (prefersReducedMotion() ? 0 : duration),
+    shift: (delta) => {
+      const el = scroller;
+      if (!el || !delta) return;
+      const physical = isRtl(el) ? -delta : delta;
+      if (!slide) {
+        writeScrollLeft(el, el.scrollLeft + physical);
+        return;
+      }
+      // From where the slide put the strip: the browser may already have clamped the position to
+      // the new scroll range (at the end of the strip), which is part of the same correction.
+      slide.from += physical;
+      slide.at += physical;
+      writeScrollLeft(el, slide.at);
+    },
     revealSelected: (instant) => {
       const el = scroller;
       if (!el) return;
@@ -286,8 +308,8 @@ const divider = `1px solid ${cssVar('color-divider-subtle')}`;
 
 /**
  * An arrow's look: a cell as wide as the Home tab with a divider toward the tabs (written for LTR;
- * the RTL style cache mirrors it), or no room at all while it cannot scroll. Showing and hiding
- * animate with the strip's slide, so the tabs move smoothly instead of jumping by an arrow's width.
+ * the RTL style cache mirrors it), or no room at all while it cannot scroll. It grows in over the
+ * slide duration when it shows, and goes at once when it hides.
  */
 export function arrowSx(shown: boolean, atStart: boolean, duration: number) {
   return {
@@ -295,7 +317,7 @@ export function arrowSx(shown: boolean, atStart: boolean, duration: number) {
     overflow: 'hidden',
     [atStart ? 'borderRight' : 'borderLeft']: shown ? divider : 'none',
     transition:
-      duration > 0
+      shown && duration > 0
         ? `width ${duration}ms cubic-bezier(0.4, 0, 0.2, 1), opacity ${duration}ms cubic-bezier(0.4, 0, 0.2, 1)`
         : 'none',
     '@media (prefers-reduced-motion: reduce)': { transition: 'none' },
@@ -317,11 +339,7 @@ export const TabStripScrollButton = React.forwardRef<HTMLButtonElement, TabScrol
     );
     const theme = useTheme();
     const direction = props.direction === 'left' ? 'left' : 'right';
-    const way = direction === 'left' ? LEFT : RIGHT;
-    const can = (state & way) !== 0;
-    // An arrow shrinking away during a slide stays enabled until the strip gets there, so that the
-    // ripple of the click that started the slide plays out (MUI drops it from a disabled button).
-    const enabled = can || (state & (way << NOW)) !== 0;
+    const can = (state & (direction === 'left' ? LEFT : RIGHT)) !== 0;
     const atStart = (direction === 'left') !== (theme.direction === 'rtl');
     // The arrows take their first state at once (on load, after hydration); later changes animate.
     const [animate, setAnimate] = React.useState(false);
@@ -336,7 +354,7 @@ export const TabStripScrollButton = React.forwardRef<HTMLButtonElement, TabScrol
         ref={ref}
         {...props}
         sx={sx}
-        disabled={!enabled}
+        disabled={!can}
         onClick={() => store?.scrollPage(direction)}
       />
     );

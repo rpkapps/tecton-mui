@@ -240,7 +240,7 @@ export const AppBarNavigation = React.forwardRef<HTMLElement, AppBarNavigationLa
     const primary = tier === 'primary';
     const tabsRef = React.useRef<HTMLDivElement>(null);
     const strip = useTabStrip(tabsRef, activeTab, tabs.length);
-    useScrollButtonCompensation(tabsRef, strip.isSliding);
+    useScrollButtonCompensation(tabsRef, strip);
 
     // Latest callbacks, so the handlers below keep stable identities.
     const latest = React.useRef({ onTabSelect, onTabClose, onTabAdd, tabs });

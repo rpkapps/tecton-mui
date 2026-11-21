@@ -136,8 +136,9 @@ differences below. `storybook-parity.spec.ts` runs all 22 comparisons.
   `slots`.
 - **Scroll arrow cells (intended difference):** the React bar's arrows are 48px cells with a
   divider toward the tabs, like the Home (fixed tab) cell next to them; the drop-in keeps MUI's
-  borderless 40px buttons. They show and hide with a 300ms width animation in step with the strip's
-  slide, where the drop-in's pop in or out at once and make the tabs jump by an arrow's width. Only
+  borderless 40px buttons. They follow where the strip's slide is going: an arrow that goes away does so
+  as the slide starts and one that shows grows in over it, where the drop-in's pop in or out when
+  the strip arrives and make the tabs jump by an arrow's width. Only
   strips that overflow show an arrow (the Overflow story, within its 0.1 % allowance).
 - **Viewport captures:** these cases capture the viewport, not the full page. A full-page capture
   briefly resizes the page; scrollable `Tabs` react to that resize (scroll arrows, scroll position)

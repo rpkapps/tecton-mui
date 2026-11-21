@@ -101,7 +101,7 @@ let observers: { cb: ResizeObserverCallback; targets: Element[] }[] = [];
 const fireResize = () => observers.forEach((o) => o.cb([], {} as ResizeObserver));
 
 /** The arrows that show (bit 1: left, bit 2: right). */
-const shown = (store: TabStripStore) => store.getSnapshot() & 3;
+const shown = (store: TabStripStore) => store.getSnapshot();
 
 let frames = new Map<number, FrameRequestCallback>();
 /** Runs the animation frames requested so far, at time `now`. */
@@ -292,13 +292,12 @@ describe('createTabStripStore', () => {
       expect(shown(store)).toBe(2);
       store.scrollPage('right'); // to the end (max 100)
       expect(shown(store)).toBe(1); // at once: start arrow on, end arrow off
-      expect(store.getSnapshot() >> 2).toBe(2); // but the strip can still scroll right for now
       runFrame(0);
       runFrame(150);
       expect(shown(store)).toBe(1);
       runFrame(300);
       expect(strip.scroller.scrollLeft).toBe(100);
-      expect(store.getSnapshot()).toBe(1 | (1 << 2));
+      expect(shown(store)).toBe(1);
       store.scrollPage('left');
       expect(shown(store)).toBe(2);
       runFrame(1000);
@@ -395,6 +394,43 @@ describe('selectedTabTarget', () => {
     Object.defineProperty(strip.scroller, 'clientWidth', { value: 200, configurable: true });
     strip.tab.removeAttribute('aria-selected');
     expect(selectedTabTarget(strip.scroller)).toBeNull();
+  });
+});
+
+describe('shift', () => {
+  function slidingStrip({ rtl = false } = {}) {
+    const strip = makeStrip({ rtl });
+    const list = strip.scroller.querySelector('[role="tablist"]')!;
+    Object.defineProperty(strip.tab, 'clientWidth', { value: 100, configurable: true });
+    list.append(document.createElement('div'));
+    const store = createTabStripStore();
+    store.attach(strip.scroller);
+    return { strip, store };
+  }
+
+  it('moves a strip at rest toward its end', () => {
+    const { strip, store } = slidingStrip();
+    store.shift(0);
+    store.shift(30);
+    expect(strip.scroller.scrollLeft).toBe(30);
+    createTabStripStore().shift(10); // not attached
+  });
+
+  it('keeps a slide on course from where it put the strip, in LTR and RTL', () => {
+    for (const rtl of [false, true]) {
+      const { strip, store } = slidingStrip({ rtl });
+      writeScrollLeft(strip.scroller, rtl ? -400 : 400);
+      store.scrollPage(rtl ? 'right' : 'left'); // a page of 100 toward the start: to 300
+      runFrame(0);
+      runFrame(150); // half way: 350
+      expect(Math.abs(strip.scroller.scrollLeft)).toBe(350);
+      strip.userScroll(rtl ? -340 : 340); // the browser clamped it to a smaller range
+      store.shift(-48); // the start arrow went: the tabs keep their place
+      expect(Math.abs(strip.scroller.scrollLeft)).toBe(302);
+      runFrame(300);
+      expect(Math.abs(strip.scroller.scrollLeft)).toBe(300);
+      store.stop();
+    }
   });
 });
 
@@ -510,7 +546,7 @@ describe('TabStripScrollButton', () => {
     expect(getDuration).toHaveBeenCalled();
   });
 
-  it('draws a divider toward the tabs and animates with the slide', () => {
+  it('draws a divider toward the tabs, grows in over the slide duration and goes at once', () => {
     const ease = 'cubic-bezier(0.4, 0, 0.2, 1)';
     expect(arrowSx(true, true, 300)).toMatchObject({
       width: 48,
@@ -521,7 +557,11 @@ describe('TabStripScrollButton', () => {
       borderLeft: expect.stringContaining('1px solid'),
       transition: 'none',
     });
-    expect(arrowSx(false, true, 300)).toMatchObject({ width: 0, borderRight: 'none' });
+    expect(arrowSx(false, true, 300)).toMatchObject({
+      width: 0,
+      borderRight: 'none',
+      transition: 'none',
+    });
   });
 
   it('puts the divider on the tabs side, in LTR and RTL', () => {
@@ -557,7 +597,7 @@ describe('TabStripScrollButton', () => {
     }
   });
 
-  it('keeps an arrow that shrinks away during a slide enabled until the strip gets there', () => {
+  it('hides an arrow at once when a click slides the strip to its end', () => {
     const strip = makeStrip();
     Object.defineProperty(strip.scroller, 'scrollWidth', { value: 300, configurable: true });
     Object.defineProperty(strip.tab, 'clientWidth', { value: 120 }); // a page of 120
@@ -565,13 +605,9 @@ describe('TabStripScrollButton', () => {
     store.attach(strip.scroller);
     renderButtons(store);
     fireEvent.click(screen.getByLabelText('right')); // slides to the end
-    const right = screen.getByLabelText('right');
-    expect(right).toHaveStyle({ width: '0px' }); // shrinking
-    expect(right).not.toHaveClass('Mui-disabled'); // its click ripple plays out
-    expect(screen.getByLabelText('left')).not.toHaveClass('Mui-disabled');
-    act(() => runFrame(0));
-    act(() => runFrame(300));
     expect(screen.getByLabelText('right')).toHaveClass('Mui-disabled');
+    expect(screen.getByLabelText('right')).toHaveStyle({ width: '0px' });
+    expect(screen.getByLabelText('left')).not.toHaveClass('Mui-disabled');
   });
 
   it('is disabled outside an app bar strip', () => {
@@ -627,16 +663,19 @@ describe('useScrollButtonCompensation', () => {
     expect(strip.scroller.scrollLeft).toBe(800);
   });
 
-  it('leaves the strip to a slide in progress', () => {
+  it('folds the start arrow into a slide in progress, and leaves the end to it', () => {
     const strip = makeStrip();
-    setWidth(strip.start, 0);
-    setWidth(strip.end, 48);
-    const isSliding = () => true;
-    renderHook(() => useScrollButtonCompensation({ current: strip.root }, isSliding));
-    strip.userScroll(100);
     setWidth(strip.start, 48);
+    setWidth(strip.end, 0);
+    const shift = vi.fn();
+    const sliding = { isSliding: () => true, shift };
+    renderHook(() => useScrollButtonCompensation({ current: strip.root }, sliding));
+    strip.userScroll(790);
+    setWidth(strip.start, 0); // hides as a slide to the start begins
+    setWidth(strip.end, 48);
     fireResize();
-    expect(strip.scroller.scrollLeft).toBe(100);
+    expect(shift).toHaveBeenCalledWith(-48);
+    expect(strip.scroller.scrollLeft).toBe(790); // no snap to the end
   });
 
   it('does nothing without the scroll arrows', () => {

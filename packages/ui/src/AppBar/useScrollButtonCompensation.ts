@@ -1,17 +1,18 @@
 'use client';
 import * as React from 'react';
-import { writeScrollLeft } from './tabStrip.js';
+import { writeScrollLeft, type TabStripStore } from './tabStrip.js';
 
 /**
  * The app bar hides a tab scroll arrow while the strip cannot scroll its way (the disabled arrow
  * takes no room). Showing or hiding an arrow changes the scroller's width, which would shift the
  * tabs under the pointer; this keeps the visible tabs in place and lets the last tab reach the end
- * of the strip. Same behaviour as the Tecton drop-in app bar. A slide in progress (`isSliding`)
- * already aims at its target, so the strip is left to it.
+ * of the strip. Same behaviour as the Tecton drop-in app bar. During a slide of the app bar's
+ * `strip`, which already aims at its target, the start arrow's width is folded into the slide
+ * instead, and the end is left to the slide.
  */
 export function useScrollButtonCompensation(
   tabsRef: React.RefObject<HTMLElement | null>,
-  isSliding: () => boolean = () => false,
+  strip?: Pick<TabStripStore, 'isSliding' | 'shift'>,
 ) {
   React.useEffect(() => {
     const root = tabsRef.current;
@@ -26,7 +27,9 @@ export function useScrollButtonCompensation(
       const nextStart = start.offsetWidth;
       const nextEnd = end.offsetWidth;
       const maxScroll = scroller.scrollWidth - scroller.clientWidth;
-      if (!isSliding()) {
+      if (strip?.isSliding()) {
+        strip.shift(nextStart - startWidth);
+      } else {
         if (nextStart !== startWidth && scroller.scrollLeft > 0) {
           writeScrollLeft(scroller, scroller.scrollLeft + nextStart - startWidth);
         }
@@ -42,5 +45,5 @@ export function useScrollButtonCompensation(
     observer.observe(start);
     observer.observe(end);
     return () => observer.disconnect();
-  }, [tabsRef, isSliding]);
+  }, [tabsRef, strip]);
 }
