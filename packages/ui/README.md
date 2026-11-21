@@ -377,7 +377,8 @@ import ActionBar, {
 
 Buttons with a `value` are tools (one is current); buttons without one are plain actions. A tool
 menu holds a set of tools and opens on long press, right-click or the arrow key toward its menu.
-`ActionBarSelect` adds a compact `Select`; `alignment="right"` docks the bar on the right.
+`ActionBarSelect` adds a compact `Select` (two can share a row in an
+`<ActionBarGroup orientation="horizontal">`); `alignment="right"` docks the bar on the right.
 
 ## Advanced components
 

@@ -4,7 +4,8 @@
 // composed from Material parts so that every surface, state and colour comes from the theme:
 //
 // - The bar is a WAI-ARIA toolbar: one tab stop, Up/Down/Home/End move between its controls.
-// - Groups are bordered `Paper` surfaces (Figma <Paper> Elevation 1, Border).
+// - Groups are bordered `Paper` surfaces (Figma <Paper> Elevation 1, Border), stacked or in a row
+//   (two selects side by side); Left/Right move along a row.
 // - Buttons are square tertiary `IconButton`s with a `Tooltip` (Figma <IconButton> Medium,
 //   Tertiary, Square; "Hovered Long" shows the tooltip beside the button).
 // - A tool menu button holds several tools: it shows the last tool picked, marks itself with a
@@ -19,12 +20,17 @@ import useEventCallback from '@mui/utils/useEventCallback';
 import visuallyHidden from '@mui/utils/visuallyHidden';
 import { styled, useTheme, type SxProps, type Theme } from '@mui/material/styles';
 import IconButton, { type IconButtonProps } from '@mui/material/IconButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemIcon, { listItemIconClasses } from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Menu, { type MenuProps } from '@mui/material/Menu';
 import MenuItem, { type MenuItemProps } from '@mui/material/MenuItem';
 import Paper, { type PaperProps } from '@mui/material/Paper';
-import Select, { type BaseSelectProps, type StandardSelectProps } from '@mui/material/Select';
+import { inputBaseClasses } from '@mui/material/InputBase';
+import Select, {
+  selectClasses,
+  type BaseSelectProps,
+  type StandardSelectProps,
+} from '@mui/material/Select';
 import Tooltip, { tooltipClasses, type TooltipProps } from '@mui/material/Tooltip';
 import { cssVar } from '../styles/tecton/index.js';
 
@@ -33,6 +39,8 @@ export const actionBarClasses = {
   alignLeft: 'TectonActionBar-alignLeft',
   alignRight: 'TectonActionBar-alignRight',
   group: 'TectonActionBar-group',
+  /** On a group that lays its controls out in a row (`orientation="horizontal"`). */
+  groupHorizontal: 'TectonActionBar-groupHorizontal',
   button: 'TectonActionBar-button',
   /** On a button whose tool is current (and on a tool menu button while its menu is open). */
   active: 'TectonActionBar-active',
@@ -296,6 +304,19 @@ export const ActionBar = React.forwardRef<HTMLDivElement, ActionBarProps>(functi
     const index = items.indexOf(target);
     let next: HTMLElement | undefined;
     switch (event.key) {
+      case 'ArrowLeft':
+      case 'ArrowRight': {
+        // In a horizontal group, Left and Right move between its controls (mirrored in RTL). Past
+        // the end of the row, or outside one, the key is left to the control (a tool menu opens
+        // its menu with it).
+        const row = target.closest<HTMLElement>(`.${actionBarClasses.groupHorizontal}`);
+        if (!row || !root.contains(row)) return;
+        const rowItems = items.filter((item) => row.contains(item));
+        const step = (event.key === 'ArrowRight') !== isRtl ? 1 : -1;
+        next = rowItems[rowItems.indexOf(target) + step];
+        if (!next) return;
+        break;
+      }
       case 'ArrowDown':
         next = items[(index + 1) % items.length];
         break;
@@ -353,18 +374,30 @@ const GroupRoot = styled(Paper, { name: 'TectonActionBar', slot: 'Group' })({
   padding: `calc(${cssVar('space-50')} - ${cssVar('border-width-100')})`,
   border: `${cssVar('border-width-100')} solid ${cssVar('color-divider-subtle')}`,
   borderRadius: cssVar('radius-50'),
+  // Figma "Legacy" double dropdown: two selects side by side in one Paper, same spacing.
+  [`&.${actionBarClasses.groupHorizontal}`]: { flexDirection: 'row' },
 });
 
-export type ActionBarGroupProps = PaperProps;
+export interface ActionBarGroupProps extends PaperProps {
+  /**
+   * `vertical` stacks the controls (default). `horizontal` puts them in a row, for example two
+   * `ActionBarSelect`s; Left and Right then move between them.
+   */
+  orientation?: 'vertical' | 'horizontal';
+}
 
 /** A surface that holds related controls of the bar (a bordered elevation 1 `Paper`). */
 export const ActionBarGroup = React.forwardRef<HTMLDivElement, ActionBarGroupProps>(
-  function ActionBarGroup({ className, ...other }, ref) {
+  function ActionBarGroup({ orientation = 'vertical', className, ...other }, ref) {
     return (
       <GroupRoot
         ref={ref}
         role="group"
-        className={clsx(actionBarClasses.group, className)}
+        className={clsx(
+          actionBarClasses.group,
+          orientation === 'horizontal' && actionBarClasses.groupHorizontal,
+          className,
+        )}
         {...other}
       />
     );
@@ -475,6 +508,12 @@ export interface ActionBarToolProps extends Omit<MenuItemProps, 'value' | 'child
   icon: React.ReactNode;
 }
 
+const ToolRoot = styled(MenuItem, { name: 'TectonActionBar', slot: 'Tool' })({
+  // Figma: the tool's icon keeps the 20px size it has on the bar's button (a 32px row, 12px from
+  // the text); the theme's menu leaves icons at the text size.
+  [`& .${listItemIconClasses.root}`]: { fontSize: cssVar('icon-size-150') },
+});
+
 /** One tool of an `ActionBarToolMenu` (a `MenuItem` with an icon). */
 export const ActionBarTool = React.forwardRef<HTMLLIElement, ActionBarToolProps>(
   function ActionBarTool(
@@ -482,7 +521,7 @@ export const ActionBarTool = React.forwardRef<HTMLLIElement, ActionBarToolProps>
     ref,
   ) {
     return (
-      <MenuItem
+      <ToolRoot
         ref={ref}
         role="menuitemradio"
         aria-checked={selected}
@@ -492,7 +531,7 @@ export const ActionBarTool = React.forwardRef<HTMLLIElement, ActionBarToolProps>
       >
         <ListItemIcon>{icon}</ListItemIcon>
         <ListItemText>{label}</ListItemText>
-      </MenuItem>
+      </ToolRoot>
     );
   },
 );
@@ -792,9 +831,24 @@ export type ActionBarSelectProps<Value = unknown> = Omit<
   'aria-label'?: string;
 };
 
+// Figma `_ActionBarSelectBehavior_*`: the value sits one space/50 further in than the theme's select
+// puts it, so it does not touch the group's edge. TextOnly: 4px in, with 28px after the value for the
+// chevron ("Value" hugs 67px); Filled: 12px in (79px). Physical sides, like MUI's own select padding,
+// so the RTL plugin mirrors both. The extra classes beat MUI's `&&&` padding rule.
+const SelectRoot = styled(Select, { name: 'TectonActionBar', slot: 'Select' })({
+  [`& .${selectClasses.select}.${selectClasses.standard}.${inputBaseClasses.input}`]: {
+    paddingLeft: cssVar('space-50'),
+    paddingRight: `calc(${cssVar('space-300')} + ${cssVar('space-50')})`,
+  },
+  [`& .${selectClasses.select}.${selectClasses.filled}.${inputBaseClasses.input}`]: {
+    paddingLeft: cssVar('space-150'),
+  },
+});
+
 /**
  * A compact `Select` for the bar (for example a zoom level or a view mode). Its menu opens below it,
- * lined up on the bar's edge, above the tools.
+ * lined up on the bar's edge, above the tools. Two selects can share a row in an
+ * `ActionBarGroup orientation="horizontal"`.
  */
 export const ActionBarSelect = React.forwardRef(function ActionBarSelect(
   {
@@ -824,7 +878,7 @@ export const ActionBarSelect = React.forwardRef(function ActionBarSelect(
     menuPropsProp ?? {},
   );
   return (
-    <Select
+    <SelectRoot
       ref={ref}
       variant={variant}
       size="medium"

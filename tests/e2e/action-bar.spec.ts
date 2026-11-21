@@ -82,6 +82,17 @@ test.describe('ActionBar', () => {
     const [buttonBox, paperBox] = await Promise.all([button.boundingBox(), paper.boundingBox()]);
     expect(paperBox!.x - (buttonBox!.x + buttonBox!.width)).toBeCloseTo(2, 0);
     expect(paperBox!.y - buttonBox!.y).toBeCloseTo(-2, 0);
+    // Figma: 32px rows, the tool icon at the button's 20px size, 12px in, the name 12px after it.
+    const row = paper.locator('.TectonActionBar-tool').first();
+    const [rowBox, iconBox, textBox] = await Promise.all([
+      row.boundingBox(),
+      row.locator('.TectonIcon-root').boundingBox(),
+      row.locator('.MuiListItemText-root').boundingBox(),
+    ]);
+    expect(rowBox!.height).toBe(32);
+    expect([iconBox!.width, iconBox!.height]).toEqual([20, 20]);
+    expect(iconBox!.x - rowBox!.x).toBe(12);
+    expect(textBox!.x - (iconBox!.x + iconBox!.width)).toBe(12);
 
     await page.keyboard.press('ArrowDown');
     await page.keyboard.press('Enter');
@@ -165,6 +176,63 @@ test.describe('ActionBar', () => {
     expect(await buttons.evaluate((el) => el.getBoundingClientRect().width)).toBe(40);
   });
 
+  test('selects: Figma insets, and two selects in a row move with Left and Right', async ({
+    page,
+  }) => {
+    await page.goto('/?scenario=action-bar');
+    const layer = page.getByRole('combobox', { name: 'Layer' });
+    const style = page.getByRole('combobox', { name: 'Style' });
+    await expect(layer).toBeVisible();
+    // Figma `_ActionBarSelectBehavior_*` with "Value": TextOnly 67px with the value 4px in,
+    // Filled 79px with the value 12px in.
+    const measureSelect = (combobox: typeof layer) =>
+      combobox.evaluate((el) => {
+        const root = el.closest('.TectonActionBar-select')!.getBoundingClientRect();
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        const text = range.getBoundingClientRect();
+        return {
+          width: root.width,
+          inset: text.left - root.left,
+          top: root.top,
+          right: root.right,
+        };
+      });
+    const [textOnly, filled] = await Promise.all([measureSelect(layer), measureSelect(style)]);
+    expect(textOnly.width).toBeCloseTo(67, 0);
+    expect(textOnly.inset).toBe(4);
+    expect(filled.width).toBeCloseTo(79, 0);
+    expect(filled.inset).toBe(12);
+    // One row, 4px apart, as Figma's double dropdown.
+    const filledLeft = await style.evaluate(
+      (el) => el.closest('.TectonActionBar-select')!.getBoundingClientRect().left,
+    );
+    expect(filled.top).toBe(textOnly.top);
+    expect(filledLeft - textOnly.right).toBe(4);
+
+    await layer.focus();
+    await page.keyboard.press('ArrowRight');
+    await expect(style).toBeFocused();
+    await page.keyboard.press('ArrowRight');
+    await expect(style).toBeFocused();
+    await page.keyboard.press('ArrowLeft');
+    await expect(layer).toBeFocused();
+    await expect(page.getByRole('listbox')).toBeHidden();
+    // Each select's menu opens below it (measured first: the open menu hides the page from roles).
+    const styleBox = await style.evaluate((el) => {
+      const r = el.closest('.TectonActionBar-select')!.getBoundingClientRect();
+      return { x: r.left, bottom: r.bottom };
+    });
+    await page.keyboard.press('ArrowRight');
+    await page.keyboard.press('Enter');
+    await expect(page.getByRole('listbox')).toBeVisible();
+    const listBox = await page.locator('.MuiPopover-paper').boundingBox();
+    expect(listBox!.x).toBeCloseTo(styleBox.x, 0);
+    expect(listBox!.y).toBeGreaterThan(styleBox.bottom);
+    await page.keyboard.press('Escape');
+    await expect(style).toBeFocused();
+  });
+
   test('right alignment opens the menu to the left', async ({ page }) => {
     await page.goto('/?scenario=action-bar');
     const button = markers(page);
@@ -190,6 +258,14 @@ test.describe('ActionBar', () => {
     ]);
     expect(triangle!.x - buttonRect!.x).toBeCloseTo(2, 0);
     expect(buttonRect!.y + buttonRect!.height - (triangle!.y + triangle!.height)).toBeCloseTo(2, 0);
+    // So does the select's inset: the value sits 4px from the right edge.
+    const inset = await page.getByRole('combobox', { name: 'Layer' }).evaluate((el) => {
+      const root = el.closest('.TectonActionBar-select')!.getBoundingClientRect();
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      return root.right - range.getBoundingClientRect().right;
+    });
+    expect(inset).toBe(4);
     await button.focus();
     await page.keyboard.press('ArrowLeft');
     await expect(page.getByRole('menu', { name: 'Measure' })).toBeVisible();
