@@ -308,33 +308,6 @@ export default function MuiDocs() {
         <M.a href={'/components/modal#limitations'}>{'Modal limitations section'}</M.a>
         {'.'}
       </M.p>
-      <Heading level={3} id="supplementary-projects">
-        {'Supplementary projects'}
-      </Heading>
-      <M.p>{'For more advanced use cases you might be able to take advantage of:'}</M.p>
-      <Heading level={4} id="material-ui-confirm">
-        {'material-ui-confirm'}
-      </Heading>
-      <M.p>
-        <M.img
-          src={
-            'https://img.shields.io/github/stars/jonatanklosko/material-ui-confirm?style=social&label=Star'
-          }
-          alt={'stars'}
-        />
-        {'\n'}
-        <M.img
-          src={'https://img.shields.io/npm/dm/material-ui-confirm.svg'}
-          alt={'npm downloads'}
-        />
-      </M.p>
-      <M.p>
-        {'The package '}
-        <M.a href={'https://github.com/jonatanklosko/material-ui-confirm/'}>
-          <M.code>{'material-ui-confirm'}</M.code>
-        </M.a>
-        {' provides dialogs for confirming user actions without writing boilerplate code.'}
-      </M.p>
       <Heading level={3} id="dialogs-accessibility">
         {'Accessibility'}
       </Heading>

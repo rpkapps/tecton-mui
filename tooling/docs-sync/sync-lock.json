@@ -14,12 +14,12 @@
     "pagesSynced": 58,
     "portalSlugs": 64,
     "demosIncluded": 496,
-    "demosExcluded": 35,
+    "demosExcluded": 32,
     "icons": 149,
     "iconFallbacks": 12
   },
   "excludedDemosByReason": {
-    "requires the third-party package `…`, which the portal does not depend on": 22,
+    "requires the third-party package `…`, which the portal does not depend on": 19,
     "uses the MUI documentation-site helper `…`": 4,
     "upstream provides only a JavaScript source": 3,
     "imports `…`, which @tecton-mui/ui does not export": 2,
@@ -2254,11 +2254,6 @@
         {
           "name": "GroupedMenu",
           "status": "included"
-        },
-        {
-          "name": "MenuPopupState",
-          "status": "excluded",
-          "reason": "requires the third-party package `material-ui-popup-state`, which the portal does not depend on"
         }
       ]
     },
@@ -2808,11 +2803,6 @@
         {
           "name": "VirtualElementPopover",
           "status": "included"
-        },
-        {
-          "name": "PopoverPopupState",
-          "status": "excluded",
-          "reason": "requires the third-party package `material-ui-popup-state`, which the portal does not depend on"
         }
       ]
     },
@@ -2849,11 +2839,6 @@
         {
           "name": "VirtualElementPopper",
           "status": "included"
-        },
-        {
-          "name": "PopperPopupState",
-          "status": "excluded",
-          "reason": "requires the third-party package `material-ui-popup-state`, which the portal does not depend on"
         }
       ]
     },
@@ -4345,7 +4330,7 @@
     "apps/docs/src/mui-docs/generated/pages/click-away-listener.tsx": "2109d365ff96687a5550a0826bece71a6236ddf529f6087f9533cbfc5b96ea45",
     "apps/docs/src/mui-docs/generated/pages/container.tsx": "01ea1fec145896eb9dc679444b31aa4797eea301e81112cc2c1c7c5d5d0e052b",
     "apps/docs/src/mui-docs/generated/pages/css-baseline.tsx": "91a67d912336defa8396ce30a306633764b46025fa9db76cdc89444174a77640",
-    "apps/docs/src/mui-docs/generated/pages/dialog.tsx": "57d29656b99b070cd44b24007be7625537e4cddff95b39aaf611d76531eeb6fb",
+    "apps/docs/src/mui-docs/generated/pages/dialog.tsx": "f416164d1460911b77f7f18f98a0ca349fa0796030c0c823508b891401ec7cfb",
     "apps/docs/src/mui-docs/generated/pages/divider.tsx": "beaf7923eaa8762d1a187a10ecde8decfee781801275e1091f3771de5925d710",
     "apps/docs/src/mui-docs/generated/pages/drawer.tsx": "ad5ee5fcc5e7650b9462759b7f711a0a6bf621807790bfbf8d208be1db63574c",
     "apps/docs/src/mui-docs/generated/pages/fab.tsx": "f89e758e7b9004f6d6ac77a0a49e7e5f39590ca26173c65bf2388ceca1fcf3d4",
@@ -4356,15 +4341,15 @@
     "apps/docs/src/mui-docs/generated/pages/link.tsx": "6a3aed21ce87684585a383052408d6e2552354a0bf88f6ef152152cd473dcc12",
     "apps/docs/src/mui-docs/generated/pages/list.tsx": "48c65c051374ccd5bde26efa121aaa2945bb76c86275c4b9b7815975a4e84bee",
     "apps/docs/src/mui-docs/generated/pages/masonry.tsx": "3292b1107634cd15a6da1a8acd6e33a08488d337541180698f8d3251fbe0efec",
-    "apps/docs/src/mui-docs/generated/pages/menu.tsx": "6b0e6749f139983417f5d82d047ed53659b51367965f77294ea5df87e463db96",
+    "apps/docs/src/mui-docs/generated/pages/menu.tsx": "faad39dd002c83b314db8e39970845d168f516b9327b508fcb5e5185070c86c1",
     "apps/docs/src/mui-docs/generated/pages/mobile-stepper.tsx": "8c8fdbfa43342f8c8c97c995fac64d048c78e27e18c63669cb6a64855163a584",
     "apps/docs/src/mui-docs/generated/pages/modal.tsx": "9799a9d6454632c767cf7e73274688258838be9210d18ca56c32ba67f0ce97c1",
     "apps/docs/src/mui-docs/generated/pages/native-select.tsx": "49d5be4afa6c81533292fa9e5ee8eb238d02c2b0db39aaf3ac698f4fae961241",
     "apps/docs/src/mui-docs/generated/pages/no-ssr.tsx": "3d1bbd45669f9e003320ebaa98a63af0946791a4a215892b56165b89ed0fec2d",
     "apps/docs/src/mui-docs/generated/pages/pagination.tsx": "7625f2433eb90abe6e2f05cd4ac1fc2b2837009ab6247b5c642470ce90608ad9",
     "apps/docs/src/mui-docs/generated/pages/paper.tsx": "c7d05c9ce4a4c1ac5aaa85b95b27b1507dcd128d9ba9764360f3f726512b89b3",
-    "apps/docs/src/mui-docs/generated/pages/popover.tsx": "02d3cb6869e794489024e52e8872ec63c673d04b973931ff03ce2cd716533521",
-    "apps/docs/src/mui-docs/generated/pages/popper.tsx": "a179699ea1020cfd4397713ef1cd90e4c1b93a0550a7005a69ee3280593927a3",
+    "apps/docs/src/mui-docs/generated/pages/popover.tsx": "5f5a79df3e3308e26afa1b3be0617dee4c784245839e6b73c13db6e80ecab1a6",
+    "apps/docs/src/mui-docs/generated/pages/popper.tsx": "96846d3896f3228194e512b70341b425bf970775267fdd1932c6ec3510e5f921",
     "apps/docs/src/mui-docs/generated/pages/portal.tsx": "3ba12c6f4a9b80b59390276c73da195dc325f2a12581549bb4f6862f8b5f1de7",
     "apps/docs/src/mui-docs/generated/pages/progress.tsx": "0ff4c292261b120f82ae1528125eacd72705e10dda9b5b0df7f3b52034b4ff06",
     "apps/docs/src/mui-docs/generated/pages/radio.tsx": "8002cc2c74c94907df058bb36808340ccc427dccd7e2b02c787ef8729b5e27ad",
@@ -4381,7 +4366,7 @@
     "apps/docs/src/mui-docs/generated/pages/tab-context.tsx": "ce19775893f9cbfb3572288764e3c5f2402906b19e7c825dc01acca0afb759f1",
     "apps/docs/src/mui-docs/generated/pages/table.tsx": "b1ca3d06a9c8d7bde850b76a29af6561ddabc74b2e920402aeb8aab74cbd8363",
     "apps/docs/src/mui-docs/generated/pages/tabs.tsx": "33b98e71c0f3d3850f3a48ad9ffa7d0737dbd9ade128e7f01bab7d48a8b4eaec",
-    "apps/docs/src/mui-docs/generated/pages/text-field.tsx": "6a9950596779bec96375f9fe66ae58004a086296f6b68ae346d2e6aed827c2b5",
+    "apps/docs/src/mui-docs/generated/pages/text-field.tsx": "365cfc6110293d0398dd7065f070306986b3627be2878cbc9ac45929313d9d3f",
     "apps/docs/src/mui-docs/generated/pages/textarea-autosize.tsx": "bec7228b7e98928319a7996bf02cabb72578be64e9acb3f84cd795bffbb70605",
     "apps/docs/src/mui-docs/generated/pages/timeline.tsx": "b74fc0c71503f8b55c66635a73000a8ba86c6b0add1ea6234129a61cb3d7dee5",
     "apps/docs/src/mui-docs/generated/pages/toggle-button.tsx": "3e9a90e8fa21cb32f72efa506a387a96510cc476b0ca5e1f7ad8f75b6752a949",
