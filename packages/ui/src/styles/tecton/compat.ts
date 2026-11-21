@@ -184,9 +184,10 @@ export const muiCompatOverrides: ThemeOptions = {
         // Header icons and title as in Tecton's table (the MUI Table drop-in in the Tecton
         // Storybook): Tecton's grid theme draws 24px sort icons in the action colour, leaves the
         // column menu button in MUI's default colour (black / white) and uses a regular-weight
-        // title. The table uses 16px icons in the header text colour and a medium-weight title.
+        // title. The table uses a medium-weight title and 16px sort icons painted in the primary
+        // text colour (the icon mask's background; its `color` property reads secondary).
         sortIcon: {
-          color: cssVar('color-text-secondary'),
+          color: cssVar('color-text-primary'),
           width: cssVar('icon-size-100'),
           height: cssVar('icon-size-100'),
         },

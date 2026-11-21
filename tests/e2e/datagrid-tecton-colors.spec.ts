@@ -15,6 +15,8 @@ const token = (page: Page, name: string) =>
     return value;
   }, name);
 
+const header = (root: ReturnType<Page['locator']>, field: string) =>
+  root.locator(`.MuiDataGrid-columnHeader[data-field="${field}"]`);
 const style = (page: Page, selector: string, prop: string) =>
   page
     .locator(selector)
@@ -119,6 +121,14 @@ for (const mode of ['light', 'dark'] as const) {
           ...new Set(cells.map((c) => getComputedStyle(c).backgroundColor)),
         ]);
       expect(cellColors).toEqual([active]);
+      // Sort icon: painted (mask background) in the primary text color, as the Tecton table.
+      await header(root, 'well').locator('.MuiDataGrid-columnHeaderTitleContainer').click();
+      await page.mouse.move(0, 0);
+      expect(
+        await root
+          .locator('.MuiDataGrid-columnHeader--sorted .MuiDataGrid-sortIcon')
+          .evaluate((e) => getComputedStyle(e).backgroundColor),
+      ).toBe(await token(page, 'color-text-primary'));
       // Row dividers: 1px in color-divider, as the Tecton table.
       const divider = await token(page, 'color-divider');
       const line = await root

@@ -13,3 +13,5 @@ DataGrid:
 - SpeedDial: the add icon is 24px and centered.
 - Docs: nested light/dark sections need `data-theme` on the section (theming guide); the Paper
   elevation, customized list and dark AppBar examples set it.
+- DataGrid sort icons are painted in the primary text color, as in the Tecton table (they were
+  secondary).

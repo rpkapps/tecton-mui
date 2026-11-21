@@ -407,10 +407,10 @@ describe('Tecton data grid header and striping', () => {
       Record<string, unknown>
     >;
 
-  it('draws header sort and menu icons like the Tecton table (16px, secondary text)', () => {
+  it('draws header sort icons like the Tecton table (16px, primary text) and the menu icon in secondary text', () => {
     const overrides = grid();
     expect(overrides.sortIcon).toEqual({
-      color: 'var(--tecton-color-text-secondary)',
+      color: 'var(--tecton-color-text-primary)',
       width: 'var(--tecton-icon-size-100)',
       height: 'var(--tecton-icon-size-100)',
     });
