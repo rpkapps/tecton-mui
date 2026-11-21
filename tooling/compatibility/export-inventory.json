@@ -9,6 +9,7 @@
     "@mui/x-tree-view": "9.18.0"
   },
   "customModules": [
+    "AppBar",
     "DataGrid",
     "DateRangeCalendar",
     "DateRangePicker",
@@ -283,7 +284,8 @@
     },
     {
       "package": "@mui/material",
-      "module": "AppBar"
+      "module": "AppBar",
+      "overriddenBy": "src/AppBar"
     },
     {
       "package": "@mui/material",

@@ -1,4 +1,5 @@
-// Visual parity with the official Tecton Storybook (storybook-mui 0.10.1, Tecton 0.11.2).
+// Visual parity with the official Tecton Storybook (storybook-mui 0.10.1, Tecton 0.11.2) and the
+// Tecton drop-in Storybook (apps/storybook 1.1.0: the `<wc-*>` web components, same Tecton theme).
 //
 // Each case renders a Storybook story from the public Tecton CDN and our reproduction of it
 // (`/?scenario=sb:<story-id>`, see tests/e2e/harness/src/storybook) at the same viewport, mode and
@@ -11,6 +12,8 @@
 import { expect, test, type BrowserContext, type Page } from '@playwright/test';
 
 const SB_BASE = 'https://d1md5uq86jnv53.cloudfront.net/lmk/webframework/utils/storybook-mui/0.10.1';
+/** Drop-in Storybook: stories render the web components, which bundle MUI 9 and the Tecton theme. */
+const DROP_INS_BASE = 'https://d1md5uq86jnv53.cloudfront.net/lmk/webframework/apps/storybook/1.1.0';
 const TECTON_UMD =
   'https://d1md5uq86jnv53.cloudfront.net/lmk/webframework/utils/tecton-mui/0.11.2/index.umd.js';
 const VIEWPORT = { width: 1280, height: 900 };
@@ -26,6 +29,14 @@ interface ParityCase {
   ours?: string;
   /** Share of differing pixels allowed (default DEFAULT_TOLERANCE). */
   tolerance?: number;
+  /** Which Storybook the story comes from (default `mui`). */
+  storybook?: 'mui' | 'drop-ins';
+  /**
+   * Capture the viewport instead of the full page. A full-page capture briefly resizes the page,
+   * and scrollable Tabs react to that resize (scroll arrows, scroll position) at random, on either
+   * side. Use it for stories with scrollable tabs that fit in the viewport.
+   */
+  viewportOnly?: boolean;
 }
 
 // Representative stories (atoms, molecules, organisms, pickers, tree view). Each one matched the
@@ -83,6 +94,24 @@ const CASES: ParityCase[] = [
   // selected endpoint and action bar; only the caption and toolbar texts (and the month switch
   // chevron, a view the range calendar does not offer) differ.
   { id: 'organisms-date--range', ours: 'extra-pickers--range-single-endpoint', tolerance: 0.006 },
+  // Drop-ins: the React AppBar (Tecton app bar layout) against the `<wc-app-bar>` stories.
+  ...[
+    'primary',
+    'figma-variant',
+    'secondary',
+    'branding',
+    'tab-options',
+    'tab-limits',
+    'overflow',
+    'slots',
+    'slots-with-changing-content',
+    'live-attributes',
+    'playground',
+  ].map((story) => ({
+    id: `drop-ins-app-bar--${story}`,
+    storybook: 'drop-ins' as const,
+    viewportOnly: true,
+  })),
 ];
 
 const FREEZE_CSS =
@@ -119,19 +148,22 @@ async function fetchText(url: string) {
  * from the story bundles so both sides are compared in their initial render state.
  */
 async function disablePlayFunctions(context: BrowserContext) {
-  await context.route(/storybook-mui\/0\.10\.1\/assets\/.*\.stories-.*\.js$/, async (route) => {
-    let body: string;
-    try {
-      body = await fetchText(route.request().url());
-    } catch {
-      body = await (await route.fetch()).text();
-    }
-    await route.fulfill({
-      status: 200,
-      contentType: 'text/javascript',
-      body: body.replace(/\bplay:async/g, '_play:async'),
-    });
-  });
+  await context.route(
+    /(storybook-mui\/0\.10\.1|apps\/storybook\/1\.1\.0)\/assets\/.*\.stories-.*\.js$/,
+    async (route) => {
+      let body: string;
+      try {
+        body = await fetchText(route.request().url());
+      } catch {
+        body = await (await route.fetch()).text();
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: 'text/javascript',
+        body: body.replace(/\bplay:async/g, '_play:async'),
+      });
+    },
+  );
 }
 
 async function settle(page: Page, readySelector: string) {
@@ -145,9 +177,30 @@ async function settle(page: Page, readySelector: string) {
   });
   await page.mouse.move(0, 0);
   await page.waitForTimeout(300);
+  // Scrollable Tabs scroll their selected tab into view with a JavaScript animation (not covered by
+  // reduced motion). Wait until every tab strip has kept its position and arrows for four samples.
+  await page.waitForFunction(
+    () => {
+      const w = window as unknown as { __tabsSample?: string; __tabsStable?: number };
+      const sample = Array.from(document.querySelectorAll('.MuiTabs-root'))
+        .map((tabs) => {
+          const scroller = tabs.querySelector('.MuiTabs-scroller');
+          const arrows = Array.from(tabs.querySelectorAll('.MuiTabs-scrollButtons'))
+            .map((b) => (b.classList.contains('Mui-disabled') ? 'd' : 'e'))
+            .join('');
+          return `${scroller?.scrollLeft}/${scroller?.clientWidth}/${arrows}`;
+        })
+        .join(',');
+      w.__tabsStable = sample === w.__tabsSample ? (w.__tabsStable ?? 0) + 1 : 0;
+      w.__tabsSample = sample;
+      return w.__tabsStable >= 3;
+    },
+    undefined,
+    { polling: 200, timeout: 15_000 },
+  );
 }
 
-async function shoot(page: Page, url: string, readySelector: string) {
+async function shoot(page: Page, url: string, readySelector: string, fullPage = true) {
   await page.goto(url, { waitUntil: 'networkidle' });
   try {
     await page.waitForSelector(readySelector, { timeout: 30_000 });
@@ -156,7 +209,7 @@ async function shoot(page: Page, url: string, readySelector: string) {
     await page.reload({ waitUntil: 'networkidle' });
   }
   await settle(page, readySelector);
-  return page.screenshot({ fullPage: true, animations: 'disabled' });
+  return page.screenshot({ fullPage, animations: 'disabled' });
 }
 
 /** Pixel comparison in the browser (no image library needed). */
@@ -219,7 +272,13 @@ async function compare(page: Page, expected: Buffer, actual: Buffer) {
 
 for (const mode of ['light', 'dark'] as const) {
   test.describe(`Storybook parity (${mode})`, () => {
-    for (const { id, ours: oursId = id, tolerance = DEFAULT_TOLERANCE } of CASES) {
+    for (const {
+      id,
+      ours: oursId = id,
+      tolerance = DEFAULT_TOLERANCE,
+      storybook: source = 'mui',
+      viewportOnly = false,
+    } of CASES) {
       test(oursId === id ? id : `${id} vs ${oursId}`, async ({ browser, baseURL }, testInfo) => {
         test.skip(
           !cdnReachable && process.env.STORYBOOK_PARITY_REQUIRED !== '1',
@@ -243,13 +302,15 @@ for (const mode of ['light', 'dark'] as const) {
         try {
           const storybook = await shoot(
             page,
-            `${SB_BASE}/iframe.html?id=${id}&viewMode=story&theme=${mode}&tectonVersion=0.11.2&tectonSrc=${encodeURIComponent(TECTON_UMD)}`,
+            `${source === 'drop-ins' ? DROP_INS_BASE : SB_BASE}/iframe.html?id=${id}&viewMode=story&theme=${mode}&tectonVersion=0.11.2&tectonSrc=${encodeURIComponent(TECTON_UMD)}`,
             '#storybook-root > *',
+            !viewportOnly,
           );
           const ours = await shoot(
             page,
             `${baseURL}/?scenario=sb:${oursId}&mode=${mode}`,
             '[data-testid="sb-root"] *',
+            !viewportOnly,
           );
           const result = await compare(page, storybook, ours);
           if (result.ratio > tolerance || !result.sameSize) {

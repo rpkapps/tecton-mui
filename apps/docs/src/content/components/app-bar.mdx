@@ -3,7 +3,62 @@
 The app bar holds the product name, primary navigation and global actions such as search,
 notifications and the user menu. In a micro-frontend setup the shell typically owns the app bar.
 
-## Basic usage
+`AppBar` works two ways:
+
+- **Tecton app bar.** Pass navigation props (`tabs`, `appName`, `onTabSelect`...) and the bar draws
+  the Tecton App Bar from the Figma design: branding, tabs the user switches between, an add button
+  and room on the right for your own actions. This is the React version of the Tecton `<wc-app-bar>`
+  drop-in, with the same looks and behaviour.
+- **MUI app bar.** Without navigation props it is the MUI `AppBar`, unchanged: compose it with
+  `Toolbar` and your own content.
+
+## Tecton app bar
+
+<Demo name="TectonAppBar" />
+
+The bar shows:
+
+- **Branding:** a Tecton icon (`logo`, suffix included, for example `apps-filled`) or an image
+  (`logoSrc`) next to `appName` (default `APP`). With neither logo, a placeholder square shows.
+- **Fixed tabs:** icon-only tabs such as Home (`fixedTabs`). `label` is the tab's accessible name.
+- **Tabs:** each with an icon, a label and optional `tags` (small chips). The active tab shows a close
+  button unless the tab is `closeable: false`; a `disabled` tab cannot be selected. The active tab
+  shows the filled icon.
+- **Add button:** `onTabAdd` asks for a new tab. `maxTabs` hides it once `tabs.length` reaches the
+  cap (`0` always hides it) and `disableTabAdd` turns it off.
+- **Actions:** `children` render at the right end of the bar, centred vertically. Use icon buttons, a
+  menu button or an avatar.
+- **Room for many tabs:** when the tabs outgrow the bar, the tab strip scrolls with arrows, while the
+  branding, the add button and the actions keep their place.
+
+**Your page owns the data.** Each interaction calls back (`onTabSelect(id)`, `onTabClose(id)`,
+`onTabAdd()`) and the page updates `tabs` and `activeTab`. The bar never changes the tabs on its
+own. When the active tab is closed, select the tab before it, as the demo does.
+
+### Secondary tier
+
+`tier="secondary"` gives the slimmer 40px bar for a section of a page, without branding and fixed
+tabs.
+
+<Demo name="SecondaryTectonAppBar" />
+
+### Moving from `<wc-app-bar>`
+
+| `<wc-app-bar>`                   | `AppBar`                               |
+| -------------------------------- | -------------------------------------- |
+| `app-name`, `logo`, `logo-src`   | `appName`, `logo`, `logoSrc`           |
+| `active-tab`, `tier`             | `activeTab`, `tier`                    |
+| `max-tabs`, `disable-tab-add`    | `maxTabs`, `disableTabAdd`             |
+| `.fixedTabs`, `.tabs`            | `fixedTabs`, `tabs` (same item shapes) |
+| `<div slot="actions">`           | `children`                             |
+| `wc-app-bar-tab-select` `{ id }` | `onTabSelect(id, event)`               |
+| `wc-app-bar-tab-remove` `{ id }` | `onTabClose(id, event)`                |
+| `wc-app-bar-tab-add`             | `onTabAdd(event)`                      |
+
+The MUI props (`position`, `sx`, `className`, `component`...) still apply; the Tecton app bar uses
+`position="static"` unless you pass another.
+
+## MUI app bar
 
 Tecton adds two props: `productColor` (`app1` to `app4`) publishes a product branding color, and
 `tier="secondary"` renders the compact second tier for in-page navigation.
@@ -12,6 +67,15 @@ Tecton adds two props: `productColor` (`app1` to `app4`) publishes a product bra
 
 ## Accessibility
 
+- In the Tecton app bar, Tab reaches the tab list once (on the active tab), then the active tab's
+  close button, the add button and your actions. Inside the tab list, Left and Right arrow move
+  between tabs, Home and End jump to the first and last, and Enter or Space selects the focused
+  tab.
+- Delete or Backspace on the active tab closes it, like its close button (announced through
+  `aria-keyshortcuts`). After a tab is closed, or the add button disappears at `maxTabs`, focus
+  moves to the newly active tab instead of being lost.
+- The close button is a separate button next to its tab, not inside it, so screen readers and
+  touch users reach it as a normal button. The tab list holds only tabs.
 - Render the app bar inside a `<header>` landmark (`component="header"` is the default) and put
   navigation links in a `<nav>` with an `aria-label`.
 - Provide a "skip to content" link before the app bar so keyboard users can bypass it, as this portal
