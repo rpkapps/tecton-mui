@@ -215,6 +215,12 @@ test.describe('DataGrid advanced features', () => {
     const before = await cell.boundingBox();
     await cell.hover();
     expect(await cell.boundingBox()).toEqual(before);
+    // A hovered row has only the hover fill: no stroke around it.
+    const row = root.locator(
+      '.MuiDataGrid-virtualScrollerRenderZone .MuiDataGrid-row[data-rowindex="3"]',
+    );
+    expect(await row.evaluate((e) => getComputedStyle(e, '::after').content)).toBe('none');
+    expect(await row.evaluate((e) => getComputedStyle(e).borderTopWidth)).toBe('0px');
     const containerBorder = await root
       .locator('.MuiDataGrid-columnHeaders')
       .evaluate((e) => getComputedStyle(e).borderBottomWidth);
@@ -583,5 +589,51 @@ test.describe('DataGrid advanced features', () => {
         '.TectonDataGrid-pinnedRow.TectonDataGrid-aggregationRow, .TectonDataGrid-pinnedRow:last-child',
       ),
     ).toBe(36);
+  });
+
+  test('filter panel from the keyboard; multi-value input and active-filter dot layout', async ({
+    page,
+  }) => {
+    await page.goto('/?scenario=grid:toolbar');
+    const root = grid(page, 'grid-toolbar');
+    const filters = root.getByRole('button', { name: 'Filters', exact: true });
+    // Enter on the toolbar button moves the focus into the panel; Escape returns it.
+    await filters.focus();
+    await page.keyboard.press('Enter');
+    const panel = page.locator('.TectonDataGrid-filterPanel');
+    await expect(panel).toBeVisible();
+    await expect
+      .poll(() => page.evaluate(() => !!document.activeElement?.closest('.MuiDataGrid-panel')))
+      .toBe(true);
+    await page.keyboard.press('Escape');
+    await expect(panel).toBeHidden();
+    await expect(filters).toBeFocused();
+    // "is any of": the chips and the text stay clear of the clear and popup buttons.
+    await filters.click();
+    await panel.locator('.MuiDataGrid-filterFormOperatorInput [role="combobox"]').click();
+    await page.getByRole('option', { name: 'is any of' }).click();
+    const input = panel.locator('.MuiDataGrid-filterFormValueInput input');
+    await input.fill('5');
+    await input.press('Enter');
+    await input.fill('7');
+    await input.press('Enter');
+    await expect(panel.locator('.MuiDataGrid-filterFormValueInput .MuiChip-root')).toHaveCount(2);
+    const [inputRight, buttonsLeft] = await panel
+      .locator('.MuiDataGrid-filterFormValueInput .MuiAutocomplete-inputRoot')
+      .evaluate((r) => [
+        r.querySelector('input')!.getBoundingClientRect().right,
+        r.querySelector('.MuiAutocomplete-endAdornment')!.getBoundingClientRect().left,
+      ]);
+    expect(inputRight).toBeLessThanOrEqual(buttonsLeft);
+    await page.keyboard.press('Escape');
+    await page.keyboard.press('Escape');
+    // The active-filter dot sits on the corner of the 20px icon, not 10px above it.
+    const [icon, dot] = await filters.evaluate((b) =>
+      [b.querySelector('[class*="tecton-filter"]')!, b.querySelector('.MuiBadge-badge')!].map(
+        (e) => e.getBoundingClientRect().toJSON() as DOMRect,
+      ),
+    );
+    expect(Math.abs(dot.top + dot.height / 2 - icon.top)).toBeLessThanOrEqual(1);
+    expect(Math.abs(dot.left + dot.width / 2 - icon.right)).toBeLessThanOrEqual(1);
   });
 });

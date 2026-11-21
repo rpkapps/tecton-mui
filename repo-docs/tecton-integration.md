@@ -201,6 +201,13 @@ Written by `emit` and listed with checksums in
   - **NativeSelect icon:** Tecton gives `Select` its chevron but leaves `NativeSelect` with MUI's
     filled Material triangle (seen in the grid's boolean and single-select header filters). The
     correction uses the same chevron in the text-only Select icon colour.
+  - **Outlined Autocomplete padding:** Tecton sets `padding: 0 !important` on an outlined
+    Autocomplete input, which also removes the room MUI keeps for the clear and popup buttons (the
+    filled variant keeps it), so text and chips ran under them. The correction restores the room
+    (39px for one button, 52px for Tecton's clear and popup buttons together).
+  - **Grid toolbar badge:** Tecton offsets a top-right badge for a 32px icon button (top -10px,
+    right -11px). In grid toolbars the dot badge wraps the 20px icon, so the correction puts it on
+    the icon's corner with MUI's default placement.
   - **Outlined input notch:** Tecton labels sit statically above the field. TextField keeps the
     outline closed by forcing `shrink: false`, but a `Select` or `OutlinedInput` with a `label`
     still cut a gap in the top border. The correction defaults `MuiOutlinedInput` `notched` to

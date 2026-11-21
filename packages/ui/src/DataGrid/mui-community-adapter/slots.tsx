@@ -10,6 +10,7 @@ import ListItemText from '@mui/material/ListItemText';
 import ListSubheader from '@mui/material/ListSubheader';
 import MenuItem from '@mui/material/MenuItem';
 import TablePagination from '@mui/material/TablePagination';
+import CircularProgress from '@mui/material/CircularProgress';
 import {
   GridColumnHeaderFilterIconButton,
   GridColumnHeaderSortIcon,
@@ -138,6 +139,14 @@ export const PanelSlot = React.forwardRef<HTMLDivElement, GridPanelProps>(
   },
 );
 
+/**
+ * Shown in a filter value input while its debounced value is being applied. Community's default is
+ * Material's static "sync" icon; a small Tecton progress indicator says the same thing.
+ */
+export function FilterApplyingIcon() {
+  return <CircularProgress size={16} aria-label="Applying filter" sx={{ flexShrink: 0 }} />;
+}
+
 /** Multi-item filter panel built from Community's public GridFilterForm. */
 export function MultiFilterPanel() {
   const { derived, actions, features } = useGridAdvanced();
@@ -168,11 +177,19 @@ export function MultiFilterPanel() {
     // Only when the panel opens with an empty model.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  // Move the focus into the panel when it opens and to the new condition when one is added, as
+  // the Community filter panel does (keyboard users otherwise stay on the toolbar button).
+  React.useEffect(() => {
+    if (items.length === 0) return undefined;
+    // The popper is placed after mount; focus once it is in position (no scroll jump).
+    const frame = requestAnimationFrame(() => lastRef.current?.focus());
+    return () => cancelAnimationFrame(frame);
+  }, [items.length]);
 
   return (
     <Box
       className="TectonDataGrid-filterPanel"
-      sx={{ display: 'flex', flexDirection: 'column', minWidth: 'min(640px, 90vw)' }}
+      sx={{ display: 'flex', flexDirection: 'column', minWidth: 'min(720px, 90vw)' }}
     >
       <Box
         sx={{
@@ -186,6 +203,13 @@ export function MultiFilterPanel() {
           // block (Tecton's static label: small line height + space-50 below) so every control
           // lines up on the inputs, also when a multi-value input grows taller.
           '& .MuiDataGrid-filterForm': { alignItems: 'flex-start' },
+          // The value input takes the rest of the row (Community fixes it at 190px), so a few
+          // "is any of" values fit on one line next to the clear and popup buttons.
+          '& .MuiDataGrid-filterFormValueInput': {
+            width: 'auto',
+            flex: '1 1 190px',
+            minWidth: 190,
+          },
           '& .MuiDataGrid-filterForm .MuiInputLabel-root:empty::before': { content: '"\\200B"' },
           '& .MuiDataGrid-filterFormDeleteIcon': {
             marginTop: `calc(${cssVar('line-height-small')} + ${cssVar('space-50')})`,

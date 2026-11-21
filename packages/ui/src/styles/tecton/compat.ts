@@ -64,10 +64,11 @@ export const muiCompatOverrides: ThemeOptions = {
         // Tecton puts a bottom border on the header container, but MUI X already draws one on every
         // header cell (in --DataGrid-t-color-border-base above); together they render 2px.
         columnHeaders: { borderBottom: 'none' },
-        // Tecton draws the Figma 1px inside stroke of hovered/selected rows as a real border and
-        // shrinks the cells to fit, which shifts every cell 1px right and down on hover. Draw the
-        // stroke as an overlay instead (rows are position: relative in MUI X), above pinned cells
-        // (z-index 30) and below the sticky header/footer containers (40).
+        // Tecton draws a 1px stroke around hovered and selected rows as a real border and shrinks
+        // the cells to fit, which shifts every cell 1px right and down. Hovered rows get no stroke
+        // (only the hover fill, as in the Tecton table drop-in); selected rows keep it, drawn as an
+        // overlay (rows are position: relative in MUI X) above pinned cells (z-index 30) and below
+        // the sticky header/footer containers (40).
         row: {
           // Tecton fills a selected row's cells with table/cell/active but the empty area after the
           // last column with input/filled/active, so a selected row is two shades wherever the
@@ -77,7 +78,11 @@ export const muiCompatOverrides: ThemeOptions = {
             backgroundColor: cssVar('color-table-cell-bg-active'),
             '&:hover': { backgroundColor: cssVar('color-table-cell-bg-active') },
           },
-          '&:hover, &.Mui-selected': {
+          '&:hover': {
+            border: 'none',
+            '& .MuiDataGrid-cell': { height: 'var(--height)' },
+          },
+          '&.Mui-selected, &.Mui-selected:hover': {
             border: 'none',
             '& .MuiDataGrid-cell': { height: 'var(--height)' },
             '&::after': {
@@ -125,6 +130,19 @@ export const muiCompatOverrides: ThemeOptions = {
           },
         },
         toolbarQuickFilter: searchAdornmentIcon,
+        // Tecton places a top-right badge for a 32px icon button (top -10px, right -11px, no
+        // translate). In grid toolbars the badge wraps the 20px icon inside the button, so the
+        // active-filter dot sat well away from it; put a dot on the icon's corner, as MUI does.
+        toolbar: {
+          '& .MuiBadge-dot.MuiBadge-anchorOriginTopRightRectangular, & .MuiBadge-dot.MuiBadge-anchorOriginTopRightCircular':
+            {
+              top: 0,
+              right: 0,
+              transform: 'scale(1) translate(50%, -50%)',
+              transformOrigin: '100% 0%',
+              '&.MuiBadge-invisible': { transform: 'scale(0) translate(50%, -50%)' },
+            },
+        },
         // Header icons and title as in Tecton's table (the MUI Table drop-in in the Tecton
         // Storybook): Tecton's grid theme draws 24px sort icons in the action colour, leaves the
         // column menu button in MUI's default colour (black / white) and uses a regular-weight
@@ -179,6 +197,21 @@ export const muiCompatOverrides: ThemeOptions = {
     MuiNativeSelect: {
       defaultProps: { IconComponent: slotIcon('tecton-chevron-down-outline') },
       styleOverrides: { icon: { color: cssVar('color-input-text-only-text') } },
+    },
+    // Tecton zeroes all padding of an outlined Autocomplete input (`padding: 0 !important`), which
+    // also removes the room MUI keeps on the right for the clear and popup buttons, so the text and
+    // chips ran under them. Filled inputs keep it. Restore MUI's reserved space for outlined ones.
+    MuiAutocomplete: {
+      styleOverrides: {
+        root: {
+          '&.MuiAutocomplete-hasPopupIcon .MuiOutlinedInput-root.MuiAutocomplete-inputRoot, &.MuiAutocomplete-hasClearIcon .MuiOutlinedInput-root.MuiAutocomplete-inputRoot':
+            { paddingRight: '39px !important' },
+          // Both buttons: Tecton's 16px clear button (no padding, 2px gap) and the 24px popup
+          // button take 40px; MUI's 65px assumed two 28px buttons.
+          '&.MuiAutocomplete-hasPopupIcon.MuiAutocomplete-hasClearIcon .MuiOutlinedInput-root.MuiAutocomplete-inputRoot':
+            { paddingRight: '52px !important' },
+        },
+      },
     },
     MuiTreeItem: {
       styleOverrides: {

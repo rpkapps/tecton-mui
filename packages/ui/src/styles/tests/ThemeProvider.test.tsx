@@ -387,12 +387,14 @@ describe('Tecton Data Grid compat', () => {
     // MUI X already draws the header bottom border on each header cell (in the border colour
     // above); Tecton's extra border on the header container is removed so it is not 2px.
     expect(overrides.columnHeaders.borderBottom).toBe('none');
-    // Hover/selected row stroke is an overlay, not a layout-shifting border.
-    const rowHover = (overrides.row as Record<string, Record<string, unknown>>)[
-      '&:hover, &.Mui-selected'
-    ];
-    expect(rowHover.border).toBe('none');
-    expect((rowHover['&::after'] as Record<string, unknown>).pointerEvents).toBe('none');
+    // Hovered rows have no stroke; the selected row stroke is an overlay, not a layout-shifting
+    // border.
+    const row = overrides.row as Record<string, Record<string, unknown>>;
+    expect(row['&:hover'].border).toBe('none');
+    expect(row['&:hover']).not.toHaveProperty('&::after');
+    const rowSelected = row['&.Mui-selected, &.Mui-selected:hover'];
+    expect(rowSelected.border).toBe('none');
+    expect((rowSelected['&::after'] as Record<string, unknown>).pointerEvents).toBe('none');
     expect(overrides.columnHeader['&.MuiDataGrid-columnHeaderCheckbox']).toEqual({ padding: 0 });
   });
 });
