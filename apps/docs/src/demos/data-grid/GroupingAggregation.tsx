@@ -33,11 +33,15 @@ export default function GroupingAggregation() {
       <DataGrid
         rows={rows}
         columns={columns}
-        rowGroupingModel={['department', 'site']}
-        aggregationModel={{ salary: 'sum', name: 'size' }}
         defaultGroupingExpansionDepth={1}
-        // The Group column shows the grouping values; hide the columns they come from.
-        initialState={{ columns: { columnVisibilityModel: { department: false, site: false } } }}
+        // Initial models (not controlled props), so the column menu can change the grouping and
+        // the aggregation functions. The Group column shows the grouping values; the columns they
+        // come from are hidden.
+        initialState={{
+          rowGrouping: { model: ['department', 'site'] },
+          aggregation: { model: { salary: 'sum', name: 'size' } },
+          columns: { columnVisibilityModel: { department: false, site: false } },
+        }}
       />
     </Box>
   );

@@ -22,7 +22,7 @@ export default function TreeData() {
         getTreeDataPath={(row) => row.path}
         groupingColDef={{ headerName: 'Hierarchy', width: 260 }}
         defaultGroupingExpansionDepth={-1}
-        aggregationModel={{ wells: 'sum' }}
+        initialState={{ aggregation: { model: { wells: 'sum' } } }}
       />
     </Box>
   );

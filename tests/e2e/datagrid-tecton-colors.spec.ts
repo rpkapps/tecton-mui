@@ -101,5 +101,28 @@ for (const mode of ['light', 'dark'] as const) {
         .poll(() => width(page, '.MuiDataGrid-menuList .MuiListItemIcon-root [class*="tecton-"]'))
         .toBe(14);
     });
+
+    test('a selected row is one color across its width; select header filters use the chevron', async ({
+      page,
+    }) => {
+      await page.goto(`/?scenario=grid:pinning&mode=${mode}`);
+      const root = page.getByTestId('grid-pinning').locator('.MuiDataGrid-root');
+      const row = root.locator('.MuiDataGrid-row[data-rowindex="0"]');
+      await row.locator('input[type="checkbox"]').click();
+      await page.mouse.move(0, 0);
+      const active = await token(page, 'color-table-cell-bg-active');
+      await expect(row).toHaveClass(/Mui-selected/);
+      expect(await row.evaluate((e) => getComputedStyle(e).backgroundColor)).toBe(active);
+      const cellColors = await row
+        .locator('.MuiDataGrid-cell:not(.MuiDataGrid-cellEmpty)')
+        .evaluateAll((cells) => [
+          ...new Set(cells.map((c) => getComputedStyle(c).backgroundColor)),
+        ]);
+      expect(cellColors).toEqual([active]);
+      // The boolean header filter is a NativeSelect: Tecton chevron, not the Material triangle.
+      const select = root.locator('.TectonDataGrid-headerFilterRow .MuiNativeSelect-icon');
+      await expect(select).toHaveCount(1);
+      expect(await select.evaluate((e) => e.tagName)).toBe('SPAN');
+    });
   });
 }

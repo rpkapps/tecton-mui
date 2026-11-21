@@ -531,4 +531,57 @@ test.describe('DataGrid advanced features', () => {
       expect(await stripes()).toEqual(first);
     }
   });
+
+  test('the column menu changes aggregation functions and grouping (initial models)', async ({
+    page,
+  }) => {
+    await page.goto('/?scenario=grid:grouping');
+    const root = grid(page, 'grid-grouping');
+    const salary = header(root, 'salary');
+    const groupSalary = root.locator('.MuiDataGrid-row[data-rowindex="0"] [data-field="salary"]');
+    const totalSalary = root.locator('.TectonDataGrid-pinnedRow [data-field="salary"]');
+    await expect(totalSalary).toHaveText('$20,908,100');
+    const openMenu = async (field: string) => {
+      const h = header(root, field);
+      await h.hover();
+      await h.locator('.MuiDataGrid-menuIcon button').click();
+    };
+    // sum -> avg: group rows, the total row and the header label follow.
+    await openMenu('salary');
+    await page.getByRole('menuitem', { name: 'avg' }).click();
+    await expect(salary).toContainText('avg');
+    await expect(totalSalary).toHaveText('$104,541');
+    await expect(groupSalary).toHaveText('$103,462');
+    // Choosing the active function again removes the aggregation.
+    await openMenu('salary');
+    await page.getByRole('menuitem', { name: 'avg' }).click();
+    await expect(totalSalary).toHaveText('');
+    await expect(groupSalary).toHaveText('');
+    // Stop grouping by Site from its column menu: the expanded department group now lists its
+    // employees directly (no site groups).
+    await expect(root.locator('.MuiDataGrid-row[data-rowindex="1"]')).toContainText('Houston(17)');
+    await openMenu('site');
+    await page.getByRole('menuitem', { name: 'Stop grouping by Site' }).click();
+    await expect(root.locator('.MuiDataGrid-row[data-rowindex="1"]')).toContainText('Employee');
+  });
+
+  test('compact density shrinks rows, the header filter row and the aggregation row', async ({
+    page,
+  }) => {
+    await page.goto('/?scenario=grid:pinning&density=compact');
+    const root = grid(page, 'grid-pinning');
+    const height = (selector: string) =>
+      root
+        .locator(selector)
+        .first()
+        .evaluate((e) => Math.round(e.getBoundingClientRect().height));
+    await expect(root.locator('.MuiDataGrid-row[data-rowindex="0"]')).toBeVisible();
+    expect(await height('.MuiDataGrid-row[data-rowindex="0"]')).toBe(36);
+    expect(await height('.TectonDataGrid-headerFilterRow')).toBe(36);
+    expect(
+      await height(
+        '.TectonDataGrid-pinnedRow.TectonDataGrid-aggregationRow, .TectonDataGrid-pinnedRow:last-child',
+      ),
+    ).toBe(36);
+  });
 });

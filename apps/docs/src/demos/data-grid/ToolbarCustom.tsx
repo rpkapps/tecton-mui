@@ -62,7 +62,7 @@ function WellsToolbar() {
                 input: {
                   startAdornment: (
                     <InputAdornment position="start">
-                      <Icon name="search" size="small" />
+                      <Icon name="search" size="medium" />
                     </InputAdornment>
                   ),
                   endAdornment: other.value ? (

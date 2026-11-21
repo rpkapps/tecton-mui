@@ -367,9 +367,11 @@ const columns: GridColDef[] = [
   <DataGrid
     rows={rows}
     columns={columns}
-    pinnedColumns={{ left: ['id'] }}
-    rowGroupingModel={['department']}
-    aggregationModel={{ salary: 'sum' }}
+    initialState={{
+      pinnedColumns: { left: ['id'] },
+      rowGrouping: { model: ['department'] },
+      aggregation: { model: { salary: 'sum' } },
+    }}
     headerFilters
   />
 </div>;

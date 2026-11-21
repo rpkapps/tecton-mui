@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Box, Typography, Paper } from '@tecton-mui/ui';
-import DataGrid, { type GridColDef } from '@tecton-mui/ui/DataGrid';
+import DataGrid, { type GridColDef, type GridDensity } from '@tecton-mui/ui/DataGrid';
 
 const departments = ['Engineering', 'Research', 'Operations', 'Finance'];
 const sites = ['Houston', 'Aberdeen', 'Stavanger'];
@@ -100,6 +100,23 @@ const wellPinned = { left: ['well'], right: ['producing'] };
 const wellPinnedRows = { top: [wells[0]], bottom: [] };
 const wellAggregation = { oil: 'sum', gas: 'sum', water: 'sum' };
 const wellInitial = { pagination: { paginationModel: { page: 0, pageSize: 25 } } };
+const wellPinningInitial = {
+  ...wellInitial,
+  pinnedColumns: wellPinned,
+  aggregation: { model: wellAggregation },
+};
+
+// Initial models, not controlled props: the column menu changes grouping, aggregation and pinning.
+const groupingInitial = {
+  rowGrouping: { model: groupingModel },
+  aggregation: { model: aggregationModel },
+  pinnedColumns: pinned,
+};
+const treeInitial = { aggregation: { model: treeAggregation } };
+
+// `?density=compact|comfortable` for the pinning grid (client-only harness page).
+const density = (new URLSearchParams(window.location.search).get('density') ??
+  'standard') as GridDensity;
 
 export function GridScenarios({ which }: { which: string }) {
   const show = (name: string) => which === 'all' || which === name;
@@ -114,9 +131,7 @@ export function GridScenarios({ which }: { which: string }) {
             <DataGrid
               rows={employees}
               columns={employeeColumns}
-              rowGroupingModel={groupingModel}
-              aggregationModel={aggregationModel}
-              pinnedColumns={pinned}
+              initialState={groupingInitial}
               defaultGroupingExpansionDepth={1}
             />
           </Box>
@@ -150,11 +165,10 @@ export function GridScenarios({ which }: { which: string }) {
               rows={wells}
               columns={wellColumns}
               checkboxSelection
-              pinnedColumns={wellPinned}
               pinnedRows={wellPinnedRows}
-              aggregationModel={wellAggregation}
+              density={density}
               headerFilters
-              initialState={wellInitial}
+              initialState={wellPinningInitial}
               pageSizeOptions={pageSizes}
             />
           </Box>
@@ -190,7 +204,7 @@ export function GridScenarios({ which }: { which: string }) {
               treeData
               getTreeDataPath={getTreeDataPath}
               defaultGroupingExpansionDepth={-1}
-              aggregationModel={treeAggregation}
+              initialState={treeInitial}
             />
           </Box>
         </Paper>

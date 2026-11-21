@@ -24,6 +24,14 @@ parent, so the parent needs a height.
 
 <Demo name="BasicGrid" />
 
+## Density
+
+`density` sets the row height: `compact`, `standard` (default) or `comfortable`. The header, the
+header filter row, pinned rows and the aggregation row follow it. A density control in a custom
+toolbar can set it, as the toggle does here.
+
+<Demo name="Density" />
+
 ## Sorting and filtering
 
 Hold <kbd>Shift</kbd> (or <kbd>Ctrl</kbd>/<kbd>Cmd</kbd>) while clicking a header to sort by several
@@ -76,7 +84,14 @@ section; the column menu offers the same moves for keyboard users.
 
 `rowGroupingModel` groups rows by one or more fields. `aggregationModel` maps a field to a function
 (`sum`, `avg`, `min`, `max`, `size`, or your own via `aggregationFunctions`). Group rows show their
-aggregates inline, and a grand total row is pinned at the bottom. The grouping column shows the
+aggregates inline, and a grand total row is pinned at the bottom. Users change both from the column
+menu (**Group by**, **Aggregation**).
+
+The example sets the starting models with `initialState.rowGrouping.model` and
+`initialState.aggregation.model`, so the column menu can change them. As with every model, passing
+`rowGroupingModel` or `aggregationModel` as a prop controls it: the grid then shows only what the
+prop says, and changes from the column menu reach your `onRowGroupingModelChange` /
+`onAggregationModelChange` handler, which must update the prop. The grouping column shows the
 grouping values, so the example hides the source columns with `columnVisibilityModel`, as is usual
 with row grouping.
 

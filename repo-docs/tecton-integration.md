@@ -194,6 +194,13 @@ Written by `emit` and listed with checksums in
     14px icons, no shadows), 20px (`icon-size-150`) search icons, and the drop-in table footer
     colors (`color-text-secondary` text, `color-action-tertiary-text` pagination arrows).
     `tests/e2e/datagrid-tecton-colors.spec.ts` checks every value against the tokens in both modes.
+  - **Data Grid selected row:** Tecton fills a selected row's cells with `color-table-cell-bg-active`
+    but the empty area after the last column with `color-input-filled-bg-active`, so a selected row
+    was two shades wherever the columns did not fill the width. The correction fills the whole row
+    with `color-table-cell-bg-active`, as the Tecton table drop-in does.
+  - **NativeSelect icon:** Tecton gives `Select` its chevron but leaves `NativeSelect` with MUI's
+    filled Material triangle (seen in the grid's boolean and single-select header filters). The
+    correction uses the same chevron in the text-only Select icon colour.
   - **Outlined input notch:** Tecton labels sit statically above the field. TextField keeps the
     outline closed by forcing `shrink: false`, but a `Select` or `OutlinedInput` with a `label`
     still cut a gap in the top border. The correction defaults `MuiOutlinedInput` `notched` to

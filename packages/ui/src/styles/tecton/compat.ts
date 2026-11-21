@@ -69,6 +69,14 @@ export const muiCompatOverrides: ThemeOptions = {
         // stroke as an overlay instead (rows are position: relative in MUI X), above pinned cells
         // (z-index 30) and below the sticky header/footer containers (40).
         row: {
+          // Tecton fills a selected row's cells with table/cell/active but the empty area after the
+          // last column with input/filled/active, so a selected row is two shades wherever the
+          // columns do not fill the width. The Tecton table drop-in fills the whole selected row
+          // with table/cell/active; so does the grid.
+          '&.Mui-selected': {
+            backgroundColor: cssVar('color-table-cell-bg-active'),
+            '&:hover': { backgroundColor: cssVar('color-table-cell-bg-active') },
+          },
           '&:hover, &.Mui-selected': {
             border: 'none',
             '& .MuiDataGrid-cell': { height: 'var(--height)' },
@@ -164,6 +172,13 @@ export const muiCompatOverrides: ThemeOptions = {
     // explicit `notched` prop still wins.
     MuiOutlinedInput: {
       defaultProps: { notched: false },
+    },
+    // Tecton gives Select its Tecton chevron but leaves NativeSelect with MUI's filled Material
+    // triangle. Use the same chevron, in the text-only Select icon colour (NativeSelect renders an
+    // `Input`).
+    MuiNativeSelect: {
+      defaultProps: { IconComponent: slotIcon('tecton-chevron-down-outline') },
+      styleOverrides: { icon: { color: cssVar('color-input-text-only-text') } },
     },
     MuiTreeItem: {
       styleOverrides: {
