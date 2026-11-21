@@ -74,6 +74,8 @@ Tecton adds two props: `productColor` (`app1` to `app4`) publishes a product bra
 - Delete or Backspace on the active tab closes it, like its close button (announced through
   `aria-keyshortcuts`). After a tab is closed, or the add button disappears at `maxTabs`, focus
   moves to the newly active tab instead of being lost.
+- The close button is a separate button next to its tab, not inside it, so screen readers and
+  touch users reach it as a normal button. The tab list holds only tabs.
 - Render the app bar inside a `<header>` landmark (`component="header"` is the default) and put
   navigation links in a `<nav>` with an `aria-label`.
 - Provide a "skip to content" link before the app bar so keyboard users can bypass it, as this portal

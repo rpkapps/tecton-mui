@@ -8,4 +8,5 @@ with icons and tags, the add button (`maxTabs`, `disableTabAdd`), `tier="seconda
 `children` as the actions at the right end. The page owns the data through `onTabSelect`,
 `onTabClose` and `onTabAdd`. It looks and behaves like the drop-in, with keyboard additions: Delete
 or Backspace closes the active tab, and focus moves to the newly active tab when the focused tab or
-the add button goes away. Without navigation props, `AppBar` is the MUI `AppBar`, unchanged.
+the add button goes away. Accessibility fixes over the drop-in: the close button is no longer
+nested inside its tab, and the tab list has a single `role="tablist"`. Without navigation props, `AppBar` is the MUI `AppBar`, unchanged.

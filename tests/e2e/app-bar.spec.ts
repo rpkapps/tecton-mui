@@ -1,6 +1,7 @@
 // Tecton app bar (React version of the `<wc-app-bar>` drop-in) in a real browser: the behaviour the
 // drop-in Storybook's own interaction tests check, plus the keyboard additions. Scenarios come from
 // tests/e2e/harness/src/storybook/stories/DropInsAppBar.tsx.
+import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 
 const open = async (page: Page, story: string, query = '') => {
@@ -21,9 +22,7 @@ test.describe('Tecton app bar: drop-in behaviour', () => {
     );
     await page.getByRole('button', { name: 'Add tab' }).click();
     await expect(tab(page, /New tab 1/)).toHaveAttribute('aria-selected', 'true');
-    await tab(page, /New tab 1/)
-      .getByRole('button', { name: 'close tab' })
-      .click();
+    await page.getByRole('button', { name: 'close tab' }).click();
     await expect(tab(page, /New tab 1/)).toHaveCount(0);
     await expect(tab(page, /Tab 2/)).toHaveAttribute('aria-selected', 'true');
   });
@@ -147,4 +146,81 @@ test.describe('Tecton app bar: keyboard', () => {
     await page.keyboard.press('ArrowLeft');
     await expect(tab(page, /Tab 2/)).toBeFocused();
   });
+});
+
+/** Each visible close button covers its tab's empty slot exactly. */
+async function expectCloseButtonsOnSlots(page: Page) {
+  const offsets = await page.evaluate(() =>
+    Array.from(document.querySelectorAll('[data-region="tabs"]')).flatMap((tabs) => {
+      const slot = tabs.querySelector('[role="tab"][aria-selected="true"] [data-close-slot]');
+      const button = tabs.querySelector('button[aria-label="close tab"]');
+      if (!slot && !button) return [];
+      if (!slot || !button) return [Infinity];
+      const a = slot.getBoundingClientRect();
+      const b = button.getBoundingClientRect();
+      return [Math.abs(a.left - b.left), Math.abs(a.top - b.top), Math.abs(a.width - b.width)];
+    }),
+  );
+  expect(offsets.length).toBeGreaterThan(0);
+  for (const offset of offsets) expect(offset).toBeLessThan(0.01);
+}
+
+test.describe('Tecton app bar: close button placement', () => {
+  for (const dir of ['ltr', 'rtl']) {
+    test(`the close button sits on the active tab (${dir}, scrolled strips included)`, async ({
+      page,
+    }) => {
+      await open(page, 'overflow', `&dir=${dir}`);
+      await page.waitForTimeout(500);
+      await expectCloseButtonsOnSlots(page);
+      // Scroll the first strip and select a tab further along: the button follows.
+      const bar = page.locator('[data-region="app-bar"]').first();
+      await bar.locator('.MuiTabs-scrollButtons').nth(1).click();
+      await page.waitForTimeout(500);
+      await bar.getByRole('tab', { name: /Tab 6$/ }).click();
+      await page.waitForTimeout(500);
+      await expectCloseButtonsOnSlots(page);
+    });
+  }
+
+  test('the close button follows a tab that grows', async ({ page }) => {
+    await open(page, 'primary');
+    await page.getByRole('button', { name: 'Add tab' }).click();
+    await page.getByRole('tab', { name: /New tab 1/ }).click();
+    await expectCloseButtonsOnSlots(page);
+    await page.getByRole('tab', { name: /Tab 1$/ }).click();
+    await expectCloseButtonsOnSlots(page);
+  });
+});
+
+test.describe('Tecton app bar: axe', () => {
+  for (const story of ['primary', 'tab-options', 'secondary']) {
+    for (const mode of ['light', 'dark']) {
+      test(`${story} (${mode}) has no serious or critical violations of its own`, async ({
+        page,
+      }) => {
+        await open(page, story, `&mode=${mode}`);
+        const results = await new AxeBuilder({ page })
+          .include('[data-region="app-bar"]')
+          .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+          .analyze();
+        const blocking: string[] = [];
+        for (const v of results.violations) {
+          if (v.impact !== 'serious' && v.impact !== 'critical') continue;
+          for (const node of v.nodes) {
+            const label = `${v.id}: ${node.target.join(' ')}`;
+            // Tecton design: inactive tab labels render at 70% opacity (Figma NavTab Enabled), which
+            // takes them under 4.5:1. Reported, not compliant; owned by the Tecton tokens/design.
+            if (v.id === 'color-contrast' && label.includes('data-region="tab-label"')) {
+              test.info().annotations.push({
+                type: 'tecton-token defect (unapproved)',
+                description: label,
+              });
+            } else blocking.push(label);
+          }
+        }
+        expect(blocking).toEqual([]);
+      });
+    }
+  }
 });

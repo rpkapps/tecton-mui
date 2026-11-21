@@ -138,9 +138,12 @@ Slots, Slots with changing content, Live attributes, Playground) are pixel-ident
   the newly active tab when the focused tab, its close button or the add button is removed. The
   drop-in ignores Delete and leaves focus on the document body. Covered by
   `tests/e2e/app-bar.spec.ts`; no visual difference.
-- **Not changed (inherited from the drop-in):** axe reports `nested-interactive` (the close button
-  inside the tab) and `aria-required-children` (the `Tabs` root and its inner list both have
-  `role="tablist"`).
+- **Accessibility fixes (intended, no visual difference):** the drop-in nests the close button in
+  its tab (axe `nested-interactive`) and gives both the `Tabs` root and its list `role="tablist"`
+  (axe `aria-required-children`). The active tab now keeps an empty slot of the button's size and
+  the button is laid over it from the Tabs scroller (`AppBar/TabCloseButton.tsx`), and only the list
+  is a tab list. `tests/e2e/app-bar.spec.ts` runs axe on the bar and checks the button sits on its
+  slot (LTR, RTL, scrolled strips).
 
 ## Per-story results
 

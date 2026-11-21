@@ -204,7 +204,7 @@ describe('AppBar: Tecton app bar layout', () => {
     expect(within(overview).queryByRole('button', { name: 'close tab' })).toBeNull();
     const pinned = screen.getByRole('tab', { name: /Pinned/ });
     expect(pinned).toHaveAttribute('aria-selected', 'true');
-    expect(within(pinned).queryByRole('button', { name: 'close tab' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'close tab' })).toBeNull();
     expect(screen.getByRole('tab', { name: /Archived/ })).toHaveAttribute('aria-disabled', 'true');
   });
 
@@ -217,7 +217,7 @@ describe('AppBar: Tecton app bar layout', () => {
     await user.click(screen.getByRole('button', { name: 'Add tab' }));
     const added = screen.getByRole('tab', { name: /New tab 1/ });
     expect(added).toHaveAttribute('aria-selected', 'true');
-    await user.click(within(added).getByRole('button', { name: 'close tab' }));
+    await user.click(screen.getByRole('button', { name: 'close tab' }));
     expect(screen.queryByRole('tab', { name: /New tab 1/ })).toBeNull();
     expect(screen.getByRole('tab', { name: /Tab 2/ })).toHaveAttribute('aria-selected', 'true');
     expect(events).toEqual(['select tab-2', 'add', 'close new-1']);
@@ -238,6 +238,48 @@ describe('AppBar: Tecton app bar layout', () => {
     unmount();
     wrap(<AppBar tabs={TABS} maxTabs={0} />);
     expect(screen.queryByRole('button', { name: 'Add tab' })).toBeNull();
+  });
+
+  it('keeps controls out of the tabs and has a single tab list', () => {
+    const { container } = wrap(<AppBar fixedTabs={HOME} tabs={TABS} activeTab="tab-1" />);
+    expect(container.querySelectorAll('[role="tablist"]')).toHaveLength(1);
+    expect(container.querySelector('.MuiTabs-root')).not.toHaveAttribute('role');
+    for (const tab of screen.getAllByRole('tab')) {
+      expect(tab.querySelector('button, a[href], input, [tabindex]')).toBeNull();
+    }
+    const close = screen.getByRole('button', { name: 'close tab' });
+    expect(close.closest('[role="tab"]')).toBeNull();
+    expect(close.parentElement).toHaveClass('MuiTabs-scroller');
+    // The active tab keeps an empty slot of the button's size.
+    expect(
+      screen.getByRole('tab', { name: /Tab 1/ }).querySelector('[data-close-slot]'),
+    ).not.toBeNull();
+  });
+
+  it('shows the close button only for the active closeable tab', () => {
+    const { rerender } = wrap(<AppBar fixedTabs={HOME} tabs={TABS} activeTab="home" />);
+    expect(screen.queryByRole('button', { name: 'close tab' })).toBeNull();
+    rerender(
+      <ThemeProvider>
+        <AppBar fixedTabs={HOME} tabs={TABS} activeTab="tab-2" />
+      </ThemeProvider>,
+    );
+    expect(screen.getAllByRole('button', { name: 'close tab' })).toHaveLength(1);
+    expect(
+      screen.getByRole('tab', { name: /Tab 2/ }).querySelector('[data-close-slot]'),
+    ).not.toBeNull();
+    expect(
+      screen.getByRole('tab', { name: /Tab 1/ }).querySelector('[data-close-slot]'),
+    ).toBeNull();
+  });
+
+  it('server markup has no button inside a tab', () => {
+    const html = renderToString(
+      <ThemeProvider>
+        <AppBar tabs={TABS} activeTab="tab-1" />
+      </ThemeProvider>,
+    );
+    expect(html).not.toContain('close tab');
   });
 
   it('re-renders in place when props change, keeping the same root', () => {
