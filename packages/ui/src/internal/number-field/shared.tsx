@@ -5,6 +5,7 @@
 import * as React from 'react';
 import type { NumberField as BaseNumberField } from '@base-ui/react/number-field';
 import type { CSSObject, SxProps, Theme } from '@mui/material/styles';
+import type { FilledInputProps } from '@mui/material/FilledInput';
 import type { FormHelperTextProps } from '@mui/material/FormHelperText';
 import type { InputLabelProps } from '@mui/material/InputLabel';
 import type { OutlinedInputProps } from '@mui/material/OutlinedInput';
@@ -41,26 +42,28 @@ export interface NumberFieldBaseProps extends Omit<
   sx?: SxProps<Theme>;
 }
 
+/** Input props that the number field controls itself (value, handlers, element and stepper). */
+type ControlledInputProps =
+  | 'value'
+  | 'defaultValue'
+  | 'onChange'
+  | 'inputRef'
+  | 'inputProps'
+  | 'slotProps'
+  | 'slots'
+  | 'inputComponent'
+  | 'multiline'
+  | 'rows'
+  | 'minRows'
+  | 'maxRows'
+  | 'type'
+  | 'endAdornment';
+
 /** Props for the Material input (`OutlinedInput`). The value and its handlers belong to Base UI. */
-export type NumberFieldInputSlotProps = Partial<
-  Omit<
-    OutlinedInputProps,
-    | 'value'
-    | 'defaultValue'
-    | 'onChange'
-    | 'inputRef'
-    | 'inputProps'
-    | 'slotProps'
-    | 'slots'
-    | 'inputComponent'
-    | 'multiline'
-    | 'rows'
-    | 'minRows'
-    | 'maxRows'
-    | 'type'
-    | 'endAdornment'
-  >
->;
+export type NumberFieldInputSlotProps = Partial<Omit<OutlinedInputProps, ControlledInputProps>>;
+
+/** Props for the `FilledInput` of a `variant="filled"` field. */
+export type NumberFieldFilledInputSlotProps = Partial<Omit<FilledInputProps, ControlledInputProps>>;
 
 /** Attributes and handlers of the native `<input>`. Handlers run before the Base UI handlers. */
 export type NumberFieldHtmlInputSlotProps = Omit<

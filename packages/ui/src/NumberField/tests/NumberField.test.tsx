@@ -41,6 +41,53 @@ describe('NumberField', () => {
     expect(decrease().querySelector('.tecton-chevron-down-small-outline')).not.toBeNull();
   });
 
+  it('renders a filled field with variant="filled"', () => {
+    render(
+      <ThemeProvider theme={getDefaultTheme('light')}>
+        <NumberField variant="filled" label="Quantity" defaultValue={3} size="small" />
+      </ThemeProvider>,
+    );
+    const root = input().closest('.MuiFilledInput-root');
+    expect(root).not.toBeNull();
+    expect(root).toHaveClass('MuiInputBase-sizeSmall');
+    // The Tecton theme turns the Material underline off, as for a filled TextField.
+    expect(root).not.toHaveClass('MuiFilledInput-underline');
+    expect(input().closest('.MuiOutlinedInput-root')).toBeNull();
+    expect(screen.getByLabelText('Quantity')).toBe(input());
+    expect(root).toContainElement(increase());
+    expect(root).toContainElement(decrease());
+    press(increase());
+    expect(input()).toHaveValue('4');
+  });
+
+  it('shows the error, disabled and read-only states in the filled variant', () => {
+    const { rerender } = render(
+      <NumberField variant="filled" label="Pressure" error helperText="Too high" />,
+    );
+    const filledRoot = () => input().closest('.MuiFilledInput-root');
+    expect(filledRoot()).toHaveClass('Mui-error');
+    expect(input()).toHaveAttribute('aria-invalid', 'true');
+    rerender(<NumberField variant="filled" label="Pressure" disabled />);
+    expect(filledRoot()).toHaveClass('Mui-disabled');
+    expect(increase()).toBeDisabled();
+    rerender(<NumberField variant="filled" label="Pressure" readOnly defaultValue={1} />);
+    expect(filledRoot()).toHaveClass('MuiInputBase-readOnly');
+    expect(increase()).toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it('passes slotProps.input to the FilledInput', () => {
+    render(
+      <NumberField
+        variant="filled"
+        label="Depth"
+        slotProps={{ input: { className: 'custom-input', startAdornment: <span>m</span> } }}
+      />,
+    );
+    const root = input().closest('.MuiFilledInput-root');
+    expect(root).toHaveClass('custom-input', 'MuiInputBase-adornedStart');
+    expect(root).toHaveTextContent('m');
+  });
+
   it('links helper text only when it is provided', () => {
     const { rerender } = render(<NumberField label="Depth" id="depth" />);
     expect(input()).not.toHaveAttribute('aria-describedby');
@@ -231,9 +278,11 @@ describe('NumberField', () => {
     render(
       <ThemeProvider theme={getDefaultTheme(mode)}>
         <NumberField label="Themed" defaultValue={1} helperText="Help" />
+        <NumberField variant="filled" label="Filled" defaultValue={2} helperText="Help" />
       </ThemeProvider>,
     );
-    expect(input()).toHaveValue('1');
+    expect(screen.getByLabelText('Themed')).toHaveValue('1');
+    expect(screen.getByLabelText('Filled')).toHaveValue('2');
     expect(errors).not.toHaveBeenCalled();
     errors.mockRestore();
   });

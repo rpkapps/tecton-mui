@@ -326,7 +326,7 @@ export type { MobileTimeRangePickerProps } from './MobileTimeRangePicker/index.j
 export { default as MultiInputDateRangeField } from './MultiInputDateRangeField/index.js';
 export type { MultiInputDateRangeFieldProps, RangeFieldValidationError } from './MultiInputDateRangeField/index.js';
 export { default as NumberField, numberFieldClasses } from './NumberField/index.js';
-export type { NumberFieldBaseProps, NumberFieldCommonSlotProps, NumberFieldHtmlInputSlotProps, NumberFieldInputSlotProps, NumberFieldProps, NumberFieldSlotProps } from './NumberField/index.js';
+export type { NumberFieldBaseProps, NumberFieldCommonSlotProps, NumberFieldFilledInputSlotProps, NumberFieldHtmlInputSlotProps, NumberFieldInputSlotProps, NumberFieldProps, NumberFieldSlotProps } from './NumberField/index.js';
 export { default as NumberSpinner, numberSpinnerClasses } from './NumberSpinner/index.js';
 export type { NumberSpinnerProps, NumberSpinnerSlotProps } from './NumberSpinner/index.js';
 export { default as RichTreeView, RichTreeViewRoot, TreeViewDataSourceCacheDefault, getRichTreeViewUtilityClass, richTreeViewClasses } from './RichTreeView/index.js';

@@ -1,11 +1,12 @@
 'use client';
-// Outlined number field with stacked increment/decrement buttons in the end adornment. Composes
-// Base UI `NumberField` (MIT) with Material form components; adapted from the MIT "Number Field"
-// recipe of mui/material-ui v9.5.0 (see THIRD_PARTY_NOTICES.md).
+// Outlined or filled number field with stacked increment/decrement buttons in the end adornment.
+// Composes Base UI `NumberField` (MIT) with Material form components; adapted from the MIT "Number
+// Field" recipe of mui/material-ui v9.5.0 (see THIRD_PARTY_NOTICES.md).
 import * as React from 'react';
 import clsx from 'clsx';
 import { NumberField as BaseNumberField } from '@base-ui/react/number-field';
 import { styled } from '@mui/material/styles';
+import FilledInput from '@mui/material/FilledInput';
 import FormControl from '@mui/material/FormControl';
 import FormHelperText from '@mui/material/FormHelperText';
 import IconButton, { type IconButtonProps } from '@mui/material/IconButton';
@@ -21,16 +22,21 @@ import {
   useFieldIds,
   type NumberFieldBaseProps,
   type NumberFieldCommonSlotProps,
+  type NumberFieldFilledInputSlotProps,
+  type NumberFieldInputSlotProps,
 } from '../internal/number-field/shared.js';
 
 export type {
   NumberFieldBaseProps,
   NumberFieldCommonSlotProps,
+  NumberFieldFilledInputSlotProps,
   NumberFieldHtmlInputSlotProps,
   NumberFieldInputSlotProps,
 } from '../internal/number-field/shared.js';
 
-export interface NumberFieldSlotProps extends NumberFieldCommonSlotProps {
+export interface NumberFieldSlotProps extends Omit<NumberFieldCommonSlotProps, 'input'> {
+  /** Props of the input: `OutlinedInput`, or `FilledInput` when `variant="filled"`. */
+  input?: NumberFieldInputSlotProps | NumberFieldFilledInputSlotProps;
   /** Props of the `InputAdornment` that holds the stepper buttons. */
   stepper?: Partial<InputAdornmentProps>;
   /** Props of the increment `IconButton` (for example a localized `aria-label`). */
@@ -40,6 +46,8 @@ export interface NumberFieldSlotProps extends NumberFieldCommonSlotProps {
 }
 
 export interface NumberFieldProps extends NumberFieldBaseProps {
+  /** The variant to use, as in `TextField`. Default `outlined`. */
+  variant?: 'outlined' | 'filled';
   /** Props of the inner components. */
   slotProps?: NumberFieldSlotProps;
 }
@@ -53,13 +61,23 @@ export const numberFieldClasses = {
 
 // Same input typography and label states as `TextField` in the active theme.
 const NumberFieldRoot = styled(FormControl, { name: 'TectonNumberField', slot: 'Root' })(
-  ({ theme }) => textFieldRootStyles(theme, { variant: 'outlined' }) ?? {},
+  ({ theme, variant }) => textFieldRootStyles(theme, { variant }) ?? {},
 );
 
-const NumberFieldInput = styled(OutlinedInput, { name: 'TectonNumberField', slot: 'Input' })({
-  // The stepper sits flush against the right edge, inside the outline.
+// The stepper sits flush against the right edge, inside the outline or the fill.
+const OutlinedNumberFieldInput = styled(OutlinedInput, {
+  name: 'TectonNumberField',
+  slot: 'Input',
+})({ paddingRight: 0 });
+
+const FilledNumberFieldInput = styled(FilledInput, { name: 'TectonNumberField', slot: 'Input' })({
   paddingRight: 0,
 });
+
+const inputComponents = {
+  outlined: OutlinedNumberFieldInput,
+  filled: FilledNumberFieldInput,
+} as const;
 
 const Stepper = styled(InputAdornment, { name: 'TectonNumberField', slot: 'Stepper' })(
   ({ theme }) => ({
@@ -96,10 +114,10 @@ const StepperButton = styled(IconButton, { name: 'TectonNumberField', slot: 'Ste
 );
 
 /**
- * A numeric input with a label, increment/decrement buttons, keyboard stepping (Arrow keys, with
- * Alt/Shift for the small/large step; Home/End jump to `min`/`max`), locale-aware formatting through
- * `format` and optional `min`/`max` clamping. Value handling is Base UI's `NumberField`; the
- * visuals are Material form components styled by the Tecton theme.
+ * A numeric input (`outlined` or `filled`) with a label, increment/decrement buttons, keyboard
+ * stepping (Arrow keys, with Alt/Shift for the small/large step; Home/End jump to `min`/`max`),
+ * locale-aware formatting through `format` and optional `min`/`max` clamping. Value handling is
+ * Base UI's `NumberField`; the visuals are Material form components styled by the Tecton theme.
  */
 export const NumberField = React.forwardRef<HTMLDivElement, NumberFieldProps>(
   function NumberField(props, ref) {
@@ -109,6 +127,7 @@ export const NumberField = React.forwardRef<HTMLDivElement, NumberFieldProps>(
       helperText,
       error = false,
       size = 'medium',
+      variant = 'outlined',
       fullWidth = false,
       placeholder,
       inputRef,
@@ -119,6 +138,7 @@ export const NumberField = React.forwardRef<HTMLDivElement, NumberFieldProps>(
       ...rootProps
     } = props;
     const { id, labelId, helperTextId } = useFieldIds(idProp);
+    const Input = inputComponents[variant] as typeof OutlinedNumberFieldInput;
     const describedBy = joinIds(
       helperText != null && helperTextId,
       slotProps.htmlInput?.['aria-describedby'],
@@ -149,7 +169,7 @@ export const NumberField = React.forwardRef<HTMLDivElement, NumberFieldProps>(
             disabled={state.disabled}
             required={state.required}
             error={error}
-            variant="outlined"
+            variant={variant}
           />
         )}
       >
@@ -169,7 +189,7 @@ export const NumberField = React.forwardRef<HTMLDivElement, NumberFieldProps>(
           {...htmlInput}
           ref={inputRef}
           render={(inputProps, state) => (
-            <NumberFieldInput
+            <Input
               placeholder={placeholder}
               readOnly={state.readOnly}
               {...input}

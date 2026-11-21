@@ -310,8 +310,9 @@ Both take the Base UI `NumberField.Root` props (`value`, `defaultValue`, `onValu
 `onValueCommitted`, `min`, `max`, `step`, `smallStep`, `largeStep`, `format`, `locale`,
 `snapOnStep`, `allowWheelScrub`, `name`, …) plus the Material field props `label`, `helperText`,
 `error`, `required`, `disabled`, `readOnly`, `size`, `fullWidth`, `placeholder`, `inputRef`, `sx`
-and `slotProps`. The value is a `number` or `null`. Pass `locale` when server and browser locales
-can differ, so that server-rendered text matches.
+and `slotProps`, and `variant` (`outlined`, the default, or `filled`). The value is a `number` or
+`null`. Pass `locale` when server and browser locales can differ, so that server-rendered text
+matches.
 
 ## Menubar
 

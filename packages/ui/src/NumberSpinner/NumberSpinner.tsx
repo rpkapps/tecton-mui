@@ -7,11 +7,13 @@ import clsx from 'clsx';
 import { NumberField as BaseNumberField } from '@base-ui/react/number-field';
 import { styled } from '@mui/material/styles';
 import Button, { type ButtonProps } from '@mui/material/Button';
+import FilledInput from '@mui/material/FilledInput';
 import FormControl from '@mui/material/FormControl';
 import FormHelperText from '@mui/material/FormHelperText';
 import InputLabel from '@mui/material/InputLabel';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Icon from '../Icon/Icon.js';
+import { cssVar } from '../styles/tecton/index.js';
 import {
   SSRInitialFilled,
   joinIds,
@@ -19,9 +21,13 @@ import {
   useFieldIds,
   type NumberFieldBaseProps,
   type NumberFieldCommonSlotProps,
+  type NumberFieldFilledInputSlotProps,
+  type NumberFieldInputSlotProps,
 } from '../internal/number-field/shared.js';
 
-export interface NumberSpinnerSlotProps extends NumberFieldCommonSlotProps {
+export interface NumberSpinnerSlotProps extends Omit<NumberFieldCommonSlotProps, 'input'> {
+  /** Props of the input: `OutlinedInput`, or `FilledInput` when `variant="filled"`. */
+  input?: NumberFieldInputSlotProps | NumberFieldFilledInputSlotProps;
   /** Props of the increment `Button` (for example a localized `aria-label`). */
   incrementButton?: Partial<ButtonProps>;
   /** Props of the decrement `Button` (for example a localized `aria-label`). */
@@ -29,6 +35,8 @@ export interface NumberSpinnerSlotProps extends NumberFieldCommonSlotProps {
 }
 
 export interface NumberSpinnerProps extends NumberFieldBaseProps {
+  /** The variant to use, as in `TextField`. Default `outlined`. */
+  variant?: 'outlined' | 'filled';
   /**
    * Turns off scrubbing: by default, dragging the label horizontally changes the value
    * (pointer lock; not in Safari). Keyboard and button stepping are unaffected.
@@ -48,7 +56,7 @@ export const numberSpinnerClasses = {
 
 // Same input typography and label states as `TextField` in the active theme.
 const NumberSpinnerRoot = styled(FormControl, { name: 'TectonNumberSpinner', slot: 'Root' })(
-  ({ theme }) => textFieldRootStyles(theme, { variant: 'outlined' }) ?? {},
+  ({ theme, variant }) => textFieldRootStyles(theme, { variant }) ?? {},
 );
 
 const ScrubArea = styled('span', { name: 'TectonNumberSpinner', slot: 'ScrubArea' })({
@@ -67,18 +75,32 @@ const Group = styled('div', { name: 'TectonNumberSpinner', slot: 'Group' })({
   width: '100%',
 });
 
-const SpinnerInput = styled(OutlinedInput, { name: 'TectonNumberSpinner', slot: 'Input' })({
+const spinnerInputStyles = {
   flex: 1,
   borderRadius: 0,
   '& .MuiInputBase-input': { textAlign: 'center' },
-});
+} as const;
 
-const SpinnerButton = styled(Button, { name: 'TectonNumberSpinner', slot: 'Button' })(
+const OutlinedSpinnerInput = styled(OutlinedInput, {
+  name: 'TectonNumberSpinner',
+  slot: 'Input',
+})(spinnerInputStyles);
+
+const FilledSpinnerInput = styled(FilledInput, { name: 'TectonNumberSpinner', slot: 'Input' })(
+  spinnerInputStyles,
+);
+
+const spinnerButtonStyles = {
+  minWidth: 0,
+  flexShrink: 0,
+  aspectRatio: '1 / 1',
+  paddingInline: 0,
+} as const;
+
+// Outlined buttons; the input's outline is the shared border between the buttons and the value.
+const OutlinedSpinnerButton = styled(Button, { name: 'TectonNumberSpinner', slot: 'Button' })(
   ({ theme }) => ({
-    minWidth: 0,
-    flexShrink: 0,
-    aspectRatio: '1 / 1',
-    paddingInline: 0,
+    ...spinnerButtonStyles,
     borderColor: theme.palette.divider,
     // Read-only fields expose the buttons as aria-disabled (still focusable by assistive tech).
     '&[aria-disabled="true"]': {
@@ -86,7 +108,6 @@ const SpinnerButton = styled(Button, { name: 'TectonNumberSpinner', slot: 'Butto
       cursor: 'default',
       backgroundColor: 'transparent',
     },
-    // The input's outline is the shared border between the buttons and the value.
     '&.TectonNumberSpinner-decrement': {
       borderStartEndRadius: 0,
       borderEndEndRadius: 0,
@@ -99,6 +120,42 @@ const SpinnerButton = styled(Button, { name: 'TectonNumberSpinner', slot: 'Butto
     },
   }),
 );
+
+// Filled buttons share the filled input background, so the buttons and the value form one bar.
+// Like the adornment icons of a filled input, hover and press change only the icon colour: Tecton's
+// filled hover background is lighter than the fill, so a hovered end segment would split the bar.
+const FilledSpinnerButton = styled(Button, { name: 'TectonNumberSpinner', slot: 'Button' })(
+  ({ theme }) => ({
+    ...spinnerButtonStyles,
+    backgroundColor: cssVar('color-input-filled-bg'),
+    color: cssVar('color-input-filled-adornment'),
+    '&:hover, &:active': {
+      backgroundColor: cssVar('color-input-filled-bg'),
+      color: cssVar('color-input-filled-adornment-hover'),
+    },
+    '&.Mui-disabled': {
+      backgroundColor: cssVar('color-disabled-filled-bg'),
+      color: cssVar('color-disabled-filled-text'),
+    },
+    // Read-only fields expose the buttons as aria-disabled (still focusable by assistive tech).
+    '&[aria-disabled="true"]': {
+      color: theme.palette.text.disabled,
+      cursor: 'default',
+      backgroundColor: cssVar('color-input-filled-bg'),
+    },
+    '&.TectonNumberSpinner-decrement': { borderStartEndRadius: 0, borderEndEndRadius: 0 },
+    '&.TectonNumberSpinner-increment': { borderStartStartRadius: 0, borderEndStartRadius: 0 },
+  }),
+);
+
+const variantComponents = {
+  outlined: {
+    Input: OutlinedSpinnerInput,
+    Button: OutlinedSpinnerButton,
+    buttonVariant: 'outlined',
+  },
+  filled: { Input: FilledSpinnerInput, Button: FilledSpinnerButton, buttonVariant: 'text' },
+} as const;
 
 /**
  * A numeric input between decrement and increment buttons, for small counts and quantities. Shares
@@ -113,6 +170,7 @@ export const NumberSpinner = React.forwardRef<HTMLDivElement, NumberSpinnerProps
       helperText,
       error = false,
       size = 'medium',
+      variant = 'outlined',
       fullWidth = false,
       placeholder,
       inputRef,
@@ -131,6 +189,9 @@ export const NumberSpinner = React.forwardRef<HTMLDivElement, NumberSpinnerProps
       htmlInput?.['aria-describedby'],
     );
     const minLength = rootProps.min != null ? String(rootProps.min).length : 0;
+    const parts = variantComponents[variant];
+    const SpinnerInput = parts.Input as typeof OutlinedSpinnerInput;
+    const SpinnerButton = parts.Button;
 
     const labelElement =
       label != null && label !== '' ? (
@@ -155,7 +216,7 @@ export const NumberSpinner = React.forwardRef<HTMLDivElement, NumberSpinnerProps
             disabled={state.disabled}
             required={state.required}
             error={error}
-            variant="outlined"
+            variant={variant}
           />
         )}
       >
@@ -176,7 +237,7 @@ export const NumberSpinner = React.forwardRef<HTMLDivElement, NumberSpinnerProps
           <BaseNumberField.Decrement
             render={
               <SpinnerButton
-                variant="outlined"
+                variant={parts.buttonVariant}
                 size={size}
                 aria-label="Decrease"
                 {...decrementButton}
@@ -210,7 +271,7 @@ export const NumberSpinner = React.forwardRef<HTMLDivElement, NumberSpinnerProps
           <BaseNumberField.Increment
             render={
               <SpinnerButton
-                variant="outlined"
+                variant={parts.buttonVariant}
                 size={size}
                 aria-label="Increase"
                 {...incrementButton}
