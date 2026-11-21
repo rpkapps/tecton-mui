@@ -134,9 +134,11 @@ differences below. `storybook-parity.spec.ts` runs all 22 comparisons.
 - **Scroll arrows:** Tecton's compat layer gives `Tabs` Tecton chevrons; the drop-in keeps MUI's
   `KeyboardArrowLeft` / `KeyboardArrowRight` SVGs, so the app bar passes the same glyphs through
   `slots`.
-- **Scroll arrow width (intended difference):** the React bar's arrows are 48px wide, the width of
-  the Home (fixed tab) cell next to them; the drop-in keeps MUI's 40px. Only strips that overflow
-  show an arrow (the Overflow story, within its 0.1 % allowance).
+- **Scroll arrow cells (intended difference):** the React bar's arrows are 48px cells with a
+  divider toward the tabs, like the Home (fixed tab) cell next to them; the drop-in keeps MUI's
+  borderless 40px buttons. They show and hide with a 300ms width animation in step with the strip's
+  slide, where the drop-in's pop in or out at once and make the tabs jump by an arrow's width. Only
+  strips that overflow show an arrow (the Overflow story, within its 0.1 % allowance).
 - **Viewport captures:** these cases capture the viewport, not the full page. A full-page capture
   briefly resizes the page; scrollable `Tabs` react to that resize (scroll arrows, scroll position)
   at random on either side. The same happens without any capture under heavy load: MUI's

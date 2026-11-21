@@ -3,7 +3,7 @@ import { act, fireEvent, render, renderHook, screen } from '@testing-library/rea
 import { useScrollButtonCompensation } from '../useScrollButtonCompensation.js';
 import {
   createTabStripStore,
-  instantScrollTheme,
+  arrowSx,
   SCROLL_ARROW_WIDTH,
   selectedTabTarget,
   TabStripContext,
@@ -12,7 +12,7 @@ import {
   writeScrollLeft,
   type TabStripStore,
 } from '../tabStrip.js';
-import type { Theme } from '@mui/material/styles';
+import { createTheme, ThemeProvider as MuiThemeProvider, type Theme } from '@mui/material/styles';
 
 // jsdom has no layout: the tests give the strip its geometry by hand. The scroller is 200px wide at
 // x = 100 (its view is [100, 300]) and scrolls over 1000px (max 800).
@@ -100,6 +100,9 @@ function setWidth(el: HTMLElement, width: number) {
 let observers: { cb: ResizeObserverCallback; targets: Element[] }[] = [];
 const fireResize = () => observers.forEach((o) => o.cb([], {} as ResizeObserver));
 
+/** The arrows that show (bit 1: left, bit 2: right). */
+const shown = (store: TabStripStore) => store.getSnapshot() & 3;
+
 let frames = new Map<number, FrameRequestCallback>();
 /** Runs the animation frames requested so far, at time `now`. */
 const runFrame = (now: number) => {
@@ -149,26 +152,26 @@ describe('createTabStripStore', () => {
     const listener = vi.fn();
     store.subscribe(listener);
     const detach = store.attach(strip.scroller);
-    expect(store.getSnapshot()).toBe(2); // at the start: only right
+    expect(shown(store)).toBe(2); // at the start: only right
     strip.userScroll(400);
-    expect(store.getSnapshot()).toBe(3);
+    expect(shown(store)).toBe(3);
     strip.userScroll(799.5); // within a pixel of the end counts as the end
-    expect(store.getSnapshot()).toBe(1);
+    expect(shown(store)).toBe(1);
     expect(listener).toHaveBeenCalledTimes(3);
     store.measure();
     expect(listener).toHaveBeenCalledTimes(3); // no change, no notification
     detach();
     strip.userScroll(0);
-    expect(store.getSnapshot()).toBe(1);
+    expect(shown(store)).toBe(1);
   });
 
   it('maps start and end to the physical sides in RTL', () => {
     const strip = makeStrip({ rtl: true });
     const store = createTabStripStore();
     store.attach(strip.scroller);
-    expect(store.getSnapshot()).toBe(1); // at the start (right): can scroll left only
+    expect(shown(store)).toBe(1); // at the start (right): can scroll left only
     strip.userScroll(-800);
-    expect(store.getSnapshot()).toBe(2);
+    expect(shown(store)).toBe(2);
   });
 
   it('has no arrows when the tabs fit', () => {
@@ -176,7 +179,7 @@ describe('createTabStripStore', () => {
     Object.defineProperty(strip.scroller, 'scrollWidth', { value: 200, configurable: true });
     const store = createTabStripStore();
     store.attach(strip.scroller);
-    expect(store.getSnapshot()).toBe(0);
+    expect(shown(store)).toBe(0);
   });
 
   it('re-measures when tabs are added', async () => {
@@ -187,7 +190,7 @@ describe('createTabStripStore', () => {
     Object.defineProperty(strip.scroller, 'scrollWidth', { value: 600, configurable: true });
     strip.scroller.querySelector('[role="tablist"]')!.append(document.createElement('div'));
     await Promise.resolve();
-    expect(store.getSnapshot()).toBe(2);
+    expect(shown(store)).toBe(2);
   });
 
   it("ignores MUI's writes to the scroll position while attached", () => {
@@ -279,6 +282,31 @@ describe('createTabStripStore', () => {
       expect(strip.scroller.scrollLeft).toBe(370);
       for (let i = 0; i < 4; i += 1) store.scrollPage('right');
       expect(strip.scroller.scrollLeft).toBe(800);
+    });
+
+    it('shows the arrows for where a slide is going, so they change along with it', () => {
+      const strip = pagedStrip();
+      Object.defineProperty(strip.scroller, 'scrollWidth', { value: 300, configurable: true });
+      const store = createTabStripStore();
+      store.attach(strip.scroller);
+      expect(shown(store)).toBe(2);
+      store.scrollPage('right'); // to the end (max 100)
+      expect(shown(store)).toBe(1); // at once: start arrow on, end arrow off
+      expect(store.getSnapshot() >> 2).toBe(2); // but the strip can still scroll right for now
+      runFrame(0);
+      runFrame(150);
+      expect(shown(store)).toBe(1);
+      runFrame(300);
+      expect(strip.scroller.scrollLeft).toBe(100);
+      expect(store.getSnapshot()).toBe(1 | (1 << 2));
+      store.scrollPage('left');
+      expect(shown(store)).toBe(2);
+      runFrame(1000);
+      runFrame(1150);
+      store.stop(); // stopped half way: the arrows follow where it is
+      expect(strip.scroller.scrollLeft).toBe(50);
+      expect(shown(store)).toBe(3);
+      expect(store.isSliding()).toBe(false);
     });
 
     it('stops when asked', () => {
@@ -381,7 +409,7 @@ describe('useTabStrip', () => {
     strip.placeTab(150, 100);
     const hook = mount(strip);
     expect(strip.scroller.scrollLeft).toBe(50);
-    expect(hook.result.current.getSnapshot()).toBe(3);
+    expect(shown(hook.result.current)).toBe(3);
     strip.placeTab(350, 100);
     hook.rerender({ sel: 'b', n: 1 });
     expect(strip.scroller.scrollLeft).toBe(50);
@@ -461,10 +489,89 @@ describe('TabStripScrollButton', () => {
     expect(screen.getByLabelText('right')).toHaveClass('Mui-disabled');
   });
 
-  it('is as wide as the Home tab', () => {
-    renderButtons(createTabStripStore());
+  it('is a cell as wide as the Home tab while shown, and takes no room while hidden', () => {
+    const strip = makeStrip();
+    const store = createTabStripStore();
+    store.attach(strip.scroller);
+    renderButtons(store);
     expect(SCROLL_ARROW_WIDTH).toBe(48);
     expect(screen.getByLabelText('right')).toHaveStyle({ width: '48px' });
+    expect(screen.getByLabelText('left')).toHaveStyle({ width: '0px' });
+  });
+
+  it('animates showing and hiding only after the first paint', () => {
+    const strip = makeStrip();
+    const store = createTabStripStore();
+    store.attach(strip.scroller);
+    const getDuration = vi.spyOn(store, 'getDuration');
+    renderButtons(store);
+    expect(getDuration).not.toHaveBeenCalled(); // first state at once
+    act(() => runFrame(0));
+    expect(getDuration).toHaveBeenCalled();
+  });
+
+  it('draws a divider toward the tabs and animates with the slide', () => {
+    const ease = 'cubic-bezier(0.4, 0, 0.2, 1)';
+    expect(arrowSx(true, true, 300)).toMatchObject({
+      width: 48,
+      borderRight: expect.stringContaining('1px solid'),
+      transition: `width 300ms ${ease}, opacity 300ms ${ease}`,
+    });
+    expect(arrowSx(true, false, 0)).toMatchObject({
+      borderLeft: expect.stringContaining('1px solid'),
+      transition: 'none',
+    });
+    expect(arrowSx(false, true, 300)).toMatchObject({ width: 0, borderRight: 'none' });
+  });
+
+  it('puts the divider on the tabs side, in LTR and RTL', () => {
+    /** The divider side in the arrow's own (unflipped) rule. */
+    const dividerSide = (el: HTMLElement) => {
+      const css = Array.from(document.querySelectorAll('style'))
+        .map((style) => style.textContent)
+        .join('');
+      const own = Array.from(el.classList).find(
+        (c) => css.includes(`.${c}{`) && c.startsWith('css-'),
+      );
+      const rule = css.slice(css.indexOf(`.${own}{`)).split('}')[0];
+      return /border-right:1px/.test(rule) ? 'right' : /border-left:1px/.test(rule) ? 'left' : null;
+    };
+    for (const rtl of [false, true]) {
+      const strip = makeStrip({ rtl });
+      const store = createTabStripStore();
+      store.attach(strip.scroller);
+      strip.userScroll(rtl ? -400 : 400); // both arrows on
+      const view = render(
+        <MuiThemeProvider theme={createTheme({ direction: rtl ? 'rtl' : 'ltr' })}>
+          <TabStripContext.Provider value={store}>
+            <TabStripScrollButton direction="left" orientation="horizontal" aria-label="left" />
+            <TabStripScrollButton direction="right" orientation="horizontal" aria-label="right" />
+          </TabStripContext.Provider>
+        </MuiThemeProvider>,
+      );
+      // Written for LTR: the start arrow's divider is on its right, the end arrow's on its left.
+      // In RTL the start arrow is the physical right one, and the RTL style cache mirrors the rule.
+      expect(dividerSide(screen.getByLabelText(rtl ? 'right' : 'left'))).toBe('right');
+      expect(dividerSide(screen.getByLabelText(rtl ? 'left' : 'right'))).toBe('left');
+      view.unmount();
+    }
+  });
+
+  it('keeps an arrow that shrinks away during a slide enabled until the strip gets there', () => {
+    const strip = makeStrip();
+    Object.defineProperty(strip.scroller, 'scrollWidth', { value: 300, configurable: true });
+    Object.defineProperty(strip.tab, 'clientWidth', { value: 120 }); // a page of 120
+    const store = createTabStripStore();
+    store.attach(strip.scroller);
+    renderButtons(store);
+    fireEvent.click(screen.getByLabelText('right')); // slides to the end
+    const right = screen.getByLabelText('right');
+    expect(right).toHaveStyle({ width: '0px' }); // shrinking
+    expect(right).not.toHaveClass('Mui-disabled'); // its click ripple plays out
+    expect(screen.getByLabelText('left')).not.toHaveClass('Mui-disabled');
+    act(() => runFrame(0));
+    act(() => runFrame(300));
+    expect(screen.getByLabelText('right')).toHaveClass('Mui-disabled');
   });
 
   it('is disabled outside an app bar strip', () => {
@@ -474,12 +581,26 @@ describe('TabStripScrollButton', () => {
   });
 });
 
-describe('instantScrollTheme', () => {
-  it("turns off MUI's own scroll animation for the strip only", () => {
-    const outer = { palette: {}, motion: { reducedMotion: 'system' } } as unknown as Theme;
-    const theme = instantScrollTheme(outer);
-    expect(theme.motion.reducedMotion).toBe('always');
-    expect(outer.motion.reducedMotion).toBe('system');
+describe('useTabStrip motion', () => {
+  it("jumps when the app's theme always reduces motion", () => {
+    const strip = makeStrip();
+    strip.placeTab(50, 100);
+    const theme = {
+      motion: { reducedMotion: 'always' },
+      transitions: { duration: { standard: 300 } },
+    };
+    const hook = renderHook(({ sel }) => useTabStrip({ current: strip.root }, sel, 1), {
+      initialProps: { sel: 'a' },
+      wrapper: ({ children }) => (
+        <MuiThemeProvider theme={(outer: Theme) => ({ ...outer, ...theme }) as Theme}>
+          {children}
+        </MuiThemeProvider>
+      ),
+    });
+    expect(hook.result.current.getDuration()).toBe(0);
+    strip.placeTab(350, 100);
+    hook.rerender({ sel: 'b' });
+    expect(strip.scroller.scrollLeft).toBe(250);
   });
 });
 

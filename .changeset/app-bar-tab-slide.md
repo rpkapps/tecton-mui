@@ -3,8 +3,15 @@
 ---
 
 `AppBar`: the tab strip slides again, as in the Tecton drop-in. An arrow click and bringing a selected
-or added tab into view now take 300ms (the theme's `transitions.duration.standard`) with MUI's
-easing, instead of jumping. The slide aims at a target recomputed every frame, so an arrow that shows
-or hides on the way does not leave the tab short, and it stops when the user wheels, touches, presses
-a key or clicks in the strip. Reduced motion (the OS setting) jumps. The scroll arrows are now 48px
-wide, the same as the Home tab cell. A strip that has no width yet no longer scrolls on load.
+or added tab into view take 300ms (the theme's `transitions.duration.standard`) with MUI's easing,
+instead of jumping. The slide aims at a target recomputed every frame, and stops when the user
+wheels, touches, presses a key or clicks in the strip.
+
+The scroll arrows still only show while the strip can scroll their way, but they now grow and shrink
+with the slide instead of popping in or out (which made the tabs jump by an arrow's width, most
+visibly when adding a tab), and they follow where the slide is going. They are 48px cells with a
+divider toward the tabs, like the Home cell. Reduced motion (the OS setting, or a theme with
+`motion.reducedMotion: 'always'`) jumps. A strip that has no width yet no longer scrolls on load.
+
+The tabs and scroll arrows have MUI's click ripple again: the strip had turned motion off for them. An
+arrow that shrinks away after a click stays enabled until the slide ends, so its ripple plays out.
