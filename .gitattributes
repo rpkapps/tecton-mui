@@ -1,0 +1,29 @@
+# Line endings: LF in the repository and in every working tree, on every platform, whatever
+# core.autocrlf says. Prettier (endOfLine: lf), `pnpm inventory` and the byte-for-byte checks
+# below all expect LF; a CRLF checkout fails `pnpm format:check` and `pnpm tecton:check`.
+* text=auto eol=lf
+
+# Byte-exact files: never convert line endings. Each one is checked against a sha256 or
+# compared with a fresh generator run, so a converted checkout fails the check.
+#   vendored Tecton artifacts, hashed in vendor/<version>/manifest.json (`pnpm tecton:check`)
+packages/tecton-adapter/vendor/** -text
+#   Tecton adapter `emit` output, hashed in GENERATED.json and compared with a fresh emit
+packages/ui/src/styles/tecton/generated/** -text
+packages/ui/assets/tecton/** -text
+#   docs-sync output, hashed in tooling/docs-sync/sync-lock.json (`pnpm docs:sync --check`)
+apps/docs/src/mui-docs/generated/** -text
+
+# Binary assets: no conversion, no textual diff or merge.
+*.woff2 binary
+*.woff binary
+*.ttf binary
+*.otf binary
+*.eot binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.avif binary
+*.ico binary
+*.pdf binary
