@@ -468,6 +468,11 @@ test.describe('DataGrid advanced features', () => {
     await filters.click();
     const panel = page.locator('.TectonDataGrid-filterPanel');
     await expect(panel).toBeVisible();
+    // Outlined inputs with a closed border, as in the Tecton drop-in filter menu.
+    expect(await panel.locator('.MuiFilledInput-root').count()).toBe(0);
+    for (const legend of await panel.locator('.MuiOutlinedInput-notchedOutline legend').all()) {
+      expect(await legend.evaluate((e) => e.getBoundingClientRect().width)).toBeLessThan(1);
+    }
     // The first condition targets the first column (ID, "=").
     await panel.locator('.MuiDataGrid-filterFormValueInput input').first().fill('5');
     await expect(footer).toContainText('1–1 of 1');

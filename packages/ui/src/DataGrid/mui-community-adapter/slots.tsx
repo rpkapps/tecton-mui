@@ -15,6 +15,8 @@ import {
   GridColumnHeaderSortIcon,
   GridColumnMenu,
   GridFilterForm,
+  GridPanel,
+  type GridPanelProps,
   type GridLogicOperator,
   GridRow,
   GridRowCount,
@@ -27,7 +29,7 @@ import {
   type GridFilterItem,
   type GridRowProps,
 } from '@mui/x-data-grid';
-import { styled } from '@mui/material/styles';
+import { styled, ThemeProvider, useTheme, type Theme } from '@mui/material/styles';
 import Icon from '../../Icon/Icon.js';
 import { cssVar } from '../../styles/tecton/index.js';
 import { useStoreSelector } from '../core/store.js';
@@ -94,6 +96,48 @@ export function FilterIconSlot(props: FilterIconProps) {
 
 let newFilterId = 0;
 
+// The Tecton theme makes TextField `filled` by default, and the Community grid takes its panel
+// inputs' variant from that default. The Tecton drop-in filter and column menus use outlined
+// inputs, so the panels (filter panel, columns panel) default to `outlined`. The nested theme is
+// built once per outer theme.
+const panelThemes = new WeakMap<Theme, Theme>();
+const buildPanelTheme = (outer: Theme): Theme => ({
+  ...outer,
+  components: {
+    ...outer.components,
+    MuiTextField: {
+      ...outer.components?.MuiTextField,
+      defaultProps: { ...outer.components?.MuiTextField?.defaultProps, variant: 'outlined' },
+    },
+    // The grid forces its panel labels to `shrink`, which notches the outline. Tecton labels sit
+    // above the field, so keep the border closed (as `notched={false}` would).
+    MuiOutlinedInput: {
+      ...outer.components?.MuiOutlinedInput,
+      styleOverrides: {
+        ...outer.components?.MuiOutlinedInput?.styleOverrides,
+        notchedOutline: { '& legend': { maxWidth: '0.01px' } },
+      },
+    },
+  },
+});
+
+/** Community `GridPanel` with outlined inputs, as in the Tecton drop-in menus. */
+export const PanelSlot = React.forwardRef<HTMLDivElement, GridPanelProps>(
+  function PanelSlot(props, ref) {
+    const outer = useTheme();
+    let theme = panelThemes.get(outer);
+    if (!theme) {
+      theme = buildPanelTheme(outer);
+      panelThemes.set(outer, theme);
+    }
+    return (
+      <ThemeProvider theme={theme}>
+        <GridPanel ref={ref} {...props} />
+      </ThemeProvider>
+    );
+  },
+);
+
 /** Multi-item filter panel built from Community's public GridFilterForm. */
 export function MultiFilterPanel() {
   const { derived, actions, features } = useGridAdvanced();
@@ -144,6 +188,7 @@ export function MultiFilterPanel() {
           '& .MuiDataGrid-filterForm': { alignItems: 'flex-start' },
           '& .MuiDataGrid-filterForm .MuiInputLabel-root:empty::before': { content: '"\\200B"' },
           '& .MuiDataGrid-filterFormDeleteIcon': {
+            '& .MuiIconButton-root': { color: cssVar('color-text-secondary') },
             marginTop: `calc(${cssVar('line-height-small')} + ${cssVar('space-50')})`,
           },
         }}

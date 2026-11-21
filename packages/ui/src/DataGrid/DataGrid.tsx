@@ -92,6 +92,7 @@ import {
   FilterIconSlot,
   HierarchyRowSlot,
   MultiFilterPanel,
+  PanelSlot,
   PaginationSlot,
   PinnedRowsSlot,
   TotalRowCountSlot,
@@ -1460,6 +1461,7 @@ function DataGridInner<R extends GridValidRowModel>(
       columnHeaderSortIcon: SortIconSlot,
       columnHeaderFilterIconButton: FilterIconSlot,
       filterPanel: MultiFilterPanel,
+      panel: PanelSlot,
       pagination:
         clientPaging || (server && pagination && !lazyLoading) ? PaginationSlot : TotalRowCountSlot,
       pinnedRows: PinnedRowsSlot,
