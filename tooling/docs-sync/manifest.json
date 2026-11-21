@@ -157,8 +157,20 @@
     {
       "package": "@mui/material",
       "source": "docs/data/material/components/icons/icons.md",
-      "status": "included",
-      "target": "icons"
+      "status": "modified",
+      "target": "icons",
+      "edits": [
+        {
+          "find": "If you need a custom SVG icon (not available in the [Material Icons](/material-ui/material-icons/)) you can use the `SvgIcon` wrapper.",
+          "replace": "If you need a custom SVG icon (not available in the [Tecton icons](/material-ui/material-icons/)) you can use the `SvgIcon` wrapper.",
+          "reason": "The library's icon set is Tecton, not Material Icons (the link goes to the Icon page through slug-map.json#externalRoutes)."
+        },
+        {
+          "find": "The `createSvgIcon` utility component is used to create the [Material Icons](#material-svg-icons).",
+          "replace": "The `createSvgIcon` utility component creates a reusable icon component.",
+          "reason": "`@mui/icons-material` is not part of @tecton-mui/ui, and the Material SVG icons section is not synced."
+        }
+      ]
     },
     {
       "package": "@mui/material",

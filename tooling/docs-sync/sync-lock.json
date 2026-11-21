@@ -1271,7 +1271,7 @@
     },
     {
       "source": "docs/data/material/components/icons/icons.md",
-      "status": "included",
+      "status": "modified",
       "target": "icons",
       "slugs": [
         "svg-icon#svgicon,accessibility"
@@ -4258,7 +4258,7 @@
     "apps/docs/src/mui-docs/generated/pages/speed-dial.tsx": "a6e988b371e91f48cfc05e50e0ae2f4aea0f524aa2648c36dbdd356485f19c06",
     "apps/docs/src/mui-docs/generated/pages/stack.tsx": "1e5964d013780f836fcdf31e0d2d08c67d31b408cd0c1f00523c2c6ed05651d6",
     "apps/docs/src/mui-docs/generated/pages/stepper.tsx": "13e9a0e7557a26236c2488e178d5eba4eef99e26e924f49433a1a3b17d848a14",
-    "apps/docs/src/mui-docs/generated/pages/svg-icon.tsx": "486d62d62f79fd6203a85680f6b4640f77c2d2e3af528cf9963d410ab36a9adb",
+    "apps/docs/src/mui-docs/generated/pages/svg-icon.tsx": "b431725c2283d75e6f1bd3188728b0f5402fbf34d4f081de1a6d610efb08f793",
     "apps/docs/src/mui-docs/generated/pages/switch.tsx": "c57ef201d3ee409eefc72f3e19deed70b4ea33859b0d7023b55b388463171936",
     "apps/docs/src/mui-docs/generated/pages/tab-context.tsx": "ce19775893f9cbfb3572288764e3c5f2402906b19e7c825dc01acca0afb759f1",
     "apps/docs/src/mui-docs/generated/pages/table.tsx": "b1ca3d06a9c8d7bde850b76a29af6561ddabc74b2e920402aeb8aab74cbd8363",

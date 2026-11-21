@@ -129,8 +129,8 @@ The demo logic is not changed. The mechanical rules are:
 - Upstream h2 sections render as h3 under the template's "Examples" h2 (they feed the table of
   contents). Anchors are unique per page, including against the authored content.
 - Links to synced pages are rewritten to `/components/<slug>[#anchor]`, links to API pages to
-  `/api/<slug>`, the MUI X Data Grid/Pickers/Tree View roots to our pages
-  (`slug-map.json#externalRoutes`); everything else points to `https://mui.com`.
+  `/api/<slug>`, the MUI X Data Grid/Pickers/Tree View roots and the Material Icons search page to
+  our pages (`slug-map.json#externalRoutes`); everything else points to `https://mui.com`.
 - Imports in prose code snippets are rewritten like demo imports.
 - A note is added under each "Customization" heading: those examples restyle components beyond the
   Tecton defaults and are shown for the customization APIs only.
