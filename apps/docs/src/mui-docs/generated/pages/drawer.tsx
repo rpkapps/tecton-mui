@@ -17,20 +17,6 @@ import AnchorTemporaryDrawer from '../demos/drawers/AnchorTemporaryDrawer';
 import AnchorTemporaryDrawerSource from '../demos/drawers/AnchorTemporaryDrawer.tsx?raw';
 import SwipeableTemporaryDrawer from '../demos/drawers/SwipeableTemporaryDrawer';
 import SwipeableTemporaryDrawerSource from '../demos/drawers/SwipeableTemporaryDrawer.tsx?raw';
-import ResponsiveDrawer from '../demos/drawers/ResponsiveDrawer';
-import ResponsiveDrawerSource from '../demos/drawers/ResponsiveDrawer.tsx?raw';
-import PersistentDrawerLeft from '../demos/drawers/PersistentDrawerLeft';
-import PersistentDrawerLeftSource from '../demos/drawers/PersistentDrawerLeft.tsx?raw';
-import PersistentDrawerRight from '../demos/drawers/PersistentDrawerRight';
-import PersistentDrawerRightSource from '../demos/drawers/PersistentDrawerRight.tsx?raw';
-import MiniDrawer from '../demos/drawers/MiniDrawer';
-import MiniDrawerSource from '../demos/drawers/MiniDrawer.tsx?raw';
-import PermanentDrawerLeft from '../demos/drawers/PermanentDrawerLeft';
-import PermanentDrawerLeftSource from '../demos/drawers/PermanentDrawerLeft.tsx?raw';
-import PermanentDrawerRight from '../demos/drawers/PermanentDrawerRight';
-import PermanentDrawerRightSource from '../demos/drawers/PermanentDrawerRight.tsx?raw';
-import ClippedDrawer from '../demos/drawers/ClippedDrawer';
-import ClippedDrawerSource from '../demos/drawers/ClippedDrawer.tsx?raw';
 
 const demos = {
   TemporaryDrawer: defineDemo('TemporaryDrawer', TemporaryDrawer, { code: TemporaryDrawerSource }),
@@ -40,43 +26,6 @@ const demos = {
   SwipeableTemporaryDrawer: defineDemo('SwipeableTemporaryDrawer', SwipeableTemporaryDrawer, {
     code: SwipeableTemporaryDrawerSource,
   }),
-  ResponsiveDrawer: defineDemo(
-    'ResponsiveDrawer',
-    ResponsiveDrawer,
-    { code: ResponsiveDrawerSource },
-    { iframe: true },
-  ),
-  PersistentDrawerLeft: defineDemo(
-    'PersistentDrawerLeft',
-    PersistentDrawerLeft,
-    { code: PersistentDrawerLeftSource },
-    { iframe: true },
-  ),
-  PersistentDrawerRight: defineDemo(
-    'PersistentDrawerRight',
-    PersistentDrawerRight,
-    { code: PersistentDrawerRightSource },
-    { iframe: true },
-  ),
-  MiniDrawer: defineDemo('MiniDrawer', MiniDrawer, { code: MiniDrawerSource }, { iframe: true }),
-  PermanentDrawerLeft: defineDemo(
-    'PermanentDrawerLeft',
-    PermanentDrawerLeft,
-    { code: PermanentDrawerLeftSource },
-    { iframe: true },
-  ),
-  PermanentDrawerRight: defineDemo(
-    'PermanentDrawerRight',
-    PermanentDrawerRight,
-    { code: PermanentDrawerRightSource },
-    { iframe: true },
-  ),
-  ClippedDrawer: defineDemo(
-    'ClippedDrawer',
-    ClippedDrawer,
-    { code: ClippedDrawerSource },
-    { iframe: true },
-  ),
 };
 
 export default function MuiDocs() {
@@ -225,7 +174,10 @@ export default function MuiDocs() {
         <M.code>{'permanent'}</M.code>
         {' for a drawer for wider screens.'}
       </M.p>
-      <Demo name="ResponsiveDrawer" />
+      <ExcludedDemo
+        name="ResponsiveDrawer"
+        reason="Composes MUI's AppBar with a Toolbar and its own content; @tecton-mui/ui's AppBar is the Tecton App Bar, which has no such composition."
+      />
       <Heading level={3} id="persistent-drawer">
         {'Persistent drawer'}
       </Heading>
@@ -244,8 +196,14 @@ export default function MuiDocs() {
           'Persistent navigation drawers are acceptable for all sizes larger than mobile.\nThey are not recommended for apps with multiple levels of hierarchy that require using an up arrow for navigation.'
         }
       </M.p>
-      <Demo name="PersistentDrawerLeft" />
-      <Demo name="PersistentDrawerRight" />
+      <ExcludedDemo
+        name="PersistentDrawerLeft"
+        reason="Composes MUI's AppBar with a Toolbar and its own content; @tecton-mui/ui's AppBar is the Tecton App Bar, which has no such composition."
+      />
+      <ExcludedDemo
+        name="PersistentDrawerRight"
+        reason="Composes MUI's AppBar with a Toolbar and its own content; @tecton-mui/ui's AppBar is the Tecton App Bar, which has no such composition."
+      />
       <Heading level={3} id="mini-variant-drawer">
         {'Mini variant drawer'}
       </Heading>
@@ -259,7 +217,10 @@ export default function MuiDocs() {
           'The mini variant is recommended for apps sections that need quick selection access alongside content.'
         }
       </M.p>
-      <Demo name="MiniDrawer" />
+      <ExcludedDemo
+        name="MiniDrawer"
+        reason="Composes MUI's AppBar with a Toolbar and its own content; @tecton-mui/ui's AppBar is the Tecton App Bar, which has no such composition."
+      />
       <Heading level={3} id="permanent-drawer">
         {'Permanent drawer'}
       </Heading>
@@ -277,8 +238,14 @@ export default function MuiDocs() {
         {'Full-height navigation'}
       </Heading>
       <M.p>{'Apps focused on information consumption that use a left-to-right hierarchy.'}</M.p>
-      <Demo name="PermanentDrawerLeft" />
-      <Demo name="PermanentDrawerRight" />
+      <ExcludedDemo
+        name="PermanentDrawerLeft"
+        reason="Composes MUI's AppBar with a Toolbar and its own content; @tecton-mui/ui's AppBar is the Tecton App Bar, which has no such composition."
+      />
+      <ExcludedDemo
+        name="PermanentDrawerRight"
+        reason="Composes MUI's AppBar with a Toolbar and its own content; @tecton-mui/ui's AppBar is the Tecton App Bar, which has no such composition."
+      />
       <Heading level={4} id="clipped-under-the-app-bar">
         {'Clipped under the app bar'}
       </Heading>
@@ -290,7 +257,10 @@ export default function MuiDocs() {
           ' at the top of the Drawer content.\nThis spacer matches the App Bar height so navigation items are not covered by the App Bar.'
         }
       </M.p>
-      <Demo name="ClippedDrawer" />
+      <ExcludedDemo
+        name="ClippedDrawer"
+        reason="Composes MUI's AppBar with a Toolbar and its own content; @tecton-mui/ui's AppBar is the Tecton App Bar, which has no such composition."
+      />
       <Attribution
         version="9.5.0"
         sources={[

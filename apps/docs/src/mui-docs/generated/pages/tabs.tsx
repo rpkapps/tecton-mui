@@ -6,6 +6,7 @@ import {
   Callout,
   CodeBlock,
   Demo,
+  ExcludedDemo,
   Heading,
   M,
   MuiDocsContent,
@@ -25,8 +26,6 @@ import ColorTabs from '../demos/tabs/ColorTabs';
 import ColorTabsSource from '../demos/tabs/ColorTabs.tsx?raw';
 import DisabledTabs from '../demos/tabs/DisabledTabs';
 import DisabledTabsSource from '../demos/tabs/DisabledTabs.tsx?raw';
-import FullWidthTabs from '../demos/tabs/FullWidthTabs';
-import FullWidthTabsSource from '../demos/tabs/FullWidthTabs.tsx?raw';
 import CenteredTabs from '../demos/tabs/CenteredTabs';
 import CenteredTabsSource from '../demos/tabs/CenteredTabs.tsx?raw';
 import ScrollableTabsButtonAuto from '../demos/tabs/ScrollableTabsButtonAuto';
@@ -68,12 +67,6 @@ const demos = {
   }),
   ColorTabs: defineDemo('ColorTabs', ColorTabs, { code: ColorTabsSource }),
   DisabledTabs: defineDemo('DisabledTabs', DisabledTabs, { code: DisabledTabsSource }),
-  FullWidthTabs: defineDemo(
-    'FullWidthTabs',
-    FullWidthTabs,
-    { code: FullWidthTabsSource },
-    { bg: true },
-  ),
   CenteredTabs: defineDemo(
     'CenteredTabs',
     CenteredTabs,
@@ -250,7 +243,10 @@ export default function MuiDocs() {
         <M.code>{'variant="fullWidth"'}</M.code>
         {' prop should be used for smaller views.'}
       </M.p>
-      <Demo name="FullWidthTabs" />
+      <ExcludedDemo
+        name="FullWidthTabs"
+        reason="Composes MUI's AppBar with a Toolbar and its own content; @tecton-mui/ui's AppBar is the Tecton App Bar, which has no such composition."
+      />
       <Heading level={4} id="centered">
         {'Centered'}
       </Heading>

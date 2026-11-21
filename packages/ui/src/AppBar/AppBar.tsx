@@ -1,19 +1,16 @@
 'use client';
-// AppBar: the MUI AppBar, plus the Tecton app bar layout (React port of the Tecton drop-in
-// `<wc-app-bar>`). Without navigation props it is the MUI component, unchanged: children, props,
-// refs and theme keys behave exactly as in @mui/material. Any navigation prop (`tabs`, `appName`,
-// `onTabSelect`...) renders the Tecton layout instead, with `children` in its actions region.
-import * as React from 'react';
-import MuiAppBar, {
-  type AppBarTypeMap as MuiAppBarTypeMap,
-  type AppBarProps as MuiAppBarProps,
+// AppBar: the Tecton App Bar (React version of the Tecton `<wc-app-bar>` drop-in). It replaces the
+// MUI AppBar: the bar always draws the Tecton layout (branding, tabs, the add button and an actions
+// region), and `children` fill the actions region. It is built on the MUI AppBar, so the MUI root
+// props (`position`, `sx`, `className`, `component`, `ref`...) and the `MuiAppBar` theme keys still
+// apply.
+import type * as React from 'react';
+import type {
+  AppBarTypeMap as MuiAppBarTypeMap,
+  AppBarProps as MuiAppBarProps,
 } from '@mui/material/AppBar';
 import type { OverridableComponent } from '@mui/material/OverridableComponent';
-import {
-  AppBarNavigation,
-  APP_BAR_NAVIGATION_PROPS,
-  type AppBarNavigationProps,
-} from './AppBarNavigation.js';
+import { AppBarNavigation, type AppBarNavigationProps } from './AppBarNavigation.js';
 
 export type AppBarTypeMap<
   AdditionalProps = object,
@@ -25,22 +22,14 @@ export type AppBarProps<
   AdditionalProps = object,
 > = MuiAppBarProps<RootComponent, AdditionalProps & AppBarNavigationProps>;
 
-function hasNavigationProps(props: object) {
-  const record = props as Record<string, unknown>;
-  return APP_BAR_NAVIGATION_PROPS.some((key) => record[key] !== undefined);
-}
-
 /**
- * App bar. Without navigation props it is the MUI `AppBar`. With any of `tabs`, `fixedTabs`,
- * `activeTab`, `appName`, `logo`, `logoSrc`, `maxTabs`, `disableTabAdd`, `onTabSelect`,
- * `onTabClose` or `onTabAdd` it renders the Tecton app bar: branding, tabs, the add button, and
- * `children` in the actions region at the right end.
+ * Tecton App Bar: branding (`appName`, `logo`, `logoSrc`), icon-only `fixedTabs`, closeable `tabs`,
+ * the add button (`maxTabs`, `disableTabAdd`) and `children` in the actions region at the right
+ * end. `tier="secondary"` gives the slimmer in-page bar. The page owns the tabs through
+ * `onTabSelect`, `onTabClose` and `onTabAdd`.
  *
  * Demos: [App Bar](/components/app-bar)
  */
-const AppBar = React.forwardRef<HTMLElement, AppBarProps>(function AppBar(props, ref) {
-  if (hasNavigationProps(props)) return <AppBarNavigation ref={ref} {...props} />;
-  return <MuiAppBar ref={ref} {...props} />;
-}) as OverridableComponent<AppBarTypeMap>;
+const AppBar = AppBarNavigation as OverridableComponent<AppBarTypeMap>;
 
 export default AppBar;

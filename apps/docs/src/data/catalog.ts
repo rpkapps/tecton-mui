@@ -413,7 +413,7 @@ export const authoredPages: AuthoredPage[] = [
     title: 'App Bar',
     category: 'surfaces',
     components: ['AppBar', 'Toolbar'],
-    summary: 'The top bar holding the product title, navigation and global actions.',
+    summary: 'The Tecton App Bar: branding, the tabs people switch between and your actions.',
   },
   // Navigation
   {
