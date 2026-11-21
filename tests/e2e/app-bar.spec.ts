@@ -181,6 +181,11 @@ const stripState = (bar: Locator) =>
       maxScroll: scroller.scrollWidth - scroller.clientWidth,
       // Sub-pixel layout can leave a fraction of a pixel outside the strip.
       selectedVisible: tab.left >= box.left - 1 && tab.right <= box.right + 1,
+      // A tab wider than the strip is shown from its start edge (MUI's rule, like scrollIntoView).
+      startShown:
+        getComputedStyle(scroller).direction === 'rtl'
+          ? Math.abs(tab.right - box.right) <= 1
+          : Math.abs(tab.left - box.left) <= 1,
       // For the failure message: whether the tab can fit at all.
       tabWidth: Math.round(tab.width),
       stripWidth: Math.round(box.width),
@@ -287,13 +292,23 @@ test.describe('Tecton app bar: scroll arrows follow the strip', () => {
                   scrollLeft,
                   maxScroll,
                   selectedVisible,
+                  startShown,
+                  tabWidth,
+                  stripWidth,
                 } = await stripState(bar);
                 const expected = `${scrollLeft > 1 ? 'e' : 'd'}${scrollLeft < maxScroll - 1 ? 'e' : 'd'}`;
-                return { step, matches: shown === expected, selectedVisible };
+                // A tab wider than the strip (the narrow bar on some machines) cannot be fully
+                // visible; it is shown from its start edge.
+                const fits = tabWidth <= stripWidth;
+                return {
+                  step,
+                  matches: shown === expected,
+                  shown: fits ? selectedVisible : startShown,
+                };
               },
               { timeout: 2000 },
             )
-            .toEqual({ step, matches: true, selectedVisible: true });
+            .toEqual({ step, matches: true, shown: true });
         };
         // Through the strip with the arrows (the selected tab may scroll away meanwhile).
         for (let i = 0; i < 20 && (await arrows.nth(1).isVisible()); i += 1) {
