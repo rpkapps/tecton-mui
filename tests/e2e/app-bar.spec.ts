@@ -214,23 +214,27 @@ test.describe('Tecton app bar: adding tabs to a full strip', () => {
           'aria-selected',
           'true',
         );
-        // No end arrow, the new tab fully visible. (The start arrow is MUI's own business: under
-        // heavy load its observer can miss an update, in the drop-in too.)
+        // At once (the drop-in, and an earlier fix, could leave it hidden for a second): no end
+        // arrow, the start arrow on, the new tab fully visible.
         await expect
-          .poll(async () => {
-            const { arrows, selectedVisible, scrollLeft, maxScroll, tabWidth, stripWidth } =
-              await stripState(bar);
-            return {
-              fits: tabWidth <= stripWidth,
-              endArrow: arrows[1],
-              selectedVisible,
-              scrollLeft,
-              maxScroll,
-              tabWidth,
-              stripWidth,
-            };
-          })
+          .poll(
+            async () => {
+              const { arrows, selectedVisible, scrollLeft, maxScroll, tabWidth, stripWidth } =
+                await stripState(bar);
+              return {
+                fits: tabWidth <= stripWidth,
+                endArrow: arrows[1],
+                selectedVisible,
+                scrollLeft,
+                maxScroll,
+                tabWidth,
+                stripWidth,
+              };
+            },
+            { timeout: 1000 },
+          )
           .toEqual(expect.objectContaining({ endArrow: 'd', selectedVisible: true, fits: true }));
+        expect((await stripState(bar)).arrows).toBe('ed');
       }
     });
   }
@@ -245,6 +249,78 @@ test.describe('Tecton app bar: adding tabs to a full strip', () => {
     const state = await stripState(bar);
     expect(state.scrollLeft).toBeLessThan(state.maxScroll - 50);
   });
+});
+
+test.describe('Tecton app bar: scroll arrows follow the strip', () => {
+  for (const dir of ['ltr', 'rtl']) {
+    test(`each arrow shows exactly while the strip can scroll its way (${dir})`, async ({
+      page,
+    }) => {
+      // Two bars, each scrolled end to end with smooth scrolling: longer than the default 30s.
+      test.setTimeout(120_000);
+      await openSettled(page, 'overflow', `&dir=${dir}`);
+      for (const n of [0, 2]) {
+        const bar = page.locator('[data-region="app-bar"]').nth(n);
+        const arrows = bar.locator('.MuiTabs-scrollButtons');
+        /** Waits until the strip has stopped (smooth) scrolling. */
+        const idle = async () => {
+          let last = -1;
+          await expect
+            .poll(
+              async () => {
+                const { scrollLeft } = await stripState(bar);
+                const still = scrollLeft === last;
+                last = scrollLeft;
+                return still;
+              },
+              { intervals: [150], timeout: 5000 },
+            )
+            .toBe(true);
+        };
+        /** The arrows the strip's position calls for (start, end), within a pixel of an edge. */
+        const check = async (step: string) => {
+          await expect
+            .poll(
+              async () => {
+                const {
+                  arrows: shown,
+                  scrollLeft,
+                  maxScroll,
+                  selectedVisible,
+                } = await stripState(bar);
+                const expected = `${scrollLeft > 1 ? 'e' : 'd'}${scrollLeft < maxScroll - 1 ? 'e' : 'd'}`;
+                return { step, matches: shown === expected, selectedVisible };
+              },
+              { timeout: 2000 },
+            )
+            .toEqual({ step, matches: true, selectedVisible: true });
+        };
+        // Through the strip with the arrows (the selected tab may scroll away meanwhile).
+        for (let i = 0; i < 20 && (await arrows.nth(1).isVisible()); i += 1) {
+          await arrows.nth(1).click();
+          await idle();
+        }
+        await expect(arrows.nth(1)).toBeHidden();
+        await expect(arrows.nth(0)).toBeVisible();
+        for (let i = 0; i < 20 && (await arrows.nth(0).isVisible()); i += 1) {
+          await arrows.nth(0).click();
+          await idle();
+        }
+        await expect(arrows.nth(0)).toBeHidden();
+        await check('back at the start');
+        await bar.getByRole('tab').nth(3).click();
+        await check('select a tab');
+        await bar.getByRole('button', { name: 'Add tab' }).click();
+        await check('add');
+        await bar.getByRole('button', { name: 'Add tab' }).click();
+        await check('add again');
+        await bar.getByRole('button', { name: 'close tab' }).click();
+        await check('close the active tab');
+        await bar.getByRole('button', { name: 'close tab' }).click();
+        await check('close it again');
+      }
+    });
+  }
 });
 
 test.describe('Tecton app bar: close button placement', () => {

@@ -22,14 +22,17 @@ import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import { styled } from '@mui/material/styles';
+import { styled, ThemeProvider } from '@mui/material/styles';
 import { createSvgIcon } from '@mui/material/utils';
 import { cssVar } from '../styles/tecton/index.js';
 import type { TectonIconName } from '../styles/tecton/index.js';
+import { useScrollButtonCompensation } from './useScrollButtonCompensation.js';
 import {
-  useKeepSelectedTabInView,
-  useScrollButtonCompensation,
-} from './useScrollButtonCompensation.js';
+  instantScrollTheme,
+  TabStripContext,
+  TabStripScrollButton,
+  useTabStrip,
+} from './tabStrip.js';
 import {
   CLOSE_SLOT_ATTRIBUTE,
   TabCloseButton,
@@ -135,6 +138,8 @@ const tabsSlots = {
   startScrollButtonIcon: ScrollLeftIcon,
   endScrollButtonIcon: ScrollRightIcon,
   indicator: TabCloseButton,
+  // Arrows follow the strip's scroll position, not MUI's IntersectionObserver (see tabStrip.tsx).
+  scrollButtons: TabStripScrollButton,
 };
 const closeSlotProps = { [CLOSE_SLOT_ATTRIBUTE]: '' };
 
@@ -241,7 +246,7 @@ export const AppBarNavigation = React.forwardRef<HTMLElement, AppBarNavigationLa
     const primary = tier === 'primary';
     const tabsRef = React.useRef<HTMLDivElement>(null);
     useScrollButtonCompensation(tabsRef);
-    useKeepSelectedTabInView(tabsRef, activeTab, tabs.length);
+    const strip = useTabStrip(tabsRef, activeTab, tabs.length);
 
     // Latest callbacks, so the handlers below keep stable identities.
     const latest = React.useRef({ onTabSelect, onTabClose, onTabAdd, tabs });
@@ -309,124 +314,131 @@ export const AppBarNavigation = React.forwardRef<HTMLElement, AppBarNavigationLa
     });
 
     return (
-      <TabCloseContext.Provider value={closeContext}>
-        <MuiAppBar
-          ref={ref}
-          position={position}
-          tier={tier}
-          data-region="app-bar"
-          role="banner"
-          {...other}
-        >
-          <Toolbar
-            disableGutters
-            variant="dense"
-            sx={primary ? toolbarSxPrimary : toolbarSxSecondary}
+      <TabStripContext.Provider value={strip}>
+        <TabCloseContext.Provider value={closeContext}>
+          <MuiAppBar
+            ref={ref}
+            position={position}
+            tier={tier}
+            data-region="app-bar"
+            role="banner"
+            {...other}
           >
-            <Stack data-region="left" direction="row" sx={leftSx}>
-              {primary && (
-                <BrandingRegion data-region="branding" data-component="Branding" sx={brandingSx}>
-                  <BrandingLockup data-region="branding-lockup" sx={lockupSx}>
-                    <Box data-region="branding-container" sx={brandingContainerSx}>
-                      <Box data-region="branding-logo" sx={logoSx}>
-                        {logo ? (
-                          <span
-                            className={`tecton-appbar-icon tecton-${logo}`}
-                            aria-hidden="true"
-                          />
-                        ) : logoSrc ? (
-                          <Box component="img" src={logoSrc} alt={appName} sx={logoImageSx} />
-                        ) : (
-                          <LogoPlaceholder sx={placeholderSx} />
-                        )}
-                      </Box>
-                      <Box data-region="branding-name" sx={brandingNameSx}>
-                        <Typography variant="caption">{appName}</Typography>
-                      </Box>
-                    </Box>
-                  </BrandingLockup>
-                </BrandingRegion>
-              )}
-              <Tabs
-                ref={tabsRef}
-                value={activeTab}
-                variant="scrollable"
-                scrollButtons
-                data-region="tabs"
-                onChange={handleChange}
-                slots={tabsSlots}
-                sx={tabsSx}
-              >
-                {primary &&
-                  fixedTabs.map((tab) => (
-                    <Tab
-                      key={tab.id}
-                      aria-label={tab.label ?? tab.id}
-                      component="div"
-                      disabled={tab.disabled}
-                      icon={
-                        <span className={iconClass(tab.icon!, activeTab === tab.id)} aria-hidden />
-                      }
-                      sx={fixedTabSx}
-                      value={tab.id}
-                    />
-                  ))}
-                {tabs.map(({ id, label, icon, disabled, closeable = true, tags }) => {
-                  const active = activeTab === id;
-                  const canClose = closeable && active && !disabled;
-                  return (
-                    <Tab
-                      key={id}
-                      value={id}
-                      component="div"
-                      disabled={disabled}
-                      sx={tabSx}
-                      aria-keyshortcuts={canClose ? 'Delete' : undefined}
-                      onKeyDown={
-                        canClose
-                          ? (event: React.KeyboardEvent) => {
-                              if (
-                                (event.key === 'Delete' || event.key === 'Backspace') &&
-                                event.target === event.currentTarget
-                              ) {
-                                event.preventDefault();
-                                close(event, id);
-                              }
-                            }
-                          : undefined
-                      }
-                      label={
-                        <>
-                          <Box data-region="tab-label" sx={tabLabelSx}>
-                            {icon && (
-                              <span className={iconClass(icon, active)} aria-hidden="true" />
-                            )}
-                            <Typography variant="caption">{label}</Typography>
-                          </Box>
-                          {tags?.map((tag) => (
-                            <Chip key={tag} label={tag} size="small" clickable={false} />
-                          ))}
-                          {closeable && (
-                            <Box aria-hidden sx={closeSlotSx} {...(active && closeSlotProps)} />
+            <Toolbar
+              disableGutters
+              variant="dense"
+              sx={primary ? toolbarSxPrimary : toolbarSxSecondary}
+            >
+              <Stack data-region="left" direction="row" sx={leftSx}>
+                {primary && (
+                  <BrandingRegion data-region="branding" data-component="Branding" sx={brandingSx}>
+                    <BrandingLockup data-region="branding-lockup" sx={lockupSx}>
+                      <Box data-region="branding-container" sx={brandingContainerSx}>
+                        <Box data-region="branding-logo" sx={logoSx}>
+                          {logo ? (
+                            <span
+                              className={`tecton-appbar-icon tecton-${logo}`}
+                              aria-hidden="true"
+                            />
+                          ) : logoSrc ? (
+                            <Box component="img" src={logoSrc} alt={appName} sx={logoImageSx} />
+                          ) : (
+                            <LogoPlaceholder sx={placeholderSx} />
                           )}
-                        </>
-                      }
-                    />
-                  );
-                })}
-              </Tabs>
-              {showAdd && (
-                <IconButton aria-label="Add tab" onClick={handleAdd}>
-                  <span className="tecton-add-outline" aria-hidden />
-                </IconButton>
-              )}
-            </Stack>
-            <Box data-region="right" data-slot="actions" sx={actionsSx}>
-              {children}
-            </Box>
-          </Toolbar>
-        </MuiAppBar>
-      </TabCloseContext.Provider>
+                        </Box>
+                        <Box data-region="branding-name" sx={brandingNameSx}>
+                          <Typography variant="caption">{appName}</Typography>
+                        </Box>
+                      </Box>
+                    </BrandingLockup>
+                  </BrandingRegion>
+                )}
+                <ThemeProvider theme={instantScrollTheme}>
+                  <Tabs
+                    ref={tabsRef}
+                    value={activeTab}
+                    variant="scrollable"
+                    scrollButtons
+                    data-region="tabs"
+                    onChange={handleChange}
+                    slots={tabsSlots}
+                    sx={tabsSx}
+                  >
+                    {primary &&
+                      fixedTabs.map((tab) => (
+                        <Tab
+                          key={tab.id}
+                          aria-label={tab.label ?? tab.id}
+                          component="div"
+                          disabled={tab.disabled}
+                          icon={
+                            <span
+                              className={iconClass(tab.icon!, activeTab === tab.id)}
+                              aria-hidden
+                            />
+                          }
+                          sx={fixedTabSx}
+                          value={tab.id}
+                        />
+                      ))}
+                    {tabs.map(({ id, label, icon, disabled, closeable = true, tags }) => {
+                      const active = activeTab === id;
+                      const canClose = closeable && active && !disabled;
+                      return (
+                        <Tab
+                          key={id}
+                          value={id}
+                          component="div"
+                          disabled={disabled}
+                          sx={tabSx}
+                          aria-keyshortcuts={canClose ? 'Delete' : undefined}
+                          onKeyDown={
+                            canClose
+                              ? (event: React.KeyboardEvent) => {
+                                  if (
+                                    (event.key === 'Delete' || event.key === 'Backspace') &&
+                                    event.target === event.currentTarget
+                                  ) {
+                                    event.preventDefault();
+                                    close(event, id);
+                                  }
+                                }
+                              : undefined
+                          }
+                          label={
+                            <>
+                              <Box data-region="tab-label" sx={tabLabelSx}>
+                                {icon && (
+                                  <span className={iconClass(icon, active)} aria-hidden="true" />
+                                )}
+                                <Typography variant="caption">{label}</Typography>
+                              </Box>
+                              {tags?.map((tag) => (
+                                <Chip key={tag} label={tag} size="small" clickable={false} />
+                              ))}
+                              {closeable && (
+                                <Box aria-hidden sx={closeSlotSx} {...(active && closeSlotProps)} />
+                              )}
+                            </>
+                          }
+                        />
+                      );
+                    })}
+                  </Tabs>
+                </ThemeProvider>
+                {showAdd && (
+                  <IconButton aria-label="Add tab" onClick={handleAdd}>
+                    <span className="tecton-add-outline" aria-hidden />
+                  </IconButton>
+                )}
+              </Stack>
+              <Box data-region="right" data-slot="actions" sx={actionsSx}>
+                {children}
+              </Box>
+            </Toolbar>
+          </MuiAppBar>
+        </TabCloseContext.Provider>
+      </TabStripContext.Provider>
     );
   },
 );

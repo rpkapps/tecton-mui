@@ -1,9 +1,16 @@
 import * as React from 'react';
-import { renderHook } from '@testing-library/react';
+import { act, fireEvent, render, renderHook, screen } from '@testing-library/react';
+import { useScrollButtonCompensation } from '../useScrollButtonCompensation.js';
 import {
-  useKeepSelectedTabInView,
-  useScrollButtonCompensation,
-} from '../useScrollButtonCompensation.js';
+  createTabStripStore,
+  instantScrollTheme,
+  revealSelectedTab,
+  TabStripContext,
+  TabStripScrollButton,
+  useTabStrip,
+  type TabStripStore,
+} from '../tabStrip.js';
+import type { Theme } from '@mui/material/styles';
 
 // jsdom has no layout: the tests give the strip its geometry by hand.
 
@@ -37,10 +44,13 @@ function makeStrip({ rtl = false } = {}): Strip {
   end.className = 'MuiTabs-scrollButtons';
   scroller.className = 'MuiTabs-scroller';
   if (rtl) scroller.style.direction = 'rtl';
+  const list = document.createElement('div');
+  list.setAttribute('role', 'tablist');
   const tab = document.createElement('div');
   tab.setAttribute('role', 'tab');
   tab.setAttribute('aria-selected', 'true');
-  scroller.append(tab);
+  list.append(tab);
+  scroller.append(list);
   root.append(start, scroller, end);
   document.body.append(root);
   let scrollLeft = 0;
@@ -50,6 +60,9 @@ function makeStrip({ rtl = false } = {}): Strip {
       scrollLeft = v;
     },
   });
+  scroller.scrollBy = ((options: ScrollToOptions) => {
+    scrollLeft += options.left ?? 0;
+  }) as typeof scroller.scrollBy;
   Object.defineProperty(scroller, 'scrollWidth', { value: 1000, configurable: true });
   Object.defineProperty(scroller, 'clientWidth', { value: 200, configurable: true });
   scroller.getBoundingClientRect = () => rect(100, 200);
@@ -61,24 +74,11 @@ function setWidth(el: HTMLElement, width: number) {
   el.style.width = `${width}px`;
 }
 
-let frames: FrameRequestCallback[] = [];
-const flushFrames = (count = 2) => {
-  for (let i = 0; i < count; i += 1) {
-    const queue = frames;
-    frames = [];
-    queue.forEach((cb) => cb(0));
-  }
-};
 let observers: { cb: ResizeObserverCallback; targets: Element[] }[] = [];
 const fireResize = () => observers.forEach((o) => o.cb([], {} as ResizeObserver));
 
 beforeEach(() => {
-  frames = [];
   observers = [];
-  vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => frames.push(cb));
-  vi.stubGlobal('cancelAnimationFrame', () => {
-    frames = [];
-  });
   vi.stubGlobal(
     'ResizeObserver',
     class {
@@ -102,112 +102,197 @@ afterEach(() => {
   document.body.innerHTML = '';
 });
 
-describe('useKeepSelectedTabInView', () => {
+describe('createTabStripStore', () => {
+  it('enables an arrow exactly while the strip can scroll its way (LTR)', () => {
+    const strip = makeStrip(); // scrollWidth 1000, clientWidth 200: max 800
+    const store = createTabStripStore();
+    const listener = vi.fn();
+    store.subscribe(listener);
+    const detach = store.attach(strip.scroller);
+    expect(store.getSnapshot()).toBe(2); // at the start: only right
+    strip.scroller.scrollLeft = 400;
+    strip.scroller.dispatchEvent(new Event('scroll'));
+    expect(store.getSnapshot()).toBe(3);
+    strip.scroller.scrollLeft = 799.5; // within a pixel of the end counts as the end
+    store.measure();
+    expect(store.getSnapshot()).toBe(1);
+    expect(listener).toHaveBeenCalledTimes(3);
+    store.measure();
+    expect(listener).toHaveBeenCalledTimes(3); // no change, no notification
+    detach();
+    strip.scroller.scrollLeft = 0;
+    strip.scroller.dispatchEvent(new Event('scroll'));
+    expect(store.getSnapshot()).toBe(1);
+  });
+
+  it('maps start and end to the physical sides in RTL', () => {
+    const strip = makeStrip({ rtl: true });
+    const store = createTabStripStore();
+    store.attach(strip.scroller);
+    expect(store.getSnapshot()).toBe(1); // at the start (right): can scroll left only
+    strip.scroller.scrollLeft = -800;
+    store.measure();
+    expect(store.getSnapshot()).toBe(2);
+  });
+
+  it('has no arrows when the tabs fit', () => {
+    const strip = makeStrip();
+    Object.defineProperty(strip.scroller, 'scrollWidth', { value: 200, configurable: true });
+    const store = createTabStripStore();
+    store.attach(strip.scroller);
+    expect(store.getSnapshot()).toBe(0);
+  });
+
+  it('re-measures when tabs are added', async () => {
+    const strip = makeStrip();
+    Object.defineProperty(strip.scroller, 'scrollWidth', { value: 200, configurable: true });
+    const store = createTabStripStore();
+    store.attach(strip.scroller);
+    Object.defineProperty(strip.scroller, 'scrollWidth', { value: 600, configurable: true });
+    strip.scroller.querySelector('[role="tablist"]')!.append(document.createElement('div'));
+    await Promise.resolve();
+    expect(store.getSnapshot()).toBe(2);
+  });
+
+  it('scrolls one page of whole tabs per arrow click, as MUI does', () => {
+    const strip = makeStrip();
+    const list = strip.scroller.querySelector('[role="tablist"]')!;
+    for (const width of [80, 90, 100]) {
+      const tab = document.createElement('div');
+      Object.defineProperty(tab, 'clientWidth', { value: width });
+      list.append(tab);
+    }
+    Object.defineProperty(strip.tab, 'clientWidth', { value: 0, configurable: true });
+    const store = createTabStripStore();
+    store.scrollPage('right'); // not attached: nothing to scroll
+    store.attach(strip.scroller);
+    store.scrollPage('right');
+    expect(strip.scroller.scrollLeft).toBe(170); // 0 + 80 + 90 fit in 200
+    store.scrollPage('left');
+    expect(strip.scroller.scrollLeft).toBe(0);
+    Object.defineProperty(strip.tab, 'clientWidth', { value: 500, configurable: true });
+    store.scrollPage('right'); // a first tab wider than the strip: one strip width
+    expect(strip.scroller.scrollLeft).toBe(200);
+  });
+});
+
+describe('revealSelectedTab', () => {
+  it('aligns the end edge of a tab past the end', () => {
+    const strip = makeStrip();
+    strip.tab.getBoundingClientRect = () => rect(250, 100); // 50px past the end (300)
+    revealSelectedTab(strip.scroller);
+    expect(strip.scroller.scrollLeft).toBe(50);
+  });
+
+  it('aligns the start edge of a tab past the start, or of a tab wider than the strip', () => {
+    const strip = makeStrip();
+    strip.scroller.scrollLeft = 100;
+    strip.tab.getBoundingClientRect = () => rect(70, 60);
+    revealSelectedTab(strip.scroller);
+    expect(strip.scroller.scrollLeft).toBe(70);
+    strip.tab.getBoundingClientRect = () => rect(120, 300);
+    revealSelectedTab(strip.scroller);
+    expect(strip.scroller.scrollLeft).toBe(90);
+  });
+
+  it('honours scroll-padding like MUI, and leaves a visible tab alone', () => {
+    const strip = makeStrip();
+    strip.scroller.style.scrollPaddingRight = '10%'; // 20px of 200
+    strip.tab.getBoundingClientRect = () => rect(150, 140); // ends at 290 > 280
+    revealSelectedTab(strip.scroller);
+    expect(strip.scroller.scrollLeft).toBe(10);
+    strip.scroller.style.scrollPaddingRight = '';
+    strip.tab.getBoundingClientRect = () => rect(150, 100);
+    revealSelectedTab(strip.scroller);
+    expect(strip.scroller.scrollLeft).toBe(10);
+    strip.tab.removeAttribute('aria-selected');
+    revealSelectedTab(strip.scroller);
+    expect(strip.scroller.scrollLeft).toBe(10);
+  });
+});
+
+describe('useTabStrip', () => {
   const mount = (strip: Strip, selected: string | null = 'a', count = 1) =>
-    renderHook(({ sel, n }) => useKeepSelectedTabInView({ current: strip.root }, sel, n), {
+    renderHook(({ sel, n }) => useTabStrip({ current: strip.root }, sel, n), {
       initialProps: { sel: selected, n: count },
     });
 
-  it('scrolls the rest of a tab hidden past the end into view, once the strip settles', () => {
+  it('leaves the first render to MUI, then reveals the selected tab when it changes', () => {
     const strip = makeStrip();
-    strip.scroller.scrollLeft = 378;
-    strip.tab.getBoundingClientRect = () => rect(200, 139.6); // right edge 339.6 > 300
-    mount(strip);
-    flushFrames(1);
-    expect(strip.scroller.scrollLeft).toBe(378); // not settled yet
-    flushFrames(1);
-    expect(strip.scroller.scrollLeft).toBe(378 + 40);
+    strip.tab.getBoundingClientRect = () => rect(250, 100);
+    const hook = mount(strip);
+    expect(strip.scroller.scrollLeft).toBe(0);
+    hook.rerender({ sel: 'b', n: 1 });
+    expect(strip.scroller.scrollLeft).toBe(50);
+    expect(hook.result.current.getSnapshot()).toBe(3);
   });
 
-  it('scrolls a tab hidden past the start into view', () => {
-    const strip = makeStrip();
-    strip.scroller.scrollLeft = 100;
-    strip.tab.getBoundingClientRect = () => rect(80, 60);
-    mount(strip);
-    flushFrames();
-    expect(strip.scroller.scrollLeft).toBe(80);
-  });
-
-  it('uses the reading direction in RTL', () => {
-    const strip = makeStrip({ rtl: true });
-    strip.scroller.scrollLeft = -378;
-    strip.tab.getBoundingClientRect = () => rect(60, 100); // past the left (end) edge by 40
-    mount(strip);
-    flushFrames();
-    expect(strip.scroller.scrollLeft).toBe(-418);
-    strip.tab.getBoundingClientRect = () => rect(250, 100); // past the right (start) edge by 50
-    fireResize();
-    flushFrames();
-    expect(strip.scroller.scrollLeft).toBe(-368);
-  });
-
-  it('waits while the strip keeps scrolling (MUI animation) and checks again on resize', () => {
+  it('reveals it again when the strip changes size (an arrow shows), until the user moves it', () => {
     const strip = makeStrip();
     strip.tab.getBoundingClientRect = () => rect(150, 100);
-    mount(strip);
-    flushFrames(1);
-    strip.scroller.dispatchEvent(new Event('scroll'));
-    flushFrames(1);
-    expect(strip.scroller.scrollLeft).toBe(0);
-    // The end arrow appears: the strip narrows and the tab is now past its end.
-    strip.scroller.getBoundingClientRect = () => rect(100, 120);
-    fireResize();
-    flushFrames();
+    const hook = mount(strip);
+    hook.rerender({ sel: 'a', n: 2 }); // a tab was added
+    strip.scroller.getBoundingClientRect = () => rect(100, 120); // narrowed by an arrow
+    act(() => fireResize());
+    expect(strip.scroller.scrollLeft).toBe(30);
+    strip.root.dispatchEvent(new Event('pointerdown', { bubbles: true }));
+    strip.scroller.getBoundingClientRect = () => rect(100, 100);
+    act(() => fireResize());
     expect(strip.scroller.scrollLeft).toBe(30);
   });
 
-  it('stops when the user moves the strip, so it never fights them', () => {
+  it('does nothing without a selection or a strip', () => {
     const strip = makeStrip();
     strip.tab.getBoundingClientRect = () => rect(250, 100);
-    mount(strip);
-    strip.root.dispatchEvent(new Event('pointerdown', { bubbles: true }));
-    flushFrames();
-    fireResize();
-    flushFrames();
+    const hook = mount(strip, null);
+    hook.rerender({ sel: null, n: 2 });
     expect(strip.scroller.scrollLeft).toBe(0);
+    const empty = renderHook(({ n }) => useTabStrip({ current: null }, 'a', n), {
+      initialProps: { n: 1 },
+    });
+    empty.rerender({ n: 2 });
+  });
+});
+
+describe('TabStripScrollButton', () => {
+  function renderButtons(store: TabStripStore | null) {
+    return render(
+      <TabStripContext.Provider value={store}>
+        <TabStripScrollButton direction="left" orientation="horizontal" aria-label="left" />
+        <TabStripScrollButton direction="right" orientation="horizontal" aria-label="right" />
+      </TabStripContext.Provider>,
+    );
+  }
+
+  it('is enabled only toward a side the strip can scroll, and scrolls a page when clicked', () => {
+    const strip = makeStrip();
+    const store = createTabStripStore();
+    store.attach(strip.scroller);
+    const scrollPage = vi.spyOn(store, 'scrollPage');
+    renderButtons(store);
+    expect(screen.getByLabelText('left')).toHaveClass('Mui-disabled');
+    expect(screen.getByLabelText('right')).not.toHaveClass('Mui-disabled');
+    fireEvent.click(screen.getByLabelText('right'));
+    expect(scrollPage).toHaveBeenCalledWith('right');
+    strip.scroller.scrollLeft = 800;
+    act(() => store.measure());
+    expect(screen.getByLabelText('left')).not.toHaveClass('Mui-disabled');
+    expect(screen.getByLabelText('right')).toHaveClass('Mui-disabled');
   });
 
-  it('has no time limit: a late resize still reveals the tab', () => {
-    let now = 0;
-    vi.spyOn(performance, 'now').mockImplementation(() => now);
-    const strip = makeStrip();
-    strip.tab.getBoundingClientRect = () => rect(150, 100);
-    mount(strip);
-    flushFrames();
-    now = 10_000;
-    strip.tab.getBoundingClientRect = () => rect(250, 100);
-    fireResize();
-    flushFrames();
-    expect(strip.scroller.scrollLeft).toBe(50);
+  it('is disabled outside an app bar strip', () => {
+    renderButtons(null);
+    expect(screen.getByLabelText('left')).toHaveClass('Mui-disabled');
+    fireEvent.click(screen.getByLabelText('left'));
   });
+});
 
-  it('stops listening when unmounted', () => {
-    const strip = makeStrip();
-    const hook = mount(strip);
-    hook.unmount();
-    expect(observers).toHaveLength(0);
-  });
-
-  it('restarts when the selection or the number of tabs changes', () => {
-    const strip = makeStrip();
-    strip.tab.getBoundingClientRect = () => rect(150, 100);
-    const hook = mount(strip);
-    flushFrames();
-    strip.tab.getBoundingClientRect = () => rect(250, 100);
-    hook.rerender({ sel: 'b', n: 2 });
-    flushFrames();
-    expect(strip.scroller.scrollLeft).toBe(50);
-  });
-
-  it('does nothing without a selection, a selected tab or a strip', () => {
-    const strip = makeStrip();
-    mount(strip, null);
-    strip.tab.removeAttribute('aria-selected');
-    mount(strip, 'a');
-    flushFrames();
-    expect(strip.scroller.scrollLeft).toBe(0);
-    renderHook(() => useKeepSelectedTabInView({ current: null }, 'a', 1));
-    renderHook(() => useKeepSelectedTabInView(React.createRef(), 'a', 1));
+describe('instantScrollTheme', () => {
+  it('turns off MUI animations for the strip only', () => {
+    const outer = { palette: {}, motion: { reducedMotion: 'system' } } as unknown as Theme;
+    const theme = instantScrollTheme(outer);
+    expect(theme.motion.reducedMotion).toBe('always');
+    expect(outer.motion.reducedMotion).toBe('system');
   });
 });
 
@@ -217,13 +302,10 @@ describe('useScrollButtonCompensation', () => {
     setWidth(strip.start, 0);
     setWidth(strip.end, 40);
     renderHook(() => useScrollButtonCompensation({ current: strip.root }));
-    // At the start of the strip, the hidden start arrow's room is kept as scroll padding.
-    expect(strip.scroller.style.scrollPaddingRight).toBe('0px');
     strip.scroller.scrollLeft = 100;
     setWidth(strip.start, 40);
     fireResize();
     expect(strip.scroller.scrollLeft).toBe(140);
-    expect(strip.scroller.style.scrollPaddingRight).toBe('');
   });
 
   it('keeps the strip at its end when the end arrow appears there', () => {
