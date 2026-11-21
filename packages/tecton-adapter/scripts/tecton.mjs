@@ -6,7 +6,7 @@
 import { createHash } from 'node:crypto';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { syncUmd, loadUmd } from '../src/source-umd/index.mjs';
 import { loadNpm } from '../src/source-npm/index.mjs';
@@ -20,6 +20,8 @@ const config = JSON.parse(await readFile(join(root, 'tecton.config.json'), 'utf8
 const vendorDir = join(root, 'vendor', config.version);
 
 const sha256 = (buf) => createHash('sha256').update(buf).digest('hex');
+// Path relative to packages/ui with `/` separators, so GENERATED.json is the same on every platform.
+const uiPath = (file) => relative(uiRoot, file).split(sep).join('/');
 
 async function loadSource() {
   if (config.source === 'umd') return loadUmd({ config, vendorDir });
@@ -32,8 +34,7 @@ function outputs(theme) {
   for (const [p, c] of Object.entries(theme.modules)) out.set(join(generatedDir, p), c);
   for (const [p, c] of Object.entries(theme.assets)) out.set(join(assetsDir, p), c);
   const index = {};
-  for (const [file, content] of out)
-    index[file.slice(uiRoot.length + 1)] = sha256(Buffer.from(content));
+  for (const [file, content] of out) index[uiPath(file)] = sha256(Buffer.from(content));
   out.set(
     join(generatedDir, 'GENERATED.json'),
     JSON.stringify({ version: theme.version, files: index }, null, 2) + '\n',
@@ -60,7 +61,7 @@ async function check() {
   const stale = [];
   for (const [file, content] of outputs(theme)) {
     if (!existsSync(file) || !Buffer.from(content).equals(await readFile(file))) {
-      stale.push(file.slice(uiRoot.length + 1));
+      stale.push(uiPath(file));
     }
   }
   if (stale.length) {
