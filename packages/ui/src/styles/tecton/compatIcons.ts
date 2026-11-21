@@ -192,7 +192,9 @@ export const iconCompatOverrides: NonNullable<ThemeOptions['components']> = {
   MuiAlert: { defaultProps: { slots: { closeIcon: tectonIcon('tecton-close-outline') } } },
   MuiSpeedDialIcon: {
     defaultProps: {
-      icon: React.createElement('span', { className: 'tecton-add-outline', 'aria-hidden': true }),
+      // SpeedDialIcon clones the icon with its own className, which would replace a plain span's
+      // glyph class; the slot component merges the classes.
+      icon: React.createElement(tectonIcon('tecton-add-outline')),
     },
   },
 } as NonNullable<ThemeOptions['components']>;
