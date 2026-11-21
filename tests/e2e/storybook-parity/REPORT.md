@@ -139,6 +139,13 @@ Slots, Slots with changing content, Live attributes, Playground) are pixel-ident
   IntersectionObserver can leave both arrows on although the tabs fit, in the drop-in and in ours.
   `settle` also waits until every tab strip has stopped scrolling (the selected tab is scrolled into
   view by a JavaScript animation).
+- **Scroll arrows and scroll-into-view (intended difference):** the React bar's arrows follow the
+  strip's scroll position, and the selected tab is scrolled into view during the render that selects
+  or adds it (`AppBar/tabStrip.tsx`); MUI's own scroll animation is turned off for the strip. The
+  drop-in's arrows follow MUI's IntersectionObserver, which can lag or miss updates (a start arrow at
+  the start, an end arrow at the end, an added tab left under the end arrow). The Overflow story
+  therefore allows 0.1 %: the drop-in sometimes shows that stray start arrow; the React bar never
+  does. Every other story is pixel-identical.
 - **Keyboard (intended differences):** Delete or Backspace closes the active tab, and focus moves to
   the newly active tab when the focused tab, its close button or the add button is removed. The
   drop-in ignores Delete and leaves focus on the document body. Covered by
