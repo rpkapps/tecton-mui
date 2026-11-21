@@ -17,6 +17,22 @@ therefore not fatal. Read them, especially after dependency changes
 The workspace packages are listed in `pnpm-workspace.yaml`: `packages/*`, `apps/*`,
 `tooling/bundle-tests/fixture` and `tests/e2e/harness`.
 
+### Line endings
+
+`.gitattributes` keeps every text file LF in the working tree on every platform
+(`* text=auto eol=lf`), whatever `core.autocrlf` is set to. Prettier and `pnpm inventory` write
+LF, and `pnpm tecton:check` compares raw bytes, so a CRLF checkout fails `pnpm format:check` and
+`pnpm tecton:check` and makes `pnpm inventory` rewrite every generated file. The vendored Tecton
+artifacts and the checksummed generator output (Tecton `emit`, `docs:sync`) are `-text`, so git
+never converts them, and fonts and images are `binary`. Add new byte-exact or binary paths there.
+
+A clone made before `.gitattributes` existed keeps its CRLF files until they are checked out again.
+Commit or stash your work first, because this discards uncommitted changes, then run once:
+
+```bash
+git rm -rq --cached . && git reset --hard
+```
+
 ## Day-to-day commands
 
 ```bash
