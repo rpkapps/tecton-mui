@@ -110,6 +110,38 @@ view sizing in the theme would diverge from MUI.
 - **Card media:** `images.unsplash.com` photos load on both sides, or on neither when the network
   blocks them.
 
+## Drop-ins: App Bar (`<wc-app-bar>` vs React `AppBar`)
+
+The drop-in Storybook (`https://d1md5uq86jnv53.cloudfront.net/lmk/webframework/apps/storybook/1.1.0/`,
+"Drop-ins / App Bar") renders the `<wc-app-bar>` web component, which bundles MUI 9 and takes its
+theme from the same Tecton 0.11.2 UMD. Its story module was decompiled the same way. The web
+component renders MUI `AppBar`, `Toolbar`, `Tabs`, `Tab`, `Chip` and `IconButton` with the Tecton
+`MuiAppBar` overrides; `AppBar` with navigation props renders the same tree
+(`packages/ui/src/AppBar/AppBarNavigation.tsx`). The harness module
+`tests/e2e/harness/src/storybook/stories/DropInsAppBar.tsx` reproduces the story host page (event
+log, toasts, tab state) with the React component.
+
+All 11 stories (Primary, Figma variant, Secondary, Branding, Tab options, Tab limits, Overflow,
+Slots, Slots with changing content, Live attributes, Playground) are pixel-identical in both modes
+(0 differing pixels). `storybook-parity.spec.ts` runs all 22 comparisons.
+
+- **Scroll arrows:** Tecton's compat layer gives `Tabs` Tecton chevrons; the drop-in keeps MUI's
+  `KeyboardArrowLeft` / `KeyboardArrowRight` SVGs, so the app bar passes the same glyphs through
+  `slots`.
+- **Viewport captures:** these cases capture the viewport, not the full page. A full-page capture
+  briefly resizes the page; scrollable `Tabs` react to that resize (scroll arrows, scroll position)
+  at random on either side. The same happens without any capture under heavy load: MUI's
+  IntersectionObserver can leave both arrows on although the tabs fit, in the drop-in and in ours.
+  `settle` also waits until every tab strip has stopped scrolling (the selected tab is scrolled into
+  view by a JavaScript animation).
+- **Keyboard (intended differences):** Delete or Backspace closes the active tab, and focus moves to
+  the newly active tab when the focused tab, its close button or the add button is removed. The
+  drop-in ignores Delete and leaves focus on the document body. Covered by
+  `tests/e2e/app-bar.spec.ts`; no visual difference.
+- **Not changed (inherited from the drop-in):** axe reports `nested-interactive` (the close button
+  inside the tab) and `aria-required-children` (the `Tabs` root and its inner list both have
+  `role="tablist"`).
+
 ## Per-story results
 
 | Story id                                   | Result | Light diff % | Dark diff % | Cause / fix                                                                                                                     |
