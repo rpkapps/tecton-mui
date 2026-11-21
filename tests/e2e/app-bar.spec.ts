@@ -181,6 +181,9 @@ const stripState = (bar: Locator) =>
       maxScroll: scroller.scrollWidth - scroller.clientWidth,
       // Sub-pixel layout can leave a fraction of a pixel outside the strip.
       selectedVisible: tab.left >= box.left - 1 && tab.right <= box.right + 1,
+      // For the failure message: whether the tab can fit at all.
+      tabWidth: Math.round(tab.width),
+      stripWidth: Math.round(box.width),
     };
   });
 
@@ -201,10 +204,18 @@ test.describe('Tecton app bar: adding tabs to a full strip', () => {
         // heavy load its observer can miss an update, in the drop-in too.)
         await expect
           .poll(async () => {
-            const state = await stripState(bar);
-            return { endArrow: state.arrows[1], selectedVisible: state.selectedVisible };
+            const { arrows, selectedVisible, scrollLeft, maxScroll, tabWidth, stripWidth } =
+              await stripState(bar);
+            return {
+              endArrow: arrows[1],
+              selectedVisible,
+              scrollLeft,
+              maxScroll,
+              tabWidth,
+              stripWidth,
+            };
           })
-          .toEqual({ endArrow: 'd', selectedVisible: true });
+          .toEqual(expect.objectContaining({ endArrow: 'd', selectedVisible: true }));
       }
     });
   }

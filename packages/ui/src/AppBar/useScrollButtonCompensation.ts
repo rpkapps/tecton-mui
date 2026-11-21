@@ -42,8 +42,6 @@ export function useScrollButtonCompensation(tabsRef: React.RefObject<HTMLElement
 
 /** Two frames with no scroll: MUI's scroll-into-view animation sets `scrollLeft` every frame. */
 const SETTLE_FRAMES = 2;
-/** How long after a selection change the strip is watched. */
-const WATCH_MS = 1500;
 
 /**
  * Keeps the selected tab fully in view after it changes (selected, added or closed).
@@ -51,8 +49,10 @@ const WATCH_MS = 1500;
  * MUI scrolls the selected tab into view with the strip's width at that moment. When that scroll
  * makes the strip scrollable on its end side, the end arrow appears afterwards, narrows the strip by
  * its width, and the tab ends up partly hidden under it (every second added tab, in the drop-in
- * too). Once the strip has stopped scrolling, this scrolls the rest of the tab into view. Any
- * scrolling by the user (pointer, wheel, keyboard) ends the watch, so it never fights them.
+ * too). Whenever the strip has stopped scrolling or changed size (an arrow showed or hid, the
+ * tabs or the bar were resized), this scrolls the rest of the selected tab into view. It has no time
+ * limit, so a slow device gets the same result. Any input by the user in the strip (pointer, wheel,
+ * touch, keyboard) ends it until the next selection change, so it never fights them.
  */
 export function useKeepSelectedTabInView(
   tabsRef: React.RefObject<HTMLElement | null>,
@@ -65,7 +65,6 @@ export function useKeepSelectedTabInView(
     if (!root || !scroller || selected == null || typeof ResizeObserver === 'undefined') {
       return undefined;
     }
-    const until = performance.now() + WATCH_MS;
     let frame = 0;
     let quietFrames = 0;
     let active = true;
@@ -97,14 +96,9 @@ export function useKeepSelectedTabInView(
         return;
       }
       reveal();
-      if (performance.now() >= until) stop();
     };
     const restart = () => {
       if (!active) return;
-      if (performance.now() >= until) {
-        stop();
-        return;
-      }
       quietFrames = 0;
       if (!frame) frame = requestAnimationFrame(tick);
     };
@@ -117,6 +111,9 @@ export function useKeepSelectedTabInView(
       for (const type of USER_SCROLL_EVENTS) root.removeEventListener(type, stop, true);
     };
     observer.observe(scroller);
+    // Tab widths change with fonts, labels and tags.
+    const list = scroller.querySelector('[role="tablist"]');
+    if (list) observer.observe(list);
     scroller.addEventListener('scroll', restart, { passive: true });
     for (const type of USER_SCROLL_EVENTS) root.addEventListener(type, stop, true);
     restart();

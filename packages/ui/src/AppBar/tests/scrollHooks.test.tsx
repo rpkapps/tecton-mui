@@ -167,18 +167,24 @@ describe('useKeepSelectedTabInView', () => {
     expect(strip.scroller.scrollLeft).toBe(0);
   });
 
-  it('stops watching after a while', () => {
+  it('has no time limit: a late resize still reveals the tab', () => {
     let now = 0;
     vi.spyOn(performance, 'now').mockImplementation(() => now);
     const strip = makeStrip();
     strip.tab.getBoundingClientRect = () => rect(150, 100);
     mount(strip);
-    now = 2000;
     flushFrames();
+    now = 10_000;
     strip.tab.getBoundingClientRect = () => rect(250, 100);
     fireResize();
     flushFrames();
-    expect(strip.scroller.scrollLeft).toBe(0);
+    expect(strip.scroller.scrollLeft).toBe(50);
+  });
+
+  it('stops listening when unmounted', () => {
+    const strip = makeStrip();
+    const hook = mount(strip);
+    hook.unmount();
     expect(observers).toHaveLength(0);
   });
 
