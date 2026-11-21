@@ -186,6 +186,14 @@ Written by `emit` and listed with checksums in
     renders the rows in view, so the stripes followed the first rendered row and flipped while
     scrolling (also when a horizontal scroll re-rendered the window). `applyThemeCompat` moves the
     Tecton stripe style to `.TectonDataGrid-row--odd`, which the DataGrid sets by row index.
+  - **Data Grid popups and footer:** MUI X paints panels in its own overlay color (in dark mode the
+    paper mixed with 10% white, a gray that is not a Tecton color) with an elevation-8 shadow, and
+    the slot icons in the search fields are 1em of the 12px input text. The correction uses the
+    surfaces of the Tecton drop-in menus (filter panel `color-bg-paper`, columns panel
+    `color-surface-elevation-2-bg`, column menu `color-action-secondary-bg` with 32px items and
+    14px icons, no shadows), 20px (`icon-size-150`) search icons, and the drop-in table footer
+    colors (`color-text-secondary` text, `color-action-tertiary-text` pagination arrows).
+    `tests/e2e/datagrid-tecton-colors.spec.ts` checks every value against the tokens in both modes.
   - **Outlined input notch:** Tecton labels sit statically above the field. TextField keeps the
     outline closed by forcing `shrink: false`, but a `Select` or `OutlinedInput` with a `label`
     still cut a gap in the top border. The correction defaults `MuiOutlinedInput` `notched` to

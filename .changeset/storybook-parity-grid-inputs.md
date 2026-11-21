@@ -12,5 +12,5 @@ DataGrid and input fixes from the Tecton Storybook comparison:
 - An outlined `Select` (or `OutlinedInput`) with a `label` keeps its top border closed, like the
   Tecton TextField.
 - `Icon` paints its glyph in the content box, so padding on an icon no longer enlarges the glyph.
-- The DataGrid filter and columns panels use outlined inputs with a closed border and a secondary
-  text color delete icon, as in the Tecton drop-in filter and column menus.
+- The DataGrid filter and columns panels use outlined inputs with a closed border, as in the Tecton
+  drop-in filter and column menus.

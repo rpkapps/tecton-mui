@@ -188,7 +188,6 @@ export function MultiFilterPanel() {
           '& .MuiDataGrid-filterForm': { alignItems: 'flex-start' },
           '& .MuiDataGrid-filterForm .MuiInputLabel-root:empty::before': { content: '"\\200B"' },
           '& .MuiDataGrid-filterFormDeleteIcon': {
-            '& .MuiIconButton-root': { color: cssVar('color-text-secondary') },
             marginTop: `calc(${cssVar('line-height-small')} + ${cssVar('space-50')})`,
           },
         }}

@@ -25,6 +25,12 @@ const menuListBottomPadding = {
   },
 };
 
+// The search icon of the quick filter and the columns panel search. The slot icon is 1em of the
+// small input text (12px); the Tecton drop-in menus draw it at 20px, like MUI's small SvgIcon.
+const searchAdornmentIcon = {
+  '& .MuiInputAdornment-root > [class*="tecton-"]': { fontSize: cssVar('icon-size-150') },
+};
+
 export const muiCompatOverrides: ThemeOptions = {
   components: {
     MuiDataGrid: {
@@ -78,7 +84,39 @@ export const muiCompatOverrides: ThemeOptions = {
         },
         footerContainer: {
           borderTop: `${cssVar('border-width-100')} solid ${cssVar('color-action-outlined-border')}`,
+          // Footer text and pagination arrows as in the Tecton table drop-in (TablePagination and
+          // the grid footer otherwise use the primary text colour).
+          color: cssVar('color-text-secondary'),
+          '& .MuiTablePagination-root': { color: cssVar('color-text-secondary') },
+          '& .MuiTablePagination-actions': { color: cssVar('color-action-tertiary-text') },
         },
+        // Grid popups as the Tecton drop-in menus draw them. MUI X paints panels in its own overlay
+        // color (in dark mode the paper mixed with 10% white, a gray Tecton does not have) with an
+        // elevation-8 shadow; Tecton popovers have no shadow.
+        panelContent: {
+          // Filter panel (drop-in filter menu): Tecton paper.
+          backgroundColor: cssVar('color-bg-paper'),
+          boxShadow: 'none',
+          borderRadius: cssVar('radius-50'),
+          // Columns panel (drop-in column menu): the elevation-2 popover surface.
+          '&:has(.MuiDataGrid-columnsManagement)': {
+            backgroundColor: cssVar('color-surface-elevation-2-bg'),
+          },
+          ...searchAdornmentIcon,
+        },
+        menu: {
+          '& .MuiPaper-root': { boxShadow: 'none' },
+          // Column menu (drop-in data grid menu): action/secondary surface, 32px items and icons
+          // at the item text size (14px, between the 12px and 16px icon tokens).
+          '& .MuiPaper-root:has(.MuiDataGrid-menuList)': {
+            backgroundColor: cssVar('color-action-secondary-bg'),
+          },
+          '& .MuiDataGrid-menuList .MuiMenuItem-root': { minHeight: cssVar('space-400') },
+          '& .MuiDataGrid-menuList .MuiListItemIcon-root [class*="tecton-"]': {
+            fontSize: cssVar('font-size-medium'),
+          },
+        },
+        toolbarQuickFilter: searchAdornmentIcon,
         // Header icons and title as in Tecton's table (the MUI Table drop-in in the Tecton
         // Storybook): Tecton's grid theme draws 24px sort icons in the action colour, leaves the
         // column menu button in MUI's default colour (black / white) and uses a regular-weight
