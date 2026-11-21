@@ -153,6 +153,73 @@ describe('ActionBar', () => {
     expect(zoom()).toHaveTextContent('100%');
   });
 
+  describe('horizontal group', () => {
+    function MapTools({ direction = 'ltr' }: { direction?: 'ltr' | 'rtl' }) {
+      return (
+        <ThemeProvider direction={direction}>
+          <ActionBar aria-label="Map tools" defaultValue="select">
+            <ActionBarGroup orientation="horizontal" aria-label="Map view">
+              <ActionBarSelect aria-label="Base map" variant="filled" defaultValue="terrain">
+                <MenuItem value="terrain">Terrain</MenuItem>
+                <MenuItem value="street">Street</MenuItem>
+              </ActionBarSelect>
+              <ActionBarSelect aria-label="Scale" variant="filled" defaultValue="25000">
+                <MenuItem value="25000">1:25,000</MenuItem>
+                <MenuItem value="50000">1:50,000</MenuItem>
+              </ActionBarSelect>
+            </ActionBarGroup>
+            <ActionBarGroup>
+              <ActionBarButton value="select" label="Select" icon={<Icon name="select-cursor" />} />
+              <ActionBarButton value="pan" label="Pan" icon={<Icon name="pan-tool" />} />
+            </ActionBarGroup>
+          </ActionBar>
+        </ThemeProvider>
+      );
+    }
+    const baseMap = () => screen.getByRole('combobox', { name: 'Base map' });
+    const scale = () => screen.getByRole('combobox', { name: 'Scale' });
+
+    it('lays its controls out in a row; Left and Right move along it, Up and Down along the bar', async () => {
+      const user = userEvent.setup();
+      render(<MapTools />);
+      const row = screen.getByRole('group', { name: 'Map view' });
+      expect(row).toHaveClass(actionBarClasses.group, actionBarClasses.groupHorizontal);
+      expect(getComputedStyle(row).flexDirection).toBe('row');
+      expect(screen.getAllByRole('group')[1]).not.toHaveClass(actionBarClasses.groupHorizontal);
+
+      await user.tab();
+      expect(baseMap()).toHaveFocus();
+      await user.keyboard('{ArrowRight}');
+      expect(scale()).toHaveFocus();
+      // The row does not wrap.
+      await user.keyboard('{ArrowRight}');
+      expect(scale()).toHaveFocus();
+      await user.keyboard('{ArrowLeft}');
+      expect(baseMap()).toHaveFocus();
+      await user.keyboard('{ArrowLeft}');
+      expect(baseMap()).toHaveFocus();
+      expect(screen.queryByRole('listbox')).toBeNull();
+
+      await user.keyboard('{ArrowDown}');
+      expect(scale()).toHaveFocus();
+      await user.keyboard('{ArrowDown}');
+      expect(button('Select')).toHaveFocus();
+      // Outside a row, Left and Right do not move.
+      await user.keyboard('{ArrowRight}{ArrowLeft}');
+      expect(button('Select')).toHaveFocus();
+    });
+
+    it('mirrors Left and Right in RTL', async () => {
+      const user = userEvent.setup();
+      render(<MapTools direction="rtl" />);
+      act(() => baseMap().focus());
+      await user.keyboard('{ArrowLeft}');
+      expect(scale()).toHaveFocus();
+      await user.keyboard('{ArrowRight}');
+      expect(baseMap()).toHaveFocus();
+    });
+  });
+
   it('makes a pressed tool current and calls onChange once per change', async () => {
     const user = userEvent.setup();
     const onChange = vi.fn();

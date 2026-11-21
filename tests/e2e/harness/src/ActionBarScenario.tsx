@@ -64,6 +64,19 @@ export function ActionBarScenario() {
           </ActionBarToolMenu>
         </ActionBarGroup>
       </ActionBar>
+      {/* Figma's double dropdown, with its "Value" placeholder text: two selects in one row. */}
+      <ActionBar aria-label="View tools" sx={{ position: 'absolute', top: 24, left: 240 }}>
+        <ActionBarGroup orientation="horizontal" aria-label="View">
+          <ActionBarSelect aria-label="Layer" defaultValue="value">
+            <MenuItem value="value">Value</MenuItem>
+            <MenuItem value="new">New Value</MenuItem>
+          </ActionBarSelect>
+          <ActionBarSelect aria-label="Style" variant="filled" defaultValue="value">
+            <MenuItem value="value">Value</MenuItem>
+            <MenuItem value="new">New Value</MenuItem>
+          </ActionBarSelect>
+        </ActionBarGroup>
+      </ActionBar>
     </Box>
   );
 }

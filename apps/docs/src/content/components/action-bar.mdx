@@ -51,6 +51,15 @@ below it, lined up on the bar's edge.
 
 <Demo name="ActionBarSelects" />
 
+## Two selects in a row
+
+Two settings that belong together, such as a base map and a scale, can share one group:
+`orientation="horizontal"` puts the group's controls side by side, with the same spacing as a
+stacked group. <kbd>←</kbd> and <kbd>→</kbd> move between them; <kbd>↓</kbd> and <kbd>↑</kbd> still
+move along the bar. Each select's menu opens below it.
+
+<Demo name="TwoSelectsActionBar" />
+
 ## Keyboard
 
 The bar is one tab stop. The control that held the focus last keeps it.
@@ -60,6 +69,7 @@ The bar is one tab stop. The control that held the focus last keeps it.
 | <kbd>Tab</kbd> / <kbd>Shift+Tab</kbd>     | Moves the focus into and out of the bar                               |
 | <kbd>↓</kbd> <kbd>↑</kbd>                 | Moves to the next or previous control (wrapping); skips disabled ones |
 | <kbd>Home</kbd> / <kbd>End</kbd>          | Moves to the first or last control                                    |
+| <kbd>←</kbd> <kbd>→</kbd> (in a row)      | Moves to the previous or next control of a horizontal group           |
 | <kbd>Enter</kbd> / <kbd>Space</kbd>       | Presses a button; opens a select                                      |
 | <kbd>→</kbd> (on a tool set)              | Opens its menu on the selected tool (<kbd>←</kbd> when it opens left) |
 | <kbd>Shift+F10</kbd> / context menu key   | Opens a tool set's menu                                               |
@@ -101,17 +111,19 @@ and `Select` styles, plus these Tecton tokens from the Figma component:
 | Current tool            | `color-action-tertiary-bg-active`, `color-action-tertiary-adornment-active` (the theme's activated state)     |
 | Tool set triangle       | `color-action-tertiary-adornment`; `color-action-tertiary-text-active` when hovered, focused, pressed or open |
 | Tooltip and menu offset | `space-25` from the button                                                                                    |
+| Tool icons in a menu    | `icon-size-150` (20px, as on the button)                                                                      |
+| Select value inset      | `space-50` from the edge (`space-150` filled)                                                                 |
 
 ## Parts
 
-| Part                | Renders                                       |
-| ------------------- | --------------------------------------------- |
-| `ActionBar`         | The toolbar (`div`)                           |
-| `ActionBarGroup`    | Bordered `Paper` holding related controls     |
-| `ActionBarButton`   | Square tertiary `IconButton` with a `Tooltip` |
-| `ActionBarToolMenu` | Tool set button with a `Tooltip` and a `Menu` |
-| `ActionBarTool`     | `MenuItem` with an icon (one tool of a set)   |
-| `ActionBarSelect`   | Compact `Select`                              |
+| Part                | Renders                                                                                     |
+| ------------------- | ------------------------------------------------------------------------------------------- |
+| `ActionBar`         | The toolbar (`div`)                                                                         |
+| `ActionBarGroup`    | Bordered `Paper` holding related controls, stacked or (`orientation="horizontal"`) in a row |
+| `ActionBarButton`   | Square tertiary `IconButton` with a `Tooltip`                                               |
+| `ActionBarToolMenu` | Tool set button with a `Tooltip` and a `Menu`                                               |
+| `ActionBarTool`     | `MenuItem` with an icon (one tool of a set)                                                 |
+| `ActionBarSelect`   | Compact `Select`                                                                            |
 
 The parts take `sx` and `className`. `ActionBarButton` and `ActionBarToolMenu` take the
 `IconButton` props (except `color`, `size` and `variant`, which the design fixes) and
