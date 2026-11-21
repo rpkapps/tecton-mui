@@ -4,6 +4,7 @@ export type {
   NumberFieldSlotProps,
   NumberFieldBaseProps,
   NumberFieldCommonSlotProps,
+  NumberFieldFilledInputSlotProps,
   NumberFieldHtmlInputSlotProps,
   NumberFieldInputSlotProps,
 } from './NumberField.js';

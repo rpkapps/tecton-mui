@@ -27,7 +27,7 @@ export default function MuiDocs() {
       </Heading>
       <M.p>
         {'If you need a custom SVG icon (not available in the '}
-        <M.a href={'https://mui.com/material-ui/material-icons/'}>{'Material Icons'}</M.a>
+        <M.a href={'/components/icon'}>{'Tecton icons'}</M.a>
         {') you can use the '}
         <M.code>{'SvgIcon'}</M.code>
         {' wrapper.\nThis component extends the native '}
@@ -108,9 +108,7 @@ export default function MuiDocs() {
       <M.p>
         {'The '}
         <M.code>{'createSvgIcon'}</M.code>
-        {' utility component is used to create the '}
-        <M.a href={'/components/svg-icon'}>{'Material Icons'}</M.a>
-        {'. It can be used to wrap an '}
+        {' utility component creates a reusable icon component. It can be used to wrap an '}
         <M.code>{'<svg>'}</M.code>
         {' element or an SVG path which is passed as a child to the '}
         <M.a href={'/components/svg-icon#svgicon'}>

@@ -12,11 +12,18 @@ Tecton theme styles them like the other fields. You do not need to copy any reci
 
 ## Number field
 
-`NumberField` is an outlined field with stacked increase and decrease buttons at its end. It accepts
-the familiar field props: `label`, `helperText`, `error`, `required`, `size`, `fullWidth`,
+`NumberField` is a field with stacked increase and decrease buttons at its end. It accepts the
+familiar field props: `label`, `helperText`, `error`, `required`, `size`, `variant`, `fullWidth`,
 `placeholder`, `sx` and `inputRef`.
 
 <Demo name="BasicNumberField" />
+
+## Variants
+
+Both components come in the `outlined` (default) and `filled` variants of `TextField`, so they can sit
+next to text fields of either style. In a filled `NumberSpinner`, the buttons share the input's fill.
+
+<Demo name="NumberFieldVariants" />
 
 ## Number spinner
 
@@ -72,7 +79,8 @@ or per key press), which is a good moment to save or validate.
 
 ## Customization
 
-- `slotProps.input` goes to the `OutlinedInput` (for example `startAdornment`), `slotProps.htmlInput`
+- `slotProps.input` goes to the `OutlinedInput`, or to the `FilledInput` when `variant="filled"`
+  (for example `startAdornment`), `slotProps.htmlInput`
   to the native `<input>`, and `slotProps.inputLabel` and `slotProps.formHelperText` to the label and
   helper text.
 - `slotProps.incrementButton` and `slotProps.decrementButton` reach the stepper buttons. Use them to
@@ -96,6 +104,6 @@ or per key press), which is a good moment to save or validate.
 ## Limitations
 
 - The components are not part of Material UI 9.5.0. Their props follow Base UI's number field plus the
-  Material field props listed above; `variant` and `multiline` are not supported.
+  Material field props listed above; the `standard` variant and `multiline` are not supported.
 - While scrubbing, the custom cursor uses the Pointer Lock API, which browsers may announce with a
   notification. Safari shows the regular cursor instead.

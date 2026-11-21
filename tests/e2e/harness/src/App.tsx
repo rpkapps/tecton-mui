@@ -36,6 +36,7 @@ import { PickerScenarios, TreeScenarios } from './AdvancedScenarios.js';
 import { StorybookScenario } from './storybook/StorybookScenario.js';
 import { MenubarScenario } from './MenubarScenario.js';
 import { ActionBarScenario } from './ActionBarScenario.js';
+import { NumberFieldScenario } from './NumberFieldScenario.js';
 
 const rows = Array.from({ length: 8 }, (_, i) => ({
   id: i + 1,
@@ -206,6 +207,8 @@ export function App({ scenario, rtl }: { scenario: string; rtl: boolean }) {
           <MenubarScenario />
         ) : scenario === 'action-bar' ? (
           <ActionBarScenario />
+        ) : scenario === 'number-field' ? (
+          <NumberFieldScenario />
         ) : scenario.startsWith('sb:') ? (
           <StorybookScenario id={scenario.slice(3)} />
         ) : null}

@@ -29,6 +29,36 @@ describe('NumberSpinner', () => {
     expect(input()).toHaveAttribute('size', '2');
   });
 
+  it('renders a filled spinner with variant="filled"', () => {
+    render(
+      <ThemeProvider theme={getDefaultTheme('light')}>
+        <NumberSpinner variant="filled" label="Crew" defaultValue={4} min={0} size="small" />
+      </ThemeProvider>,
+    );
+    const root = input().closest('.MuiFilledInput-root');
+    expect(root).toHaveClass('MuiInputBase-sizeSmall');
+    expect(root).not.toHaveClass('MuiFilledInput-underline');
+    expect(input().closest('.MuiOutlinedInput-root')).toBeNull();
+    // The buttons are text buttons on the filled background, not outlined buttons.
+    expect(increase()).toHaveClass('MuiButton-text', 'MuiButton-sizeSmall');
+    expect(decrease()).not.toHaveClass('MuiButton-outlined');
+    fireEvent.click(increase());
+    expect(input()).toHaveValue('5');
+  });
+
+  it('shows the error and disabled states in the filled variant', () => {
+    const { rerender } = render(
+      <NumberSpinner variant="filled" label="Count" error helperText="Required" />,
+    );
+    const filledRoot = () => input().closest('.MuiFilledInput-root');
+    expect(filledRoot()).toHaveClass('Mui-error');
+    expect(input()).toHaveAttribute('aria-invalid', 'true');
+    rerender(<NumberSpinner variant="filled" label="Count" disabled defaultValue={2} />);
+    expect(filledRoot()).toHaveClass('Mui-disabled');
+    expect(increase()).toHaveClass('Mui-disabled');
+    expect(decrease()).toBeDisabled();
+  });
+
   it('steps with the buttons and the keyboard, clamped to min and max', () => {
     const onValueChange = vi.fn();
     render(

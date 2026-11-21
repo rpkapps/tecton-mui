@@ -222,6 +222,12 @@ Written by `emit` and listed with checksums in
     outline closed by forcing `shrink: false`, but a `Select` or `OutlinedInput` with a `label`
     still cut a gap in the top border. The correction defaults `MuiOutlinedInput` `notched` to
     `false` (an explicit prop still wins).
+  - **Outlined input error outline on focus:** Tecton resets the outline of a pointer-focused input
+    with `.Mui-focused:not(.Tecton-focusVisible) .MuiOutlinedInput-notchedOutline`, which is more
+    specific than its `.Mui-error` outline rule, so an invalid TextField, Select or number field
+    lost its red outline while focused with the mouse (keyboard focus kept it). The correction
+    keeps `color-status-error-outline-border-strong` in every focus state;
+    `tests/e2e/number-field.spec.ts` checks the computed color.
   - **RichTreeView defaults:** Tecton themes only `MuiSimpleTreeView`. The correction makes
     `MuiRichTreeView` share the same theme entry.
 - `tecton/augmentations.ts` re-declares the Tecton prop augmentations (`activated`, `shape`,

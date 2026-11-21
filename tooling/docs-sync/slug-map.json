@@ -72,6 +72,7 @@
   "externalRoutes": {
     "/x/react-data-grid/": "/components/data-grid",
     "/x/react-date-pickers/": "/components/date-picker",
-    "/x/react-tree-view/": "/components/simple-tree-view"
+    "/x/react-tree-view/": "/components/simple-tree-view",
+    "/material-ui/material-icons/": "/components/icon"
   }
 }
