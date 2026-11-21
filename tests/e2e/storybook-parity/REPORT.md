@@ -127,12 +127,16 @@ component renders MUI `AppBar`, `Toolbar`, `Tabs`, `Tab`, `Chip` and `IconButton
 log, toasts, tab state) with the React component.
 
 All 11 stories (Primary, Figma variant, Secondary, Branding, Tab options, Tab limits, Overflow,
-Slots, Slots with changing content, Live attributes, Playground) are pixel-identical in both modes
-(0 differing pixels). `storybook-parity.spec.ts` runs all 22 comparisons.
+Slots, Slots with changing content, Live attributes, Playground) are compared in both modes; all
+but Overflow are pixel-identical (0 differing pixels), and Overflow differs only by the intended
+differences below. `storybook-parity.spec.ts` runs all 22 comparisons.
 
 - **Scroll arrows:** Tecton's compat layer gives `Tabs` Tecton chevrons; the drop-in keeps MUI's
   `KeyboardArrowLeft` / `KeyboardArrowRight` SVGs, so the app bar passes the same glyphs through
   `slots`.
+- **Scroll arrow width (intended difference):** the React bar's arrows are 48px wide, the width of
+  the Home (fixed tab) cell next to them; the drop-in keeps MUI's 40px. Only strips that overflow
+  show an arrow (the Overflow story, within its 0.1 % allowance).
 - **Viewport captures:** these cases capture the viewport, not the full page. A full-page capture
   briefly resizes the page; scrollable `Tabs` react to that resize (scroll arrows, scroll position)
   at random on either side. The same happens without any capture under heavy load: MUI's
@@ -140,12 +144,14 @@ Slots, Slots with changing content, Live attributes, Playground) are pixel-ident
   `settle` also waits until every tab strip has stopped scrolling (the selected tab is scrolled into
   view by a JavaScript animation).
 - **Scroll arrows and scroll-into-view (intended difference):** the React bar's arrows follow the
-  strip's scroll position, and the selected tab is scrolled into view during the render that selects
-  or adds it (`AppBar/tabStrip.tsx`); MUI's own scroll animation is turned off for the strip. The
-  drop-in's arrows follow MUI's IntersectionObserver, which can lag or miss updates (a start arrow at
-  the start, an end arrow at the end, an added tab left under the end arrow). The Overflow story
-  therefore allows 0.1 %: the drop-in sometimes shows that stray start arrow; the React bar never
-  does. Every other story is pixel-identical.
+  strip's scroll position, and the bar does all of its own scrolling (`AppBar/tabStrip.tsx`): an
+  arrow click, and bringing a selected or added tab into view, slide with MUI's duration (the theme's
+  `standard`, 300ms) and easing, towards a target recomputed every frame, so an arrow that shows or
+  hides on the way cannot leave the tab short. MUI's own writes to the strip's scroll position are
+  ignored. The drop-in's arrows follow MUI's IntersectionObserver, which can lag or miss updates (a
+  start arrow at the start, an end arrow at the end, an added tab left under the end arrow). The
+  Overflow story therefore allows 0.1 %: the drop-in sometimes shows that stray start arrow; the
+  React bar never does. Every other story is pixel-identical.
 - **Keyboard (intended differences):** Delete or Backspace closes the active tab, and focus moves to
   the newly active tab when the focused tab, its close button or the add button is removed. The
   drop-in ignores Delete and leaves focus on the document body. Covered by
