@@ -10,7 +10,7 @@ import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
 import { useTheme } from '@mui/material/styles';
 import { usePickerAdapter, usePickerTranslations } from '@mui/x-date-pickers/hooks';
-import { CalendarIcon, ClockIcon } from '@mui/x-date-pickers/icons';
+import { CalendarIcon, ClockIcon } from './icons.js';
 import clsx from 'clsx';
 import { DateRangeCalendar } from './DateRangeCalendar.js';
 import { DateTimeRangeView } from './DateTimeRangeView.js';

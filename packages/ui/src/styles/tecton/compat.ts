@@ -3,6 +3,7 @@
 import type { Theme, ThemeOptions } from '@mui/material/styles';
 import { focusRingShadow, slotIcon } from './generated/mui/components/shared.js';
 import { cssVar } from './generated/core/index.js';
+import { gridIconSlots, iconCompatOverrides, tablePaginationFirstLast } from './compatIcons.js';
 
 // Tecton sets `outline: none` on focused Data Grid cells and column headers and draws nothing
 // instead, so keyboard focus is invisible while navigating with the arrow keys (WCAG 2.4.7).
@@ -33,6 +34,8 @@ const searchAdornmentIcon = {
 
 export const muiCompatOverrides: ThemeOptions = {
   components: {
+    // Tecton icons for every MUI icon slot Tecton leaves on Material icons (compatIcons.ts).
+    ...iconCompatOverrides,
     MuiDataGrid: {
       // Tecton sets Tecton icons for the column header and column menu slots only, so the toolbar,
       // filter panel and density controls showed MUI's filled Material icons next to Tecton's
@@ -52,6 +55,7 @@ export const muiCompatOverrides: ThemeOptions = {
           moreActionsIcon: slotIcon('tecton-more-vert-outline'),
           undoIcon: slotIcon('tecton-undo-outline'),
           redoIcon: slotIcon('tecton-redo-outline'),
+          ...gridIconSlots,
         },
       },
       styleOverrides: {
@@ -257,6 +261,7 @@ export const muiCompatOverrides: ThemeOptions = {
           actions: {
             previousButtonIcon: slotIcon('tecton-chevron-left-outline'),
             nextButtonIcon: slotIcon('tecton-chevron-right-outline'),
+            ...tablePaginationFirstLast,
           },
         },
       },

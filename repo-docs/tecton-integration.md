@@ -208,6 +208,14 @@ Written by `emit` and listed with checksums in
   - **Grid toolbar badge:** Tecton offsets a top-right badge for a 32px icon button (top -10px,
     right -11px). In grid toolbars the dot badge wraps the 20px icon, so the correction puts it on
     the icon's corner with MUI's default placement.
+  - **Material icons:** Tecton maps only some icon slots to Tecton icons, so several components
+    still drew Material SVG icons (pickers, Pagination, TablePagination first/last, Tabs scroll
+    buttons, collapsed Breadcrumbs, Avatar fallback, Alert close, SpeedDial, Stepper
+    completed/error, DataGrid boolean cells and column separators). `compatIcons.ts` sets Tecton
+    icons for each slot from the theme. Tecton has no first/last page, horizontal "more" or clock
+    glyphs: first/last are two chevrons, "more" is the vertical glyph rotated, and the clock is
+    Tecton's `history` icon. `styles/tests/icons.test.tsx` checks that none of these components
+    render a Material SVG.
   - **Outlined input notch:** Tecton labels sit statically above the field. TextField keeps the
     outline closed by forcing `shrink: false`, but a `Select` or `OutlinedInput` with a `label`
     still cut a gap in the top border. The correction defaults `MuiOutlinedInput` `notched` to

@@ -105,7 +105,21 @@
       "package": "@mui/material",
       "source": "docs/data/material/components/transfer-list/transfer-list.md",
       "status": "included",
-      "target": "transfer-list"
+      "target": "transfer-list",
+      "demoEdits": {
+        "SelectAllTransferList": [
+          {
+            "find": "          <Checkbox\n            size=\"small\"\n",
+            "replace": "          <Checkbox\n",
+            "reason": "The list items draw medium (Tecton 20px) checkboxes; a small header checkbox next to them looked like a different control."
+          },
+          {
+            "find": "sx={{ px: 2, py: 0.5 }}",
+            "replace": "sx={{ px: 1.5, py: 0.5 }}",
+            "reason": "Line the header checkbox up with the item checkboxes: Tecton's dense menu items are padded 12px (space-150), not 16px."
+          }
+        ]
+      }
     },
     {
       "package": "@mui/material",

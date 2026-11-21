@@ -5,7 +5,7 @@ import Divider from '@mui/material/Divider';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import { usePickerAdapter, usePickerTranslations } from '@mui/x-date-pickers/hooks';
-import { CalendarIcon, ClockIcon } from '@mui/x-date-pickers/icons';
+import { CalendarIcon, ClockIcon } from './icons.js';
 import { DateRangeCalendar, type DateRangeCalendarProps } from './DateRangeCalendar.js';
 import type { PickerRangeValue, RangePosition, RangeSelectionState } from './models.js';
 import { TimeRangeView, type TimeRangeViewOptions } from './TimeRangeView.js';

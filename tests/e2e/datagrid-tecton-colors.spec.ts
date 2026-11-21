@@ -119,6 +119,12 @@ for (const mode of ['light', 'dark'] as const) {
           ...new Set(cells.map((c) => getComputedStyle(c).backgroundColor)),
         ]);
       expect(cellColors).toEqual([active]);
+      // No Material SVG icon anywhere in the grid (boolean cells, column separators, header).
+      expect(await root.locator('svg.MuiSvgIcon-root').count()).toBe(0);
+      // Boolean cells keep their accessible "yes" / "no" on the Tecton icon.
+      await expect(
+        root.locator('[data-field="producing"] [role="img"][aria-label]').first(),
+      ).toHaveAttribute('aria-label', /^(yes|no)$/);
       // The boolean header filter is a NativeSelect: Tecton chevron, not the Material triangle.
       const select = root.locator('.TectonDataGrid-headerFilterRow .MuiNativeSelect-icon');
       await expect(select).toHaveCount(1);

@@ -18,12 +18,14 @@ export interface MuiIconShimProps extends Omit<React.HTMLAttributes<HTMLSpanElem
   shapeRendering?: string;
 }
 
-// SvgIcon sizes (MUI): small 20px, medium 24px, large 35px.
+// Material sizes (small 20px, medium 24px, large 35px) mapped to Tecton's icon scale, so synced
+// examples use the same icon sizes as the rest of the library: small 16px, medium 20px,
+// large 24px. Tecton containers (IconButton, ListItemIcon, ...) still set their own sizes.
 const FONT_SIZE: Record<string, string> = {
   inherit: 'inherit',
-  small: '1.25rem',
-  medium: '1.5rem',
-  large: '2.1875rem',
+  small: 'var(--tecton-icon-size-100)',
+  medium: 'var(--tecton-icon-size-150)',
+  large: 'var(--tecton-icon-size-200)',
 };
 
 const COLOR: Record<string, string | undefined> = {
@@ -42,14 +44,32 @@ export type MuiIconShim = React.NamedExoticComponent<
   MuiIconShimProps & React.RefAttributes<HTMLSpanElement>
 > & { muiName: string };
 
-// Material's checkbox and radio glyphs sit inside their 24px box with a margin; Tecton's fill it.
-// Draw them at the size Tecton's own Checkbox and Radio use (20px for a 24px icon).
-const CONTROL_ICON_SCALE = 20 / 24;
-const isControlIcon = (name: string) => /^(checkbox|radio-button)/.test(name);
+// Material's checkbox and radio icons stand in for the controls in some examples (for example a
+// list item acting as a checkbox). Draw them exactly as Tecton's Checkbox and Radio draw their
+// icons (glyph, 20px with a 2px frame, state colours) and ignore the example's Material colours
+// and padding, so they match the real controls next to them.
+const CONTROL_ICONS: Record<string, { name: IconName; variant: IconVariant; color: string }> = {
+  CheckBox: { name: 'checkbox-checked', variant: 'filled', color: 'color-action-filled-bg-active' },
+  CheckBoxOutlineBlank: {
+    name: 'checkbox-unchecked',
+    variant: 'outline',
+    color: 'color-action-text-only-text',
+  },
+  IndeterminateCheckBox: {
+    name: 'checkbox-indeterminate',
+    variant: 'filled',
+    color: 'color-action-text-only-text-active',
+  },
+  RadioButtonChecked: { name: 'radio-button', variant: 'filled', color: 'color-action-filled-bg' },
+  RadioButtonUnchecked: {
+    name: 'radio-button',
+    variant: 'outline',
+    color: 'color-action-text-only-text',
+  },
+};
 
 export function createMuiIcon(name: IconName, variant: IconVariant, displayName: string) {
-  const scale = isControlIcon(name) ? CONTROL_ICON_SCALE : 1;
-  const base = (size: string) => (size === 'inherit' ? '1em' : (FONT_SIZE[size] ?? size));
+  const control = CONTROL_ICONS[displayName];
   const MuiIcon = React.forwardRef<HTMLSpanElement, MuiIconShimProps>(function MuiIcon(
     {
       fontSize = 'medium',
@@ -66,6 +86,25 @@ export function createMuiIcon(name: IconName, variant: IconVariant, displayName:
     },
     ref,
   ) {
+    if (control) {
+      return (
+        <Icon
+          ref={ref}
+          name={control.name}
+          variant={control.variant}
+          title={titleAccess}
+          data-mui-icon={displayName}
+          sx={{
+            fontSize: 'var(--tecton-icon-size-150)',
+            padding: 'var(--tecton-space-25)',
+            boxSizing: 'content-box',
+            flexShrink: 0,
+            color: `var(--tecton-${control.color})`,
+          }}
+          {...other}
+        />
+      );
+    }
     const themeColor = COLOR[color];
     return (
       <Icon
@@ -73,15 +112,11 @@ export function createMuiIcon(name: IconName, variant: IconVariant, displayName:
         name={name}
         variant={variant}
         title={titleAccess}
+        data-mui-icon={displayName}
         style={htmlColor ? { color: htmlColor, ...style } : style}
         sx={[
           {
-            fontSize:
-              scale === 1
-                ? (FONT_SIZE[fontSize] ?? fontSize)
-                : `calc(${base(fontSize)} * ${scale})`,
-            // Keep the box of the Material icon so layouts do not move.
-            ...(scale === 1 ? null : { margin: `calc(${base(fontSize)} * ${(1 - scale) / 2})` }),
+            fontSize: FONT_SIZE[fontSize] ?? fontSize,
             flexShrink: 0,
             ...(themeColor ? { color: themeColor } : null),
           },

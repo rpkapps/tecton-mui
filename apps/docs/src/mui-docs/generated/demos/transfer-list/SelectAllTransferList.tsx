@@ -48,10 +48,9 @@ const CustomList = React.forwardRef(function CustomList(
   return (
     <Card>
       <CardHeader
-        sx={{ px: 2, py: 0.5 }}
+        sx={{ px: 1.5, py: 0.5 }}
         avatar={
           <Checkbox
-            size="small"
             onClick={handleToggleAll(items)}
             checked={numberOfChecked(items) === items.length && items.length !== 0}
             indeterminate={
