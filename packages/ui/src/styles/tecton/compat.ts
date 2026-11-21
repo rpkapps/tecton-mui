@@ -239,6 +239,17 @@ export const muiCompatOverrides: ThemeOptions = {
     // explicit `notched` prop still wins.
     MuiOutlinedInput: {
       defaultProps: { notched: false },
+      styleOverrides: {
+        root: {
+          // Tecton 0.11.2 resets the outline of a pointer-focused input with
+          // `.Mui-focused:not(.Tecton-focusVisible) .MuiOutlinedInput-notchedOutline`, which is more
+          // specific than its `.Mui-error` outline rule, so an invalid field lost its red outline
+          // while focused with the pointer (keyboard focus kept it). Out-rank that one rule.
+          '&.Mui-error.Mui-focused:not(.Tecton-focusVisible) .MuiOutlinedInput-notchedOutline': {
+            borderColor: cssVar('color-status-error-outline-border-strong'),
+          },
+        },
+      },
     },
     // Tecton gives Select its Tecton chevron but leaves NativeSelect with MUI's filled Material
     // triangle. Use the same chevron, in the text-only Select icon colour (NativeSelect renders an

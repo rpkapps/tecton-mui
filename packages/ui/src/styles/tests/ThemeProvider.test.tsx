@@ -433,4 +433,20 @@ describe('Tecton outlined input', () => {
       notched: false,
     });
   });
+
+  it('keeps the error outline while the input is focused', () => {
+    const root = createTheme().components?.MuiOutlinedInput?.styleOverrides?.root as Record<
+      string,
+      unknown
+    >;
+    // Tecton's own rules are kept; the correction only out-ranks the pointer-focus reset.
+    expect(root).toHaveProperty([
+      '&.Mui-focused:not(.Tecton-focusVisible) .MuiOutlinedInput-notchedOutline',
+    ]);
+    expect(
+      root['&.Mui-error.Mui-focused:not(.Tecton-focusVisible) .MuiOutlinedInput-notchedOutline'],
+    ).toEqual({
+      borderColor: 'var(--tecton-color-status-error-outline-border-strong)',
+    });
+  });
 });
