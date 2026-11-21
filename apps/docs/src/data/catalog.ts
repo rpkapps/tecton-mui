@@ -87,7 +87,7 @@ const group = (id: CategoryId, names: string) =>
 export const componentCategory: Record<string, CategoryId> = {
   ...group(
     'inputs',
-    'Autocomplete Button ButtonBase ButtonGroup Checkbox Fab FilledInput FormControl FormControlLabel FormGroup FormHelperText FormLabel IconButton Input InputAdornment InputBase InputLabel NativeSelect NumberField NumberSpinner OutlinedInput Radio RadioGroup Rating Select Slider Switch TextField TextareaAutosize ToggleButton ToggleButtonGroup',
+    'ActionBar Autocomplete Button ButtonBase ButtonGroup Checkbox Fab FilledInput FormControl FormControlLabel FormGroup FormHelperText FormLabel IconButton Input InputAdornment InputBase InputLabel NativeSelect NumberField NumberSpinner OutlinedInput Radio RadioGroup Rating Select Slider Switch TextField TextareaAutosize ToggleButton ToggleButtonGroup',
   ),
   ...group(
     'data-display',
@@ -157,6 +157,21 @@ export const authoredPages: AuthoredPage[] = [
     category: 'inputs',
     components: ['IconButton'],
     summary: 'A compact button that shows only an icon, for toolbars and dense layouts.',
+  },
+  {
+    slug: 'action-bar',
+    title: 'Action Bar',
+    category: 'inputs',
+    components: [
+      'ActionBar',
+      'ActionBarGroup',
+      'ActionBarButton',
+      'ActionBarToolMenu',
+      'ActionBarTool',
+      'ActionBarSelect',
+    ],
+    summary:
+      'A vertical tool palette for canvases and viewers: tools, tool sets and quick settings.',
   },
   {
     slug: 'text-field',

@@ -92,6 +92,11 @@
       "types": "./dist/AccordionSummary/index.d.ts",
       "default": "./dist/AccordionSummary/index.js"
     },
+    "./ActionBar": {
+      "@tecton-mui/source": "./src/ActionBar/index.ts",
+      "types": "./dist/ActionBar/index.d.ts",
+      "default": "./dist/ActionBar/index.js"
+    },
     "./AdapterDateFns": {
       "@tecton-mui/source": "./src/AdapterDateFns/index.ts",
       "types": "./dist/AdapterDateFns/index.d.ts",

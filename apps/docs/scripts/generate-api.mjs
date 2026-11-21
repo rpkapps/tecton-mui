@@ -36,7 +36,7 @@ const NOT_COMPONENTS = [/^Adapter/];
  * `MenubarItem`, `MenubarPopup` ...). Each matching named value export gets its own API entry; its
  * import is a named import from the module's subpath.
  */
-const PART_EXPORTS = { Menubar: /^Menubar[A-Z]/ };
+const PART_EXPORTS = { Menubar: /^Menubar[A-Z]/, ActionBar: /^ActionBar[A-Z]/ };
 
 const inventory = JSON.parse(
   readFileSync(join(repo, 'tooling/compatibility/export-inventory.json'), 'utf8'),
