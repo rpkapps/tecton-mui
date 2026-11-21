@@ -1,5 +1,3 @@
-import { IconGallery } from '../../components/IconGallery';
-
 ## Style entry points
 
 Ordinary component imports never inject global CSS. Page-wide assets are explicit stylesheet
@@ -55,8 +53,8 @@ A few brand marks are multicolor and ignore `variant` and the text color. The Ma
 and `@mui/icons-material` are not needed. MUI components that accept icons (`startIcon`,
 `endIcon`, `icon`, `deleteIcon`, slots) accept `Icon` like any other element.
 
-## Icon gallery
+## Finding an icon
 
-All icons of the pinned Tecton version. Select an icon to copy its JSX.
-
-<IconGallery />
+The [Icons](/icons) page lists every icon of the pinned Tecton version. Search by name or by what
+an icon shows ("trash", "gear", "pencil"), then copy it as JSX, as a name, as the import line or as
+SVG markup. Icons also appear in the site search (<kbd>Ctrl</kbd> <kbd>K</kbd>).

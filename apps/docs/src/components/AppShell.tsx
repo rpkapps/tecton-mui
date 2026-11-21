@@ -20,7 +20,9 @@ import { muiVersions } from '../data/catalog';
 import { readingOrder } from '../data/nav';
 
 const SIDEBAR_WIDTH = 280;
-const HEADER_HEIGHT = 64;
+export const HEADER_HEIGHT = 64;
+/** Full-width pages without the "On this page" column. */
+const WIDE_PAGES = new Set(['/', '/icons']);
 
 /** Product mark: Tecton-colored tile with the layers glyph. */
 export function Logo({ size = 30 }: { size?: number }) {
@@ -267,6 +269,7 @@ export function AppShell() {
   const pathname = usePathname();
   const contentRef = React.useRef<HTMLDivElement>(null);
   const isHome = pathname === '/';
+  const isWide = WIDE_PAGES.has(pathname);
   const closeMobile = React.useCallback(() => setMobileOpen(false), []);
 
   React.useEffect(() => {
@@ -360,7 +363,7 @@ export function AppShell() {
             sx={{
               display: 'flex',
               gap: 6,
-              maxWidth: isHome ? 1280 : 1180,
+              maxWidth: isWide ? 1280 : 1180,
               mx: 'auto',
               px: { xs: 2, sm: 4, lg: 6 },
             }}
@@ -369,7 +372,7 @@ export function AppShell() {
               sx={{
                 flexGrow: 1,
                 minWidth: 0,
-                maxWidth: isHome ? 'none' : 900,
+                maxWidth: isWide ? 'none' : 900,
                 pt: { xs: 3, md: isHome ? 0 : 5 },
               }}
             >
@@ -379,7 +382,7 @@ export function AppShell() {
               {!isHome && <PrevNext pathname={pathname} />}
               <Footer />
             </Box>
-            {!isHome && (
+            {!isWide && (
               <Box
                 component="aside"
                 sx={{
