@@ -23,6 +23,7 @@ import {
 } from '@mui/x-data-grid';
 import { Store, useStoreSelector } from './core/store.js';
 import { useKeyboardNavigation } from './core/keyboardNavigation.js';
+import { useRowsScrollEnd } from './features/server-data/useRowsScrollEnd.js';
 import { DefaultToolbar } from './mui-community-adapter/toolbar.js';
 import { cssVar } from '../styles/tecton/index.js';
 import {
@@ -199,6 +200,8 @@ function DataGridInner<R extends GridValidRowModel>(
     dataSourceCache,
     lazyLoading = false,
     lazyLoadingRequestThrottleMs = 500,
+    onRowsScrollEnd,
+    scrollEndThreshold = 80,
     onDataSourceError,
     throttleRowsMs = 0,
     // history & api
@@ -1006,6 +1009,13 @@ function DataGridInner<R extends GridValidRowModel>(
   });
 
   const pageRowsRef = useLatest(pageRows);
+  useRowsScrollEnd({
+    rootRef,
+    apiRef,
+    onRowsScrollEnd,
+    threshold: scrollEndThreshold,
+    rowCount: pageRows.length,
+  });
   useKeyboardNavigation({
     rootRef,
     apiRef,
@@ -1668,6 +1678,10 @@ const BASE_SX = {
   },
   '&[data-tdg-scroll-y="start"] .TectonDataGrid-pinnedRows--bottom, &[data-tdg-scroll-y="middle"] .TectonDataGrid-pinnedRows--bottom':
     { boxShadow: `0 -4px 8px -4px ${pinShadow}` },
+  // The first row of a pinned section sits on the section's own edge line: no second row divider.
+  '& .TectonDataGrid-pinnedRows > .MuiDataGrid-row:first-of-type > .MuiDataGrid-cell': {
+    borderTopWidth: 0,
+  },
   // Pinned rows are not interactive rows: no zebra/hover treatment.
   '& .TectonDataGrid-pinnedRow, & .TectonDataGrid-pinnedRow:hover, & .TectonDataGrid-pinnedRow:nth-of-type(even)':
     {

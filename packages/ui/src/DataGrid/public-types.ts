@@ -1,5 +1,6 @@
 // Public types for the unified DataGrid. Names intentionally follow MUI X conventions so consumers
 // can migrate, but every type here is independently declared over the MIT Community types.
+import type { GridRowsScrollEndHandler } from './features/server-data/useRowsScrollEnd.js';
 import type * as React from 'react';
 import type {
   DataGridProps as CommunityDataGridProps,
@@ -255,6 +256,13 @@ export interface DataGridAdvancedProps<R extends GridValidRowModel = any> {
   /** Viewport-driven loading of server rows (requires `dataSource`, ignores pagination). */
   lazyLoading?: boolean;
   lazyLoadingRequestThrottleMs?: number;
+  /**
+   * Infinite scrolling for client rows: called when the user scrolls within `scrollEndThreshold`
+   * px of the last row (and when the rows do not fill the viewport). Append rows to load more.
+   */
+  onRowsScrollEnd?: GridRowsScrollEndHandler;
+  /** Distance from the last row, in px, at which `onRowsScrollEnd` fires. @default 80 */
+  scrollEndThreshold?: number;
   onDataSourceError?: (error: unknown) => void;
   /** Batched updates through `advancedApiRef.current.updateRows` are flushed at most this often. */
   throttleRowsMs?: number;

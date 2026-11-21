@@ -377,19 +377,20 @@ const columns: GridColDef[] = [
 </div>;
 ```
 
-| Feature                    | Props / API                                                                                                                   |
-| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| Multi-column sort / filter | On by default (Shift/Ctrl-click to sort). `disableMultipleColumnsSorting`, `disableMultipleColumnsFiltering`, `headerFilters` |
-| Column pinning, reordering | `pinnedColumns`, `onPinnedColumnsChange`, `onColumnOrderChange`. Header drag reordering is on unless `disableColumnReorder`   |
-| Row pinning, reordering    | `pinnedRows`, `rowReordering`, `onRowOrderChange`                                                                             |
-| Tree data                  | `treeData`, `getTreeDataPath`                                                                                                 |
-| Row grouping, aggregation  | `rowGroupingModel`, `aggregationModel`, `aggregationFunctions` (built in: `sum`, `avg`, `min`, `max`, `size`)                 |
-| Master/detail              | `getDetailPanelContent`, `getDetailPanelHeight`, `detailPanelExpandedRowIds`                                                  |
-| Cell selection, paste      | `cellSelection`, `cellSelectionModel`, `onClipboardPasteEnd`, `disableClipboardPaste`                                         |
-| Server-side data           | `dataSource` (`getRows`, optional `updateRow`, grouping callbacks), `dataSourceCache`, `lazyLoading`                          |
-| Batched updates            | `advancedApiRef.current.updateRows(...)`, `throttleRowsMs`                                                                    |
-| Undo / redo                | `historyStackSize` (default `0`, off); Ctrl/Cmd+Z to undo, Ctrl/Cmd+Shift+Z or Ctrl/Cmd+Y to redo                             |
-| Imperative API             | `useGridAdvancedApiRef()` with `advancedApiRef`                                                                               |
+| Feature                    | Props / API                                                                                                                    |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Multi-column sort / filter | On by default (Shift/Ctrl-click to sort). `disableMultipleColumnsSorting`, `disableMultipleColumnsFiltering`, `headerFilters`  |
+| Column pinning, reordering | `pinnedColumns`, `onPinnedColumnsChange`, `onColumnOrderChange`. Header drag reordering is on unless `disableColumnReorder`    |
+| Row pinning, reordering    | `pinnedRows`, `rowReordering`, `onRowOrderChange`                                                                              |
+| Tree data                  | `treeData`, `getTreeDataPath`                                                                                                  |
+| Row grouping, aggregation  | `rowGroupingModel`, `aggregationModel`, `aggregationFunctions` (built in: `sum`, `avg`, `min`, `max`, `size`)                  |
+| Master/detail              | `getDetailPanelContent`, `getDetailPanelHeight`, `detailPanelExpandedRowIds`                                                   |
+| Cell selection, paste      | `cellSelection`, `cellSelectionModel`, `onClipboardPasteEnd`, `disableClipboardPaste`                                          |
+| Server-side data           | `dataSource` (`getRows`, optional `updateRow`, grouping callbacks), `dataSourceCache`, `lazyLoading` (no `rowCount`: infinite) |
+| Infinite scroll            | `onRowsScrollEnd`, `scrollEndThreshold` (client rows)                                                                          |
+| Batched updates            | `advancedApiRef.current.updateRows(...)`, `throttleRowsMs`                                                                     |
+| Undo / redo                | `historyStackSize` (default `0`, off); Ctrl/Cmd+Z to undo, Ctrl/Cmd+Shift+Z or Ctrl/Cmd+Y to redo                              |
+| Imperative API             | `useGridAdvancedApiRef()` with `advancedApiRef`                                                                                |
 
 `DataGridPro` and `DataGridPremium` are not exported. The supported advanced props are exactly
 those declared in `DataGridAdvancedProps`, which is exported as a type. Supported, partial and

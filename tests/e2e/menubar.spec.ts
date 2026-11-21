@@ -31,6 +31,8 @@ test.describe('Menubar', () => {
     await page.goto('/?scenario=menubar');
     await trigger(page, 'File').focus();
     await page.keyboard.press('ArrowDown');
+    // The opening menu focuses its first item; wait for it before moving the focus.
+    await expect(page.getByRole('menuitem', { name: /New/ })).toBeFocused();
     await page.getByRole('menuitem', { name: 'Export as' }).focus();
     await page.keyboard.press('ArrowRight');
     await expect(page.getByRole('menuitem', { name: 'CSV' })).toBeFocused();
@@ -68,6 +70,8 @@ test.describe('Menubar', () => {
     await expect(trigger(page, 'View')).toBeFocused();
     await page.keyboard.press('ArrowRight');
     await page.keyboard.press('ArrowDown');
+    // The opening menu focuses its first item; wait for it before moving the focus.
+    await expect(page.getByRole('menuitem', { name: /New/ })).toBeFocused();
     const exportItem = page.getByRole('menuitem', { name: 'Export as' });
     await exportItem.focus();
     await page.keyboard.press('ArrowLeft');

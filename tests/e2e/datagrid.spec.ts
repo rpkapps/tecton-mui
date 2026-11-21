@@ -636,4 +636,34 @@ test.describe('DataGrid advanced features', () => {
     expect(Math.abs(dot.top + dot.height / 2 - icon.top)).toBeLessThanOrEqual(1);
     expect(Math.abs(dot.left + dot.width / 2 - icon.right)).toBeLessThanOrEqual(1);
   });
+
+  test('infinite scroll appends client rows; infinite loading stops at the last server row', async ({
+    page,
+  }) => {
+    await page.goto('/?scenario=grid:infinite');
+    const count = page.getByTestId('infinite-count');
+    await expect(count).toHaveText('20');
+    const client = page.getByTestId('grid-infinite').locator('.MuiDataGrid-root').first();
+    const scrollToEnd = (root: Locator) =>
+      root.locator('.MuiDataGrid-virtualScroller').evaluate((e) => (e.scrollTop = e.scrollHeight));
+    for (const expected of ['40', '60', '80', '100']) {
+      await scrollToEnd(client);
+      await expect(count).toHaveText(expected);
+    }
+    // No more rows once the handler is removed.
+    await scrollToEnd(client);
+    await page.waitForTimeout(300);
+    await expect(count).toHaveText('100');
+
+    // Server without rowCount: 130 rows in chunks of 40; ends at row 130 with no placeholders.
+    const server = page.getByTestId('grid-infinite-server').locator('.MuiDataGrid-root');
+    await expect(server.locator('.MuiDataGrid-row[data-rowindex="0"]')).toContainText('Item 1');
+    for (let i = 0; i < 6; i++) {
+      await scrollToEnd(server);
+      await page.waitForTimeout(250);
+    }
+    await expect(server.locator('.MuiDataGrid-row[data-rowindex="129"]')).toContainText('Item 130');
+    await expect(server.locator('.MuiDataGrid-row[data-rowindex="130"]')).toHaveCount(0);
+    await expect(server.locator('.TectonDataGrid-row--skeleton')).toHaveCount(0);
+  });
 });

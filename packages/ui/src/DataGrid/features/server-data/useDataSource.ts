@@ -164,7 +164,8 @@ export function useDataSource<R extends GridValidRowModel>(
           const map = new Map<number, R>();
           res.rows.forEach((row, i) => map.set(i, row));
           setLazy(map);
-          setLazyRowCount(rowCount);
+          // Unknown total and a short first chunk: that is all the rows.
+          setLazyRowCount(rowCount < 0 && res.rows.length < chunk ? res.rows.length : rowCount);
           apiRef.current?.scrollToIndexes?.({ rowIndex: 0 });
         }
       },
@@ -267,8 +268,13 @@ export function useDataSource<R extends GridValidRowModel>(
               res.rows.forEach((row, i) => next.set(start + i, row));
               return next;
             });
-            if (count < 0 && res.rows.length < chunk) setLazyRowCount(start + res.rows.length);
-            else if (res.rowCount != null && res.rowCount >= 0) setLazyRowCount(res.rowCount);
+            if (res.rowCount != null && res.rowCount >= 0) setLazyRowCount(res.rowCount);
+            else if (res.rows.length < chunk) {
+              // Unknown total: a short chunk marks the end. Several chunks past the end can be in
+              // flight; keep the smallest end so a later empty chunk does not extend the grid.
+              const end = start + res.rows.length;
+              setLazyRowCount((prev) => (prev < 0 ? end : Math.min(prev, end)));
+            }
           },
           (error) => {
             inFlight.current.delete(key);

@@ -129,6 +129,24 @@ cached in memory by default (`dataSourceCache`).
 
 <Demo name="ServerSideData" />
 
+### Infinite loading
+
+When the server does not know the total, return the rows without `rowCount` (or with `rowCount:
+-1`). With `lazyLoading` the grid then shows one placeholder row after the loaded rows, requests
+the next chunk (`pageSize` rows) when it comes into view, and stops when a chunk comes back shorter
+than requested.
+
+<Demo name="InfiniteLoading" />
+
+### Infinite scroll with client rows
+
+Without a `dataSource`, `onRowsScrollEnd` is called when the user scrolls within
+`scrollEndThreshold` px (default 80) of the last row, and also while the rows do not fill the
+viewport. Fetch the next rows there and append them to `rows`; set `loading` while a request runs.
+Stop by no longer passing the handler.
+
+<Demo name="InfiniteScroll" />
+
 ## Row reordering
 
 `rowReordering` adds a drag handle column. Keyboard users focus the handle and press

@@ -1,6 +1,10 @@
 import * as React from 'react';
 import { Box, Typography, Paper } from '@tecton-mui/ui';
-import DataGrid, { type GridColDef, type GridDensity } from '@tecton-mui/ui/DataGrid';
+import DataGrid, {
+  type GridColDef,
+  type GridDataSource,
+  type GridDensity,
+} from '@tecton-mui/ui/DataGrid';
 
 const departments = ['Engineering', 'Research', 'Operations', 'Finance'];
 const sites = ['Houston', 'Aberdeen', 'Stavanger'];
@@ -118,6 +122,43 @@ const treeInitial = { aggregation: { model: treeAggregation } };
 const density = (new URLSearchParams(window.location.search).get('density') ??
   'standard') as GridDensity;
 
+// Infinite loading: client rows appended from onRowsScrollEnd, and a data source without rowCount.
+const infiniteColumns: GridColDef[] = [{ field: 'label', headerName: 'Label', width: 200 }];
+const makeRows = (from: number, count: number) =>
+  Array.from({ length: count }, (_, i) => ({ id: from + i + 1, label: `Item ${from + i + 1}` }));
+const infiniteDataSource: GridDataSource = {
+  getRows: (params) =>
+    new Promise((resolve) => {
+      const start = params.start as number;
+      const end = Math.min(Number(params.end), 129);
+      window.setTimeout(
+        () => resolve({ rows: makeRows(start, Math.max(0, end - start + 1)) }),
+        100,
+      );
+    }),
+};
+const infiniteInitial = { pagination: { paginationModel: { page: 0, pageSize: 40 } } };
+
+function InfiniteScrollGrid() {
+  const [rows, setRows] = React.useState(() => makeRows(0, 20));
+  const loadMore = React.useCallback(() => {
+    window.setTimeout(() => setRows((prev) => [...prev, ...makeRows(prev.length, 20)]), 50);
+  }, []);
+  return (
+    <>
+      <span data-testid="infinite-count">{rows.length}</span>
+      <Box sx={{ height: 300 }}>
+        <DataGrid
+          rows={rows}
+          columns={infiniteColumns}
+          pagination={false}
+          onRowsScrollEnd={rows.length < 100 ? loadMore : undefined}
+        />
+      </Box>
+    </>
+  );
+}
+
 export function GridScenarios({ which }: { which: string }) {
   const show = (name: string) => which === 'all' || which === name;
   return (
@@ -205,6 +246,23 @@ export function GridScenarios({ which }: { which: string }) {
               getTreeDataPath={getTreeDataPath}
               defaultGroupingExpansionDepth={-1}
               initialState={treeInitial}
+            />
+          </Box>
+        </Paper>
+      )}
+      {show('infinite') && (
+        <Paper variant="outlined" sx={{ p: 2 }} data-testid="grid-infinite">
+          <Typography variant="h5" gutterBottom>
+            Infinite scroll (client rows) and infinite loading (unknown row count)
+          </Typography>
+          <InfiniteScrollGrid />
+          <Box sx={{ height: 300, mt: 2 }} data-testid="grid-infinite-server">
+            <DataGrid
+              columns={infiniteColumns}
+              dataSource={infiniteDataSource}
+              lazyLoading
+              lazyLoadingRequestThrottleMs={50}
+              initialState={infiniteInitial}
             />
           </Box>
         </Paper>

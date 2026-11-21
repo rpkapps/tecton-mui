@@ -9,6 +9,10 @@ export type {
   FilterPanelTriggerRenderProps,
 } from './mui-community-adapter/toolbar.js';
 export { useGridAdvancedApiRef } from './useGridAdvancedApiRef.js';
+export type {
+  GridRowScrollEndParams,
+  GridRowsScrollEndHandler,
+} from './features/server-data/useRowsScrollEnd.js';
 export { GRID_AGGREGATION_FUNCTIONS } from './features/grouping-aggregation/aggregation.js';
 export { GridDataSourceCacheDefault } from './features/server-data/cache.js';
 export {

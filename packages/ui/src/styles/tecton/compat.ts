@@ -171,7 +171,17 @@ export const muiCompatOverrides: ThemeOptions = {
           '&.MuiDataGrid-columnHeaderCheckbox': { padding: 0 },
           ...gridFocusRing,
         },
-        cell: gridFocusRing,
+        cell: {
+          ...gridFocusRing,
+          // Row dividers. Tecton's grid theme zeroes the cells' top border (its Figma DataGrid
+          // draws none), so rows ran together; the Tecton table drop-in separates rows with a
+          // 1px line. Restore MUI X's row line, in --DataGrid-t-color-border-base
+          // (color-action-outlined-border, as every grid divider).
+          borderTopWidth: cssVar('border-width-100'),
+          // Tecton centers row content (`align-items: center`), so the empty filler cell after the
+          // last column collapsed to its 1px border in the middle of the row; stretch it.
+          '&.MuiDataGrid-cellEmpty': { alignSelf: 'stretch' },
+        },
       },
     } as NonNullable<ThemeOptions['components']>['MuiDataGrid'],
     // Tecton draws the menu border "inside" the paper by pulling the list back one border width
