@@ -666,4 +666,42 @@ test.describe('DataGrid advanced features', () => {
     await expect(server.locator('.MuiDataGrid-row[data-rowindex="130"]')).toHaveCount(0);
     await expect(server.locator('.TectonDataGrid-row--skeleton')).toHaveCount(0);
   });
+
+  test('one focus ring: a focused header filter input does not ring its cell too', async ({
+    page,
+  }) => {
+    const cellOutline = () =>
+      page.evaluate(() => {
+        const cell = document.activeElement?.closest(
+          '.MuiDataGrid-cell, .MuiDataGrid-columnHeader',
+        );
+        return cell ? getComputedStyle(cell).outlineStyle : 'no cell';
+      });
+    // Header filter: keyboard focus from the first row (ArrowUp).
+    await page.goto('/?scenario=grid:sorting');
+    const sorting = grid(page, 'grid-sorting');
+    await sorting
+      .locator('.MuiDataGrid-row[data-rowindex="0"] .MuiDataGrid-cell[data-field="name"]')
+      .click();
+    await page.keyboard.press('ArrowUp');
+    await expect(
+      sorting.locator('.TectonDataGrid-headerFilterCell[data-field="name"] input'),
+    ).toBeFocused();
+    expect(await cellOutline()).toBe('none');
+    // The control draws Tecton's ring itself.
+    expect(
+      await page.evaluate(() => {
+        const control = document.activeElement?.closest('.TectonDataGrid-headerFilterControl');
+        return control ? getComputedStyle(control).boxShadow : 'none';
+      }),
+    ).not.toBe('none');
+    // A plain cell focused from the keyboard still shows the cell ring.
+    await page.keyboard.press('ArrowDown');
+    await expect
+      .poll(() =>
+        page.evaluate(() => document.activeElement?.classList.contains('MuiDataGrid-cell')),
+      )
+      .toBe(true);
+    expect(await cellOutline()).toBe('solid');
+  });
 });

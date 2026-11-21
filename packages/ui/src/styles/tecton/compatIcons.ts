@@ -84,16 +84,20 @@ const AvatarFallbackIcon: Slot = (props) =>
   });
 AvatarFallbackIcon.displayName = 'TectonSlotIcon';
 
-/** DataGrid column separator: a 1px line in the icon colour instead of Material's SVG bar. */
+/**
+ * DataGrid column separator: the bar MUI's separator icon draws (2px x 14px in a 24px box), in the
+ * icon colour, without the Material SVG.
+ */
 const ColumnSeparatorIcon: Slot = (props) =>
   React.createElement('span', {
     ...spanProps(props),
     'aria-hidden': true,
     style: {
       display: 'inline-block',
-      width: '1em',
-      height: '1em',
-      background: 'linear-gradient(currentColor, currentColor) center / 1px 58% no-repeat',
+      flexShrink: 0,
+      width: '1.5rem',
+      height: '1.5rem',
+      background: 'linear-gradient(currentColor, currentColor) center / 2px 14px no-repeat',
       ...(props.style as object | undefined),
     },
   });
@@ -195,6 +199,18 @@ export const iconCompatOverrides: NonNullable<ThemeOptions['components']> = {
       // SpeedDialIcon clones the icon with its own className, which would replace a plain span's
       // glyph class; the slot component merges the classes.
       icon: React.createElement(tectonIcon('tecton-add-outline')),
+    },
+    styleOverrides: {
+      // MUI's SpeedDialIcon box is 24px; Tecton's Fab rule drew the glyph at 20px at the top of it
+      // (2px above the button's centre). Fill the box, as MUI's 24px icon does.
+      root: {
+        '& [class*="tecton-"]': {
+          display: 'block',
+          fontSize: 'var(--tecton-icon-size-200)',
+          width: 'var(--tecton-icon-size-200)',
+          height: 'var(--tecton-icon-size-200)',
+        },
+      },
     },
   },
 } as NonNullable<ThemeOptions['components']>;

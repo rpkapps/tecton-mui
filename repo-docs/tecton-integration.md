@@ -176,8 +176,10 @@ Written by `emit` and listed with checksums in
     Material icons. The correction maps them to their Tecton outline icons.
   - **Data Grid focus indicator:** Tecton sets `outline: none` on focused cells and column headers
     and draws nothing instead, so keyboard focus was invisible (WCAG 2.4.7). The correction draws a
-    2px `color-focus-ring` outline inside the cell or header on `:focus-visible` (also when focus is
-    on a control inside it). Mouse focus stays unmarked.
+    2px `color-focus-ring` outline inside the cell or header on `:focus-visible`, and when the focus
+    is on a control inside it that has no ring of its own (the row reorder handle). Inputs, selects
+    and MUI controls with Tecton's ring (checkbox, icon buttons, header filter inputs) keep only
+    their own ring. Mouse focus stays unmarked.
   - **Data Grid header icons:** Tecton leaves the sort and column menu icons at MUI's 24px in the
     default action colors and the header title at regular weight. The Tecton table (the drop-in
     `wc-table` Storybook stories) draws them at `icon-size-100` (16px) in `color-text-secondary`

@@ -8,10 +8,14 @@ import { gridIconSlots, iconCompatOverrides, tablePaginationFirstLast } from './
 // Tecton sets `outline: none` on focused Data Grid cells and column headers and draws nothing
 // instead, so keyboard focus is invisible while navigating with the arrow keys (WCAG 2.4.7).
 // Draw Tecton's 2px focus-ring colour inside the cell (an outer ring would be clipped by the
-// neighbouring cells), for keyboard focus only (`:focus-visible`, also when the focus is on a
-// control inside the cell: checkbox, row reorder handle).
+// neighbouring cells), for keyboard focus only: on the cell itself, or on a control inside it that
+// draws no ring of its own (the row reorder handle). Inputs, selects and MUI controls with
+// Tecton's focus ring (`Mui-focusVisible`: checkbox, icon buttons, header filter inputs) keep only
+// their own ring, so there is never a ring inside a ring.
+export const GRID_FOCUS_SELECTOR =
+  '&:focus-visible, &:has(:focus-visible):not(:has(input:focus-visible, select:focus-visible, textarea:focus-visible, .Mui-focusVisible, [class*="headerFilterControl"]:focus-within))';
 const gridFocusRing = {
-  '&:focus-visible, &:has(:focus-visible)': {
+  [GRID_FOCUS_SELECTOR]: {
     outline: `${cssVar('border-width-200')} solid ${cssVar('color-focus-ring')}`,
     outlineOffset: `calc(-1 * ${cssVar('border-width-200')})`,
   },
@@ -65,6 +69,11 @@ export const muiCompatOverrides: ThemeOptions = {
           // reads palette.TableCell.border only for CSS-variables themes), which is what row
           // lines, header and separators used.
           '&&': { '--DataGrid-t-color-border-base': cssVar('color-divider') },
+          // Column resize handle: MUI darkens it to its accent colour on hover, focus and while
+          // resizing, which is barely visible against Tecton's divider in dark mode. Use Tecton's
+          // interactive text colour in both modes.
+          '& .MuiDataGrid-columnSeparator--resizable:hover, & .MuiDataGrid-columnSeparator--resizing, & .MuiDataGrid-columnHeader:focus .MuiDataGrid-columnSeparator--resizable, & .MuiDataGrid-columnHeader--last .MuiDataGrid-columnSeparator--resizable:hover':
+            { color: cssVar('color-action-text-only-text') },
         },
         // Tecton puts a bottom border on the header container, but MUI X already draws one on every
         // header cell (in --DataGrid-t-color-border-base above); together they render 2px.
