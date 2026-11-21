@@ -492,4 +492,38 @@ test.describe('DataGrid advanced features', () => {
     await root.getByRole('button', { name: 'Export' }).click();
     await expect(page.getByRole('menuitem', { name: 'Download as CSV' })).toBeVisible();
   });
+
+  test('row stripes follow the row index wherever the virtualized window starts', async ({
+    page,
+  }) => {
+    await page.goto('/?scenario=grid:virtual');
+    const root = grid(page, 'grid-virtual');
+    const scroller = root.locator('.MuiDataGrid-virtualScroller');
+    await expect(root.locator('.MuiDataGrid-row[data-rowindex="0"]')).toBeVisible();
+    // Keep the pointer off the rows (hover paints its own background).
+    await page.mouse.move(0, 0);
+    const stripes = () =>
+      root.evaluate((r) => {
+        const byParity: [Set<string>, Set<string>] = [new Set(), new Set()];
+        for (const row of r.querySelectorAll<HTMLElement>(
+          '.MuiDataGrid-virtualScrollerRenderZone > .MuiDataGrid-row[data-rowindex]',
+        )) {
+          byParity[Number(row.dataset.rowindex) % 2]!.add(getComputedStyle(row).backgroundColor);
+        }
+        return byParity.map((set) => [...set]);
+      });
+    const first = await stripes();
+    expect(first[0]).toHaveLength(1);
+    expect(first[1]).toHaveLength(1);
+    expect(first[0]).not.toEqual(first[1]);
+    // Scroll so that the render window starts at odd and even rows: the stripes stay put.
+    const rowHeight = await root
+      .locator('.MuiDataGrid-row[data-rowindex="0"]')
+      .evaluate((e) => e.getBoundingClientRect().height);
+    for (const rows of [37, 500, 501, 1001]) {
+      await scroller.evaluate((e, top) => (e.scrollTop = top), rows * rowHeight);
+      await expect(root.locator(`.MuiDataGrid-row[data-rowindex="${rows + 1}"]`)).toBeVisible();
+      expect(await stripes()).toEqual(first);
+    }
+  });
 });

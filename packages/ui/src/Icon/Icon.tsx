@@ -39,7 +39,17 @@ export function getIconClassName(name: IconName, variant: IconVariant = 'outline
   return `tecton-${name}-${resolved}`;
 }
 
-const IconRoot = styled('span', { name: 'TectonIcon', slot: 'Root' })({});
+// Tecton paints the glyph as a mask (or a background image) over the border box, so padding would
+// enlarge it. Paint it in the content box instead: padding then adds space around the glyph, as it
+// does around an MUI `SvgIcon`.
+const IconRoot = styled('span', { name: 'TectonIcon', slot: 'Root' })({
+  maskOrigin: 'content-box',
+  maskClip: 'content-box',
+  WebkitMaskOrigin: 'content-box',
+  WebkitMaskClip: 'content-box',
+  backgroundOrigin: 'content-box',
+  backgroundClip: 'content-box',
+});
 
 /**
  * Tecton icon. Renders the Tecton icon-font class (mask-based, tinted with `currentColor`), so the

@@ -179,7 +179,9 @@ html {
   padding: 40px 24px;
   min-height: 120px;
   overflow-x: auto;
-  background: var(--tecton-color-bg-paper);
+  /* The page surface (as in the Tecton Storybook): Paper, menus and other elevated surfaces
+     (bg-paper) stand out from it. On bg-paper a flat Tecton Paper was invisible. */
+  background-color: var(--tecton-color-bg-default);
   /* Faint dot grid makes the stage read as a canvas, like design tools. */
   background-image: radial-gradient(var(--tecton-color-divider-subtle) 1px, transparent 1px);
   background-size: 16px 16px;

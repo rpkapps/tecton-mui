@@ -1416,15 +1416,31 @@ function DataGridInner<R extends GridValidRowModel>(
       !getSynthetic(params.row) &&
       (isCellEditable ? isCellEditable(params) : !!params.colDef.editable);
   }, [hasSynthetic, isCellEditable]);
-  const handleGetRowClassName = React.useMemo(() => {
-    if (!hasSynthetic && !getRowClassName) return undefined;
-    return (params: Parameters<NonNullable<DataGridProps<R>['getRowClassName']>>[0]) => {
+  // Zebra stripes by position in the page, not by DOM order: the virtualizer renders a window of
+  // rows starting at any index (and re-renders it on horizontal scroll), so `:nth-of-type` would
+  // flip the stripes. Detail panels are skipped so the stripes keep alternating around them.
+  const oddRows = React.useMemo(() => {
+    const odd = new Set<GridRowId>();
+    let index = 0;
+    for (const row of pageRows) {
+      if (isDetailRow(row)) continue;
+      if (index % 2 === 1) odd.add(getRowId(row as R));
+      index += 1;
+    }
+    return odd;
+  }, [pageRows, getRowId]);
+  const handleGetRowClassName = React.useCallback(
+    (params: Parameters<NonNullable<DataGridProps<R>['getRowClassName']>>[0]) => {
       const syn = getSynthetic(params.row);
-      const own = syn ? `TectonDataGrid-row--${syn.kind}` : '';
-      const user = getRowClassName ? getRowClassName(params) : '';
-      return own && user ? `${own} ${user}` : own || user;
-    };
-  }, [hasSynthetic, getRowClassName]);
+      const classes = [
+        oddRows.has(params.id) ? 'TectonDataGrid-row--odd' : '',
+        syn ? `TectonDataGrid-row--${syn.kind}` : '',
+        getRowClassName ? getRowClassName(params) : '',
+      ];
+      return classes.filter(Boolean).join(' ');
+    },
+    [oddRows, getRowClassName],
+  );
 
   const effectiveVisibility = React.useMemo(
     () =>
@@ -1461,9 +1477,23 @@ function DataGridInner<R extends GridValidRowModel>(
       groupingMode === 'none'
         ? slotPropsProp
         : { ...slotPropsProp, main: { role: 'treegrid', ...slotPropsProp?.main } };
+    const withPopper = {
+      ...own,
+      // Panels and menus are positioned from the left/top. Popper.js otherwise places a panel that
+      // ends at the right of its anchor with `right: 0` against the viewport: when a dropdown in
+      // the panel locks the page scroll, the page scrollbar goes away, the viewport widens and
+      // the panel jumped sideways by the scrollbar width.
+      basePopper: {
+        ...own?.basePopper,
+        material: {
+          popperOptions: { modifiers: [STATIC_POPPER_STYLES] },
+          ...(own?.basePopper as { material?: object } | undefined)?.material,
+        },
+      },
+    };
     return hideFooterRowCount
-      ? { ...own, pagination: { hideRowCount: true, ...own?.pagination } }
-      : own;
+      ? { ...withPopper, pagination: { hideRowCount: true, ...own?.pagination } }
+      : withPopper;
   }, [groupingMode, slotPropsProp, hideFooterRowCount]);
 
   const pinnedSx = React.useMemo(
@@ -1549,6 +1579,7 @@ const SYSTEM_FIELDS = [
   ROW_GROUPING_SINGLE_FIELD,
 ];
 const EMPTY_SELECTION: GridRowSelectionModel = { type: 'include', ids: new Set() };
+const STATIC_POPPER_STYLES = { name: 'computeStyles', options: { adaptive: false } };
 const NO_PINNED = { left: [] as string[], right: [] as string[] };
 const selectExpansion = (s: UiState) => s.expansion;
 const isDetailRow = (row: object) => getSynthetic(row)?.kind === 'detail';

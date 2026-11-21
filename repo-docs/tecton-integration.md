@@ -178,6 +178,18 @@ Written by `emit` and listed with checksums in
     and draws nothing instead, so keyboard focus was invisible (WCAG 2.4.7). The correction draws a
     2px `color-focus-ring` outline inside the cell or header on `:focus-visible` (also when focus is
     on a control inside it). Mouse focus stays unmarked.
+  - **Data Grid header icons:** Tecton leaves the sort and column menu icons at MUI's 24px in the
+    default action colors and the header title at regular weight. The Tecton table (the drop-in
+    `wc-table` Storybook stories) draws them at `icon-size-100` (16px) in `color-text-secondary`
+    with a `font-weight-medium-strong` title. The correction matches it.
+  - **Data Grid row stripes:** Tecton stripes grid rows with `:nth-of-type(even)`. The grid only
+    renders the rows in view, so the stripes followed the first rendered row and flipped while
+    scrolling (also when a horizontal scroll re-rendered the window). `applyThemeCompat` moves the
+    Tecton stripe style to `.TectonDataGrid-row--odd`, which the DataGrid sets by row index.
+  - **Outlined input notch:** Tecton labels sit statically above the field. TextField keeps the
+    outline closed by forcing `shrink: false`, but a `Select` or `OutlinedInput` with a `label`
+    still cut a gap in the top border. The correction defaults `MuiOutlinedInput` `notched` to
+    `false` (an explicit prop still wins).
   - **RichTreeView defaults:** Tecton themes only `MuiSimpleTreeView`. The correction makes
     `MuiRichTreeView` share the same theme entry.
 - `tecton/augmentations.ts` re-declares the Tecton prop augmentations (`activated`, `shape`,

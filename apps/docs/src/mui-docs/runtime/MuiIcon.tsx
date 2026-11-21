@@ -42,7 +42,14 @@ export type MuiIconShim = React.NamedExoticComponent<
   MuiIconShimProps & React.RefAttributes<HTMLSpanElement>
 > & { muiName: string };
 
+// Material's checkbox and radio glyphs sit inside their 24px box with a margin; Tecton's fill it.
+// Draw them at the size Tecton's own Checkbox and Radio use (20px for a 24px icon).
+const CONTROL_ICON_SCALE = 20 / 24;
+const isControlIcon = (name: string) => /^(checkbox|radio-button)/.test(name);
+
 export function createMuiIcon(name: IconName, variant: IconVariant, displayName: string) {
+  const scale = isControlIcon(name) ? CONTROL_ICON_SCALE : 1;
+  const base = (size: string) => (size === 'inherit' ? '1em' : (FONT_SIZE[size] ?? size));
   const MuiIcon = React.forwardRef<HTMLSpanElement, MuiIconShimProps>(function MuiIcon(
     {
       fontSize = 'medium',
@@ -69,7 +76,12 @@ export function createMuiIcon(name: IconName, variant: IconVariant, displayName:
         style={htmlColor ? { color: htmlColor, ...style } : style}
         sx={[
           {
-            fontSize: FONT_SIZE[fontSize] ?? fontSize,
+            fontSize:
+              scale === 1
+                ? (FONT_SIZE[fontSize] ?? fontSize)
+                : `calc(${base(fontSize)} * ${scale})`,
+            // Keep the box of the Material icon so layouts do not move.
+            ...(scale === 1 ? null : { margin: `calc(${base(fontSize)} * ${(1 - scale) / 2})` }),
             flexShrink: 0,
             ...(themeColor ? { color: themeColor } : null),
           },

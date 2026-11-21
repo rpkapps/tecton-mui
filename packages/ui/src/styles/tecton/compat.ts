@@ -79,7 +79,24 @@ export const muiCompatOverrides: ThemeOptions = {
         footerContainer: {
           borderTop: `${cssVar('border-width-100')} solid ${cssVar('color-action-outlined-border')}`,
         },
+        // Header icons and title as in Tecton's table (the MUI Table drop-in in the Tecton
+        // Storybook): Tecton's grid theme draws 24px sort icons in the action colour, leaves the
+        // column menu button in MUI's default colour (black / white) and uses a regular-weight
+        // title. The table uses 16px icons in the header text colour and a medium-weight title.
+        sortIcon: {
+          color: cssVar('color-text-secondary'),
+          width: cssVar('icon-size-100'),
+          height: cssVar('icon-size-100'),
+        },
+        iconButtonContainer: {
+          '& .MuiIconButton-root': { color: cssVar('color-text-secondary') },
+        },
+        menuIconButton: { color: cssVar('color-text-secondary') },
+        columnHeaderTitle: { fontWeight: cssVar('font-weight-medium-strong') },
         columnHeader: {
+          // 16px icons in the header buttons (sort, filtered, column menu).
+          '& .MuiDataGrid-iconButtonContainer [class^="tecton-"], & .MuiDataGrid-menuIcon [class^="tecton-"]':
+            { width: cssVar('icon-size-100'), height: cssVar('icon-size-100') },
           // Tecton zeroes the padding of body checkbox cells ("Figma DataGrid Checkbox cell has no
           // padding") but not of the header checkbox cell, which shifts the select-all checkbox
           // 10px off the row checkboxes. Mirror the body rule on the header cell.
@@ -101,6 +118,14 @@ export const muiCompatOverrides: ThemeOptions = {
           ...menuListBottomPadding,
         },
       },
+    },
+    // Tecton labels sit statically above the field and never float into the outlined border. Tecton
+    // keeps the border closed for TextField by forcing `shrink: false`, which TextField passes on as
+    // `notched`. A `Select` (or bare `OutlinedInput`) with a `label` does not go through TextField,
+    // so the outline still cut a gap for the label once it had a value. Close it there too; an
+    // explicit `notched` prop still wins.
+    MuiOutlinedInput: {
+      defaultProps: { notched: false },
     },
     MuiTreeItem: {
       styleOverrides: {
@@ -184,6 +209,20 @@ export function applyThemeCompat(theme: Theme): Theme {
       '& > :last-child': { marginBottom: 0 },
       ...menuListBottomPadding,
     };
+  }
+  // Tecton stripes Data Grid rows with `:nth-of-type(even)`. The grid virtualizes rows: the
+  // rendered window starts at any row and is re-rendered on horizontal scroll, so DOM order is not
+  // row order and the stripes flipped while scrolling. The DataGrid marks rows by their position
+  // (`TectonDataGrid-row--odd`); the rule moves to that class in place, so the hover and selected
+  // rules after it still win.
+  const grid = components.MuiDataGrid?.styleOverrides as Record<string, unknown> | undefined;
+  const row = grid?.row as Record<string, unknown> | undefined;
+  if (grid && row && '&:nth-of-type(even)' in row) {
+    grid.row = Object.fromEntries(
+      Object.entries(row).map(([key, value]) =>
+        key === '&:nth-of-type(even)' ? ['&.TectonDataGrid-row--odd', value] : [key, value],
+      ),
+    );
   }
   // MUI X 9 paints the TimeClock face `rgba(0,0,0,.07)` in both modes and Tecton 0.11.2 has no
   // MuiClock override, so in dark mode the face was invisible. Dark mode only: light keeps the

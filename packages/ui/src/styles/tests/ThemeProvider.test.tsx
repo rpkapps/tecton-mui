@@ -396,3 +396,38 @@ describe('Tecton Data Grid compat', () => {
     expect(overrides.columnHeader['&.MuiDataGrid-columnHeaderCheckbox']).toEqual({ padding: 0 });
   });
 });
+
+describe('Tecton data grid header and striping', () => {
+  const grid = () =>
+    createTheme().components?.MuiDataGrid?.styleOverrides as Record<
+      string,
+      Record<string, unknown>
+    >;
+
+  it('draws header sort and menu icons like the Tecton table (16px, secondary text)', () => {
+    const overrides = grid();
+    expect(overrides.sortIcon).toEqual({
+      color: 'var(--tecton-color-text-secondary)',
+      width: 'var(--tecton-icon-size-100)',
+      height: 'var(--tecton-icon-size-100)',
+    });
+    expect(overrides.menuIconButton).toEqual({ color: 'var(--tecton-color-text-secondary)' });
+    expect(overrides.columnHeaderTitle).toMatchObject({
+      fontWeight: 'var(--tecton-font-weight-medium-strong)',
+    });
+  });
+
+  it('stripes rows by row index, not by DOM position in the virtualized window', () => {
+    const row = grid().row;
+    expect(row).not.toHaveProperty('&:nth-of-type(even)');
+    expect(row).toHaveProperty('&.TectonDataGrid-row--odd');
+  });
+});
+
+describe('Tecton outlined input', () => {
+  it('keeps the outline closed for a Select label (static Tecton labels)', () => {
+    expect(createTheme().components?.MuiOutlinedInput?.defaultProps).toMatchObject({
+      notched: false,
+    });
+  });
+});
