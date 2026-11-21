@@ -10,6 +10,8 @@ import LinearProgress from '@tecton-mui/ui/LinearProgress';
 import Box from '@tecton-mui/ui/Box';
 import Icon from '@tecton-mui/ui/Icon';
 import { visuallyHidden } from '@tecton-mui/ui';
+import { RouterLink } from './links';
+import { searchIcons } from './icons/iconSearch';
 
 interface PagefindResultData {
   url: string;
@@ -44,12 +46,30 @@ function loadPagefind(): Promise<PagefindApi | null> {
 
 type Status = 'idle' | 'loading' | 'ready' | 'unavailable';
 
+const iconHitSx = {
+  display: 'inline-flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: 0.5,
+  width: 88,
+  minHeight: 64,
+  p: 1,
+  borderRadius: 1.5,
+  color: 'text.primary',
+  textAlign: 'center',
+  overflowWrap: 'anywhere',
+  '&:hover, &:focus-visible': { bgcolor: 'var(--tecton-color-content-bg-hover)' },
+} as const;
+
 export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const router = useRouter();
   const [query, setQuery] = React.useState('');
   const [status, setStatus] = React.useState<Status>('idle');
   const [results, setResults] = React.useState<PagefindResultData[]>([]);
-  const listRef = React.useRef<HTMLUListElement>(null);
+  const resultsRef = React.useRef<HTMLDivElement>(null);
+  const term = query.trim();
+  const iconHits = React.useMemo(() => (term ? searchIcons(term).slice(0, 8) : []), [term]);
 
   const latest = React.useRef(0);
 
@@ -83,7 +103,7 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
   };
 
   const focusResult = (delta: number) => {
-    const items = [...(listRef.current?.querySelectorAll<HTMLElement>('a') ?? [])];
+    const items = [...(resultsRef.current?.querySelectorAll<HTMLElement>('a') ?? [])];
     if (!items.length) return;
     const index = items.indexOf(document.activeElement as HTMLElement);
     items[Math.min(items.length - 1, Math.max(0, index + delta))]?.focus();
@@ -160,6 +180,7 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
       </Box>
       <Box sx={{ height: 2 }}>{status === 'loading' && <LinearProgress />}</Box>
       <Box
+        ref={resultsRef}
         className="docs-scroll"
         sx={{ maxHeight: { xs: '65vh', sm: 480 }, overflowY: 'auto', px: 1, pb: 1 }}
         onKeyDown={(e) => {
@@ -175,7 +196,7 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
             color="text.secondary"
             sx={{ px: 1.5, py: 3, textAlign: 'center' }}
           >
-            Type to search every page, prop and guide.
+            Type to search every page, prop, guide and icon.
           </Typography>
         )}
         {status === 'unavailable' && (
@@ -184,7 +205,7 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
             the output to search.
           </Typography>
         )}
-        {status === 'ready' && results.length === 0 && query.trim() && (
+        {status === 'ready' && results.length === 0 && iconHits.length === 0 && term && (
           <Typography
             variant="body2"
             color="text.secondary"
@@ -193,7 +214,50 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
             No results for “{query.trim()}”.
           </Typography>
         )}
-        <List ref={listRef} aria-label="Search results" sx={{ py: 0.5 }}>
+        {iconHits.length > 0 && (
+          <Box component="section" aria-labelledby="docs-search-icons" sx={{ px: 1, pt: 1.5 }}>
+            <Typography
+              id="docs-search-icons"
+              variant="caption"
+              color="text.secondary"
+              component="h3"
+              sx={{ mb: 0.75, fontWeight: 600 }}
+            >
+              Icons
+            </Typography>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+              {iconHits.map((name) => (
+                <RouterLink
+                  key={name}
+                  to="/icons"
+                  search={{ q: term, icon: name }}
+                  onClick={onClose}
+                  underline="none"
+                  aria-label={`${name} icon`}
+                  sx={iconHitSx}
+                >
+                  <Icon name={name} size="medium" />
+                  <Box component="span" sx={{ typography: 'caption' }}>
+                    {name}
+                  </Box>
+                </RouterLink>
+              ))}
+              <RouterLink
+                to="/icons"
+                search={{ q: term }}
+                onClick={onClose}
+                underline="none"
+                sx={{ ...iconHitSx, color: 'var(--docs-accent)' }}
+              >
+                <Icon name="grid-view" size="medium" />
+                <Box component="span" sx={{ typography: 'caption' }}>
+                  All matches
+                </Box>
+              </RouterLink>
+            </Box>
+          </Box>
+        )}
+        <List aria-label="Search results" sx={{ py: 0.5 }}>
           {results.map((r) => (
             <li key={r.url}>
               <ListItemButton

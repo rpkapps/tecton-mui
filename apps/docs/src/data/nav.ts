@@ -74,6 +74,7 @@ export const navSections: NavSection[] = [
     icon: 'code',
     items: [{ title: 'All component APIs', to: '/api' }],
   },
+  { id: 'icons', title: 'Icons', icon: 'image', items: [{ title: 'All icons', to: '/icons' }] },
   { id: 'guides', title: 'Guides', icon: 'discovery', items: guides },
   { id: 'releases', title: 'Releases', icon: 'history', items: releases },
 ];

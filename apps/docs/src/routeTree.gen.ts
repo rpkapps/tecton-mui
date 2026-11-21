@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root';
 import { Route as IndexRouteImport } from './routes/index';
+import { Route as IconsRouteImport } from './routes/icons';
 import { Route as ApiIndexRouteImport } from './routes/api/index';
 import { Route as ApiSlugRouteImport } from './routes/api/$slug';
 import { Route as ComponentsIndexRouteImport } from './routes/components/index';
@@ -31,6 +32,11 @@ import { Route as ReleasesMigrationGuidesRouteImport } from './routes/releases/m
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any);
+const IconsRoute = IconsRouteImport.update({
+  id: '/icons',
+  path: '/icons',
   getParentRoute: () => rootRouteImport,
 } as any);
 const ApiIndexRoute = ApiIndexRouteImport.update({
@@ -126,6 +132,7 @@ const ReleasesMigrationGuidesRoute = ReleasesMigrationGuidesRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute;
+  '/icons': typeof IconsRoute;
   '/api/$slug': typeof ApiSlugRoute;
   '/components/$slug': typeof ComponentsSlugRoute;
   '/getting-started/installation': typeof GettingStartedInstallationRoute;
@@ -146,6 +153,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute;
+  '/icons': typeof IconsRoute;
   '/api/$slug': typeof ApiSlugRoute;
   '/components/$slug': typeof ComponentsSlugRoute;
   '/getting-started/installation': typeof GettingStartedInstallationRoute;
@@ -167,6 +175,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport;
   '/': typeof IndexRoute;
+  '/icons': typeof IconsRoute;
   '/api/$slug': typeof ApiSlugRoute;
   '/components/$slug': typeof ComponentsSlugRoute;
   '/getting-started/installation': typeof GettingStartedInstallationRoute;
@@ -189,6 +198,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
     | '/'
+    | '/icons'
     | '/api/$slug'
     | '/components/$slug'
     | '/getting-started/installation'
@@ -209,6 +219,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo;
   to:
     | '/'
+    | '/icons'
     | '/api/$slug'
     | '/components/$slug'
     | '/getting-started/installation'
@@ -229,6 +240,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/icons'
     | '/api/$slug'
     | '/components/$slug'
     | '/getting-started/installation'
@@ -250,6 +262,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute;
+  IconsRoute: typeof IconsRoute;
   ApiSlugRoute: typeof ApiSlugRoute;
   ComponentsSlugRoute: typeof ComponentsSlugRoute;
   GettingStartedInstallationRoute: typeof GettingStartedInstallationRoute;
@@ -276,6 +289,13 @@ declare module '@tanstack/react-router' {
       path: '/';
       fullPath: '/';
       preLoaderRoute: typeof IndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    '/icons': {
+      id: '/icons';
+      path: '/icons';
+      fullPath: '/icons';
+      preLoaderRoute: typeof IconsRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     '/api/': {
@@ -402,6 +422,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  IconsRoute: IconsRoute,
   ApiSlugRoute: ApiSlugRoute,
   ComponentsSlugRoute: ComponentsSlugRoute,
   GettingStartedInstallationRoute: GettingStartedInstallationRoute,
