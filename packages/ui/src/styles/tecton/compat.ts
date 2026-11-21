@@ -60,10 +60,11 @@ export const muiCompatOverrides: ThemeOptions = {
       },
       styleOverrides: {
         root: {
-          // Table dividers use Tecton's action/outlined/border token. MUI X otherwise derives a
-          // neutral gray from palette.divider (it reads palette.TableCell.border only for
-          // CSS-variables themes), which is what row lines, header and separators used.
-          '&&': { '--DataGrid-t-color-border-base': cssVar('color-action-outlined-border') },
+          // Grid dividers use Tecton's divider token, as the Tecton table (MuiTableCell and the
+          // drop-in table) does. MUI X otherwise derives a neutral gray from palette.divider (it
+          // reads palette.TableCell.border only for CSS-variables themes), which is what row
+          // lines, header and separators used.
+          '&&': { '--DataGrid-t-color-border-base': cssVar('color-divider') },
         },
         // Tecton puts a bottom border on the header container, but MUI X already draws one on every
         // header cell (in --DataGrid-t-color-border-base above); together they render 2px.
@@ -100,7 +101,7 @@ export const muiCompatOverrides: ThemeOptions = {
           },
         },
         footerContainer: {
-          borderTop: `${cssVar('border-width-100')} solid ${cssVar('color-action-outlined-border')}`,
+          borderTop: `${cssVar('border-width-100')} solid ${cssVar('color-divider')}`,
           // Footer text and pagination arrows as in the Tecton table drop-in (TablePagination and
           // the grid footer otherwise use the primary text colour).
           color: cssVar('color-text-secondary'),
@@ -176,7 +177,7 @@ export const muiCompatOverrides: ThemeOptions = {
           // Row dividers. Tecton's grid theme zeroes the cells' top border (its Figma DataGrid
           // draws none), so rows ran together; the Tecton table drop-in separates rows with a
           // 1px line. Restore MUI X's row line, in --DataGrid-t-color-border-base
-          // (color-action-outlined-border, as every grid divider).
+          // (color-divider, as every grid divider and the Tecton table).
           borderTopWidth: cssVar('border-width-100'),
           // Tecton centers row content (`align-items: center`), so the empty filler cell after the
           // last column collapsed to its 1px border in the middle of the row; stretch it.

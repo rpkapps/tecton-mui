@@ -376,13 +376,13 @@ describe('Tecton tree view defaults', () => {
 });
 
 describe('Tecton Data Grid compat', () => {
-  it('uses the Tecton action/outlined/border token for grid dividers and aligns the header checkbox', () => {
+  it('uses the Tecton divider token for grid dividers (as the table) and aligns the header checkbox', () => {
     const overrides = createTheme().components?.MuiDataGrid?.styleOverrides as Record<
       string,
       Record<string, unknown>
     >;
     expect(overrides.root['&&']).toEqual({
-      '--DataGrid-t-color-border-base': 'var(--tecton-color-action-outlined-border)',
+      '--DataGrid-t-color-border-base': 'var(--tecton-color-divider)',
     });
     // MUI X already draws the header bottom border on each header cell (in the border colour
     // above); Tecton's extra border on the header container is removed so it is not 2px.

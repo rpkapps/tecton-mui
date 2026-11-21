@@ -1618,8 +1618,8 @@ const INITIAL_DERIVED: DerivedState = {
   columnLookup: {},
 };
 
-// Table dividers: Tecton action/outlined/border (rows, header, footer, pinned sections).
-const divider = cssVar('color-action-outlined-border');
+// Table dividers: Tecton's divider token, as the Tecton table (rows, header, footer, pinned sections).
+const divider = cssVar('color-divider');
 // Shadows are always dark (never derived from the text color, which is light in dark mode).
 const pinShadow = 'var(--tdg-shadow-color)';
 const leftEdge =

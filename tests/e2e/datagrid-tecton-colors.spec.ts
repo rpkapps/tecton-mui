@@ -119,6 +119,14 @@ for (const mode of ['light', 'dark'] as const) {
           ...new Set(cells.map((c) => getComputedStyle(c).backgroundColor)),
         ]);
       expect(cellColors).toEqual([active]);
+      // Row dividers: 1px in color-divider, as the Tecton table.
+      const divider = await token(page, 'color-divider');
+      const line = await root
+        .locator('.MuiDataGrid-row[data-rowindex="2"] .MuiDataGrid-cell[data-field="field"]')
+        .evaluate(
+          (c) => `${getComputedStyle(c).borderTopWidth} ${getComputedStyle(c).borderTopColor}`,
+        );
+      expect(line).toBe(`1px ${divider}`);
       // No Material SVG icon anywhere in the grid (boolean cells, column separators, header).
       expect(await root.locator('svg.MuiSvgIcon-root').count()).toBe(0);
       // Boolean cells keep their accessible "yes" / "no" on the Tecton icon.
