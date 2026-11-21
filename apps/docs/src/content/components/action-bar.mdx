@@ -1,0 +1,120 @@
+## Purpose
+
+An action bar is a vertical palette of tools docked to one edge of a canvas, map, section or
+viewer. It keeps the tools people switch between all the time (select, pan, zoom, draw, measure)
+one click away, next to the content they work on. Use it for editors and viewers with a current
+tool. For a few commands about one element, use a [Menu](/components/menu); for an application's
+full command set, use a [Menubar](/components/menubar).
+
+Material UI has no action bar. `@tecton-mui/ui` builds it from Material parts, so every surface and
+state comes from the Tecton theme: groups are bordered `Paper` surfaces, buttons are square tertiary
+`IconButton`s, names show in a `Tooltip`, tool sets open a `Menu` and quick settings are `Select`s.
+
+## Basic action bar
+
+An `ActionBar` holds `ActionBarGroup`s of controls. An `ActionBarButton` with a `value` is a tool:
+the bar keeps one tool current (`value`, `defaultValue`, `onChange`) and shows it as activated.
+A button without a `value` is a plain action, such as Undo, that runs its `onClick`.
+
+<Demo name="BasicActionBar" />
+
+Every button needs a `label`. It is the button's accessible name and the text of its tooltip, which
+appears once the pointer rests on the button or the button gets keyboard focus.
+
+## Tool sets
+
+An `ActionBarToolMenu` holds several related tools in one button, marked by a small triangle in its
+corner. The button shows the tool picked last and makes it current when pressed. To pick another tool
+of the set, hold the button, right-click it, or press the arrow key toward the menu side. The menu
+shows the shown tool as selected; picking a tool makes it current and shows it on the button.
+
+`label` names the set (it labels the menu, not the button). `defaultValue` chooses the tool shown
+before the user picks one; otherwise it is the first tool. When the bar's `value` is one of the
+set's tools, the button shows that tool.
+
+<Demo name="ToolSetsActionBar" />
+
+## Right-aligned bar
+
+`alignment` is the edge the bar sits on. Groups line up on that edge, and tooltips and tool menus
+open on the other side, over the content. `alignment="left"` (the default) and `"right"` are
+mirrored in right-to-left layouts, like the `Drawer` anchor.
+
+<Demo name="RightAlignedActionBar" />
+
+## Quick settings
+
+An `ActionBarSelect` is a compact `Select` for a setting the tools depend on, such as a zoom level
+or a color map. It has no visible label: give it an `aria-label`. `variant="standard"` (the default)
+is the text-only select of the Tecton design; `variant="filled"` adds the input fill. Its menu opens
+below it, lined up on the bar's edge.
+
+<Demo name="ActionBarSelects" />
+
+## Keyboard
+
+The bar is one tab stop. The control that held the focus last keeps it.
+
+| Key                                       | Action                                                                |
+| ----------------------------------------- | --------------------------------------------------------------------- |
+| <kbd>Tab</kbd> / <kbd>Shift+Tab</kbd>     | Moves the focus into and out of the bar                               |
+| <kbd>↓</kbd> <kbd>↑</kbd>                 | Moves to the next or previous control (wrapping); skips disabled ones |
+| <kbd>Home</kbd> / <kbd>End</kbd>          | Moves to the first or last control                                    |
+| <kbd>Enter</kbd> / <kbd>Space</kbd>       | Presses a button; opens a select                                      |
+| <kbd>→</kbd> (on a tool set)              | Opens its menu on the selected tool (<kbd>←</kbd> when it opens left) |
+| <kbd>Shift+F10</kbd> / context menu key   | Opens a tool set's menu                                               |
+| <kbd>↓</kbd> <kbd>↑</kbd> (in a menu)     | Moves between the tools or options                                    |
+| <kbd>Enter</kbd> (in a menu)              | Picks the tool or option, closes the menu and returns the focus       |
+| <kbd>←</kbd> / <kbd>Esc</kbd> (in a menu) | Closes the menu and returns the focus to its button                   |
+| <kbd>Alt+↓</kbd> (on a select)            | Opens the select                                                      |
+
+In a vertical bar <kbd>↓</kbd> and <kbd>↑</kbd> move along the bar, so they do not open a select
+the way they do elsewhere; use <kbd>Enter</kbd>, <kbd>Space</kbd> or <kbd>Alt+↓</kbd>.
+
+## Accessibility
+
+- The bar has `role="toolbar"` and `aria-orientation="vertical"`. Name it with `aria-label` (or
+  `aria-labelledby`), for example "Section tools". Each group has `role="group"`; name it too when
+  its purpose is not obvious from its buttons.
+- Every button is named by its `label`. Tools are toggle buttons: `aria-pressed` tells whether the
+  tool is current. Plain actions have no pressed state.
+- A tool set's button is named after the tool it shows and has `aria-haspopup="menu"`,
+  `aria-expanded` and `aria-controls`. Its description tells keyboard users how to open the menu;
+  change the text with `moreToolsHint` (for example to translate it). The menu is labelled by the
+  set's `label`, and its items are `menuitemradio`s whose `aria-checked` marks the shown tool.
+- Opening a menu moves the focus into it; closing it returns the focus to the button.
+- Icons are decorative. Tooltips repeat the label for sighted users; they open on hover and on
+  keyboard focus and are not needed to operate the bar.
+- Disabled controls are skipped by the arrow keys and have no tooltip.
+
+## Design tokens
+
+The bar adds no colors of its own. It uses the theme's `Paper`, `IconButton`, `Tooltip`, `Menu`
+and `Select` styles, plus these Tecton tokens from the Figma component:
+
+| Part                    | Tokens                                                                                                        |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Spacing between groups  | `space-50`                                                                                                    |
+| Group surface           | `color-bg-paper` (theme `Paper`), border `border-width-100` `color-divider-subtle`, `radius-50`               |
+| Group padding and gap   | `space-50` (less the border width, as Figma strokes inside)                                                   |
+| Buttons                 | `IconButton` `color="tertiary"` `variant="square"`, medium (32px)                                             |
+| Current tool            | `color-action-tertiary-bg-active`, `color-action-tertiary-adornment-active` (the theme's activated state)     |
+| Tool set triangle       | `color-action-tertiary-adornment`; `color-action-tertiary-text-active` when hovered, focused, pressed or open |
+| Tooltip and menu offset | `space-25` from the button                                                                                    |
+
+## Parts
+
+| Part                | Renders                                       |
+| ------------------- | --------------------------------------------- |
+| `ActionBar`         | The toolbar (`div`)                           |
+| `ActionBarGroup`    | Bordered `Paper` holding related controls     |
+| `ActionBarButton`   | Square tertiary `IconButton` with a `Tooltip` |
+| `ActionBarToolMenu` | Tool set button with a `Tooltip` and a `Menu` |
+| `ActionBarTool`     | `MenuItem` with an icon (one tool of a set)   |
+| `ActionBarSelect`   | Compact `Select`                              |
+
+The parts take `sx` and `className`. `ActionBarButton` and `ActionBarToolMenu` take the
+`IconButton` props (except `color`, `size` and `variant`, which the design fixes) and
+`slotProps.tooltip`; `ActionBarToolMenu` also takes `slotProps.menu`. `ActionBarSelect` takes the
+`Select` props. `actionBarClasses` lists the class names (`TectonActionBar-root`,
+`TectonActionBar-group` ...) for global styles.

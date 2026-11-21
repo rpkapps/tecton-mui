@@ -10,6 +10,7 @@ customization APIs, preconfigured with the **Tecton** design system.
   implemented independently on public MUI X Community APIs. No commercial MUI X code is used.
 - `NumberField`, `NumberSpinner` and `Menubar`, which Material UI 9.5.0 offers only as copy-paste
   recipes, packaged as components: built on Base UI (`@base-ui/react`, MIT) and styled by the theme.
+- `ActionBar`, the Tecton vertical tool palette, composed from Material components.
 - Tecton fonts, icons and tokens, with a typed `Icon` (no `@mui/icons-material` needed). Light and
   dark mode shared by every React root on the page, RTL and SSR helpers.
 - ESM only, TypeScript declarations for every public path, tree-shakeable imports.
@@ -346,6 +347,37 @@ The parts wrap the Base UI `Menubar` and `Menu` parts and take their props, plus
 `className`. Items use the theme's `MenuItem` styles and popups the `Menu` paper. Submenus,
 checkbox items, radio groups and labelled groups are available as `MenubarSubmenu`,
 `MenubarCheckboxItem`, `MenubarRadioGroup`/`MenubarRadioItem` and `MenubarGroup`/`MenubarGroupLabel`.
+
+## ActionBar
+
+A vertical tool palette for canvases and viewers (Tecton "Action Bar"), a WAI-ARIA toolbar with one
+tab stop and arrow-key navigation:
+
+```tsx
+import ActionBar, {
+  ActionBarButton,
+  ActionBarGroup,
+  ActionBarTool,
+  ActionBarToolMenu,
+} from '@tecton-mui/ui/ActionBar';
+
+<ActionBar aria-label="Section tools" value={tool} onChange={(event, value) => setTool(value)}>
+  <ActionBarGroup>
+    <ActionBarButton value="select" label="Select" icon={<Icon name="select-cursor" />} />
+    <ActionBarToolMenu label="Zoom tools">
+      <ActionBarTool value="zoom-in" label="Zoom in" icon={<Icon name="zoom-in" />} />
+      <ActionBarTool value="zoom-out" label="Zoom out" icon={<Icon name="zoom-out" />} />
+    </ActionBarToolMenu>
+  </ActionBarGroup>
+  <ActionBarGroup>
+    <ActionBarButton label="Undo" icon={<Icon name="undo" />} onClick={undo} />
+  </ActionBarGroup>
+</ActionBar>;
+```
+
+Buttons with a `value` are tools (one is current); buttons without one are plain actions. A tool
+menu holds a set of tools and opens on long press, right-click or the arrow key toward its menu.
+`ActionBarSelect` adds a compact `Select`; `alignment="right"` docks the bar on the right.
 
 ## Advanced components
 

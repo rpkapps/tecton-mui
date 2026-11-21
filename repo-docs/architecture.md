@@ -102,8 +102,10 @@ listed as `customModules` in the inventory. Today: `Icon`, `LocalizationProvider
 `RichTreeView`, the range pickers (`DateRangePicker`, `TimeRangePicker`, `DateTimeRangePicker` and
 their `Desktop*`, `Mobile*` and `Static*` variants), `DateRangeCalendar`,
 `MultiInputDateRangeField`, the `SingleInput*RangeField` fields, `NumberField`/`NumberSpinner`
-(Base UI number field with Material form components; shared code in `internal/number-field/`) and
-`Menubar` (Base UI menubar and menu; one module exporting the `Menubar*` parts).
+(Base UI number field with Material form components; shared code in `internal/number-field/`),
+`Menubar` (Base UI menubar and menu; one module exporting the `Menubar*` parts) and `ActionBar`
+(the Tecton tool palette composed from Material components; one module exporting the `ActionBar*`
+parts).
 
 `pnpm inventory:check` fails if any generated output is stale.
 

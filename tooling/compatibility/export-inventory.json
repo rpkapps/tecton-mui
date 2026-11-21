@@ -9,6 +9,7 @@
     "@mui/x-tree-view": "9.18.0"
   },
   "customModules": [
+    "ActionBar",
     "AppBar",
     "DataGrid",
     "DateRangeCalendar",
@@ -40,6 +41,7 @@
     "AccordionActions",
     "AccordionDetails",
     "AccordionSummary",
+    "ActionBar",
     "AdapterDateFns",
     "AdapterDayjs",
     "AdapterLuxon",
