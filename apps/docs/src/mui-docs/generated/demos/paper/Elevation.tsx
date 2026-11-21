@@ -24,6 +24,7 @@ export default function Elevation() {
           <Grid key={index} size={6}>
             <ThemeProvider theme={theme}>
               <Box
+                data-theme={theme.palette.mode}
                 sx={{
                   p: 2,
                   borderRadius: 2,

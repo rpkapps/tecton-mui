@@ -8,10 +8,14 @@ import { gridIconSlots, iconCompatOverrides, tablePaginationFirstLast } from './
 // Tecton sets `outline: none` on focused Data Grid cells and column headers and draws nothing
 // instead, so keyboard focus is invisible while navigating with the arrow keys (WCAG 2.4.7).
 // Draw Tecton's 2px focus-ring colour inside the cell (an outer ring would be clipped by the
-// neighbouring cells), for keyboard focus only (`:focus-visible`, also when the focus is on a
-// control inside the cell: checkbox, row reorder handle).
+// neighbouring cells), for keyboard focus only: on the cell itself, or on a control inside it that
+// draws no ring of its own (the row reorder handle). Inputs, selects and MUI controls with
+// Tecton's focus ring (`Mui-focusVisible`: checkbox, icon buttons, header filter inputs) keep only
+// their own ring, so there is never a ring inside a ring.
+export const GRID_FOCUS_SELECTOR =
+  '&:focus-visible, &:has(:focus-visible):not(:has(input:focus-visible, select:focus-visible, textarea:focus-visible, .Mui-focusVisible, [class*="headerFilterControl"]:focus-within))';
 const gridFocusRing = {
-  '&:focus-visible, &:has(:focus-visible)': {
+  [GRID_FOCUS_SELECTOR]: {
     outline: `${cssVar('border-width-200')} solid ${cssVar('color-focus-ring')}`,
     outlineOffset: `calc(-1 * ${cssVar('border-width-200')})`,
   },
@@ -65,6 +69,35 @@ export const muiCompatOverrides: ThemeOptions = {
           // reads palette.TableCell.border only for CSS-variables themes), which is what row
           // lines, header and separators used.
           '&&': { '--DataGrid-t-color-border-base': cssVar('color-divider') },
+          // Column resize handle: MUI darkens it to its accent colour on hover, focus and while
+          // resizing, which is barely visible against Tecton's divider in dark mode. Use Tecton's
+          // interactive text colour in both modes.
+          '& .MuiDataGrid-columnSeparator--resizable:hover, & .MuiDataGrid-columnSeparator--resizing, & .MuiDataGrid-columnHeader:focus .MuiDataGrid-columnSeparator--resizable, & .MuiDataGrid-columnHeader--last .MuiDataGrid-columnSeparator--resizable:hover':
+            { color: cssVar('color-action-text-only-text') },
+          // The separator bar (compatIcons.ts): 1px at rest, a 3px rounded bar on hover, while
+          // resizing and on touch devices, as MUI X 9 draws its separator icon.
+          '& .TectonDataGrid-separatorBar': {
+            width: '1px',
+            height: '100%',
+            borderRadius: '0.5px',
+            backgroundColor: 'currentColor',
+          },
+          '& .MuiDataGrid-columnSeparator--resizing .TectonDataGrid-separatorBar': {
+            width: '3px',
+            borderRadius: '1.5px',
+          },
+          '@media (hover: hover)': {
+            '& .MuiDataGrid-columnSeparator--resizable:hover .TectonDataGrid-separatorBar': {
+              width: '3px',
+              borderRadius: '1.5px',
+            },
+          },
+          '@media (hover: none)': {
+            '& .MuiDataGrid-columnSeparator--resizable .TectonDataGrid-separatorBar': {
+              width: '3px',
+              borderRadius: '1.5px',
+            },
+          },
         },
         // Tecton puts a bottom border on the header container, but MUI X already draws one on every
         // header cell (in --DataGrid-t-color-border-base above); together they render 2px.
@@ -151,9 +184,10 @@ export const muiCompatOverrides: ThemeOptions = {
         // Header icons and title as in Tecton's table (the MUI Table drop-in in the Tecton
         // Storybook): Tecton's grid theme draws 24px sort icons in the action colour, leaves the
         // column menu button in MUI's default colour (black / white) and uses a regular-weight
-        // title. The table uses 16px icons in the header text colour and a medium-weight title.
+        // title. The table uses a medium-weight title and 16px sort icons painted in the primary
+        // text colour (the icon mask's background; its `color` property reads secondary).
         sortIcon: {
-          color: cssVar('color-text-secondary'),
+          color: cssVar('color-text-primary'),
           width: cssVar('icon-size-100'),
           height: cssVar('icon-size-100'),
         },

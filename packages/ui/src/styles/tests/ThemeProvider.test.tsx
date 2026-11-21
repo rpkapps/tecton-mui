@@ -17,6 +17,7 @@ import {
   initTecton,
 } from '../index.js';
 import { __resetModeStoreForTests } from '../modeStore.js';
+import { GRID_FOCUS_SELECTOR } from '../tecton/compat.js';
 
 function ThemeProbe({ id = 'probe' }: { id?: string }) {
   const theme = useTheme();
@@ -326,7 +327,7 @@ describe('Tecton data grid corrections', () => {
       >
     ).MuiDataGrid.styleOverrides;
     for (const slot of ['cell', 'columnHeader']) {
-      expect(grid[slot]['&:focus-visible, &:has(:focus-visible)']).toEqual({
+      expect(grid[slot][GRID_FOCUS_SELECTOR]).toEqual({
         outline: 'var(--tecton-border-width-200) solid var(--tecton-color-focus-ring)',
         outlineOffset: 'calc(-1 * var(--tecton-border-width-200))',
       });
@@ -406,10 +407,10 @@ describe('Tecton data grid header and striping', () => {
       Record<string, unknown>
     >;
 
-  it('draws header sort and menu icons like the Tecton table (16px, secondary text)', () => {
+  it('draws header sort icons like the Tecton table (16px, primary text) and the menu icon in secondary text', () => {
     const overrides = grid();
     expect(overrides.sortIcon).toEqual({
-      color: 'var(--tecton-color-text-secondary)',
+      color: 'var(--tecton-color-text-primary)',
       width: 'var(--tecton-icon-size-100)',
       height: 'var(--tecton-icon-size-100)',
     });

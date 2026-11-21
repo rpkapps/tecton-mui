@@ -274,6 +274,29 @@ async function sync(packages) {
     if (page.source.startsWith(MUI_COMPONENTS_DIR) && !upstreamSources.has(page.source))
       console.warn(`  warning: ${page.source} is no longer listed upstream`);
 
+  // Sections about third-party projects are not part of this library's documentation: drop each
+  // one (its heading and everything up to the next heading of the same or a higher level).
+  const DROPPED_SECTIONS = /^supplementary projects$/i;
+  const dropSections = (markdown) => {
+    const out = [];
+    let skipLevel = 0;
+    let inFence = false;
+    for (const line of markdown.split('\n')) {
+      if (/^\s*```/.test(line)) inFence = !inFence;
+      const heading = inFence ? null : /^(#{1,6})\s+(.*?)\s*$/.exec(line);
+      if (heading) {
+        const level = heading[1].length;
+        if (skipLevel && level <= skipLevel) skipLevel = 0;
+        if (!skipLevel && DROPPED_SECTIONS.test(heading[2])) {
+          skipLevel = level;
+          continue;
+        }
+      }
+      if (!skipLevel) out.push(line);
+    }
+    return out.join('\n');
+  };
+
   // 2. Parse the included pages and adapt their demos.
   const pages = manifest.pages.filter(
     (p) => p.status !== 'excluded' && manifest.upstream[p.package].repo === config.repo,
@@ -291,6 +314,7 @@ async function sync(packages) {
         );
       text = text.replace(edit.find, edit.replace);
     }
+    text = dropSections(text);
     const page = parsePage(text, parsers);
     const dir = entry.source.slice(0, entry.source.lastIndexOf('/'));
     const demoBlocks = [];

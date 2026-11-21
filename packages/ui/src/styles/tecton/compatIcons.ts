@@ -84,19 +84,28 @@ const AvatarFallbackIcon: Slot = (props) =>
   });
 AvatarFallbackIcon.displayName = 'TectonSlotIcon';
 
-/** DataGrid column separator: a 1px line in the icon colour instead of Material's SVG bar. */
+/**
+ * DataGrid column separator, drawn as MUI X 9 draws it without the Material SVG: a 1px bar the
+ * height of the 24px icon box, which widens to a 3px rounded bar on hover, while resizing and on
+ * touch devices (CSS in compat.ts, `.TectonDataGrid-separatorBar`).
+ */
 const ColumnSeparatorIcon: Slot = (props) =>
-  React.createElement('span', {
-    ...spanProps(props),
-    'aria-hidden': true,
-    style: {
-      display: 'inline-block',
-      width: '1em',
-      height: '1em',
-      background: 'linear-gradient(currentColor, currentColor) center / 1px 58% no-repeat',
-      ...(props.style as object | undefined),
+  React.createElement(
+    'span',
+    {
+      ...spanProps(props),
+      'aria-hidden': true,
+      style: {
+        display: 'inline-flex',
+        justifyContent: 'center',
+        flexShrink: 0,
+        width: '1.5rem',
+        height: '1.5rem',
+        ...(props.style as object | undefined),
+      },
     },
-  });
+    React.createElement('span', { className: 'TectonDataGrid-separatorBar' }),
+  );
 ColumnSeparatorIcon.displayName = 'TectonSlotIcon';
 
 /**
@@ -192,7 +201,21 @@ export const iconCompatOverrides: NonNullable<ThemeOptions['components']> = {
   MuiAlert: { defaultProps: { slots: { closeIcon: tectonIcon('tecton-close-outline') } } },
   MuiSpeedDialIcon: {
     defaultProps: {
-      icon: React.createElement('span', { className: 'tecton-add-outline', 'aria-hidden': true }),
+      // SpeedDialIcon clones the icon with its own className, which would replace a plain span's
+      // glyph class; the slot component merges the classes.
+      icon: React.createElement(tectonIcon('tecton-add-outline')),
+    },
+    styleOverrides: {
+      // MUI's SpeedDialIcon box is 24px; Tecton's Fab rule drew the glyph at 20px at the top of it
+      // (2px above the button's centre). Fill the box, as MUI's 24px icon does.
+      root: {
+        '& [class*="tecton-"]': {
+          display: 'block',
+          fontSize: 'var(--tecton-icon-size-200)',
+          width: 'var(--tecton-icon-size-200)',
+          height: 'var(--tecton-icon-size-200)',
+        },
+      },
     },
   },
 } as NonNullable<ThemeOptions['components']>;

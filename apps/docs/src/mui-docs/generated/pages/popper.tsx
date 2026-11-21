@@ -155,37 +155,6 @@ export default function MuiDocs() {
       </M.p>
       <M.p>{'Highlight part of the text to see the popper:'}</M.p>
       <Demo name="VirtualElementPopper" />
-      <Heading level={3} id="supplementary-projects">
-        {'Supplementary projects'}
-      </Heading>
-      <M.p>{'For more advanced use cases you might be able to take advantage of:'}</M.p>
-      <Heading level={4} id="material-ui-popup-state">
-        {'material-ui-popup-state'}
-      </Heading>
-      <M.p>
-        <M.img
-          src={
-            'https://img.shields.io/github/stars/jcoreio/material-ui-popup-state?style=social&label=Star'
-          }
-          alt={'stars'}
-        />
-        {'\n'}
-        <M.img
-          src={'https://img.shields.io/npm/dm/material-ui-popup-state.svg'}
-          alt={'npm downloads'}
-        />
-      </M.p>
-      <M.p>
-        {'The package '}
-        <M.a href={'https://github.com/jcoreio/material-ui-popup-state'}>
-          <M.code>{'material-ui-popup-state'}</M.code>
-        </M.a>
-        {' that takes care of popper state for you in most cases.'}
-      </M.p>
-      <ExcludedDemo
-        name="PopperPopupState"
-        reason="requires the third-party package material-ui-popup-state, which the portal does not depend on"
-      />
       <Attribution
         version="9.5.0"
         sources={[

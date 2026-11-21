@@ -89,6 +89,8 @@ describe('Tecton icons in MUI components', () => {
     const icons = materialIcons(container).filter((id) => !id.includes('MuiSte'));
     expect(icons).toEqual([]);
     expect(container.querySelector('.MuiAvatar-root .tecton-person-outline')).not.toBeNull();
+    // SpeedDialIcon adds its own class to the icon; the Tecton glyph class must survive.
+    expect(container.querySelector('.MuiSpeedDialIcon-icon.tecton-add-outline')).not.toBeNull();
     expect(container.querySelector('.tecton-check-circle-filled.Mui-completed')).not.toBeNull();
     expect(container.querySelector('.tecton-warning-filled.Mui-error')).not.toBeNull();
   });

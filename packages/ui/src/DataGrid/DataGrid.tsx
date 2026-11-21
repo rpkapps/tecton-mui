@@ -24,6 +24,10 @@ import {
 import { Store, useStoreSelector } from './core/store.js';
 import { useKeyboardNavigation } from './core/keyboardNavigation.js';
 import { useRowsScrollEnd } from './features/server-data/useRowsScrollEnd.js';
+import {
+  pinnedRightResizeSx,
+  usePinnedRightResize,
+} from './features/pinning-reordering/usePinnedRightResize.js';
 import { DefaultToolbar } from './mui-community-adapter/toolbar.js';
 import { cssVar } from '../styles/tecton/index.js';
 import {
@@ -940,6 +944,7 @@ function DataGridInner<R extends GridValidRowModel>(
 
   // ---------------------------------------------------------------- DOM-level features
   usePinnedColumnOffsets(apiRef, rootRef, disableColumnPinning ? NO_PINNED : pinnedNormalized);
+  usePinnedRightResize(rootRef, apiRef, !disableColumnPinning && pinnedNormalized.right.length > 0);
   useScrollEdges(rootRef, true);
   // Sticky pinned cells must stay mounted, but the virtualizer drops columns behind the scroll
   // direction regardless of the buffer size. Turn column virtualization off while columns are
@@ -1678,6 +1683,7 @@ const BASE_SX = {
   },
   '&[data-tdg-scroll-y="start"] .TectonDataGrid-pinnedRows--bottom, &[data-tdg-scroll-y="middle"] .TectonDataGrid-pinnedRows--bottom':
     { boxShadow: `0 -4px 8px -4px ${pinShadow}` },
+  ...pinnedRightResizeSx,
   // The first row of a pinned section sits on the section's own edge line: no second row divider.
   '& .TectonDataGrid-pinnedRows > .MuiDataGrid-row:first-of-type > .MuiDataGrid-cell': {
     borderTopWidth: 0,

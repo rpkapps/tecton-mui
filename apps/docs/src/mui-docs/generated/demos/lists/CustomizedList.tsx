@@ -62,7 +62,7 @@ export default function CustomizedList() {
           },
         })}
       >
-        <Paper elevation={0} sx={{ maxWidth: 256 }}>
+        <Paper elevation={0} sx={{ maxWidth: 256 }} data-theme="dark">
           <FireNav component="nav" disablePadding>
             <ListItemButton component="a" href="#customized-list">
               <ListItemIcon sx={{ fontSize: 20 }}>🔥</ListItemIcon>

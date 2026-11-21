@@ -796,38 +796,6 @@ export default function MuiDocs() {
         }
         language={'jsx'}
       />
-      <Heading level={3} id="supplementary-projects">
-        {'Supplementary projects'}
-      </Heading>
-      <M.p>{'For more advanced use cases, you might be able to take advantage of:'}</M.p>
-      <M.ul>
-        <M.li>
-          <M.a href={'https://github.com/dohomi/react-hook-form-mui'}>{'react-hook-form-mui'}</M.a>
-          {': Material UI and '}
-          <M.a href={'https://react-hook-form.com/'}>{'react-hook-form'}</M.a>
-          {' combined.'}
-        </M.li>
-        <M.li>
-          <M.a href={'https://github.com/stackworx/formik-mui'}>{'formik-material-ui'}</M.a>
-          {': Bindings for using Material UI with '}
-          <M.a href={'https://formik.org/'}>{'formik'}</M.a>
-          {'.'}
-        </M.li>
-        <M.li>
-          <M.a href={'https://github.com/lookfirst/mui-rff'}>{'mui-rff'}</M.a>
-          {': Bindings for using Material UI with '}
-          <M.a href={'https://final-form.org/react'}>{'React Final Form'}</M.a>
-          {'.'}
-        </M.li>
-        <M.li>
-          <M.a href={'https://www.npmjs.com/package/@ui-schema/ds-material'}>
-            {'@ui-schema/ds-material'}
-          </M.a>
-          {' Bindings for using Material UI with '}
-          <M.a href={'https://github.com/ui-schema/ui-schema'}>{'UI Schema'}</M.a>
-          {'. JSON Schema compatible.'}
-        </M.li>
-      </M.ul>
       <Attribution
         version="9.5.0"
         sources={[
