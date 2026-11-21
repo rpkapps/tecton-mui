@@ -81,9 +81,9 @@ This is an organization policy. The library does not block or warn about overrid
 
 Tecton adds a few typed props through MUI module augmentation, for example `activated` on `Button`
 and `IconButton`, `variant="square"` on `IconButton`, `shape` on `Chip` and `Badge`, `emphasis` on
-`Divider` and `tier` / `productColor` on `AppBar`. With navigation props (`tabs`, `appName`,
-`onTabSelect`...), `AppBar` renders the Tecton App Bar, the React version of the `<wc-app-bar>`
-drop-in (see the App Bar page of the docs portal).
+`Divider` and `tier` on `AppBar`. `AppBar` is the Tecton App Bar, the React version of the
+`<wc-app-bar>` drop-in (branding, tabs, add button; `children` fill its actions region). It replaces
+the MUI `AppBar` and its `Toolbar` composition; see the App Bar page of the docs portal.
 
 ## Stylesheets: shell, hosted MFE and standalone
 

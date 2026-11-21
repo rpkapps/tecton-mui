@@ -37,7 +37,6 @@
     "skeleton": [{ "slug": "skeleton" }],
     "snackbars": [{ "slug": "snackbar" }],
     "accordion": [{ "slug": "accordion" }],
-    "app-bar": [{ "slug": "app-bar" }],
     "cards": [{ "slug": "card" }],
     "paper": [{ "slug": "paper" }],
     "bottom-navigation": [{ "slug": "bottom-navigation" }],

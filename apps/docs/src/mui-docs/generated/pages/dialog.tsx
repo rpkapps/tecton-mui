@@ -22,16 +22,12 @@ import FormDialog from '../demos/dialogs/FormDialog';
 import FormDialogSource from '../demos/dialogs/FormDialog.tsx?raw';
 import CustomizedDialogs from '../demos/dialogs/CustomizedDialogs';
 import CustomizedDialogsSource from '../demos/dialogs/CustomizedDialogs.tsx?raw';
-import FullScreenDialog from '../demos/dialogs/FullScreenDialog';
-import FullScreenDialogSource from '../demos/dialogs/FullScreenDialog.tsx?raw';
 import MaxWidthDialog from '../demos/dialogs/MaxWidthDialog';
 import MaxWidthDialogSource from '../demos/dialogs/MaxWidthDialog.tsx?raw';
 import ResponsiveDialog from '../demos/dialogs/ResponsiveDialog';
 import ResponsiveDialogSource from '../demos/dialogs/ResponsiveDialog.tsx?raw';
 import ConfirmationDialog from '../demos/dialogs/ConfirmationDialog';
 import ConfirmationDialogSource from '../demos/dialogs/ConfirmationDialog.tsx?raw';
-import CookiesBanner from '../demos/dialogs/CookiesBanner';
-import CookiesBannerSource from '../demos/dialogs/CookiesBanner.tsx?raw';
 import ScrollDialog from '../demos/dialogs/ScrollDialog';
 import ScrollDialogSource from '../demos/dialogs/ScrollDialog.tsx?raw';
 
@@ -47,9 +43,6 @@ const demos = {
   CustomizedDialogs: defineDemo('CustomizedDialogs', CustomizedDialogs, {
     code: CustomizedDialogsSource,
   }),
-  FullScreenDialog: defineDemo('FullScreenDialog', FullScreenDialog, {
-    code: FullScreenDialogSource,
-  }),
   MaxWidthDialog: defineDemo('MaxWidthDialog', MaxWidthDialog, { code: MaxWidthDialogSource }),
   ResponsiveDialog: defineDemo('ResponsiveDialog', ResponsiveDialog, {
     code: ResponsiveDialogSource,
@@ -57,12 +50,6 @@ const demos = {
   ConfirmationDialog: defineDemo('ConfirmationDialog', ConfirmationDialog, {
     code: ConfirmationDialogSource,
   }),
-  CookiesBanner: defineDemo(
-    'CookiesBanner',
-    CookiesBanner,
-    { code: CookiesBannerSource },
-    { iframe: true },
-  ),
   ScrollDialog: defineDemo('ScrollDialog', ScrollDialog, { code: ScrollDialogSource }),
 };
 
@@ -195,7 +182,10 @@ export default function MuiDocs() {
       <Heading level={3} id="full-screen-dialogs">
         {'Full-screen dialogs'}
       </Heading>
-      <Demo name="FullScreenDialog" />
+      <ExcludedDemo
+        name="FullScreenDialog"
+        reason="Composes MUI's AppBar with a Toolbar and its own content; @tecton-mui/ui's AppBar is the Tecton App Bar, which has no such composition."
+      />
       <Heading level={3} id="optional-sizes">
         {'Optional sizes'}
       </Heading>
@@ -257,7 +247,10 @@ export default function MuiDocs() {
       <M.p>
         {'The demo below shows a persistent cookie banner, a common non-modal dialog use case.'}
       </M.p>
-      <Demo name="CookiesBanner" />
+      <ExcludedDemo
+        name="CookiesBanner"
+        reason="Composes MUI's AppBar with a Toolbar and its own content; @tecton-mui/ui's AppBar is the Tecton App Bar, which has no such composition."
+      />
       <Heading level={3} id="draggable-dialog">
         {'Draggable dialog'}
       </Heading>

@@ -24,8 +24,6 @@ import TransitionsSnackbar from '../demos/snackbars/TransitionsSnackbar';
 import TransitionsSnackbarSource from '../demos/snackbars/TransitionsSnackbar.tsx?raw';
 import CustomizedSnackbars from '../demos/snackbars/CustomizedSnackbars';
 import CustomizedSnackbarsSource from '../demos/snackbars/CustomizedSnackbars.tsx?raw';
-import FabIntegrationSnackbar from '../demos/snackbars/FabIntegrationSnackbar';
-import FabIntegrationSnackbarSource from '../demos/snackbars/FabIntegrationSnackbar.tsx?raw';
 import DialogSnackbar from '../demos/snackbars/DialogSnackbar';
 import DialogSnackbarSource from '../demos/snackbars/DialogSnackbar.tsx?raw';
 import ConsecutiveSnackbars from '../demos/snackbars/ConsecutiveSnackbars';
@@ -48,12 +46,6 @@ const demos = {
   CustomizedSnackbars: defineDemo('CustomizedSnackbars', CustomizedSnackbars, {
     code: CustomizedSnackbarsSource,
   }),
-  FabIntegrationSnackbar: defineDemo(
-    'FabIntegrationSnackbar',
-    FabIntegrationSnackbar,
-    { code: FabIntegrationSnackbarSource },
-    { iframe: true, maxWidth: 400 },
-  ),
   DialogSnackbar: defineDemo('DialogSnackbar', DialogSnackbar, { code: DialogSnackbarSource }),
   ConsecutiveSnackbars: defineDemo('ConsecutiveSnackbars', ConsecutiveSnackbars, {
     code: ConsecutiveSnackbarsSource,
@@ -197,7 +189,10 @@ export default function MuiDocs() {
           ' on mobile, Material Design recommends positioning snackbars directly above it, as shown in the demo below:'
         }
       </M.p>
-      <Demo name="FabIntegrationSnackbar" />
+      <ExcludedDemo
+        name="FabIntegrationSnackbar"
+        reason="Composes MUI's AppBar with a Toolbar and its own content; @tecton-mui/ui's AppBar is the Tecton App Bar, which has no such composition."
+      />
       <Heading level={3} id="common-examples">
         {'Common examples'}
       </Heading>

@@ -2,7 +2,6 @@ import * as React from 'react';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderToString } from 'react-dom/server';
-import MuiAppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import { ThemeProvider } from '../../styles/index.js';
 import AppBar, {
@@ -72,47 +71,46 @@ function Host({
   );
 }
 
-describe('AppBar: MUI behaviour without navigation props', () => {
-  it('renders children in a header, like the MUI AppBar', () => {
-    wrap(
-      <AppBar position="static" color="secondary">
+describe('AppBar: replaces the MUI AppBar', () => {
+  it('always renders the Tecton app bar, also without props', () => {
+    const { container } = wrap(<AppBar />);
+    const bar = screen.getByRole('banner');
+    expect(bar.tagName).toBe('HEADER');
+    expect(bar).toHaveAttribute('data-region', 'app-bar');
+    expect(bar).toHaveClass(appBarClasses.root, appBarClasses.positionStatic);
+    expect(within(bar).getByText('APP')).toBeInTheDocument();
+    expect(container.querySelector('[data-region="branding"]')).not.toBeNull();
+    expect(screen.getByRole('button', { name: 'Add tab' })).toBeInTheDocument();
+  });
+
+  it('renders children in the actions region, not as the bar content', () => {
+    const { container } = wrap(
+      <AppBar>
         <Toolbar>Content</Toolbar>
       </AppBar>,
     );
-    const header = screen.getByRole('banner');
-    expect(header.tagName).toBe('HEADER');
-    expect(header).toHaveClass(appBarClasses.root, appBarClasses.positionStatic);
-    expect(header).toHaveClass(appBarClasses.colorSecondary);
-    expect(header).toHaveTextContent('Content');
-    expect(header.querySelector('[data-region]')).toBeNull();
+    const actions = container.querySelector('[data-region="right"][data-slot="actions"]');
+    expect(actions).toHaveTextContent('Content');
+    expect(container.querySelector('[data-region="left"]')).not.toHaveTextContent('Content');
   });
 
-  it('forwards the ref and supports `component`', () => {
+  it('keeps the MUI root props, the ref and `component`', () => {
     const ref = React.createRef<HTMLElement>();
     wrap(
-      <AppBar ref={ref} component="nav" position="static">
-        x
-      </AppBar>,
+      <AppBar
+        ref={ref}
+        component="nav"
+        appName="Planner"
+        position="sticky"
+        className="mine"
+        sx={{ mt: 1 }}
+      />,
     );
     expect(ref.current?.tagName).toBe('NAV');
-  });
-
-  it('renders the same markup as @mui/material/AppBar', () => {
-    const ours = renderToString(
-      <ThemeProvider>
-        <AppBar position="sticky" tier="secondary">
-          <Toolbar>x</Toolbar>
-        </AppBar>
-      </ThemeProvider>,
-    );
-    const mui = renderToString(
-      <ThemeProvider>
-        <MuiAppBar position="sticky" tier="secondary">
-          <Toolbar>x</Toolbar>
-        </MuiAppBar>
-      </ThemeProvider>,
-    );
-    expect(ours).toBe(mui);
+    expect(ref.current).toHaveAttribute('data-region', 'app-bar');
+    expect(ref.current).toHaveClass('mine', appBarClasses.positionSticky);
+    expect(screen.getByText('Planner')).toBeInTheDocument();
+    expect(screen.queryAllByRole('tab')).toHaveLength(0);
   });
 
   it('is the export of the root barrel', () => {
@@ -137,15 +135,6 @@ describe('AppBar: Tecton app bar layout', () => {
     expect(screen.getByRole('button', { name: 'Add tab' })).toBeInTheDocument();
     const actions = bar.querySelector('[data-region="right"][data-slot="actions"]');
     expect(within(actions as HTMLElement).getByText('notifications')).toBeInTheDocument();
-  });
-
-  it('switches layout on any navigation prop, and keeps MUI props', () => {
-    const ref = React.createRef<HTMLElement>();
-    wrap(<AppBar ref={ref} appName="Planner" position="sticky" className="mine" sx={{ mt: 1 }} />);
-    expect(ref.current).toHaveAttribute('data-region', 'app-bar');
-    expect(ref.current).toHaveClass('mine', appBarClasses.positionSticky);
-    expect(screen.getByText('Planner')).toBeInTheDocument();
-    expect(screen.queryAllByRole('tab')).toHaveLength(0);
   });
 
   it('shows the filled icon on the active tab and the outline icon elsewhere', () => {
@@ -420,9 +409,7 @@ export const ExtendedAppBar = (props: ExtendedAppBarProps) => <AppBar {...props}
 export function typeChecks() {
   return (
     <>
-      <AppBar position="static">
-        <Toolbar />
-      </AppBar>
+      <AppBar position="fixed" />
       <AppBar tabs={TABS} onTabSelect={(id: string) => id}>
         <button type="button">Share</button>
       </AppBar>

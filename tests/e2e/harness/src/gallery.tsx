@@ -5,7 +5,7 @@ import '@tecton-mui/ui/styles/fonts.css';
 import '@tecton-mui/ui/styles/icons.css';
 import '@tecton-mui/ui/styles/tokens.css';
 import { initTecton, ThemeProvider, useTectonMode } from '@tecton-mui/ui/styles';
-import { AppBar, Box, Button, CssBaseline, Tab, Tabs, Toolbar, Typography } from '@tecton-mui/ui';
+import { AppBar, Box, Button, CssBaseline } from '@tecton-mui/ui';
 import Icon from '@tecton-mui/ui/Icon';
 import { Showcase } from './App.js';
 import { GridScenarios } from './GridScenarios.js';
@@ -18,6 +18,7 @@ const VIEWS = [
   { id: 'tree-view', label: 'Tree View' },
 ] as const;
 type ViewId = (typeof VIEWS)[number]['id'];
+const GALLERY_TABS = VIEWS.map((v) => ({ id: v.id, label: v.label, closeable: false }));
 
 const viewFromHash = (): ViewId => {
   const id = window.location.hash.slice(1);
@@ -52,51 +53,30 @@ function Gallery() {
       <div dir={rtl ? 'rtl' : 'ltr'}>
         <AppBar
           position="sticky"
-          color="default"
-          elevation={0}
+          appName="Tecton MUI"
+          tabs={GALLERY_TABS}
+          activeTab={view}
+          disableTabAdd
+          onTabSelect={(next) => select(next as ViewId)}
           sx={{ top: 'env(safe-area-inset-top, 0px)' }}
         >
-          <Toolbar
-            sx={{
-              gap: 2,
-              flexWrap: 'wrap',
-              pl: 'max(16px, env(safe-area-inset-left, 0px))',
-              pr: 'max(16px, env(safe-area-inset-right, 0px))',
-            }}
+          <Button
+            variant="text"
+            color="tertiary"
+            size="small"
+            onClick={() => setRtl((r) => !r)}
+            aria-pressed={rtl}
           >
-            <Typography variant="h6" component="h1" sx={{ flexShrink: 0 }}>
-              Tecton MUI
-            </Typography>
-            <Tabs
-              value={view}
-              onChange={(_, next: ViewId) => select(next)}
-              variant="scrollable"
-              allowScrollButtonsMobile
-              sx={{ flex: '1 1 320px', minWidth: 0 }}
-              aria-label="Gallery sections"
-            >
-              {VIEWS.map((v) => (
-                <Tab key={v.id} value={v.id} label={v.label} />
-              ))}
-            </Tabs>
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              <Button
-                variant="text"
-                color="tertiary"
-                onClick={() => setRtl((r) => !r)}
-                aria-pressed={rtl}
-              >
-                {rtl ? 'RTL' : 'LTR'}
-              </Button>
-              <Button
-                variant="outlined"
-                startIcon={<Icon name={mode === 'dark' ? 'light-mode' : 'dark-mode'} />}
-                onClick={toggleMode}
-              >
-                {mode === 'dark' ? 'Light mode' : 'Dark mode'}
-              </Button>
-            </Box>
-          </Toolbar>
+            {rtl ? 'RTL' : 'LTR'}
+          </Button>
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={<Icon name={mode === 'dark' ? 'light-mode' : 'dark-mode'} />}
+            onClick={toggleMode}
+          >
+            {mode === 'dark' ? 'Light mode' : 'Dark mode'}
+          </Button>
         </AppBar>
         <Box component="main" sx={{ maxWidth: 1440, mx: 'auto' }}>
           {view === 'components' && <Showcase />}

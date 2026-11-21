@@ -1,5 +1,5 @@
 {
-  "$comment": "Controlled upstream documentation synchronization (SPEC §8.4–8.5; repo-docs/documentation-sync.md). Every upstream page considered for the portal is listed with a status: `included` (synced with the mechanical adaptation rules), `modified` (synced plus the page's declarative `edits`, each matching exactly once, or a `patch`), or `excluded` (with a reason). `target` is the page id used for the generated files and in slug-map.json; `excludedDemos` lists examples of a synced page that are left out by hand, with the reason. Only the MIT-licensed mui/material-ui documentation (Material UI and Lab) may be synced; MUI X documentation is never synced and commercial MUI X docs are always excluded.",
+  "$comment": "Controlled upstream documentation synchronization (SPEC \u00a78.4\u20138.5; repo-docs/documentation-sync.md). Every upstream page considered for the portal is listed with a status: `included` (synced with the mechanical adaptation rules), `modified` (synced plus the page's declarative `edits`, each matching exactly once, or a `patch`), or `excluded` (with a reason). `target` is the page id used for the generated files and in slug-map.json; `excludedDemos` lists examples of a synced page that are left out by hand, with the reason. Only the MIT-licensed mui/material-ui documentation (Material UI and Lab) may be synced; MUI X documentation is never synced and commercial MUI X docs are always excluded.",
   "upstream": {
     "@mui/material": {
       "repo": "mui/material-ui",
@@ -57,7 +57,10 @@
       "package": "@mui/material",
       "source": "docs/data/material/components/floating-action-button/floating-action-button.md",
       "status": "included",
-      "target": "floating-action-button"
+      "target": "floating-action-button",
+      "excludedDemos": {
+        "FloatingActionButtonZoom": "Composes MUI's AppBar with a Toolbar and its own content; @tecton-mui/ui's AppBar is the Tecton App Bar, which has no such composition."
+      }
     },
     {
       "package": "@mui/material",
@@ -212,7 +215,11 @@
       "package": "@mui/material",
       "source": "docs/data/material/components/dialogs/dialogs.md",
       "status": "included",
-      "target": "dialogs"
+      "target": "dialogs",
+      "excludedDemos": {
+        "CookiesBanner": "Composes MUI's AppBar with a Toolbar and its own content; @tecton-mui/ui's AppBar is the Tecton App Bar, which has no such composition.",
+        "FullScreenDialog": "Composes MUI's AppBar with a Toolbar and its own content; @tecton-mui/ui's AppBar is the Tecton App Bar, which has no such composition."
+      }
     },
     {
       "package": "@mui/material",
@@ -230,7 +237,10 @@
       "package": "@mui/material",
       "source": "docs/data/material/components/snackbars/snackbars.md",
       "status": "included",
-      "target": "snackbars"
+      "target": "snackbars",
+      "excludedDemos": {
+        "FabIntegrationSnackbar": "Composes MUI's AppBar with a Toolbar and its own content; @tecton-mui/ui's AppBar is the Tecton App Bar, which has no such composition."
+      }
     },
     {
       "package": "@mui/material",
@@ -241,17 +251,8 @@
     {
       "package": "@mui/material",
       "source": "docs/data/material/components/app-bar/app-bar.md",
-      "status": "included",
-      "target": "app-bar",
-      "demoEdits": {
-        "EnableColorOnDarkAppBar": [
-          {
-            "find": "    <Stack spacing={2} sx={{ flexGrow: 1 }}>",
-            "replace": "    <Stack spacing={2} sx={{ flexGrow: 1 }} data-theme=\"dark\">",
-            "reason": "Tecton styles read CSS variables scoped by data-theme; a nested ThemeProvider with another palette mode also needs data-theme on its section, or Tecton surfaces keep the page's mode."
-          }
-        ]
-      }
+      "status": "excluded",
+      "reason": "@tecton-mui/ui's AppBar is the Tecton App Bar (React version of the <wc-app-bar> drop-in), not MUI's composable AppBar; the App Bar page documents it."
     },
     {
       "package": "@mui/material",
@@ -290,7 +291,16 @@
       "package": "@mui/material",
       "source": "docs/data/material/components/drawers/drawers.md",
       "status": "included",
-      "target": "drawers"
+      "target": "drawers",
+      "excludedDemos": {
+        "ClippedDrawer": "Composes MUI's AppBar with a Toolbar and its own content; @tecton-mui/ui's AppBar is the Tecton App Bar, which has no such composition.",
+        "MiniDrawer": "Composes MUI's AppBar with a Toolbar and its own content; @tecton-mui/ui's AppBar is the Tecton App Bar, which has no such composition.",
+        "PermanentDrawerLeft": "Composes MUI's AppBar with a Toolbar and its own content; @tecton-mui/ui's AppBar is the Tecton App Bar, which has no such composition.",
+        "PermanentDrawerRight": "Composes MUI's AppBar with a Toolbar and its own content; @tecton-mui/ui's AppBar is the Tecton App Bar, which has no such composition.",
+        "PersistentDrawerLeft": "Composes MUI's AppBar with a Toolbar and its own content; @tecton-mui/ui's AppBar is the Tecton App Bar, which has no such composition.",
+        "PersistentDrawerRight": "Composes MUI's AppBar with a Toolbar and its own content; @tecton-mui/ui's AppBar is the Tecton App Bar, which has no such composition.",
+        "ResponsiveDrawer": "Composes MUI's AppBar with a Toolbar and its own content; @tecton-mui/ui's AppBar is the Tecton App Bar, which has no such composition."
+      }
     },
     {
       "package": "@mui/material",
@@ -335,7 +345,10 @@
       "package": "@mui/material",
       "source": "docs/data/material/components/tabs/tabs.md",
       "status": "included",
-      "target": "tabs"
+      "target": "tabs",
+      "excludedDemos": {
+        "FullWidthTabs": "Composes MUI's AppBar with a Toolbar and its own content; @tecton-mui/ui's AppBar is the Tecton App Bar, which has no such composition."
+      }
     },
     {
       "package": "@mui/material",

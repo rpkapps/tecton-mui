@@ -65,7 +65,7 @@ export interface AppBarTab {
   tags?: readonly string[];
 }
 
-/** Props that turn an `AppBar` into the Tecton app bar layout. */
+/** The Tecton app bar's own props (the MUI AppBar root props apply as well). */
 export interface AppBarNavigationProps {
   /**
    * Text shown next to the logo in the branding region (primary tier).
@@ -102,21 +102,6 @@ export interface AppBarNavigationProps {
   /** Called when the add (+) button is clicked. */
   onTabAdd?: (event: React.SyntheticEvent) => void;
 }
-
-/** Names of the props that select the Tecton app bar layout. */
-export const APP_BAR_NAVIGATION_PROPS = [
-  'appName',
-  'logo',
-  'logoSrc',
-  'fixedTabs',
-  'tabs',
-  'activeTab',
-  'maxTabs',
-  'disableTabAdd',
-  'onTabSelect',
-  'onTabClose',
-  'onTabAdd',
-] as const satisfies readonly (keyof AppBarNavigationProps)[];
 
 const EMPTY: readonly never[] = [];
 
@@ -230,7 +215,7 @@ type PendingFocus = { kind: 'close'; id: string; index: number } | { kind: 'add'
  */
 export type AppBarNavigationLayoutProps = MuiAppBarProps & AppBarNavigationProps;
 
-/** Renders the Tecton app bar layout. `AppBar` uses it when a navigation prop is given. */
+/** Renders the Tecton app bar layout (exported as `AppBar`). */
 export const AppBarNavigation = React.forwardRef<HTMLElement, AppBarNavigationLayoutProps>(
   function AppBarNavigation(props, ref) {
     const {

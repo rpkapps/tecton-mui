@@ -79,7 +79,6 @@ const CASES: ParityCase[] = [
   { id: 'molecules-tabs--medium' },
   { id: 'molecules-textfield--states' },
   { id: 'molecules-toggle-button--sizes' },
-  { id: 'organisms-appbar--primary' },
   { id: 'organisms-heading--page' },
   { id: 'organisms-date--sizes' },
   { id: 'organisms-date--range' },
