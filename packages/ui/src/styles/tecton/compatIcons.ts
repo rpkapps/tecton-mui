@@ -85,22 +85,27 @@ const AvatarFallbackIcon: Slot = (props) =>
 AvatarFallbackIcon.displayName = 'TectonSlotIcon';
 
 /**
- * DataGrid column separator: the bar MUI's separator icon draws (2px x 14px in a 24px box), in the
- * icon colour, without the Material SVG.
+ * DataGrid column separator, drawn as MUI X 9 draws it without the Material SVG: a 1px bar the
+ * height of the 24px icon box, which widens to a 3px rounded bar on hover, while resizing and on
+ * touch devices (CSS in compat.ts, `.TectonDataGrid-separatorBar`).
  */
 const ColumnSeparatorIcon: Slot = (props) =>
-  React.createElement('span', {
-    ...spanProps(props),
-    'aria-hidden': true,
-    style: {
-      display: 'inline-block',
-      flexShrink: 0,
-      width: '1.5rem',
-      height: '1.5rem',
-      background: 'linear-gradient(currentColor, currentColor) center / 2px 14px no-repeat',
-      ...(props.style as object | undefined),
+  React.createElement(
+    'span',
+    {
+      ...spanProps(props),
+      'aria-hidden': true,
+      style: {
+        display: 'inline-flex',
+        justifyContent: 'center',
+        flexShrink: 0,
+        width: '1.5rem',
+        height: '1.5rem',
+        ...(props.style as object | undefined),
+      },
     },
-  });
+    React.createElement('span', { className: 'TectonDataGrid-separatorBar' }),
+  );
 ColumnSeparatorIcon.displayName = 'TectonSlotIcon';
 
 /**

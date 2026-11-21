@@ -74,6 +74,30 @@ export const muiCompatOverrides: ThemeOptions = {
           // interactive text colour in both modes.
           '& .MuiDataGrid-columnSeparator--resizable:hover, & .MuiDataGrid-columnSeparator--resizing, & .MuiDataGrid-columnHeader:focus .MuiDataGrid-columnSeparator--resizable, & .MuiDataGrid-columnHeader--last .MuiDataGrid-columnSeparator--resizable:hover':
             { color: cssVar('color-action-text-only-text') },
+          // The separator bar (compatIcons.ts): 1px at rest, a 3px rounded bar on hover, while
+          // resizing and on touch devices, as MUI X 9 draws its separator icon.
+          '& .TectonDataGrid-separatorBar': {
+            width: '1px',
+            height: '100%',
+            borderRadius: '0.5px',
+            backgroundColor: 'currentColor',
+          },
+          '& .MuiDataGrid-columnSeparator--resizing .TectonDataGrid-separatorBar': {
+            width: '3px',
+            borderRadius: '1.5px',
+          },
+          '@media (hover: hover)': {
+            '& .MuiDataGrid-columnSeparator--resizable:hover .TectonDataGrid-separatorBar': {
+              width: '3px',
+              borderRadius: '1.5px',
+            },
+          },
+          '@media (hover: none)': {
+            '& .MuiDataGrid-columnSeparator--resizable .TectonDataGrid-separatorBar': {
+              width: '3px',
+              borderRadius: '1.5px',
+            },
+          },
         },
         // Tecton puts a bottom border on the header container, but MUI X already draws one on every
         // header cell (in --DataGrid-t-color-border-base above); together they render 2px.

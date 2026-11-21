@@ -94,6 +94,27 @@ import { cssVar } from '@tecton-mui/ui/styles';
 Pass the token name without the `tecton-` prefix. Token-based styles switch with the mode
 automatically because the variables are redefined for `[data-theme="dark"]`.
 
+### Nested light and dark sections
+
+Tecton styles read CSS variables that are scoped by the `data-theme` attribute, not by the MUI
+theme's `palette.mode`. To show a section in the other mode (a dark panel on a light page, or the
+reverse), give the section's root element `data-theme` as well as wrapping it in a `ThemeProvider`
+with that mode:
+
+```tsx
+import Box from '@tecton-mui/ui/Box';
+import { ThemeProvider, createTheme } from '@tecton-mui/ui/styles';
+
+const darkTheme = createTheme({ palette: { mode: 'dark' } });
+
+<ThemeProvider theme={darkTheme}>
+  <Box data-theme="dark">{/* Tecton dark surfaces and text */}</Box>
+</ThemeProvider>;
+```
+
+Without `data-theme`, components inside get the dark palette but Tecton's surfaces, borders and
+text keep the page's mode.
+
 ## Right-to-left
 
 `<ThemeProvider direction="rtl">` sets the theme direction and flips direction-dependent styles

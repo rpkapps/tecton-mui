@@ -32,7 +32,7 @@ const darkTheme = createTheme({
 
 export default function EnableColorOnDarkAppBar() {
   return (
-    <Stack spacing={2} sx={{ flexGrow: 1 }}>
+    <Stack spacing={2} sx={{ flexGrow: 1 }} data-theme="dark">
       <ThemeProvider theme={darkTheme}>
         <AppBar position="static" color="primary" enableColorOnDark>
           {appBarLabel('enableColorOnDark')}

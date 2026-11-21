@@ -167,7 +167,16 @@
       "package": "@mui/material",
       "source": "docs/data/material/components/lists/lists.md",
       "status": "included",
-      "target": "lists"
+      "target": "lists",
+      "demoEdits": {
+        "CustomizedList": [
+          {
+            "find": "        <Paper elevation={0} sx={{ maxWidth: 256 }}>",
+            "replace": "        <Paper elevation={0} sx={{ maxWidth: 256 }} data-theme=\"dark\">",
+            "reason": "Tecton styles read CSS variables scoped by data-theme; a nested ThemeProvider with another palette mode also needs data-theme on its section, or Tecton surfaces keep the page's mode."
+          }
+        ]
+      }
     },
     {
       "package": "@mui/material",
@@ -233,7 +242,16 @@
       "package": "@mui/material",
       "source": "docs/data/material/components/app-bar/app-bar.md",
       "status": "included",
-      "target": "app-bar"
+      "target": "app-bar",
+      "demoEdits": {
+        "EnableColorOnDarkAppBar": [
+          {
+            "find": "    <Stack spacing={2} sx={{ flexGrow: 1 }}>",
+            "replace": "    <Stack spacing={2} sx={{ flexGrow: 1 }} data-theme=\"dark\">",
+            "reason": "Tecton styles read CSS variables scoped by data-theme; a nested ThemeProvider with another palette mode also needs data-theme on its section, or Tecton surfaces keep the page's mode."
+          }
+        ]
+      }
     },
     {
       "package": "@mui/material",
@@ -245,7 +263,16 @@
       "package": "@mui/material",
       "source": "docs/data/material/components/paper/paper.md",
       "status": "included",
-      "target": "paper"
+      "target": "paper",
+      "demoEdits": {
+        "Elevation": [
+          {
+            "find": "            <ThemeProvider theme={theme}>\n              <Box\n",
+            "replace": "            <ThemeProvider theme={theme}>\n              <Box\n                data-theme={theme.palette.mode}\n",
+            "reason": "Tecton styles read CSS variables scoped by data-theme; a nested ThemeProvider with another palette mode also needs data-theme on its section, or Tecton surfaces keep the page's mode."
+          }
+        ]
+      }
     },
     {
       "package": "@mui/material",
