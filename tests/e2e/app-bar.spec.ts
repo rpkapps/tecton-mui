@@ -187,13 +187,27 @@ const stripState = (bar: Locator) =>
     };
   });
 
+/**
+ * Opens a story and waits until the page has loaded (fonts included) and the tab strips are idle,
+ * as a person would before adding tabs. MUI's scroll arrows can miss an update when the strip is
+ * changed while the first layout is still settling.
+ */
+async function openSettled(page: Page, story: string, query = '') {
+  await open(page, story, query);
+  await page.waitForLoadState('networkidle');
+  await page.evaluate(() => document.fonts.ready);
+  await page.waitForTimeout(300);
+}
+
 test.describe('Tecton app bar: adding tabs to a full strip', () => {
   for (const dir of ['ltr', 'rtl']) {
     test(`every added tab ends fully in view with no end arrow (${dir})`, async ({ page }) => {
       // The drop-in leaves every second added tab half under the end arrow (the arrow appears
       // after MUI has scrolled the tab into view and narrows the strip).
-      await open(page, 'overflow', `&dir=${dir}`);
-      const bar = page.locator('[data-region="app-bar"]').nth(2);
+      await openSettled(page, 'overflow', `&dir=${dir}`);
+      // The full-width bar (14 tabs): the strip is scrollable and much wider than one tab. (In a
+      // strip narrower than the tab, MUI keeps the end arrow on even at the end, in the drop-in too.)
+      const bar = page.locator('[data-region="app-bar"]').nth(0);
       for (let i = 1; i <= 4; i += 1) {
         await bar.getByRole('button', { name: 'Add tab' }).click();
         await expect(bar.getByRole('tab', { name: new RegExp(`New tab ${i}`) })).toHaveAttribute(
@@ -207,6 +221,7 @@ test.describe('Tecton app bar: adding tabs to a full strip', () => {
             const { arrows, selectedVisible, scrollLeft, maxScroll, tabWidth, stripWidth } =
               await stripState(bar);
             return {
+              fits: tabWidth <= stripWidth,
               endArrow: arrows[1],
               selectedVisible,
               scrollLeft,
@@ -215,15 +230,16 @@ test.describe('Tecton app bar: adding tabs to a full strip', () => {
               stripWidth,
             };
           })
-          .toEqual(expect.objectContaining({ endArrow: 'd', selectedVisible: true }));
+          .toEqual(expect.objectContaining({ endArrow: 'd', selectedVisible: true, fits: true }));
       }
     });
   }
 
   test('scrolling with an arrow right after adding a tab is not undone', async ({ page }) => {
-    await open(page, 'overflow');
-    const bar = page.locator('[data-region="app-bar"]').nth(2);
+    await openSettled(page, 'overflow');
+    const bar = page.locator('[data-region="app-bar"]').nth(0);
     await bar.getByRole('button', { name: 'Add tab' }).click();
+    // As soon as the start arrow shows (the strip is moving to the new tab), scroll back with it.
     await bar.locator('.MuiTabs-scrollButtons').first().click();
     await page.waitForTimeout(2000);
     const state = await stripState(bar);
