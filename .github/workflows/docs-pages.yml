@@ -6,7 +6,7 @@ name: Docs site (GitHub Pages)
 # allow (by default the default branch).
 on:
   push:
-    branches: [dev, claude/focused-brahmagupta-13bb9z]
+    branches: [dev]
   workflow_dispatch:
 
 permissions:
