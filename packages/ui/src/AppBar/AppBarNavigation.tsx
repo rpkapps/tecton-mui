@@ -26,7 +26,10 @@ import { styled } from '@mui/material/styles';
 import { createSvgIcon } from '@mui/material/utils';
 import { cssVar } from '../styles/tecton/index.js';
 import type { TectonIconName } from '../styles/tecton/index.js';
-import { useScrollButtonCompensation } from './useScrollButtonCompensation.js';
+import {
+  useKeepSelectedTabInView,
+  useScrollButtonCompensation,
+} from './useScrollButtonCompensation.js';
 import {
   CLOSE_SLOT_ATTRIBUTE,
   TabCloseButton,
@@ -238,6 +241,7 @@ export const AppBarNavigation = React.forwardRef<HTMLElement, AppBarNavigationLa
     const primary = tier === 'primary';
     const tabsRef = React.useRef<HTMLDivElement>(null);
     useScrollButtonCompensation(tabsRef);
+    useKeepSelectedTabInView(tabsRef, activeTab, tabs.length);
 
     // Latest callbacks, so the handlers below keep stable identities.
     const latest = React.useRef({ onTabSelect, onTabClose, onTabAdd, tabs });

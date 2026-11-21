@@ -2,7 +2,7 @@
 // drop-in Storybook's own interaction tests check, plus the keyboard additions. Scenarios come from
 // tests/e2e/harness/src/storybook/stories/DropInsAppBar.tsx.
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Locator, type Page } from '@playwright/test';
 
 const open = async (page: Page, story: string, query = '') => {
   await page.goto(`/?scenario=sb:drop-ins-app-bar--${story}${query}`);
@@ -164,6 +164,88 @@ async function expectCloseButtonsOnSlots(page: Page) {
   expect(offsets.length).toBeGreaterThan(0);
   for (const offset of offsets) expect(offset).toBeLessThan(0.01);
 }
+
+/** Arrow states (start, end; `e` enabled, `d` disabled) and scroll state of a bar's tab strip. */
+const stripState = (bar: Locator) =>
+  bar.evaluate((el) => {
+    const tabs = el.querySelector('[data-region="tabs"]')!;
+    const scroller = tabs.querySelector('.MuiTabs-scroller')!;
+    const arrows = Array.from(tabs.querySelectorAll('.MuiTabs-scrollButtons'))
+      .map((b) => (b.classList.contains('Mui-disabled') ? 'd' : 'e'))
+      .join('');
+    const tab = scroller.querySelector('[aria-selected="true"]')!.getBoundingClientRect();
+    const box = scroller.getBoundingClientRect();
+    return {
+      arrows,
+      scrollLeft: Math.abs(scroller.scrollLeft),
+      maxScroll: scroller.scrollWidth - scroller.clientWidth,
+      // Sub-pixel layout can leave a fraction of a pixel outside the strip.
+      selectedVisible: tab.left >= box.left - 1 && tab.right <= box.right + 1,
+      // For the failure message: whether the tab can fit at all.
+      tabWidth: Math.round(tab.width),
+      stripWidth: Math.round(box.width),
+    };
+  });
+
+/**
+ * Opens a story and waits until the page has loaded (fonts included) and the tab strips are idle,
+ * as a person would before adding tabs. MUI's scroll arrows can miss an update when the strip is
+ * changed while the first layout is still settling.
+ */
+async function openSettled(page: Page, story: string, query = '') {
+  await open(page, story, query);
+  await page.waitForLoadState('networkidle');
+  await page.evaluate(() => document.fonts.ready);
+  await page.waitForTimeout(300);
+}
+
+test.describe('Tecton app bar: adding tabs to a full strip', () => {
+  for (const dir of ['ltr', 'rtl']) {
+    test(`every added tab ends fully in view with no end arrow (${dir})`, async ({ page }) => {
+      // The drop-in leaves every second added tab half under the end arrow (the arrow appears
+      // after MUI has scrolled the tab into view and narrows the strip).
+      await openSettled(page, 'overflow', `&dir=${dir}`);
+      // The full-width bar (14 tabs): the strip is scrollable and much wider than one tab. (In a
+      // strip narrower than the tab, MUI keeps the end arrow on even at the end, in the drop-in too.)
+      const bar = page.locator('[data-region="app-bar"]').nth(0);
+      for (let i = 1; i <= 4; i += 1) {
+        await bar.getByRole('button', { name: 'Add tab' }).click();
+        await expect(bar.getByRole('tab', { name: new RegExp(`New tab ${i}`) })).toHaveAttribute(
+          'aria-selected',
+          'true',
+        );
+        // No end arrow, the new tab fully visible. (The start arrow is MUI's own business: under
+        // heavy load its observer can miss an update, in the drop-in too.)
+        await expect
+          .poll(async () => {
+            const { arrows, selectedVisible, scrollLeft, maxScroll, tabWidth, stripWidth } =
+              await stripState(bar);
+            return {
+              fits: tabWidth <= stripWidth,
+              endArrow: arrows[1],
+              selectedVisible,
+              scrollLeft,
+              maxScroll,
+              tabWidth,
+              stripWidth,
+            };
+          })
+          .toEqual(expect.objectContaining({ endArrow: 'd', selectedVisible: true, fits: true }));
+      }
+    });
+  }
+
+  test('scrolling with an arrow right after adding a tab is not undone', async ({ page }) => {
+    await openSettled(page, 'overflow');
+    const bar = page.locator('[data-region="app-bar"]').nth(0);
+    await bar.getByRole('button', { name: 'Add tab' }).click();
+    // As soon as the start arrow shows (the strip is moving to the new tab), scroll back with it.
+    await bar.locator('.MuiTabs-scrollButtons').first().click();
+    await page.waitForTimeout(2000);
+    const state = await stripState(bar);
+    expect(state.scrollLeft).toBeLessThan(state.maxScroll - 50);
+  });
+});
 
 test.describe('Tecton app bar: close button placement', () => {
   for (const dir of ['ltr', 'rtl']) {
