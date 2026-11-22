@@ -114,20 +114,21 @@ parts).
 
 ### `styles/`
 
-| File                           | Role                                                                                                                                                                  |
-| ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `index.ts`                     | Public `@tecton-mui/ui/styles`. Re-exports `@mui/material/styles`, replacing `ThemeProvider` and `createTheme`, and adds the Tecton APIs                              |
-| `ThemeProvider.tsx`            | MUI `ThemeProvider` with the Tecton theme for the shared mode. `themeOptions`, `theme`, `direction`. Renders no DOM                                                   |
-| `createTheme.ts`               | `createTheme` starting from the Tecton defaults; `getDefaultTheme(mode, direction)` caches the default themes                                                         |
-| `modeStore.ts`                 | `useSyncExternalStore` bridge to Tecton's page-wide theme manager (shared on `globalThis`); `initTecton`, `useTectonMode`, `getThemeManager`                          |
-| `ssr.tsx`                      | `TectonModeScript` / `getTectonModeScript` (sets `data-theme` before paint) and `TectonTokensStyle` (server-rendered tokens with marker)                              |
-| `rtl.ts`                       | Lazily created shared Emotion cache with `@mui/stylis-plugin-rtl`                                                                                                     |
-| `tecton/index.ts`              | Internal Tecton entry for the rest of the package. `buildTectonTheme(mode, options)`. Only it, the compat layer and `ssr.tsx` (tokens string) import `generated/**`   |
-| `tecton/compat.ts`             | Documented runtime corrections between Tecton 0.11.2 and the pinned MUI release                                                                                       |
-| `tecton/compatChatMarkdown.ts` | Layout of Markdown inside chat messages (tables, quotes, lists, headings, task lists); merged into `MuiChatMessage` in `compat.ts`                                    |
-| `tecton/compatChat.ts`         | Theme corrections for MUI X Chat (Tecton has no chat styles): Tecton icons, focus rings, monospace code, avatar fill, timestamp contrast. Never imports `@mui/x-chat` |
-| `tecton/augmentations.ts`      | MUI module augmentations for Tecton-specific props and variants                                                                                                       |
-| `tecton/generated/**`          | Emitted by the Tecton adapter. Never edit                                                                                                                             |
+| File                           | Role                                                                                                                                                                      |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `index.ts`                     | Public `@tecton-mui/ui/styles`. Re-exports `@mui/material/styles`, replacing `ThemeProvider` and `createTheme`, and adds the Tecton APIs                                  |
+| `ThemeProvider.tsx`            | MUI `ThemeProvider` with the Tecton theme for the shared mode. `themeOptions`, `theme`, `direction`. Renders no DOM. Installs the input focus tracker and the modal layer |
+| `modalLayer.ts`                | Page-level modal layer: modals of different library copies/versions (MFEs) stack like one copy's (`inert` below the top, page-wide scroll lock). Newest protocol runs     |
+| `createTheme.ts`               | `createTheme` starting from the Tecton defaults; `getDefaultTheme(mode, direction)` caches the default themes                                                             |
+| `modeStore.ts`                 | `useSyncExternalStore` bridge to Tecton's page-wide theme manager (shared on `globalThis`); `initTecton`, `useTectonMode`, `getThemeManager`                              |
+| `ssr.tsx`                      | `TectonModeScript` / `getTectonModeScript` (sets `data-theme` before paint) and `TectonTokensStyle` (server-rendered tokens with marker)                                  |
+| `rtl.ts`                       | Lazily created shared Emotion cache with `@mui/stylis-plugin-rtl`                                                                                                         |
+| `tecton/index.ts`              | Internal Tecton entry for the rest of the package. `buildTectonTheme(mode, options)`. Only it, the compat layer and `ssr.tsx` (tokens string) import `generated/**`       |
+| `tecton/compat.ts`             | Documented runtime corrections between Tecton 0.11.2 and the pinned MUI release                                                                                           |
+| `tecton/compatChatMarkdown.ts` | Layout of Markdown inside chat messages (tables, quotes, lists, headings, task lists); merged into `MuiChatMessage` in `compat.ts`                                        |
+| `tecton/compatChat.ts`         | Theme corrections for MUI X Chat (Tecton has no chat styles): Tecton icons, focus rings, monospace code, avatar fill, timestamp contrast. Never imports `@mui/x-chat`     |
+| `tecton/augmentations.ts`      | MUI module augmentations for Tecton-specific props and variants                                                                                                           |
+| `tecton/generated/**`          | Emitted by the Tecton adapter. Never edit                                                                                                                                 |
 
 See [tecton-integration.md](./tecton-integration.md).
 

@@ -5,6 +5,7 @@
 // also fires when the rows do not fill the viewport, so the grid keeps loading until they do.
 import * as React from 'react';
 import type { GridApi, GridCallbackDetails, GridColDef } from '@mui/x-data-grid';
+import type { GridRootRef } from '../../core/rootElement.js';
 
 export interface GridRowScrollEndParams {
   /** The visible columns. */
@@ -22,7 +23,7 @@ export type GridRowsScrollEndHandler = (
 ) => void;
 
 export interface RowsScrollEndOptions {
-  rootRef: React.RefObject<HTMLDivElement | null>;
+  rootRef: GridRootRef;
   apiRef: React.RefObject<GridApi | null>;
   onRowsScrollEnd: GridRowsScrollEndHandler | undefined;
   threshold: number;
@@ -65,10 +66,17 @@ export function useRowsScrollEnd(options: RowsScrollEndOptions): void {
 
   React.useEffect(() => {
     if (!enabled) return undefined;
-    const scroller = rootRef.current?.querySelector<HTMLElement>('.MuiDataGrid-virtualScroller');
-    if (!scroller) return undefined;
-    scroller.addEventListener('scroll', check, { passive: true });
-    return () => scroller.removeEventListener('scroll', check);
+    return rootRef.observe((root) => {
+      const scroller = root.querySelector<HTMLElement>('.MuiDataGrid-virtualScroller');
+      if (!scroller) return undefined;
+      scroller.addEventListener('scroll', check, { passive: true });
+      // A root that mounts after the rows (hydration) still gets its first check once laid out.
+      const frame = requestAnimationFrame(check);
+      return () => {
+        cancelAnimationFrame(frame);
+        scroller.removeEventListener('scroll', check);
+      };
+    });
   }, [enabled, rootRef, check]);
 
   // New rows (or a first render that does not fill the viewport): check once laid out.

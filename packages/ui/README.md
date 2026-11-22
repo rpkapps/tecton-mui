@@ -134,7 +134,8 @@ import Button from '@tecton-mui/ui/Button';
 import { ThemeProvider } from '@tecton-mui/ui/styles';
 
 export function mount(element: HTMLElement) {
-  const root = createRoot(element);
+  // A prefix no other root on the page uses.
+  const root = createRoot(element, { identifierPrefix: 'feature-' });
   root.render(
     <ThemeProvider>
       <Button variant="contained">Save</Button>
@@ -146,6 +147,18 @@ export function mount(element: HTMLElement) {
 
 A hosted MFE relies on the shell for fonts, icons, tokens and the global reset. Importing
 `global.css` again would duplicate the `@font-face` rules and token declarations.
+
+Give each MFE root an `identifierPrefix` that no other root on the page uses. Components connect
+labels, inputs, menus and their `aria-*` attributes with ids from React's `useId`. Those ids are
+unique across roots only when every root shares one copy of React and renders on the client. A
+hydrated root, or one rendered by its own copy of React, starts from the same ids as the other
+roots. With `hydrateRoot`, pass the same prefix to the server renderer.
+
+Dialogs, drawers, popovers and menus of the shell and of MFEs can be open on top of each other,
+also when each MFE bundles its own copy or version of the library. `ThemeProvider` installs a
+page-level modal layer (the newest version on the page runs): only the top modal takes the focus,
+page scrolling stays locked until the last modal closes, and the page behind stays hidden from
+assistive technology. There is nothing to set up, and with one copy it changes nothing.
 
 ### Token initialization
 

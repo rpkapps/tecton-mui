@@ -78,6 +78,10 @@ only builds when `dist/` is missing.
     - RTL layout with sticky pinned columns.
     - axe scans of each scenario in both modes.
     - Visual regression of the showcase in both modes.
+  - `modal-layer.spec.ts`: dialogs of two independent MUI copies on one page (scenario
+    `modal-layer`; the second copy is MUI's CommonJS build, aliased as `mui-second-copy/*` in the
+    harness Vite config): one focus owner, scroll lock and page hiding until the last one closes,
+    focus back to the dialog below, and nothing changed for modals of one copy.
 - **Accessibility:** the axe scans use the `wcag2a`, `wcag2aa`, `wcag21a`, `wcag21aa` and
   `wcag22aa` tags. Serious and critical violations fail the test unless they are covered by an
   approved entry in `tests/e2e/a11y-exceptions.json` (see

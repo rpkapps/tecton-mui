@@ -328,7 +328,7 @@ Required approach:
 
 The library has **no MFE runtime responsibilities**. Each MFE may have its own React root in a **regular DOM container**; shell/MFE React version sharing and Module Federation are external concerns.
 
-The library's responsibilities are only to offer clear, explicit style entry points and preconfigured theme behavior.
+The library's responsibilities are only to offer clear, explicit style entry points and preconfigured theme behavior, with one exception: page-wide behavior that keeps the library's own components correct when several copies or versions of it share a page (the input focus-ring tracker, the modal layer). It installs itself from `ThemeProvider`, never needs consumer setup, changes nothing when only one copy is on the page, and the newest version on the page runs.
 
 | Environment | Global fonts/icons/token CSS | Component CSS / Emotion | Theme context | `CssBaseline` |
 |---|---|---|---|---|
@@ -354,6 +354,7 @@ Requirements:
 - No second global CSS reset from MFEs.
 - No application-level CSS variable pollution from component styles.
 - Dialog/Menu/Popover portal behavior must work with separate React roots sharing a document.
+- Modals (Dialog, Drawer, Popover, Menu) of different copies or versions of the library on one page stack like modals of one copy: one focus owner, page scroll locked and the page behind hidden from assistive technology until the last one closes.
 - Do not automatically configure Emotion sharing, React share scopes, or MFE communication.
 - Support `CssBaseline` and `ScopedCssBaseline` exports, even though the shell owns the page-wide reset.
 

@@ -24,6 +24,8 @@ import {
 } from '@mui/x-data-grid';
 import { Store, useStoreSelector } from './core/store.js';
 import { useKeyboardNavigation } from './core/keyboardNavigation.js';
+import { useGridRootRef } from './core/rootElement.js';
+import { useGridScope } from './core/scope.js';
 import { useRowsScrollEnd } from './features/server-data/useRowsScrollEnd.js';
 import {
   pinnedRightResizeSx,
@@ -243,10 +245,12 @@ function DataGridInner<R extends GridValidRowModel>(
   // ---------------------------------------------------------------- setup
   const ownApiRef = useGridApiRef();
   const apiRef = apiRefProp ?? ownApiRef;
-  const rootRef = React.useRef<HTMLDivElement>(null);
-  const handleRef = useForkRef(rootRef, ref);
+  // Effects that need the root observe it: after hydration it mounts one render late.
+  const rootRef = useGridRootRef();
+  // Page-unique, unlike `useId()`, so generated styles never reach a grid in another React root.
+  const [scope, scopeRef] = useGridScope();
+  const handleRef = useForkRef(rootRef.setRef, ref, scopeRef);
   const styleRef = React.useRef<HTMLStyleElement>(null);
-  const scope = `tdg-${React.useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;
   const getRowId = React.useCallback(
     (row: R): GridRowId => getSynthetic(row)?.id ?? (getRowIdProp ?? defaultGetRowId)(row),
     [getRowIdProp],
@@ -987,11 +991,14 @@ function DataGridInner<R extends GridValidRowModel>(
       updateColumns?: (cols: GridColDef[]) => void;
     } | null;
     if (!pinnedAny || !api?.unstable_setColumnVirtualization) return undefined;
-    api.unstable_setColumnVirtualization(false);
-    // A (no-op) columns update makes the grid recompute its render context with all columns.
-    api.updateColumns?.([]);
-    return () => api.unstable_setColumnVirtualization?.(true);
-  }, [apiRef, pinnedAny]);
+    // The virtualizer exists only once the root has rendered (after hydration: one render late).
+    return rootRef.observe(() => {
+      api.unstable_setColumnVirtualization!(false);
+      // A (no-op) columns update makes the grid recompute its render context with all columns.
+      api.updateColumns?.([]);
+      return () => api.unstable_setColumnVirtualization?.(true);
+    });
+  }, [apiRef, rootRef, pinnedAny]);
   const suppressHeaderClick = useColumnReorder({
     enabled: !disableColumnReorder,
     rootRef,
@@ -1148,8 +1155,7 @@ function DataGridInner<R extends GridValidRowModel>(
   });
 
   React.useEffect(() => {
-    const root = rootRef.current;
-    if (!root || historyStackSize <= 0) return undefined;
+    if (historyStackSize <= 0) return undefined;
     const onKeyDown = (event: KeyboardEvent) => {
       const t = event.target as HTMLElement;
       if (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable) return;
@@ -1161,9 +1167,11 @@ function DataGridInner<R extends GridValidRowModel>(
         void redo();
       }
     };
-    root.addEventListener('keydown', onKeyDown);
-    return () => root.removeEventListener('keydown', onKeyDown);
-  }, [historyStackSize, undo, redo]);
+    return rootRef.observe((root) => {
+      root.addEventListener('keydown', onKeyDown);
+      return () => root.removeEventListener('keydown', onKeyDown);
+    });
+  }, [rootRef, historyStackSize, undo, redo]);
 
   // Server-side groups: load children when a group is expanded.
   React.useEffect(() => {
@@ -1573,12 +1581,12 @@ function DataGridInner<R extends GridValidRowModel>(
 
   return (
     <GridAdvancedContext.Provider value={contextValue}>
-      {cellSelection ? <style ref={styleRef} data-tecton-grid-selection={scope} /> : null}
+      {cellSelection ? <style ref={styleRef} data-tecton-grid-selection="" /> : null}
       <CommunityDataGrid<R>
         {...(other as object)}
         ref={handleRef}
         apiRef={apiRef}
-        className={className ? `${scope} ${className}` : scope}
+        className={className}
         sx={rootSx}
         rows={pageRows as R[]}
         columns={communityColumns}

@@ -10,6 +10,7 @@ import { createTheme, getDefaultTheme } from './createTheme.js';
 import { useTectonModeValue } from './modeStore.js';
 import { getRtlCache } from './rtl.js';
 import { installInputFocusVisible } from './tecton/focusVisible.js';
+import { installModalLayer, withModalRegistration } from './modalLayer.js';
 
 export interface ThemeProviderProps {
   children?: React.ReactNode;
@@ -32,14 +33,20 @@ export interface ThemeProviderProps {
  * Tecton ThemeProvider. With no configuration it provides the approved Tecton theme and follows
  * Tecton's page-wide `themeManager` mode. It renders no DOM and does not apply CssBaseline or
  * LocalizationProvider. On the client it marks inputs that receive keyboard focus, so they show
- * Tecton's focus ring.
+ * Tecton's focus ring, and installs the page's modal layer, so modals of other copies of the
+ * library (micro-frontends) stack correctly with this one's.
  */
 export function ThemeProvider({ children, theme, themeOptions, direction }: ThemeProviderProps) {
   const mode = useTectonModeValue();
-  // Marks keyboard-focused inputs so Tecton's input focus ring shows (page-wide, installed once).
-  React.useEffect(() => installInputFocusVisible(), []);
+  React.useEffect(() => {
+    // Both page-wide and installed once, whichever root mounts first.
+    installInputFocusVisible();
+    installModalLayer();
+  }, []);
   const resolvedTheme = React.useMemo(() => {
-    if (theme) return theme;
+    // A theme from elsewhere still tells the modal layer which copy rendered its modals.
+    if (typeof theme === 'function') return (outer: Theme) => withModalRegistration(theme(outer));
+    if (theme) return withModalRegistration(theme);
     if (!themeOptions) return getDefaultTheme(mode, direction);
     return createTheme({
       ...themeOptions,
