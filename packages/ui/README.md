@@ -154,6 +154,12 @@ unique across roots only when every root shares one copy of React and renders on
 hydrated root, or one rendered by its own copy of React, starts from the same ids as the other
 roots. With `hydrateRoot`, pass the same prefix to the server renderer.
 
+Dialogs, drawers, popovers and menus of the shell and of MFEs can be open on top of each other,
+also when each MFE bundles its own copy or version of the library. `ThemeProvider` installs a
+page-level modal layer (the newest version on the page runs): only the top modal takes the focus,
+page scrolling stays locked until the last modal closes, and the page behind stays hidden from
+assistive technology. There is nothing to set up, and with one copy it changes nothing.
+
 ### Token initialization
 
 Importing CSS does not run JavaScript. The Tecton runtime (the shared Tecton theme manager)

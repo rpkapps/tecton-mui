@@ -23,6 +23,9 @@ if (scenario === 'multi-root') {
     container.appendChild(el);
     createRoot(el, { identifierPrefix: `${name}-` }).render(<MultiRootPanel name={name} />);
   }
+} else if (scenario === 'modal-layer') {
+  // Loaded on demand: it brings a second copy of MUI that no other scenario should load.
+  void import('./ModalLayerScenario.js').then((m) => m.mountModalLayerScenario(container));
 } else {
   createRoot(container).render(<App scenario={scenario} rtl={params.get('dir') === 'rtl'} />);
 }
