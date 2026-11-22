@@ -24,13 +24,13 @@ default export (`import DatePicker from '@tecton-mui/ui/DatePicker'`) like the C
    files. Lab and MUI X Community modules map to the same flat paths (`@tecton-mui/ui/<Name>`).
 2. **Remove your theme.** Delete the `createTheme` call that recreated your design system and render
    `<ThemeProvider>` without props. The Tecton theme is the default.
-3. **Use `date-fns` and `Date` values.** `LocalizationProvider` defaults to `date-fns` with `en-US`:
-   remove the `dateAdapter` prop, keep `adapterLocale` only for another locale, and convert Day.js,
-   Luxon or Moment values that your pickers used to native `Date` objects.
+3. **Remove `LocalizationProvider` adapter boilerplate.** `LocalizationProvider` defaults to
+   `date-fns` with `en-US`; keep `dateAdapter`/`adapterLocale` only if you use another library or
+   locale.
 4. **Load styles once** in the shell or standalone app: `import '@tecton-mui/ui/styles/global.css'`.
-5. **Replace icon imports.** Use `<Icon name="…" />` for every icon, including custom SVG icons:
-   the [Icons](/icons) page helps you find the Tecton equivalent. Icon placement props such as
-   `startIcon`, `endIcon` and `icon` accept it like any other element.
+5. **Replace icon imports.** Use `<Icon name="…" />`. Icon placement props such as `startIcon`,
+   `endIcon` and `icon` accept it like any other element. Plain SVG children still work, so you can
+   migrate gradually.
 6. **Uninstall direct MUI dependencies** once nothing imports them, so only one copy remains.
 
 ## Customising the theme
