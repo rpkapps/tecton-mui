@@ -56,7 +56,7 @@ export interface TabStripStore {
   measure: () => void;
   /** Follows a scroller (scroll events, its size and its tabs' sizes); returns a detach function. */
   attach: (scroller: HTMLElement) => () => void;
-  /** Slides one page toward `direction` (the tabs that fit, as MUI's scroll buttons do). */
+  /** Slides one page toward `direction`: about the strip's width, in whole tabs (see `pageTarget`). */
   scrollPage: (direction: 'left' | 'right') => void;
   /** Brings the selected tab into view: slides, or jumps with `instant`. */
   revealSelected: (instant?: boolean) => void;
@@ -106,20 +106,87 @@ export function selectedTabTarget(scroller: HTMLElement): number | null {
   return scroller.scrollLeft;
 }
 
-/** MUI's page: the tabs that fit in the strip, or the strip's width if the first one does not. */
-function pageSize(scroller: HTMLElement) {
+/** The shortest step a page takes, as a share of the strip (shorter reads as a click that did nothing). */
+const MIN_PAGE = 1 / 3;
+/** How much of a tab cut off by the strip's edge still counts as shown: its padding and close slot. */
+const SHOWN_SLACK = SCROLL_ARROW_WIDTH;
+
+/**
+ * Where one page toward `direction` (physical) takes the strip from `base` (a `scrollLeft`): about
+ * the strip's width in whole tabs, counted from where the strip is.
+ *
+ * Toward the right, the tab cut off by the right edge moves to the left edge. When only a sliver of
+ * it is cut off (`SHOWN_SLACK`, less on a very narrow strip), it counts as shown and the strip moves
+ * past it instead; when it is nearly as wide as the strip or wider, so that the step would be
+ * shorter than `MIN_PAGE`, the strip moves exactly one strip width. A page that would stop within a
+ * sliver of the end of the strip goes to the end. Toward the left, the mirror image.
+ *
+ * (MUI counts the tabs that fit from the first tab, wherever the strip is: on a strip narrower than
+ * Home and the first tab together, every click moved it by Home's 48px.)
+ *
+ * The target follows the tab every frame, since an arrow that shows or hides on the way moves the
+ * strip's edges (and, in RTL, where a `scrollLeft` puts the tabs).
+ */
+function pageTarget(scroller: HTMLElement, direction: 'left' | 'right', base: number): Target {
   const size = scroller.clientWidth;
-  let page = 0;
-  const tabs = Array.from(scroller.querySelector('[role="tablist"]')?.children ?? []);
-  for (let i = 0; i < tabs.length; i += 1) {
-    const width = (tabs[i] as HTMLElement).clientWidth;
-    if (page + width > size) {
-      if (i === 0) page = size;
-      break;
+  const toRight = direction === 'right';
+  const slack = Math.min(SHOWN_SLACK, size * MIN_PAGE);
+  // The view at `base` in scroll space, where a point's position is the `scrollLeft` that puts it
+  // at the strip's left edge.
+  const viewStart = base;
+  const viewEnd = base + size;
+  const offset = scroller.scrollLeft - scroller.getBoundingClientRect().left;
+  // Toward the right, the first tab not fully in view past the right edge; toward the left, the
+  // last one past the left edge.
+  let next: { tab: Element; left: number; right: number } | null = null;
+  for (const tab of Array.from(scroller.querySelector('[role="tablist"]')?.children ?? [])) {
+    const r = tab.getBoundingClientRect();
+    const left = r.left + offset;
+    const right = r.right + offset;
+    if (
+      toRight
+        ? right > viewEnd + 1 && (!next || left < next.left)
+        : left < viewStart - 1 && (!next || right > next.right)
+    ) {
+      next = { tab, left, right };
     }
-    page += width;
   }
-  return page;
+
+  let target: Target;
+  if (!next) {
+    // Nothing past the edge but the rest of the scroll range (the slide clamps to it).
+    const page = toRight ? viewEnd : viewStart - size;
+    target = () => page;
+  } else {
+    const { tab } = next;
+    // The `scrollLeft` that puts the tab's `edge`, moved `by` px, at the strip's left edge (toward
+    // the right) or right edge (toward the left).
+    const align = (edge: 'left' | 'right', by: number) => () => {
+      if (!tab.isConnected) return null;
+      const s = scroller.getBoundingClientRect();
+      return (
+        scroller.scrollLeft + tab.getBoundingClientRect()[edge] + by - (toRight ? s.left : s.right)
+      );
+    };
+    // In the direction of travel: whether the tab is partly in view, how much of it is cut off, and
+    // the step that brings its near edge to the strip's other edge.
+    const [cut, hidden, step] = toRight
+      ? [next.left < viewEnd - 1, next.right - viewEnd, next.left - viewStart]
+      : [next.right > viewStart + 1, viewStart - next.left, viewEnd - next.right];
+    const [near, far] = toRight ? (['left', 'right'] as const) : (['right', 'left'] as const);
+    if (cut && hidden <= slack) target = align(far, 0);
+    else if (step >= size * MIN_PAGE) target = align(near, 0);
+    else target = align(near, (toRight ? viewEnd : viewStart) - next[near]);
+  }
+
+  return () => {
+    const to = target();
+    if (to == null) return null;
+    const max = Math.max(0, scroller.scrollWidth - scroller.clientWidth);
+    const rtl = isRtl(scroller);
+    const end = toRight ? (rtl ? 0 : max) : rtl ? -max : 0;
+    return Math.abs(end - to) <= slack ? end : to;
+  };
 }
 
 /** Keeps a target within the strip's scroll range (negative in RTL). */
@@ -249,9 +316,8 @@ export function createTabStripStore(): TabStripStore {
       const el = scroller;
       if (!el) return;
       // A click during a slide pages on from where that slide is going.
-      const base = (slide && slide.end()) ?? el.scrollLeft;
-      const to = base + (direction === 'left' ? -1 : 1) * pageSize(el);
-      slideTo(() => to);
+      const base = clampScroll(el, (slide && slide.end()) ?? el.scrollLeft);
+      slideTo(pageTarget(el, direction, base));
     },
     attach: (el) => {
       scroller = el;
