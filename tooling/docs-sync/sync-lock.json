@@ -280,16 +280,12 @@
           "name": "UseAutocomplete",
           "status": "included",
           "notes": [
-            "`@mui/system` imports taken from @tecton-mui/ui/styles",
-            "hard-coded colors mapped to Tecton color tokens"
+            "`@mui/system` imports taken from @tecton-mui/ui/styles"
           ]
         },
         {
           "name": "CustomizedHook",
-          "status": "included",
-          "notes": [
-            "hard-coded colors mapped to Tecton color tokens"
-          ]
+          "status": "included"
         },
         {
           "name": "Asynchronous",
@@ -345,8 +341,7 @@
           "name": "GitHubLabel",
           "status": "included",
           "notes": [
-            "icons passed as components use local `Icon` wrappers (Done, Close)",
-            "hard-coded colors mapped to Tecton color tokens"
+            "icons passed as components use local `Icon` wrappers (Done, Close)"
           ]
         },
         {
@@ -445,10 +440,7 @@
         },
         {
           "name": "CustomizedButtons",
-          "status": "included",
-          "notes": [
-            "hard-coded colors mapped to Tecton color tokens"
-          ]
+          "status": "included"
         },
         {
           "name": "ButtonBaseDemo",
@@ -543,10 +535,7 @@
         },
         {
           "name": "CustomizedCheckbox",
-          "status": "included",
-          "notes": [
-            "hard-coded colors mapped to Tecton color tokens"
-          ]
+          "status": "included"
         }
       ]
     },
@@ -619,10 +608,7 @@
         },
         {
           "name": "CustomizedRadios",
-          "status": "included",
-          "notes": [
-            "hard-coded colors mapped to Tecton color tokens"
-          ]
+          "status": "included"
         },
         {
           "name": "UseRadioGroup",
@@ -656,10 +642,7 @@
         },
         {
           "name": "CustomizedRating",
-          "status": "included",
-          "notes": [
-            "hard-coded colors mapped to Tecton color tokens"
-          ]
+          "status": "included"
         },
         {
           "name": "RadioGroupRating",
@@ -710,10 +693,7 @@
         },
         {
           "name": "CustomizedSelects",
-          "status": "included",
-          "notes": [
-            "hard-coded colors mapped to Tecton color tokens"
-          ]
+          "status": "included"
         },
         {
           "name": "MultipleSelect",
@@ -806,17 +786,13 @@
         },
         {
           "name": "CustomizedSlider",
-          "status": "included",
-          "notes": [
-            "hard-coded colors mapped to Tecton color tokens"
-          ]
+          "status": "included"
         },
         {
           "name": "MusicPlayerSlider",
           "status": "included",
           "notes": [
-            "MUI-site-relative asset URLs made absolute (https://mui.com/...)",
-            "hard-coded colors mapped to Tecton color tokens"
+            "MUI-site-relative asset URLs made absolute (https://mui.com/...)"
           ]
         },
         {
@@ -875,10 +851,7 @@
         },
         {
           "name": "CustomizedSwitches",
-          "status": "included",
-          "notes": [
-            "hard-coded colors mapped to Tecton color tokens"
-          ]
+          "status": "included"
         },
         {
           "name": "FormControlLabelPosition",
@@ -961,17 +934,11 @@
         },
         {
           "name": "CustomizedInputsStyled",
-          "status": "included",
-          "notes": [
-            "hard-coded colors mapped to Tecton color tokens"
-          ]
+          "status": "included"
         },
         {
           "name": "CustomizedInputsStyleOverrides",
           "status": "included",
-          "notes": [
-            "hard-coded colors mapped to Tecton color tokens"
-          ],
           "customTheme": true
         },
         {
@@ -1204,10 +1171,7 @@
         },
         {
           "name": "CustomizedBadges",
-          "status": "included",
-          "notes": [
-            "hard-coded colors mapped to Tecton color tokens"
-          ]
+          "status": "included"
         }
       ]
     },
@@ -1438,9 +1402,6 @@
         {
           "name": "CustomizedList",
           "status": "included",
-          "notes": [
-            "hard-coded colors mapped to Tecton color tokens"
-          ],
           "customTheme": true
         }
       ]
@@ -1530,10 +1491,7 @@
         },
         {
           "name": "CustomizedTooltips",
-          "status": "included",
-          "notes": [
-            "hard-coded colors mapped to Tecton color tokens"
-          ]
+          "status": "included"
         },
         {
           "name": "ArrowTooltips",
@@ -1691,10 +1649,7 @@
         },
         {
           "name": "CustomizedDialogs",
-          "status": "included",
-          "notes": [
-            "hard-coded colors mapped to Tecton color tokens"
-          ]
+          "status": "included"
         },
         {
           "name": "FullScreenDialog",
@@ -1799,10 +1754,7 @@
         },
         {
           "name": "CustomizedProgressBars",
-          "status": "included",
-          "notes": [
-            "hard-coded colors mapped to Tecton color tokens"
-          ]
+          "status": "included"
         },
         {
           "name": "DelayingAppearance",
@@ -1848,10 +1800,7 @@
         },
         {
           "name": "SkeletonColor",
-          "status": "included",
-          "notes": [
-            "hard-coded colors mapped to Tecton color tokens"
-          ]
+          "status": "included"
         }
       ]
     },
@@ -1941,10 +1890,7 @@
         },
         {
           "name": "CustomizedAccordions",
-          "status": "included",
-          "notes": [
-            "hard-coded colors mapped to Tecton color tokens"
-          ]
+          "status": "included"
         }
       ]
     },
@@ -2237,10 +2183,7 @@
         },
         {
           "name": "CustomizedMenus",
-          "status": "included",
-          "notes": [
-            "hard-coded colors mapped to Tecton color tokens"
-          ]
+          "status": "included"
         },
         {
           "name": "LongMenu",
@@ -2379,10 +2322,7 @@
         },
         {
           "name": "CustomizedSteppers",
-          "status": "included",
-          "notes": [
-            "hard-coded colors mapped to Tecton color tokens"
-          ]
+          "status": "included"
         },
         {
           "name": "VerticalLinearStepper",
@@ -2471,10 +2411,7 @@
         },
         {
           "name": "CustomizedTabs",
-          "status": "included",
-          "notes": [
-            "hard-coded colors mapped to Tecton color tokens"
-          ]
+          "status": "included"
         },
         {
           "name": "VerticalTabs",
@@ -3613,7 +3550,7 @@
     "apps/docs/src/mui-docs/generated/demos/accordion/AccordionTransition.tsx": "594b3f544846902372b7bd26ac7909b15168373b4027de9d4a045716508105b3",
     "apps/docs/src/mui-docs/generated/demos/accordion/AccordionUsage.tsx": "007c1a1485d24634c00757d78f8f94311870335d709cf0d715528bf25d07ef08",
     "apps/docs/src/mui-docs/generated/demos/accordion/ControlledAccordions.tsx": "16eba1014ae37ce8079722b1675418589c9326665a410dc4d05ce8d0e42622d7",
-    "apps/docs/src/mui-docs/generated/demos/accordion/CustomizedAccordions.tsx": "97fc90988beabebdaa71a7a2b56b410933c675996ca6f20d4cb2f78aa8542e64",
+    "apps/docs/src/mui-docs/generated/demos/accordion/CustomizedAccordions.tsx": "d0e7232320d96cb0f31cff6c8b5823cdca58c64df1d6440e779a3b42b3e71cb3",
     "apps/docs/src/mui-docs/generated/demos/accordion/DisabledAccordion.tsx": "033f05e5a37026847ee0611d1aa0580f29090239089f5a9bcc8b8245b37fa4a8",
     "apps/docs/src/mui-docs/generated/demos/alert/ActionAlerts.tsx": "0123eb73e33fe09fc9b2a293c525e6317d70982b288612cdf63def04ae95a6d5",
     "apps/docs/src/mui-docs/generated/demos/alert/BasicAlerts.tsx": "28025020d993621f69657b752372ab92854c6c7a329eb854e690d2477ab777ee",
@@ -3631,7 +3568,7 @@
     "apps/docs/src/mui-docs/generated/demos/autocomplete/ControllableStates.tsx": "9cb9986f0aa5db1dc6067d564b19dfbb5ceff6ac82c6046fb3e8ee29eb5cd145",
     "apps/docs/src/mui-docs/generated/demos/autocomplete/CountrySelect.tsx": "468801ab1c15a729c46ae19f76de1d52bf2ae664ce297475e031209869eab9ce",
     "apps/docs/src/mui-docs/generated/demos/autocomplete/CustomInputAutocomplete.tsx": "4057c18910506337eb7605bbb1c4488b1f2e513d8fcce569536f8ff0c3cc0858",
-    "apps/docs/src/mui-docs/generated/demos/autocomplete/CustomizedHook.tsx": "7348aaf62007538d57ac541d97b75601a560fcc891d5935fba77b71b9e2567a2",
+    "apps/docs/src/mui-docs/generated/demos/autocomplete/CustomizedHook.tsx": "e153bce2223a124a2595a1006d060b1c2c84b920ed678c53a1d83d7db8e913bb",
     "apps/docs/src/mui-docs/generated/demos/autocomplete/CustomSingleValueRendering.tsx": "eb27cbc96e79816c9aab225ecc7335c54aea66d7eed7b9486b2fa5164d92b5e9",
     "apps/docs/src/mui-docs/generated/demos/autocomplete/DisabledOptions.tsx": "62f6d6a8221352637a152436baae5979f575484efa5a1aeb7131a0de667fb4e1",
     "apps/docs/src/mui-docs/generated/demos/autocomplete/Filter.tsx": "0c7758e23331ce7c8fbb94af654b12692508f6324018d260c3538bd74ed0280a",
@@ -3639,7 +3576,7 @@
     "apps/docs/src/mui-docs/generated/demos/autocomplete/FreeSolo.tsx": "fac0468e4d3a232870884cda9cc672a7153dbc1907f5a9e973b1c2f3ad0639e5",
     "apps/docs/src/mui-docs/generated/demos/autocomplete/FreeSoloCreateOption.tsx": "e51d33cf7826cd1266b066c2eea58b3ff18d9162b89a6e1b595e64562503dece",
     "apps/docs/src/mui-docs/generated/demos/autocomplete/FreeSoloCreateOptionDialog.tsx": "d11b164ee9b08723ea1870d54a0774c3843d32df624eaa46d51b7da093d34965",
-    "apps/docs/src/mui-docs/generated/demos/autocomplete/GitHubLabel.tsx": "07763731f3cd95af217af0e9c4ce6f5527241c0630335d5e82f948b0d23d18ff",
+    "apps/docs/src/mui-docs/generated/demos/autocomplete/GitHubLabel.tsx": "843d92d7997937c822be0ddd9dd09fd5055dd9995a80df9831aa3fef6eaacf09",
     "apps/docs/src/mui-docs/generated/demos/autocomplete/GloballyCustomizedOptions.tsx": "0953631602a0fb14c877dd20c4a4c950e07a10b246d17c36c4536ec6321c5a44",
     "apps/docs/src/mui-docs/generated/demos/autocomplete/Grouped.tsx": "d9bd4ed06e9fd9002d9e4e51069879cbe429caf01948b31b9d2b4a4f6950c28d",
     "apps/docs/src/mui-docs/generated/demos/autocomplete/LimitTags.tsx": "233b80c593206d6328948822c0138ab19f3449106b262132c5d4ed917d4f4895",
@@ -3649,7 +3586,7 @@
     "apps/docs/src/mui-docs/generated/demos/autocomplete/Sizes.tsx": "9eab90903fb935390a486493734ca39e346162973c0c3cde5e6aa3b00d017c30",
     "apps/docs/src/mui-docs/generated/demos/autocomplete/Tags.tsx": "5828a628123e780749f4965806b2cd7f9b7bdd8a2d83c23196fc6096a2b33fc1",
     "apps/docs/src/mui-docs/generated/demos/autocomplete/top100Films.ts": "7c7d3a48ae7cd904548ef57d7fed6ee9692f45b966bf9c556a910165ac4aa206",
-    "apps/docs/src/mui-docs/generated/demos/autocomplete/UseAutocomplete.tsx": "9615c8aef759d10aea09ad7cd7f8be21469ae8ba9d0099513fa7c503f71d4bb8",
+    "apps/docs/src/mui-docs/generated/demos/autocomplete/UseAutocomplete.tsx": "f8406f7af7e9d5c7f3f1b1f53d1c99e596a1cd30bf8ff44c9ba3f9c5424cf589",
     "apps/docs/src/mui-docs/generated/demos/avatars/BadgeAvatars.tsx": "cd9e03b06134e2925279282168b55784612278de9170e47c8fe2a7313ae426c4",
     "apps/docs/src/mui-docs/generated/demos/avatars/CustomSurplusAvatars.tsx": "900eed245278ae13fa4bcff3ffd68f5827dc8db38bc364baeebcb3ea68433cf9",
     "apps/docs/src/mui-docs/generated/demos/avatars/FallbackAvatars.tsx": "a85bde5cda607ae38d227e5e35482f61e9bb99d084cee7a3473ff612c9f6a2b2",
@@ -3669,7 +3606,7 @@
     "apps/docs/src/mui-docs/generated/demos/badges/BadgeOverlap.tsx": "030eea1a65af95aaa3ae4d1fd0f0007a40981ae156b2b3d40bd29cbd4ab87181",
     "apps/docs/src/mui-docs/generated/demos/badges/BadgeVisibility.tsx": "72ffca85a81763650913a969082ecff7a2092fee636b85876a41e1c91741ba67",
     "apps/docs/src/mui-docs/generated/demos/badges/ColorBadge.tsx": "adafbbca2e64c4ae2a1821c827960cd5685e46521bf5b206ab30491b7bc56631",
-    "apps/docs/src/mui-docs/generated/demos/badges/CustomizedBadges.tsx": "d4e24c10058d120f64b7adfaf313940ad1c20fdaafa21addf901e2870524bc31",
+    "apps/docs/src/mui-docs/generated/demos/badges/CustomizedBadges.tsx": "4a13141be831b074b969bceb1525438ca54bf7c9cdfea5c28ea8140779f89e20",
     "apps/docs/src/mui-docs/generated/demos/badges/DotBadge.tsx": "bc8bedf8e0d3fc5b0f21bb967c3a6e438ac4dcfc5bc81203f0a0bc0d7ac57093",
     "apps/docs/src/mui-docs/generated/demos/badges/ShowZeroBadge.tsx": "03eb9403ccb7c0cdc4eb537fdd66b2b0bf967f03d828d360625a2763b1e9f26f",
     "apps/docs/src/mui-docs/generated/demos/badges/SimpleBadge.tsx": "1509148495c43307ca6ed5e20e6e95b5ba7cc144e82c1f8ab4915c5905e1ee01",
@@ -3681,7 +3618,7 @@
     "apps/docs/src/mui-docs/generated/demos/breadcrumbs/BasicBreadcrumbs.tsx": "60d2157f9f8ce37c071209f0141c6215e9b0d5dd5275954c2383002842c13ac9",
     "apps/docs/src/mui-docs/generated/demos/breadcrumbs/CollapsedBreadcrumbs.tsx": "51e0c69bdae19cb9206daa23903706ad0ee3604500e22c3bde64b12ac5b9d8f8",
     "apps/docs/src/mui-docs/generated/demos/breadcrumbs/CondensedWithMenu.tsx": "3e0a8898a8b6bbdef4eb3468ff2a08e32c500793d424669014a67e86b872f9d4",
-    "apps/docs/src/mui-docs/generated/demos/breadcrumbs/CustomizedBreadcrumbs.tsx": "f08fc51d3ffa67ebd21606eab6a0301ae81ee850d3331477a92382270bf25ada",
+    "apps/docs/src/mui-docs/generated/demos/breadcrumbs/CustomizedBreadcrumbs.tsx": "9f13bf70dd78eb9169c449f38533e097f5ac051ae4897462ecc7d7c7afc6f35c",
     "apps/docs/src/mui-docs/generated/demos/breadcrumbs/CustomSeparator.tsx": "33b04902dcb6f5c4de8f7e267a36ba4eff729a2b303329d0cf52badc60ae149e",
     "apps/docs/src/mui-docs/generated/demos/breadcrumbs/IconBreadcrumbs.tsx": "277d9b872ed7ad5b9b1339eb3c0116ce986d0a075261e3bcb9281785db51c062",
     "apps/docs/src/mui-docs/generated/demos/button-group/BasicButtonGroup.tsx": "21ed5e31c6ba8f3666b6741c0a75e79deefabbddbf49a1501d239a22ceddaccd",
@@ -3696,7 +3633,7 @@
     "apps/docs/src/mui-docs/generated/demos/buttons/ButtonSizes.tsx": "5c0c6db7bd2fde8c1c3be1be22a5569322e6216d8d7bd47386f75fe6e8b9ebae",
     "apps/docs/src/mui-docs/generated/demos/buttons/ColorButtons.tsx": "affd152a562a9e074c3616c3c2f5ecaaa4a3f182a8780ac7fb2071e8dcf24c12",
     "apps/docs/src/mui-docs/generated/demos/buttons/ContainedButtons.tsx": "4ba7a7aefae2164cd51ac859ebc0cd3b492d6dcfcf832adc46ffed3b5b069c3b",
-    "apps/docs/src/mui-docs/generated/demos/buttons/CustomizedButtons.tsx": "49000d5a2abea308cd0c7446ab03f93591882a810b4b7b5677251ce2e8ab94d8",
+    "apps/docs/src/mui-docs/generated/demos/buttons/CustomizedButtons.tsx": "0a5e25b89637b7d60b57ec17d1606cef6f13b1c4a43f72a96334e15cecc9acf7",
     "apps/docs/src/mui-docs/generated/demos/buttons/DisableElevation.tsx": "b71148e19b6cb0236906205ed02a07f23f77815af9a575ddba48adfbacd3d348",
     "apps/docs/src/mui-docs/generated/demos/buttons/IconButtonColors.tsx": "2da5636f23008c20b0c2816df3dab30e67bf700d8216680111e3be591fff1cf1",
     "apps/docs/src/mui-docs/generated/demos/buttons/IconButtons.tsx": "3d5da01a67130f41ce12a0743d8269a308c2e4891da5f3481be5b1606c629424",
@@ -3723,7 +3660,7 @@
     "apps/docs/src/mui-docs/generated/demos/checkboxes/CheckboxLabels.tsx": "59eaa9368f5e98832cec604bb2e8748f16b8bd175d3787082d79598505717bae",
     "apps/docs/src/mui-docs/generated/demos/checkboxes/ColorCheckboxes.tsx": "d9601d5565072cd1e352849196663c4793027629515d7741a3293f15d990510c",
     "apps/docs/src/mui-docs/generated/demos/checkboxes/ControlledCheckbox.tsx": "fa30b833ac8e56974422e7bad080082b1b8b824e91879090c60c0e613044a170",
-    "apps/docs/src/mui-docs/generated/demos/checkboxes/CustomizedCheckbox.tsx": "0e15c43ba28954a2a070414a2d553b03c1145b334c7d7ac263f433b792e9b2e2",
+    "apps/docs/src/mui-docs/generated/demos/checkboxes/CustomizedCheckbox.tsx": "ad206d4adaa314e2397e77846864d740931ba091c022377bded4810af446d603",
     "apps/docs/src/mui-docs/generated/demos/checkboxes/FormControlLabelPosition.tsx": "6eda829eb80c87d8342d9e96f0604fccc2af6ea2816a4b623b5b9a2054c9490d",
     "apps/docs/src/mui-docs/generated/demos/checkboxes/IconCheckboxes.tsx": "f71b259765766fd067f90d7304142d5273bdf81ef11b06b9ad15584b97bea9b1",
     "apps/docs/src/mui-docs/generated/demos/checkboxes/IndeterminateCheckbox.tsx": "538bfb09f14a74f5be38efc792bd4b16b5e96b2f710edb33d310d59e9852b7f4",
@@ -3748,7 +3685,7 @@
     "apps/docs/src/mui-docs/generated/demos/dialogs/AlertDialog.tsx": "57d55e67e97d64e8eb9d8e5fef7f46860730e1ca66ec289f9fc0296faef68485",
     "apps/docs/src/mui-docs/generated/demos/dialogs/AlertDialogSlide.tsx": "f519efc51e76b8ca6845a490e47e8701054ad0f6768e6973d8410e1329f189a6",
     "apps/docs/src/mui-docs/generated/demos/dialogs/ConfirmationDialog.tsx": "843a25b99724b3dbda70d1d72c315d8cff5edef05b9a5e6ab02b6029b3f2cde4",
-    "apps/docs/src/mui-docs/generated/demos/dialogs/CustomizedDialogs.tsx": "406706df3c6145687fe9ff81c3795589764963ee75bfccf0fb6a7ef4eba53501",
+    "apps/docs/src/mui-docs/generated/demos/dialogs/CustomizedDialogs.tsx": "cdc0eea40bb95965ed7c1b347f44e4feca8fb9c0517497b97502f1ed7cb74f32",
     "apps/docs/src/mui-docs/generated/demos/dialogs/FormDialog.tsx": "d537eb7993325ca698880b51f140c725b905a37faade1c2c18c88986687478be",
     "apps/docs/src/mui-docs/generated/demos/dialogs/MaxWidthDialog.tsx": "939c829f89cb3a511925a3f3ebee3a016642d7a984862f9b6bae676e5d5f7cce",
     "apps/docs/src/mui-docs/generated/demos/dialogs/ResponsiveDialog.tsx": "9c686c3eed111de6c70b770a855213ff2bd9130fd538d43e9bc006c908c222b2",
@@ -3801,7 +3738,7 @@
     "apps/docs/src/mui-docs/generated/demos/lists/BasicList.tsx": "a7b5f828431572f2b879b3fbd3109f806335ece27a08c1b6639da9c6282f8204",
     "apps/docs/src/mui-docs/generated/demos/lists/CheckboxList.tsx": "6afede4bf611cbee34d24f943793ff0a360eace627037540d47f4001faeab651",
     "apps/docs/src/mui-docs/generated/demos/lists/CheckboxListSecondary.tsx": "b0905b05c5e5a8609cfc36327ac29442c67be8454495d3f115ca9f311eb9a33b",
-    "apps/docs/src/mui-docs/generated/demos/lists/CustomizedList.tsx": "c85e2b8f413bfc5546a060ad39b05745e7416e84fc636771a8f8b24fe348cb75",
+    "apps/docs/src/mui-docs/generated/demos/lists/CustomizedList.tsx": "b4ec7afd909e8bdf911f2f9aa7f8dd7d36c511bbc6a2f752898b95e6ad08ecda",
     "apps/docs/src/mui-docs/generated/demos/lists/FolderList.tsx": "a0fa2b708cc267fedbcf4515753a69df7e5ce50dde3bf54e47ba84f6b49c6c8d",
     "apps/docs/src/mui-docs/generated/demos/lists/GutterlessList.tsx": "66058bc0f24b74786bd0ed4adcc53d3e00565b55faa8b10e80415a9077b1e8cb",
     "apps/docs/src/mui-docs/generated/demos/lists/InsetList.tsx": "645344b8e49b00db9f310b8c19a02758ce657f200ce1ee739c77f3bae7611cb4",
@@ -3823,7 +3760,7 @@
     "apps/docs/src/mui-docs/generated/demos/menus/BasicMenu.tsx": "f90b00cc1aae17c02fd1c40752923df6aa50b611f2e2562672c78a36ccfc8552",
     "apps/docs/src/mui-docs/generated/demos/menus/CheckboxMenu.tsx": "83896fd24149cbcf3aedee700ed35cae528e574c2dfe5730ca4d57dae62aabd7",
     "apps/docs/src/mui-docs/generated/demos/menus/ContextMenu.tsx": "a93a1b19c7d484ed8d2e7c43335ed9c7799abadfc37697892c0e2c32db543c4c",
-    "apps/docs/src/mui-docs/generated/demos/menus/CustomizedMenus.tsx": "7264e8142a8c9dbbc3354f487c4b61d4bd88a534b600354742e3c3486e569cb5",
+    "apps/docs/src/mui-docs/generated/demos/menus/CustomizedMenus.tsx": "004c9b35b71905df2eae4e5099c7e7622131c3559daf7249b4624e3b229cfeb6",
     "apps/docs/src/mui-docs/generated/demos/menus/DenseMenu.tsx": "945b75e477ae05033b67b6fa78b52f6f006ac907d9d8d6a99ac6b94ecbb9a432",
     "apps/docs/src/mui-docs/generated/demos/menus/FadeMenu.tsx": "af563125841e4fa823c4b47af5c99a2044ec72b1f8df589fb62645c731e6f790",
     "apps/docs/src/mui-docs/generated/demos/menus/GroupedMenu.tsx": "d6a1d45d68522f719aeab01c022a7181910151cb9ca2b30d7510942ac67d964d",
@@ -3872,7 +3809,7 @@
     "apps/docs/src/mui-docs/generated/demos/progress/CircularSize.tsx": "85bf4bd26a82103b41772199226cdb7d9fd8597afffa93d7e407aebd86a48dc4",
     "apps/docs/src/mui-docs/generated/demos/progress/CircularUnderLoad.tsx": "d5d00ed41cface54e178066143107b49942bc0e0f816f46d5ddab50440e5c323",
     "apps/docs/src/mui-docs/generated/demos/progress/CircularWithValueLabel.tsx": "ee8a1011f85b115de9255e2efe977ebb42213674930fc7b911cf37257d099731",
-    "apps/docs/src/mui-docs/generated/demos/progress/CustomizedProgressBars.tsx": "aaf16abc06516a09e57bf56c2d70d94dbb71c05edeb9b0f9f4875fc3a19398cd",
+    "apps/docs/src/mui-docs/generated/demos/progress/CustomizedProgressBars.tsx": "703a62427d40840e278a4f214b0f9b2c854595a80b337c8096cec67072c82d8e",
     "apps/docs/src/mui-docs/generated/demos/progress/DelayingAppearance.tsx": "90f4402ae77f38114ab86134df3d12f5864c257d2894061fa8757db08dc1999c",
     "apps/docs/src/mui-docs/generated/demos/progress/LinearBuffer.tsx": "295371e39ac66441f739c955a437ab8816ab95ecb16e33cb1691347ddb12fd6b",
     "apps/docs/src/mui-docs/generated/demos/progress/LinearColor.tsx": "4fe11e0c894c16f6ccf9ab6510397c2d92cee486852e71559105fdeae2877c50",
@@ -3883,7 +3820,7 @@
     "apps/docs/src/mui-docs/generated/demos/progress/LinearWithValueLabel.tsx": "e2f3d3bea6302a33ab3c815ac4fafb00c42ee700232c0206a43274a66b5078b1",
     "apps/docs/src/mui-docs/generated/demos/radio-buttons/ColorRadioButtons.tsx": "8eac2dc7cb61849f4365e7a1470789f61b961f38fe39d99a79f32dad5d2e5a91",
     "apps/docs/src/mui-docs/generated/demos/radio-buttons/ControlledRadioButtonsGroup.tsx": "bd33e7ca6524fa915d379e49e8eb3d4f4d7e6bd7773c8ba042c738b5202f302f",
-    "apps/docs/src/mui-docs/generated/demos/radio-buttons/CustomizedRadios.tsx": "ff4a6eab4417ec66653b1cea63a5b22f998f3fd37cff5a045f594351e4058372",
+    "apps/docs/src/mui-docs/generated/demos/radio-buttons/CustomizedRadios.tsx": "391301f87bf17a5ed9aba23c7e585aa58426b0de0f6de695adae26d7e7241eb1",
     "apps/docs/src/mui-docs/generated/demos/radio-buttons/ErrorRadios.tsx": "3f780721be0479548cea8e394653a97391af6c03a2da83abb148167a23352d7b",
     "apps/docs/src/mui-docs/generated/demos/radio-buttons/FormControlLabelPlacement.tsx": "f49ffa4dbe71cd4eebe3849e808e412bfca8d1495b898481d5799bcc31eff112",
     "apps/docs/src/mui-docs/generated/demos/radio-buttons/RadioButtons.tsx": "df0d0d69f824a3a5e6a2abfcf0ba22974f902d59d838f4be8ee34cc2d21d5548",
@@ -3892,7 +3829,7 @@
     "apps/docs/src/mui-docs/generated/demos/radio-buttons/SizeRadioButtons.tsx": "45c1621f5dd95104d85852ddd32641a68c51cc1bfe8a7fc68d29759864f3c1d8",
     "apps/docs/src/mui-docs/generated/demos/radio-buttons/UseRadioGroup.tsx": "83584d4975fe4d8607fe6240ee481202c9118666d4fc66db9974044e9b4e3096",
     "apps/docs/src/mui-docs/generated/demos/rating/BasicRating.tsx": "307fd381ad10c53a23f930332bee42912fca9720a15f3f3939766a6a924e1075",
-    "apps/docs/src/mui-docs/generated/demos/rating/CustomizedRating.tsx": "6c22f06ba7091fdea2794e60823610d65ce252423ee5647f27f0e9d764724020",
+    "apps/docs/src/mui-docs/generated/demos/rating/CustomizedRating.tsx": "05e4a208288372e54ca092d4505d6100bb9206182b1a54b86674e7d046731fee",
     "apps/docs/src/mui-docs/generated/demos/rating/HalfRating.tsx": "97f3d4fa1324e55610415056b295e7a2c4157ee9e11ca06e7e2ca44a7b078b7c",
     "apps/docs/src/mui-docs/generated/demos/rating/HoverRating.tsx": "907003e952b0dcee5ff091de9ec238a7efbba985c805003999947edcabc3d866",
     "apps/docs/src/mui-docs/generated/demos/rating/RadioGroupRating.tsx": "3c100c22104f142b7e1496b9a40130d0d969ff7adf7966e0f439aa947e448b38",
@@ -3900,7 +3837,7 @@
     "apps/docs/src/mui-docs/generated/demos/rating/TextRating.tsx": "67c64ed8d46b31d87aa8bb6a1eaf0e73297a21fdd6edbd854a3ed5cba6bdd327",
     "apps/docs/src/mui-docs/generated/demos/selects/BasicSelect.tsx": "bf78f90fedc92e2184a968a96a9e26723a9cba9788e689fb0b13ac84865d6994",
     "apps/docs/src/mui-docs/generated/demos/selects/ControlledOpenSelect.tsx": "c1600917d442e4e44d3527933ff29fbc908041b59e6f7f3d6312d2a1dfdc77d1",
-    "apps/docs/src/mui-docs/generated/demos/selects/CustomizedSelects.tsx": "6944f4a3fceeb8e54365e3066306e0f91c5fa8d6504cccef9617ba8a593bdb99",
+    "apps/docs/src/mui-docs/generated/demos/selects/CustomizedSelects.tsx": "aed88726b0b54ba36cf39aa13b3cf47a571db2d795a64914d9b36fb82116ba9f",
     "apps/docs/src/mui-docs/generated/demos/selects/DialogSelect.tsx": "67158aace7b89c4b3f5974cf3a0f54de95403f18686c612f3e2739e1e0f4126b",
     "apps/docs/src/mui-docs/generated/demos/selects/GroupedSelect.tsx": "6c6798a252059625e7117aebd74fefa80bf5a49d021aa9326e1b6fed2a6b8c6a",
     "apps/docs/src/mui-docs/generated/demos/selects/MultipleSelect.tsx": "617b56dbb2498f882bc0c30c30e056bf045935b3256767340434d79ca6008ac1",
@@ -3917,13 +3854,13 @@
     "apps/docs/src/mui-docs/generated/demos/skeleton/Animations.tsx": "e3f085944a452af168469e1962939f492c2a5211765d068788b516e6a614ab28",
     "apps/docs/src/mui-docs/generated/demos/skeleton/Facebook.tsx": "53898c390156c478941bec15f130f48cace30a5a0d4311f78b2e9a9a4ecc818f",
     "apps/docs/src/mui-docs/generated/demos/skeleton/SkeletonChildren.tsx": "aa428743b5b0ba9aac942191a2826d6fd50c5848a5b7204bc8f04267c0e317bb",
-    "apps/docs/src/mui-docs/generated/demos/skeleton/SkeletonColor.tsx": "ddfa8b2f883a8c267464048d0163345ac1854d361106c0b6ca9ed6b562343a25",
+    "apps/docs/src/mui-docs/generated/demos/skeleton/SkeletonColor.tsx": "cad382a71d909a422919b3a0de355a3cdb3518f153951917dff2a88557c6d075",
     "apps/docs/src/mui-docs/generated/demos/skeleton/SkeletonTypography.tsx": "b5e28d6b50d93c9350e5de6843d257cc2edadf5dd196d84bac442623117e47d7",
     "apps/docs/src/mui-docs/generated/demos/skeleton/Variants.tsx": "79f8ddaadb4759632bb3f09d4a48f9189616c7699872766e633c0d4b987e2051",
     "apps/docs/src/mui-docs/generated/demos/skeleton/YouTube.tsx": "a85aad7bb7cdaf7c912914067024d22999efa5f2e62a2b6723505097304fca8f",
     "apps/docs/src/mui-docs/generated/demos/slider/ColorSlider.tsx": "95b62ae193b3d7bcce863f1c9f051c20bc89837a339b9d9d8d8e45a12fe3b5c9",
     "apps/docs/src/mui-docs/generated/demos/slider/ContinuousSlider.tsx": "ab85911bff47e58553ba80b02f50663987820c8b1ccd987cef3566ab1910c8f0",
-    "apps/docs/src/mui-docs/generated/demos/slider/CustomizedSlider.tsx": "ed0bd18e6613b46f5dd26215776c15742db2992ce9b300fb670031cf2afc20bb",
+    "apps/docs/src/mui-docs/generated/demos/slider/CustomizedSlider.tsx": "2cd0da6ba4751061b39933c71a9748726dc995a7f7e3b4e79ce0951ed6686910",
     "apps/docs/src/mui-docs/generated/demos/slider/CustomMarks.tsx": "17bec44c4728e426cfc5e0e39a9372d20fde3069611903b695f8a2c562f510e2",
     "apps/docs/src/mui-docs/generated/demos/slider/DiscreteSlider.tsx": "76bbb9e05ae611a4a282588d9fd12de1790e6fd6eda001bd3c1743340403fd09",
     "apps/docs/src/mui-docs/generated/demos/slider/DiscreteSliderLabel.tsx": "9eab4a4462b0873ea8fb3af01361ef5399a2e9f28512e7bb07aefe7b96e5072b",
@@ -3932,7 +3869,7 @@
     "apps/docs/src/mui-docs/generated/demos/slider/DiscreteSliderValues.tsx": "e0fa7e6a23cf8b064e37c42888ed10147cceb53bfcb5c34a954043e22ad79bab",
     "apps/docs/src/mui-docs/generated/demos/slider/InputSlider.tsx": "c2fe7500b54403b3c88a67764ef7c01ce4c2e1f4b16cc73593bd74b601ebf5cd",
     "apps/docs/src/mui-docs/generated/demos/slider/MinimumDistanceSlider.tsx": "ff8be17420187d56d4cf4614b1b1d63dcaa053a9e122f9fb3d3c0b5c770de7f5",
-    "apps/docs/src/mui-docs/generated/demos/slider/MusicPlayerSlider.tsx": "68ee65cb42065a82df6f71b405f472ec217ce49900d40e907d3b7b77a74844e1",
+    "apps/docs/src/mui-docs/generated/demos/slider/MusicPlayerSlider.tsx": "e58bc7a76cf01e873beb4f5b13645ba234fd07d203b588c1a772a326b1f0d5df",
     "apps/docs/src/mui-docs/generated/demos/slider/NonLinearSlider.tsx": "280c0e5ff45791b7e5a4d29ba6ea3b35e28b1fd70b786c9fd50e714f6113905c",
     "apps/docs/src/mui-docs/generated/demos/slider/RangeSlider.tsx": "3cade7a68ed79424ea41fbf72d2309a00d59d5e9b492f74f7b76cc31e7b385c6",
     "apps/docs/src/mui-docs/generated/demos/slider/SliderSizes.tsx": "e71c12fede928187796990ba8e617b54f1274e2479726f9087be4be7ff8310ea",
@@ -3958,7 +3895,7 @@
     "apps/docs/src/mui-docs/generated/demos/stack/FlexboxGapStack.tsx": "ca2a5d207ebaf1dd8ca87f5de96e911f207589239ab3c6b6377e5192c29d3890",
     "apps/docs/src/mui-docs/generated/demos/stack/ResponsiveStack.tsx": "4e044bc7874100f45b8ac125f5e8656e56badd362b9416bd676a0608f3314aaa",
     "apps/docs/src/mui-docs/generated/demos/stack/ZeroWidthStack.tsx": "cb5f2e0c89e422279f8f4372ecf330ba4727de6e3978aef31c082ac5aab95b7c",
-    "apps/docs/src/mui-docs/generated/demos/steppers/CustomizedSteppers.tsx": "6019dbeec010e920a02899af83118ec60b6182f3407f1aa7456e6efd201e370c",
+    "apps/docs/src/mui-docs/generated/demos/steppers/CustomizedSteppers.tsx": "1e15da153b31c5139ffb689ca10525ce90604e36996d3a24e6a066af01f3e379",
     "apps/docs/src/mui-docs/generated/demos/steppers/DotsMobileStepper.tsx": "5c048336acf9d0d8ff71e30c0c305b560dd9edc6ead6d32da4df281653216711",
     "apps/docs/src/mui-docs/generated/demos/steppers/HorizontalLinearAlternativeLabelStepper.tsx": "53ba9270136f240e465c3e1c9595102170cf2f23ea60d54c6f628d1ead4a2f5a",
     "apps/docs/src/mui-docs/generated/demos/steppers/HorizontalLinearStepper.tsx": "cccc4eb0151d6c936d972f9710423f8ff27d262ac81969fbef3afe9e4eacc40f",
@@ -3970,7 +3907,7 @@
     "apps/docs/src/mui-docs/generated/demos/switches/BasicSwitches.tsx": "2c06d2222bdbd4e0d907ad3854e3d2ab8ae8941b12b186f89cfa213c82b971ee",
     "apps/docs/src/mui-docs/generated/demos/switches/ColorSwitches.tsx": "9c307803f943ca2ecad6909fa092e77201fa6be8241acc06433c805b1b26253e",
     "apps/docs/src/mui-docs/generated/demos/switches/ControlledSwitches.tsx": "eb01614537fcdb68002460b87ca244a6a7719d41fadbb2736d342ad81d1aec5c",
-    "apps/docs/src/mui-docs/generated/demos/switches/CustomizedSwitches.tsx": "58cbd4b6632bdbd6ef0ad166d990eeaaef63c9c4ab129601bfae61853658305a",
+    "apps/docs/src/mui-docs/generated/demos/switches/CustomizedSwitches.tsx": "09c1c7bb3646073939ccc6cfc1c258b59f00859e62f4cab50b67e1dace46ed79",
     "apps/docs/src/mui-docs/generated/demos/switches/FormControlLabelPosition.tsx": "e326f591e89bac7e45b2ace2f363c59eb9ce7be2cb500c9d3c64aa19fdadf796",
     "apps/docs/src/mui-docs/generated/demos/switches/SwitchesGroup.tsx": "85d7c567e57bc9c52fe5012bd8d4f8f1ae56088e3a9b44838e94c2ea1d706607",
     "apps/docs/src/mui-docs/generated/demos/switches/SwitchesSize.tsx": "99977308e2547c2ba5f965b68f534f545a7e248745c55b83a64d3414199edc00",
@@ -3990,7 +3927,7 @@
     "apps/docs/src/mui-docs/generated/demos/tabs/BasicTabs.tsx": "0c9973bc370060886b90b9c2d1b5404d0ee54a4cc877b038e307a8ef5f619d11",
     "apps/docs/src/mui-docs/generated/demos/tabs/CenteredTabs.tsx": "eae2757f62b030c95676d4cfb3dcdc7ba95bcb54b738dfbc35cd3d12df68615a",
     "apps/docs/src/mui-docs/generated/demos/tabs/ColorTabs.tsx": "12ab8f0b3010ad08084f736bbd070dbfcbb4ae517687c2d85d49b9067a4e8ec5",
-    "apps/docs/src/mui-docs/generated/demos/tabs/CustomizedTabs.tsx": "f3cb8b266aa3ab519c12d43b58777afe77e80f749f3fbe8c319630518051c8f3",
+    "apps/docs/src/mui-docs/generated/demos/tabs/CustomizedTabs.tsx": "106c4f5b2dd0f4b07eb4bcc001518d539c516d30b45bff0ac1f224291b3938bd",
     "apps/docs/src/mui-docs/generated/demos/tabs/DisabledTabs.tsx": "f7b4ec2086ea26055b178d85dd3b0270f6384f03347195f237f4129c8b4c0fb3",
     "apps/docs/src/mui-docs/generated/demos/tabs/IconLabelTabs.tsx": "f24f1fcee743530188a5e462d929131dda7681cd2fa00cc864bf8712474636db",
     "apps/docs/src/mui-docs/generated/demos/tabs/IconPositionTabs.tsx": "a7830e575580f523cbb500867ff1184db349c73b5ae9c3335ce36738cfdab6fe",
@@ -4009,8 +3946,8 @@
     "apps/docs/src/mui-docs/generated/demos/text-fields/ColorTextFields.tsx": "f365ab2869b133667a542fd069f8c1d7c5d6165e6be2a66e00fb9b180122b0b7",
     "apps/docs/src/mui-docs/generated/demos/text-fields/ComposedTextField.tsx": "6a8bb32282fe60d28807e37eafafa53632f5157b09ae2c509cc04822fc00cd25",
     "apps/docs/src/mui-docs/generated/demos/text-fields/CustomizedInputBase.tsx": "750479251ffd3c6e2ac91f7d6013c8da9934153e7b48a25a6d4856abf90c8cc2",
-    "apps/docs/src/mui-docs/generated/demos/text-fields/CustomizedInputsStyled.tsx": "a66d0cd74ed1cc0cebe810f8440a1422f9960d44fc760d0385967e8de407355a",
-    "apps/docs/src/mui-docs/generated/demos/text-fields/CustomizedInputsStyleOverrides.tsx": "f182bca24ab45d29210e330c63d24469c92c908a72ce073c51916ef4f2bd95d3",
+    "apps/docs/src/mui-docs/generated/demos/text-fields/CustomizedInputsStyled.tsx": "df52536db6298f5263d47c08370ebac82450e1b6950d3c8f2965808ccc03b2a1",
+    "apps/docs/src/mui-docs/generated/demos/text-fields/CustomizedInputsStyleOverrides.tsx": "7439e71acc476f5bace0e19790744ff7fe0c72ef2f5db33c035e36903e931cd2",
     "apps/docs/src/mui-docs/generated/demos/text-fields/FormPropsTextFields.tsx": "784f0f53bc70cd907559b558948240e9ab12bce60d0590d052f40fb8e7b2270b",
     "apps/docs/src/mui-docs/generated/demos/text-fields/FullWidthTextField.tsx": "cc77dd299a430c93295fbd9ef851946c25487409591d2230bcab9bfa9637e0d7",
     "apps/docs/src/mui-docs/generated/demos/text-fields/HelperTextAligned.tsx": "f6dbd764db8ca178a715177cb6ea86453175ae898cbb7427a84774cc0567dfde",
@@ -4055,7 +3992,7 @@
     "apps/docs/src/mui-docs/generated/demos/tooltips/ArrowTooltips.tsx": "35f803d52f001f15d079ffac307e65a022fb5e11d9dfec6977a9e87216755829",
     "apps/docs/src/mui-docs/generated/demos/tooltips/BasicTooltip.tsx": "940a0ec410d592dfa5247fca4cc8e7274a964909072b4efed5507e0f4fb6e419",
     "apps/docs/src/mui-docs/generated/demos/tooltips/ControlledTooltips.tsx": "470af8583649f16f9c20334f800747e1e331435698bae367459f7c6d0121a486",
-    "apps/docs/src/mui-docs/generated/demos/tooltips/CustomizedTooltips.tsx": "fc86d18a446a67cb65489f8915609c58e19e5df146537853e467e99640910a46",
+    "apps/docs/src/mui-docs/generated/demos/tooltips/CustomizedTooltips.tsx": "66dc38671c09a467056c5e469146e900817c3e2de20296d20c3ac1e854bb7ec2",
     "apps/docs/src/mui-docs/generated/demos/tooltips/DelayTooltips.tsx": "2367dc4f1bdb82bb1cac53ad447d77d33a15dd14de99b3cf1911887b7a5cb74f",
     "apps/docs/src/mui-docs/generated/demos/tooltips/DisabledTooltips.tsx": "bd47442e66eae4b821d4fb9ae2597dffbed16f02cde2c318b797b106667edae1",
     "apps/docs/src/mui-docs/generated/demos/tooltips/FollowCursorTooltips.tsx": "7b9b63c10709847f8b60bb6d8b828b48afc5eb6a65feced0dd94705113c0da77",

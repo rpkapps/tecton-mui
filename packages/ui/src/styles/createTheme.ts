@@ -1,6 +1,7 @@
 import type { Theme, ThemeOptions } from '@mui/material/styles';
 import { deepmerge } from '@mui/utils';
 import { buildTectonTheme } from './tecton/index.js';
+import { registerOwnTheme } from './modalLayer.js';
 
 /**
  * MUI-compatible `createTheme` that starts from the Tecton defaults. Options follow MUI's
@@ -10,7 +11,8 @@ import { buildTectonTheme } from './tecton/index.js';
 export function createTheme(options: ThemeOptions = {}, ...args: object[]): Theme {
   const mode = options.palette?.mode === 'dark' ? 'dark' : 'light';
   const theme = buildTectonTheme(mode, options);
-  return args.reduce<Theme>((acc, arg) => deepmerge(acc, arg) as Theme, theme);
+  // Its modals tell the page's modal layer which copy of the library rendered them.
+  return registerOwnTheme(args.reduce<Theme>((acc, arg) => deepmerge(acc, arg) as Theme, theme));
 }
 
 const defaultThemes = new Map<string, Theme>();
@@ -20,7 +22,9 @@ export function getDefaultTheme(mode: 'light' | 'dark', direction: 'ltr' | 'rtl'
   const key = `${mode}:${direction}`;
   let theme = defaultThemes.get(key);
   if (!theme) {
-    theme = buildTectonTheme(mode, direction === 'rtl' ? { direction } : undefined);
+    theme = registerOwnTheme(
+      buildTectonTheme(mode, direction === 'rtl' ? { direction } : undefined),
+    );
     defaultThemes.set(key, theme);
   }
   return theme;

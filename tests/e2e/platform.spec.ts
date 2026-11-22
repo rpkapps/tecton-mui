@@ -27,6 +27,8 @@ test.describe('SSR and hydration', () => {
     await page.addInitScript(() => localStorage.setItem('tecton-theme-mode', 'dark'));
     const consoleErrors: string[] = [];
     page.on('console', (m) => m.type() === 'error' && consoleErrors.push(m.text()));
+    const pageErrors: string[] = [];
+    page.on('pageerror', (error) => pageErrors.push(error.message));
     // The server page records data-theme right after the inline mode script, before any module runs.
     await page.goto('/ssr');
     await expect(page.locator('html')).toHaveAttribute('data-hydrated', 'true');
@@ -53,7 +55,23 @@ test.describe('SSR and hydration', () => {
     await page.getByRole('button', { name: 'Increase' }).click();
     await expect(depth).toHaveValue('1,201');
     // The client-only Community Data Grid mounts after hydration.
-    await expect(page.locator('.MuiDataGrid-root')).toBeVisible();
+    const grid = page.locator('.MuiDataGrid-root');
+    await expect(grid).toBeVisible();
+    // Features that attach to its root work although it mounted one render late: pinned column
+    // offsets (and the column virtualization switch that used to throw) and cell selection.
+    await expect
+      .poll(() => grid.evaluate((el) => el.style.getPropertyValue('--tdg-pl-0')))
+      .toBe('0px');
+    const cell = (id: number, field: string) =>
+      grid.locator(`.MuiDataGrid-row[data-id="${id}"] [data-field="${field}"]`);
+    const from = await cell(1, 'name').boundingBox();
+    const to = await cell(2, 'site').boundingBox();
+    await page.mouse.move(from!.x + 10, from!.y + 10);
+    await page.mouse.down();
+    await page.mouse.move(to!.x + 10, to!.y + 10, { steps: 4 });
+    await page.mouse.up();
+    await expect(cell(2, 'site')).toHaveCSS('background-image', /linear-gradient/);
+    expect(pageErrors).toEqual([]);
   });
 });
 
