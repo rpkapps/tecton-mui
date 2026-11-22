@@ -14,6 +14,7 @@ const values = () => inputs().map((el) => el.value);
 const rail = () => document.querySelector(`.${numberRangeSliderClasses.rail}`) as HTMLElement;
 const thumbs = () =>
   [...document.querySelectorAll(`.${numberRangeSliderClasses.thumb}`)] as HTMLElement[];
+const track = () => document.querySelector(`.${numberRangeSliderClasses.track}`) as HTMLElement;
 const inputRoot = () => document.querySelector(`.${numberRangeSliderClasses.input}`) as HTMLElement;
 
 /** jsdom has no layout: give the bar a 200px box starting at x = 0. */
@@ -95,6 +96,120 @@ describe('NumberRangeSlider', () => {
     press(180);
     release(180);
     expect(values()).toEqual(['10', '90']);
+  });
+
+  it('moves the whole range when the part between the thumbs is dragged', () => {
+    const onValueChange = vi.fn();
+    const onValueCommitted = vi.fn();
+    render(
+      <NumberRangeSlider
+        label="Frequency"
+        defaultValue={[20, 60]}
+        onValueChange={onValueChange}
+        onValueCommitted={onValueCommitted}
+      />,
+    );
+    layOutRail();
+    // A press between the thumbs grabs the range without moving a thumb.
+    fireEvent.pointerDown(track(), { clientX: 80, pointerId: 1, button: 0 });
+    expect(values()).toEqual(['20', '60']);
+    expect(onValueChange).not.toHaveBeenCalled();
+    expect(rail()).toHaveAttribute('data-dragging', 'range');
+    move(100); // 10 to the right
+    expect(values()).toEqual(['30', '70']);
+    expect(onValueChange).toHaveBeenLastCalledWith(
+      [30, 70],
+      expect.objectContaining({ reason: 'scrub' }),
+    );
+    move(200); // the end stops at max; the width stays
+    expect(values()).toEqual(['60', '100']);
+    move(-100); // the start stops at min
+    expect(values()).toEqual(['0', '40']);
+    release(-100);
+    expect(rail()).not.toHaveAttribute('data-dragging');
+    expect(onValueCommitted).toHaveBeenCalledTimes(1);
+    expect(onValueCommitted).toHaveBeenCalledWith(
+      [0, 40],
+      expect.objectContaining({ reason: 'scrub' }),
+    );
+  });
+
+  it('does not commit a press between the thumbs that does not move', () => {
+    const onValueCommitted = vi.fn();
+    render(
+      <NumberRangeSlider
+        label="Frequency"
+        defaultValue={[20, 60]}
+        onValueCommitted={onValueCommitted}
+      />,
+    );
+    layOutRail();
+    fireEvent.pointerDown(track(), { clientX: 80, pointerId: 1, button: 0 });
+    move(80.5); // less than half a step (2px at this width)
+    release(80.5);
+    expect(values()).toEqual(['20', '60']);
+    expect(onValueCommitted).not.toHaveBeenCalled();
+  });
+
+  it('still moves a single thumb when the thumb itself is pressed', () => {
+    render(<NumberRangeSlider label="Frequency" defaultValue={[20, 60]} />);
+    layOutRail();
+    fireEvent.pointerDown(thumbs()[1]!, { clientX: 120, pointerId: 1, button: 0 });
+    move(100);
+    release(100);
+    expect(values()).toEqual(['20', '50']);
+  });
+
+  it('moves the range by whole steps without floating-point noise', () => {
+    render(
+      <NumberRangeSlider label="Level" min={0} max={1} step={0.1} defaultValue={[0.1, 0.3]} />,
+    );
+    layOutRail();
+    fireEvent.pointerDown(track(), { clientX: 40, pointerId: 1, button: 0 });
+    move(80);
+    expect(values()).toEqual(['0.3', '0.5']);
+    release(80);
+  });
+
+  it('can cancel a change while the range is dragged', () => {
+    function Controlled() {
+      const [value, setValue] = React.useState<NumberRangeSliderValue>([20, 60]);
+      return (
+        <NumberRangeSlider
+          label="Frequency"
+          value={value}
+          onValueChange={(next, details) => {
+            if (next[1] > 70) details.cancel();
+            else setValue(next);
+          }}
+        />
+      );
+    }
+    render(<Controlled />);
+    layOutRail();
+    fireEvent.pointerDown(track(), { clientX: 80, pointerId: 1, button: 0 });
+    move(100);
+    move(120); // would end at 80: canceled, the range stays where it was
+    expect(values()).toEqual(['30', '70']);
+    move(90);
+    release(90);
+    expect(values()).toEqual(['25', '65']);
+  });
+
+  it('does not drag the range when disabled or read-only', () => {
+    const { rerender } = render(
+      <NumberRangeSlider label="Frequency" defaultValue={[20, 60]} disabled />,
+    );
+    layOutRail();
+    fireEvent.pointerDown(track(), { clientX: 80, pointerId: 1, button: 0 });
+    move(120);
+    release(120);
+    expect(values()).toEqual(['20', '60']);
+    rerender(<NumberRangeSlider label="Frequency" defaultValue={[20, 60]} readOnly />);
+    fireEvent.pointerDown(track(), { clientX: 80, pointerId: 1, button: 0 });
+    move(120);
+    release(120);
+    expect(values()).toEqual(['20', '60']);
   });
 
   it('keeps the start at or below the end when typing and stepping', () => {

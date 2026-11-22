@@ -1,7 +1,8 @@
 'use client';
 // The bar of `NumberSlider` and `NumberRangeSlider`: a filled surface tinted up to the value (or
 // between the two values of a range) with a line at each value. Pressing or dragging it sets the
-// nearest value. It is a pointer shortcut only: the number inputs next to it carry the value for the
+// nearest value; on a range, dragging the tinted part between the two lines moves both values
+// together. It is a pointer shortcut only: the number inputs next to it carry the value for the
 // keyboard and assistive technology, so the bar is `aria-hidden` and not focusable.
 import * as React from 'react';
 import clsx from 'clsx';
@@ -62,6 +63,10 @@ const Rail = styled('div', { name: 'TectonNumberSlider', slot: 'Rail' })({
   userSelect: 'none',
   WebkitTapHighlightColor: 'transparent',
   '&:hover, &[data-dragging]': { backgroundColor: cssVar('color-input-filled-bg-hover') },
+  // While dragging, the cursor of the drag stays on, whichever part of the bar is under the pointer.
+  // (`&&` outranks the cursor of the track.)
+  '&&[data-dragging] *': { cursor: 'inherit' },
+  '&[data-dragging="range"]': { cursor: 'grabbing' },
   '&[data-readonly]': { cursor: 'default', backgroundColor: cssVar('color-input-filled-bg') },
   '&[data-disabled]': { cursor: 'default', backgroundColor: cssVar('color-disabled-filled-bg') },
 });
@@ -76,6 +81,9 @@ const Track = styled('span', { name: 'TectonNumberSlider', slot: 'Track' })({
   position: 'absolute',
   insetBlock: 0,
   backgroundColor: tint(cssVar('color-accent-lilac-main')),
+  // The part between the two values of a range is grabbed to move both of them.
+  '[data-range] > &': { cursor: 'grab' },
+  '[data-readonly] > &, [data-disabled] > &': { cursor: 'inherit' },
   '[data-disabled] > &': { backgroundColor: tint(cssVar('color-text-disabled')) },
 });
 
@@ -86,6 +94,14 @@ const Thumb = styled('span', { name: 'TectonNumberSlider', slot: 'Thumb' })({
   width: `var(${THUMB_WIDTH})`,
   backgroundColor: cssVar('color-accent-lilac-main'),
   '[data-disabled] > &': { backgroundColor: cssVar('color-text-disabled') },
+  // A wider, invisible grab area, so that a thumb next to the track of a range can be taken (with the
+  // resize cursor of the bar) rather than the track.
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    insetBlock: 0,
+    insetInline: `calc(-1 * ${cssVar('space-100')})`,
+  },
 });
 
 export const clamp = (value: number, min: number, max: number) =>
@@ -106,6 +122,18 @@ export function roundToStep(value: number, min: number, max: number, step: numbe
   const stepped = min + Math.round((value - min) / step) * step;
   const precision = Math.min(100, Math.max(decimalPlaces(step), decimalPlaces(min)));
   return clamp(Number(stepped.toFixed(precision)), min, max);
+}
+
+/** `value + delta` without floating-point noise, at the precision of the step and the value. */
+function shift(value: number, delta: number, min: number, step: number | 'any') {
+  if (step === 'any' || !(step > 0)) {
+    return value + delta;
+  }
+  const precision = Math.min(
+    100,
+    Math.max(decimalPlaces(step), decimalPlaces(min), decimalPlaces(value)),
+  );
+  return Number((value + delta).toFixed(precision));
 }
 
 /** Position of `value` on the bar, from 0 (`min`) to 1 (`max`). */
@@ -131,7 +159,13 @@ function closestIndex(values: readonly (number | null)[], value: number) {
 
 interface DragState {
   pointerId: number;
+  /** `thumb` moves the value at `index`; `range` moves both values of a range together. */
+  mode: 'thumb' | 'range';
   index: number;
+  /** The value under the pointer when the drag started. */
+  origin: number;
+  /** The values when the drag started. */
+  initial: (number | null)[];
   values: (number | null)[];
   changed: boolean;
 }
@@ -153,8 +187,9 @@ export function SliderBar(props: SliderBarProps) {
     sx,
   } = props;
   const thumbRef = React.useRef<HTMLSpanElement>(null);
+  const trackRef = React.useRef<HTMLSpanElement>(null);
   const dragRef = React.useRef<DragState | null>(null);
-  const [dragging, setDragging] = React.useState(false);
+  const [dragging, setDragging] = React.useState<DragState['mode'] | null>(null);
   const range = values.length > 1;
   const ratios = values.map((value) => (value == null ? null : toRatio(value, min, max)));
 
@@ -173,9 +208,33 @@ export function SliderBar(props: SliderBarProps) {
     return roundToStep(min + position * (max - min), min, max, step);
   };
 
+  /** The values of a range moved by the distance the pointer travelled, keeping its width. */
+  const shiftedRange = (drag: DragState, event: React.PointerEvent<HTMLDivElement>) => {
+    const [start, end] = drag.initial as [number, number];
+    // The range stops at `min` and `max`. A range wider than the bar does not move.
+    const delta = clamp(
+      valueAtPointer(event) - drag.origin,
+      Math.min(0, min - start),
+      Math.max(0, max - end),
+    );
+    return [shift(start, delta, min, step), shift(end, delta, min, step)];
+  };
+
   const update = (event: React.PointerEvent<HTMLDivElement>) => {
     const drag = dragRef.current;
     if (!drag) {
+      return;
+    }
+    if (drag.mode === 'range') {
+      const nextValues = shiftedRange(drag, event);
+      if (nextValues.every((value, i) => value === drag.values[i])) {
+        return;
+      }
+      if (!onValuesChange(nextValues, event.nativeEvent, event.currentTarget)) {
+        return;
+      }
+      drag.values = nextValues;
+      drag.changed = true;
       return;
     }
     const { index } = drag;
@@ -202,14 +261,29 @@ export function SliderBar(props: SliderBarProps) {
     }
     onPress?.();
     event.currentTarget.setPointerCapture?.(event.pointerId);
+    const origin = valueAtPointer(event);
+    // A press on the track between the two values of a range grabs the whole range; it moves only
+    // once the pointer does. Anywhere else (including a thumb's grab area) moves the nearest value.
+    const mode =
+      range &&
+      values.every((value) => value != null) &&
+      event.target instanceof Node &&
+      trackRef.current?.contains(event.target)
+        ? 'range'
+        : 'thumb';
     dragRef.current = {
       pointerId: event.pointerId,
-      index: closestIndex(values, valueAtPointer(event)),
+      mode,
+      index: closestIndex(values, origin),
+      origin,
+      initial: [...values],
       values: [...values],
       changed: false,
     };
-    setDragging(true);
-    update(event);
+    setDragging(mode);
+    if (mode === 'thumb') {
+      update(event);
+    }
   };
 
   const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
@@ -224,7 +298,7 @@ export function SliderBar(props: SliderBarProps) {
       return;
     }
     dragRef.current = null;
-    setDragging(false);
+    setDragging(null);
     if (drag.changed) {
       onValuesCommitted(drag.values as number[], event.nativeEvent);
     }
@@ -252,14 +326,15 @@ export function SliderBar(props: SliderBarProps) {
       style={style}
       data-disabled={disabled ? '' : undefined}
       data-readonly={readOnly ? '' : undefined}
-      data-dragging={dragging ? '' : undefined}
+      data-range={range ? '' : undefined}
+      data-dragging={dragging ?? undefined}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={endDrag}
       onPointerCancel={endDrag}
       onLostPointerCapture={endDrag}
     >
-      <Track className={classes.track} style={trackStyle} />
+      <Track ref={trackRef} className={classes.track} style={trackStyle} />
       {ratios.map((ratio, index) => (
         <Thumb
           key={index}

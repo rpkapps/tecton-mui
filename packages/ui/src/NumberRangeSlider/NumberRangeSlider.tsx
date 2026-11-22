@@ -195,7 +195,8 @@ const Inputs = React.forwardRef<HTMLInputElement, InputsProps>(function Inputs(p
 /**
  * A range of two numbers between `min` (default 0) and `max` (default 100): a bar with two thumbs
  * next to one filled input that shows both values. Press or drag the bar to move the nearest thumb;
- * a thumb stops at the other one. Each value can be typed or stepped with the keyboard like a
+ * a thumb stops at the other one. Drag the tinted part between the thumbs to move the whole range,
+ * keeping its width, until it reaches `min` or `max`. Each value can be typed or stepped with the keyboard like a
  * `NumberField`; the start value never exceeds the end value. The bar is a pointer shortcut and is
  * hidden from assistive technology.
  */
