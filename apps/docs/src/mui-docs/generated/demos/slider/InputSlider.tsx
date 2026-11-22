@@ -7,7 +7,7 @@ import Grid from '@tecton-mui/ui/Grid';
 import Typography from '@tecton-mui/ui/Typography';
 import Slider from '@tecton-mui/ui/Slider';
 import MuiInput from '@tecton-mui/ui/Input';
-import VolumeUp from '@mui/icons-material/VolumeUp';
+import Icon from '@tecton-mui/ui/Icon';
 
 const Input = styled(MuiInput)`
   width: 42px;
@@ -39,7 +39,7 @@ export default function InputSlider() {
       </Typography>
       <Grid container spacing={2} sx={{ alignItems: 'center' }}>
         <Grid>
-          <VolumeUp />
+          <Icon name="microphone" size="medium" />
         </Grid>
         <Grid size="grow">
           <Slider

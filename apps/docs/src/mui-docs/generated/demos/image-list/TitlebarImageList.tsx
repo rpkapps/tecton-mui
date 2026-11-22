@@ -5,7 +5,7 @@ import ImageListItem from '@tecton-mui/ui/ImageListItem';
 import ImageListItemBar from '@tecton-mui/ui/ImageListItemBar';
 import ListSubheader from '@tecton-mui/ui/ListSubheader';
 import IconButton from '@tecton-mui/ui/IconButton';
-import InfoIcon from '@mui/icons-material/Info';
+import Icon from '@tecton-mui/ui/Icon';
 
 export default function TitlebarImageList() {
   return (
@@ -29,7 +29,7 @@ export default function TitlebarImageList() {
                 sx={{ color: 'rgba(255, 255, 255, 0.54)' }}
                 aria-label={`info about ${item.title}`}
               >
-                <InfoIcon />
+                <Icon name="info" />
               </IconButton>
             }
           />

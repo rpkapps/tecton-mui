@@ -4,8 +4,7 @@ import useAutocomplete, {
   type AutocompleteGetItemProps,
   type UseAutocompleteProps,
 } from '@tecton-mui/ui/useAutocomplete';
-import CheckIcon from '@mui/icons-material/Check';
-import CloseIcon from '@mui/icons-material/Close';
+import Icon from '@tecton-mui/ui/Icon';
 import { styled } from '@tecton-mui/ui/styles';
 import { autocompleteClasses } from '@tecton-mui/ui/Autocomplete';
 
@@ -76,7 +75,7 @@ function Item(props: ItemProps) {
   return (
     <div {...other}>
       <span>{label}</span>
-      <CloseIcon onClick={onDelete} />
+      <Icon name="close" size="medium" onClick={onDelete} />
     </div>
   );
 }
@@ -209,7 +208,7 @@ function CustomAutocomplete<Value>(
             return (
               <li key={key} {...optionProps}>
                 <span>{props.getOptionLabel!(option)}</span>
-                <CheckIcon fontSize="small" />
+                <Icon name="check" size="small" />
               </li>
             );
           })}

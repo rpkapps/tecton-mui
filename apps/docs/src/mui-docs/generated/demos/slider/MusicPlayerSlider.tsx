@@ -7,12 +7,7 @@ import Typography from '@tecton-mui/ui/Typography';
 import Slider from '@tecton-mui/ui/Slider';
 import IconButton from '@tecton-mui/ui/IconButton';
 import Stack from '@tecton-mui/ui/Stack';
-import PauseRounded from '@mui/icons-material/PauseRounded';
-import PlayArrowRounded from '@mui/icons-material/PlayArrowRounded';
-import FastForwardRounded from '@mui/icons-material/FastForwardRounded';
-import FastRewindRounded from '@mui/icons-material/FastRewindRounded';
-import VolumeUpRounded from '@mui/icons-material/VolumeUpRounded';
-import VolumeDownRounded from '@mui/icons-material/VolumeDownRounded';
+import Icon from '@tecton-mui/ui/Icon';
 
 const WallPaper = styled('div')({
   position: 'absolute',
@@ -178,20 +173,20 @@ export default function MusicPlayerSlider() {
           })}
         >
           <IconButton aria-label="previous song">
-            <FastRewindRounded fontSize="large" />
+            <Icon name="arrow-left" size="large" />
           </IconButton>
           <IconButton
             aria-label={paused ? 'play' : 'pause'}
             onClick={() => setPaused(!paused)}
           >
             {paused ? (
-              <PlayArrowRounded sx={{ fontSize: '3rem' }} />
+              <Icon name="play" sx={{ fontSize: '3rem' }} />
             ) : (
-              <PauseRounded sx={{ fontSize: '3rem' }} />
+              <Icon name="pause" sx={{ fontSize: '3rem' }} />
             )}
           </IconButton>
           <IconButton aria-label="next song">
-            <FastForwardRounded fontSize="large" />
+            <Icon name="arrow-right" size="large" />
           </IconButton>
         </Box>
         <Stack
@@ -209,7 +204,7 @@ export default function MusicPlayerSlider() {
             },
           })}
         >
-          <VolumeDownRounded />
+          <Icon name="microphone" size="medium" />
           <Slider
             aria-label="Volume"
             defaultValue={30}
@@ -234,7 +229,7 @@ export default function MusicPlayerSlider() {
               }),
             })}
           />
-          <VolumeUpRounded />
+          <Icon name="microphone" size="medium" />
         </Stack>
       </Widget>
       <WallPaper />

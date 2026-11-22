@@ -19,8 +19,7 @@ import IconButton from '@tecton-mui/ui/IconButton';
 import Tooltip from '@tecton-mui/ui/Tooltip';
 import FormControlLabel from '@tecton-mui/ui/FormControlLabel';
 import Switch from '@tecton-mui/ui/Switch';
-import DeleteIcon from '@mui/icons-material/Delete';
-import FilterListIcon from '@mui/icons-material/FilterList';
+import Icon from '@tecton-mui/ui/Icon';
 import { visuallyHidden } from '@tecton-mui/ui';
 
 interface Data {
@@ -228,13 +227,13 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
       {numSelected > 0 ? (
         <Tooltip title="Delete">
           <IconButton>
-            <DeleteIcon />
+            <Icon name="delete" />
           </IconButton>
         </Tooltip>
       ) : (
         <Tooltip title="Filter list">
           <IconButton>
-            <FilterListIcon />
+            <Icon name="filter" />
           </IconButton>
         </Tooltip>
       )}

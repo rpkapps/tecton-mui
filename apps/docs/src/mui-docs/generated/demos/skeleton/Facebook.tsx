@@ -8,7 +8,7 @@ import CardMedia from '@tecton-mui/ui/CardMedia';
 import Avatar from '@tecton-mui/ui/Avatar';
 import Typography from '@tecton-mui/ui/Typography';
 import IconButton from '@tecton-mui/ui/IconButton';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+import Icon from '@tecton-mui/ui/Icon';
 import Skeleton from '@tecton-mui/ui/Skeleton';
 
 interface MediaProps {
@@ -34,7 +34,7 @@ function Media(props: MediaProps) {
         action={
           loading ? null : (
             <IconButton aria-label="settings">
-              <MoreVertIcon />
+              <Icon name="more-vert" />
             </IconButton>
           )
         }

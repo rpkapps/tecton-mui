@@ -12,20 +12,13 @@ import ListItemText from '@tecton-mui/ui/ListItemText';
 import Paper from '@tecton-mui/ui/Paper';
 import IconButton from '@tecton-mui/ui/IconButton';
 import Tooltip from '@tecton-mui/ui/Tooltip';
-import ArrowRight from '@mui/icons-material/ArrowRight';
-import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
-import Home from '@mui/icons-material/Home';
-import Settings from '@mui/icons-material/Settings';
-import People from '@mui/icons-material/People';
-import PermMedia from '@mui/icons-material/PermMedia';
-import Dns from '@mui/icons-material/Dns';
-import Public from '@mui/icons-material/Public';
+import Icon from '@tecton-mui/ui/Icon';
 
 const data = [
-  { icon: <People />, label: 'Authentication' },
-  { icon: <Dns />, label: 'Database' },
-  { icon: <PermMedia />, label: 'Storage' },
-  { icon: <Public />, label: 'Hosting' },
+  { icon: <Icon name="person" size="medium" />, label: 'Authentication' },
+  { icon: <Icon name="database" size="medium" />, label: 'Database' },
+  { icon: <Icon name="image" size="medium" />, label: 'Storage' },
+  { icon: <Icon name="map" size="medium" />, label: 'Hosting' },
 ];
 
 const FireNav = styled(List)<{ component?: React.ElementType }>({
@@ -80,7 +73,7 @@ export default function CustomizedList() {
             <ListItem component="div" disablePadding>
               <ListItemButton sx={{ height: 56 }}>
                 <ListItemIcon>
-                  <Home color="primary" />
+                  <Icon name="home" size="medium" sx={{ color: 'primary.main' }} />
                 </ListItemIcon>
                 <ListItemText
                   primary="Project Overview"
@@ -123,8 +116,8 @@ export default function CustomizedList() {
                     },
                   }}
                 >
-                  <Settings />
-                  <ArrowRight sx={{ position: 'absolute', right: 4, opacity: 0 }} />
+                  <Icon name="settings" />
+                  <Icon name="chevron-right" sx={{ position: 'absolute', right: 4, opacity: 0 }} />
                 </IconButton>
               </Tooltip>
             </ListItem>
@@ -202,7 +195,9 @@ export default function CustomizedList() {
                   }}
                   sx={{ my: 0 }}
                 />
-                <KeyboardArrowDown
+                <Icon
+                  name="chevron-down"
+                  size="medium"
                   sx={[
                     {
                       mr: -1,

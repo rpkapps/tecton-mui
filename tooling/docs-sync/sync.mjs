@@ -156,6 +156,32 @@ function checkManifest() {
       if (!slugs.has(entry.slug))
         errors.push(`slug-map.json: "${pageId}" maps to unknown portal slug "${entry.slug}"`);
   }
+  return [...errors, ...checkIconMap()];
+}
+
+/** icon-map.json: Tecton monochrome icons only; `filled` and `notes` name mapped icons. */
+function checkIconMap() {
+  const errors = [];
+  const tectonIcons = readFileSync(
+    join(repo, 'packages/ui/src/styles/tecton/generated/icons.ts'),
+    'utf8',
+  );
+  const monochrome = new Set(
+    [
+      ...tectonIcons
+        .slice(0, tectonIcons.indexOf('TectonMulticolorIconName'))
+        .matchAll(/\| '([\w-]+)'/g),
+    ].map((m) => m[1]),
+  );
+  for (const [name, tecton] of Object.entries(iconMap.icons))
+    if (!monochrome.has(tecton))
+      errors.push(`icon-map.json: ${name} -> "${tecton}" is not a Tecton monochrome icon`);
+  for (const name of iconMap.filled)
+    if (!iconMap.icons[name]) errors.push(`icon-map.json: filled icon ${name} has no mapping`);
+  for (const [name, reason] of Object.entries(iconMap.notes)) {
+    if (!iconMap.icons[name]) errors.push(`icon-map.json: note for ${name}, which has no mapping`);
+    if (!reason) errors.push(`icon-map.json: the note for ${name} needs a reason`);
+  }
   return errors;
 }
 
@@ -217,6 +243,7 @@ async function sync(packages) {
   const { parsePage, mdText } = await import('./lib/markdown.mjs');
   const { createEmitter, upstreamHash, str } = await import('./lib/emit.mjs');
   const { readUiSurface, transformDemo } = await import('./lib/demos.mjs');
+  const { tectonIcon } = await import('./lib/icons.mjs');
   const parsers = await loadParsers(repo);
   const surface = readUiSurface(repo);
   const prettier = await import('prettier');
@@ -323,6 +350,7 @@ async function sync(packages) {
     (p) => p.status !== 'excluded' && manifest.upstream[p.package].repo === config.repo,
   );
   const icons = new Set();
+  const unmappedIcons = new Map(); // @mui/icons-material name -> demos that use it
   const files = new Map(); // generated path (relative to genDir) -> content
   const parsed = await mapLimit(pages, 4, async (entry) => {
     const id = entry.target;
@@ -351,6 +379,15 @@ async function sync(packages) {
     }
     return { entry, id, page, demos };
   });
+  // Every icon the demos use needs a reviewed Tecton icon: the rewritten code is what readers copy.
+  if (unmappedIcons.size)
+    throw new Error(
+      `@mui/icons-material icons without a Tecton icon in tooling/docs-sync/icon-map.json (add them to "icons", with a reason in "notes" when the icon is only a stand-in):\n  ${[
+        ...unmappedIcons,
+      ]
+        .map(([icon, demos]) => `${icon} (${demos.join(', ')})`)
+        .join('\n  ')}`,
+    );
 
   async function adaptDemo(name, dir, id, entry) {
     const manual = entry.excludedDemos?.[name];
@@ -362,8 +399,8 @@ async function sync(packages) {
     }
     const pending = new Map();
     const visit = async (fileName, source) => {
-      const result = transformDemo(source, { ts: parsers.ts, surface, fileName });
-      if (result.status === 'excluded') return result;
+      const result = transformDemo(source, { ts: parsers.ts, surface, iconMap, fileName });
+      if (result.status !== 'included') return result;
       pending.set(fileName, result);
       for (const dep of result.deps) {
         const base = join(dirname(fileName), dep).split(sep).join('/');
@@ -383,12 +420,18 @@ async function sync(packages) {
           };
         if (found.status === 'excluded')
           return { status: 'excluded', reason: `${dep}: ${found.reason}` };
+        if (found.status !== 'included') return found;
       }
       return result;
     };
     const result = await visit(`${name}.tsx`, tsx);
     if (result.status === 'excluded') return { name, ...result };
     if (manual) return { name, status: 'excluded', reason: manual, manual: true };
+    if (result.status === 'unmapped') {
+      for (const icon of result.icons)
+        unmappedIcons.set(icon, [...(unmappedIcons.get(icon) ?? []), `${dir}/${name}`]);
+      return { name, status: 'excluded', reason: 'unmapped icons' };
+    }
     const notes = new Set();
     for (const [fileName, r] of pending) {
       r.icons.forEach((i) => icons.add(i));
@@ -696,47 +739,20 @@ async function sync(packages) {
     if (warnings.length) console.warn(`  ${slug}: ${[...new Set(warnings)].join('; ')}`);
   }
 
-  // 6. Icon shim modules for every @mui/icons-material icon used by an included demo.
-  const tectonIcons = readFileSync(
-    join(repo, 'packages/ui/src/styles/tecton/generated/icons.ts'),
-    'utf8',
-  );
-  const monochrome = new Set(
-    [
-      ...tectonIcons
-        .slice(0, tectonIcons.indexOf('TectonMulticolorIconName'))
-        .matchAll(/\| '([\w-]+)'/g),
-    ].map((m) => m[1]),
-  );
-  for (const [name, tecton] of Object.entries({ ...iconMap.icons, $fallback: iconMap.$fallback }))
-    if (!monochrome.has(tecton))
-      throw new Error(`icon-map.json: ${name} -> "${tecton}" is not a Tecton monochrome icon`);
+  // 6. Icons: the demos render `@mui/icons-material` icons with the Tecton `Icon` component
+  // (lib/icons.mjs). Record the mapping used and make sure no Material icon import is left.
   const lockIcons = {};
-  const usedIcons = new Set();
-  for (const [path] of files)
-    if (path.startsWith('demos/'))
-      for (const m of files.get(path).matchAll(/from '@mui\/icons-material\/(\w+)'/g))
-        usedIcons.add(m[1]);
-  for (const name of [...usedIcons].sort()) {
-    const base = name.replace(/(Outlined|Rounded|Sharp|TwoTone)$/, '');
-    const tecton = iconMap.icons[base] ?? iconMap.icons[base.replace(/(Ios)$/, '')];
-    const variant =
-      /Outlined$/.test(name) || /(Border|OutlineBlank|Unchecked)$/.test(base)
-        ? 'outline'
-        : 'filled';
+  for (const name of [...icons].sort()) {
+    const { name: tecton, variant } = tectonIcon(name, iconMap);
     lockIcons[name] = {
-      tecton: tecton ?? iconMap.$fallback,
-      variant,
-      ...(tecton ? {} : { fallback: true }),
+      tecton,
+      ...(variant === 'filled' ? { variant } : {}),
+      ...(iconMap.notes[name] ? { note: iconMap.notes[name] } : {}),
     };
-    files.set(
-      `icons/${name}.tsx`,
-      `/* AUTO-GENERATED by tooling/docs-sync/sync.mjs (tooling/docs-sync/icon-map.json): docs-only\n` +
-        ` * stand-in for @mui/icons-material/${name}${tecton ? '' : ' (no close Tecton icon: fallback)'}. Do not edit. */\n` +
-        `import { createMuiIcon } from '../../runtime/MuiIcon';\n\n` +
-        `export default createMuiIcon('${tecton ?? iconMap.$fallback}', '${variant}', '${name}');\n`,
-    );
   }
+  for (const [path, content] of files)
+    if (/from '@mui\/icons-material/.test(content))
+      throw new Error(`${path}: still imports @mui/icons-material after the icon rewrite`);
 
   // 7. Write the generated tree and the lock.
   rmSync(genDir, { recursive: true, force: true });
@@ -763,7 +779,6 @@ async function sync(packages) {
     demosIncluded: demosAll.filter((d) => d.status === 'included').length,
     demosExcluded: demosAll.filter((d) => d.status === 'excluded').length,
     icons: Object.keys(lockIcons).length,
-    iconFallbacks: Object.values(lockIcons).filter((i) => i.fallback).length,
   };
   const lock = {
     $comment:

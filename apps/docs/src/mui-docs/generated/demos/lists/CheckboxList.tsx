@@ -7,9 +7,15 @@ import ListItemButton from '@tecton-mui/ui/ListItemButton';
 import ListItemIcon from '@tecton-mui/ui/ListItemIcon';
 import ListItemText from '@tecton-mui/ui/ListItemText';
 import IconButton from '@tecton-mui/ui/IconButton';
-import CheckBoxIcon from '@mui/icons-material/CheckBox';
-import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
-import CommentIcon from '@mui/icons-material/Comment';
+import Icon, { type IconProps } from '@tecton-mui/ui/Icon';
+
+function CheckBoxIcon(props: Omit<IconProps, 'name'>) {
+  return <Icon name="checkbox-checked" variant="filled" {...props} />;
+}
+
+function CheckBoxOutlineBlankIcon(props: Omit<IconProps, 'name'>) {
+  return <Icon name="checkbox-unchecked" {...props} />;
+}
 
 export default function CheckboxList() {
   const [checked, setChecked] = React.useState([0]);
@@ -40,7 +46,7 @@ export default function CheckboxList() {
             key={value}
             secondaryAction={
               <IconButton edge="end" aria-label={`see comments for ${labelValue}`}>
-                <CommentIcon />
+                <Icon name="chat" />
               </IconButton>
             }
             disablePadding
@@ -54,10 +60,10 @@ export default function CheckboxList() {
             >
               <ListItemIcon>
                 <SelectionIcon
+                  size="medium"
                   sx={{
                     color: isChecked ? 'primary.main' : 'text.secondary',
-                    padding: '9px',
-                    marginLeft: '-12px',
+                    padding: '2px',
                     boxSizing: 'content-box',
                   }}
                 />

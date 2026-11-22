@@ -8,7 +8,7 @@ import DialogTitle from '@tecton-mui/ui/DialogTitle';
 import DialogContent from '@tecton-mui/ui/DialogContent';
 import DialogActions from '@tecton-mui/ui/DialogActions';
 import IconButton from '@tecton-mui/ui/IconButton';
-import CloseIcon from '@mui/icons-material/Close';
+import Icon from '@tecton-mui/ui/Icon';
 import Typography from '@tecton-mui/ui/Typography';
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
@@ -53,7 +53,7 @@ export default function CustomizedDialogs() {
             color: theme.palette.grey[500],
           })}
         >
-          <CloseIcon />
+          <Icon name="close" />
         </IconButton>
         <DialogContent dividers>
           <Typography gutterBottom>

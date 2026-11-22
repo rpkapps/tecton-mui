@@ -3,7 +3,7 @@ import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { act, render, screen } from '@testing-library/react';
 import { hasMuiDocs, MuiDocsSection } from '../index';
 import { defineDemo, stripHeader } from '../runtime/demo';
-import { createMuiIcon } from '../runtime/MuiIcon';
+import iconMap from '../../../../../tooling/docs-sync/icon-map.json';
 // Sync tooling (plain ESM, no types): the import/markdown rules the generated files rely on.
 // @ts-expect-error untyped tooling module
 import { transformDemo, readUiSurface } from '../../../../../tooling/docs-sync/lib/demos.mjs';
@@ -62,14 +62,6 @@ describe('synced MUI docs runtime', () => {
     expect(document.querySelector('[data-mui-demo-error="Broken"]')?.textContent).toContain('boom');
     spy.mockRestore();
   });
-
-  it('renders @mui/icons-material stand-ins as Tecton icons', () => {
-    const DeleteIcon = createMuiIcon('delete', 'filled', 'Delete');
-    expect(DeleteIcon.muiName).toBe('SvgIcon');
-    render(<DeleteIcon fontSize="small" titleAccess="Delete" data-testid="icon" />);
-    const icon = screen.getByRole('img', { name: 'Delete' });
-    expect(icon.className).toMatch(/tecton-delete-/);
-  });
 });
 
 describe('docs sync transform', () => {
@@ -80,7 +72,7 @@ describe('docs sync transform', () => {
     surface = readUiSurface(repo);
   });
   const transform = (source: string) =>
-    transformDemo(source, { ts: parsers.ts, surface, fileName: 'Demo.tsx' });
+    transformDemo(source, { ts: parsers.ts, surface, iconMap, fileName: 'Demo.tsx' });
 
   it('rewrites MUI imports to @tecton-mui/ui entries and marks type-only imports', () => {
     const result = transform(
@@ -89,7 +81,6 @@ describe('docs sync transform', () => {
         "import { styled } from '@mui/material/styles';",
         "import { SxProps } from '@mui/system';",
         "import Masonry from '@mui/lab/Masonry';",
-        "import DeleteIcon from '@mui/icons-material/Delete';",
         "const img = '/static/images/a.jpg';",
         'export default function Demo(p: { sx: SxProps; e: SelectChangeEvent }) {',
         '  return <Select />;',
@@ -103,9 +94,75 @@ describe('docs sync transform', () => {
     expect(result.code).toContain("from '@tecton-mui/ui/styles';");
     expect(result.code).toContain("import { type SxProps } from '@tecton-mui/ui/styles';");
     expect(result.code).toContain("from '@tecton-mui/ui/Masonry'");
-    expect(result.code).toContain("from '@mui/icons-material/Delete'");
     expect(result.code).toContain("'https://mui.com/static/images/a.jpg'");
-    expect(result.icons).toEqual(['Delete']);
+  });
+
+  it('rewrites @mui/icons-material icons to the Tecton Icon component', () => {
+    const result = transform(
+      [
+        "import IconButton from '@mui/material/IconButton';",
+        "import DeleteIcon from '@mui/icons-material/Delete';",
+        "import StarIcon from '@mui/icons-material/Star';",
+        "import { Mail as MailIcon } from '@mui/icons-material';",
+        'export default function Demo() {',
+        '  return (',
+        '    <div>',
+        '      <IconButton><DeleteIcon /></IconButton>',
+        '      <DeleteIcon fontSize="small" color="error" titleAccess="Delete" />',
+        '      <StarIcon fontSize="inherit" sx={{ mr: 1 }} />',
+        '      <MailIcon htmlColor="#f00" />',
+        '    </div>',
+        '  );',
+        '}',
+      ].join('\n'),
+    );
+    expect(result.status).toBe('included');
+    expect(result.code).not.toContain('@mui/icons-material');
+    expect(result.code.match(/import Icon from '@tecton-mui\/ui\/Icon';/g)).toHaveLength(1);
+    // A container that sizes its icons: no size. Elsewhere SvgIcon's default medium size.
+    expect(result.code).toContain('<IconButton><Icon name="delete" /></IconButton>');
+    expect(result.code).toContain(
+      `<Icon name="delete" sx={{ color: 'error.main' }} size="small" title="Delete" />`,
+    );
+    expect(result.code).toContain(`<Icon name="star" variant="filled" sx={{ mr: 1 }} />`);
+    expect(result.code).toContain(`<Icon name="chat" size="medium" sx={{ color: '#f00' }} />`);
+    expect(result.icons).toEqual(['Delete', 'Star', 'Mail']);
+  });
+
+  it('gives icons passed as components a local Icon wrapper', () => {
+    const result = transform(
+      [
+        "import Pagination from '@mui/material/Pagination';",
+        "import ArrowBackIcon from '@mui/icons-material/ArrowBack';",
+        "import CheckBoxIcon from '@mui/icons-material/CheckBox';",
+        "import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';",
+        'export default function Demo({ on }: { on: boolean }) {',
+        '  const SelectionIcon = on ? CheckBoxIcon : CheckBoxOutlineBlankIcon;',
+        '  return (',
+        '    <div>',
+        '      <Pagination slots={{ previous: ArrowBackIcon }} />',
+        '      <SelectionIcon fontSize="small" />',
+        '    </div>',
+        '  );',
+        '}',
+      ].join('\n'),
+    );
+    expect(result.status).toBe('included');
+    expect(result.code).not.toContain('@mui/icons-material');
+    expect(result.code).toContain("import Icon, { type IconProps } from '@tecton-mui/ui/Icon';");
+    expect(result.code).toContain(
+      'function ArrowBackIcon(props: Omit<IconProps, \'name\'>) {\n  return <Icon name="arrow-left" {...props} />;\n}',
+    );
+    expect(result.code).toContain('<Icon name="checkbox-checked" variant="filled" {...props} />');
+    expect(result.code).toContain('<SelectionIcon size="small" />');
+    expect(result.notes[0]).toMatch(/local `Icon` wrappers/);
+  });
+
+  it('reports icons without a Tecton mapping', () => {
+    const result = transform(
+      "import NoSuchIcon from '@mui/icons-material/NoSuchThing';\nexport const a = <NoSuchIcon />;",
+    );
+    expect(result).toEqual({ status: 'unmapped', icons: ['NoSuchThing'] });
   });
 
   it('excludes demos that need unavailable modules', () => {

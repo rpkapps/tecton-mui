@@ -4,7 +4,7 @@ import * as React from 'react';
 import Button from '@tecton-mui/ui/Button';
 import Snackbar, { type SnackbarCloseReason } from '@tecton-mui/ui/Snackbar';
 import IconButton from '@tecton-mui/ui/IconButton';
-import CloseIcon from '@mui/icons-material/Close';
+import Icon from '@tecton-mui/ui/Icon';
 
 export interface SnackbarMessage {
   message: string;
@@ -70,7 +70,7 @@ export default function ConsecutiveSnackbars() {
               sx={{ p: 0.5 }}
               onClick={handleClose}
             >
-              <CloseIcon />
+              <Icon name="close" />
             </IconButton>
           </React.Fragment>
         }

@@ -3,8 +3,15 @@
 import Pagination from '@tecton-mui/ui/Pagination';
 import PaginationItem from '@tecton-mui/ui/PaginationItem';
 import Stack from '@tecton-mui/ui/Stack';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import Icon, { type IconProps } from '@tecton-mui/ui/Icon';
+
+function ArrowBackIcon(props: Omit<IconProps, 'name'>) {
+  return <Icon name="arrow-left" {...props} />;
+}
+
+function ArrowForwardIcon(props: Omit<IconProps, 'name'>) {
+  return <Icon name="arrow-right" {...props} />;
+}
 
 export default function CustomIcons() {
   return (

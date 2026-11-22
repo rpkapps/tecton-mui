@@ -6,7 +6,7 @@ import MenuList from '@tecton-mui/ui/MenuList';
 import MenuItem from '@tecton-mui/ui/MenuItem';
 import ListItemIcon from '@tecton-mui/ui/ListItemIcon';
 import ListItemText from '@tecton-mui/ui/ListItemText';
-import Check from '@mui/icons-material/Check';
+import Icon from '@tecton-mui/ui/Icon';
 
 export default function DenseMenu() {
   return (
@@ -23,7 +23,7 @@ export default function DenseMenu() {
         </MenuItem>
         <MenuItem>
           <ListItemIcon>
-            <Check />
+            <Icon name="check" size="medium" />
           </ListItemIcon>
           Custom: 1.2
         </MenuItem>

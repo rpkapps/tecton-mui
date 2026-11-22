@@ -10,9 +10,7 @@ import Divider from '@tecton-mui/ui/Divider';
 import IconButton from '@tecton-mui/ui/IconButton';
 import Typography from '@tecton-mui/ui/Typography';
 import Tooltip from '@tecton-mui/ui/Tooltip';
-import PersonAdd from '@mui/icons-material/PersonAdd';
-import Settings from '@mui/icons-material/Settings';
-import Logout from '@mui/icons-material/Logout';
+import Icon from '@tecton-mui/ui/Icon';
 
 export default function AccountMenu() {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -87,19 +85,19 @@ export default function AccountMenu() {
         <Divider />
         <MenuItem onClick={handleClose}>
           <ListItemIcon>
-            <PersonAdd fontSize="small" />
+            <Icon name="person" size="small" />
           </ListItemIcon>
           Add another account
         </MenuItem>
         <MenuItem onClick={handleClose}>
           <ListItemIcon>
-            <Settings fontSize="small" />
+            <Icon name="settings" size="small" />
           </ListItemIcon>
           Settings
         </MenuItem>
         <MenuItem onClick={handleClose}>
           <ListItemIcon>
-            <Logout fontSize="small" />
+            <Icon name="log-out" size="small" />
           </ListItemIcon>
           Logout
         </MenuItem>

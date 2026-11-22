@@ -3,10 +3,7 @@
 import * as React from 'react';
 import BottomNavigation from '@tecton-mui/ui/BottomNavigation';
 import BottomNavigationAction from '@tecton-mui/ui/BottomNavigationAction';
-import FolderIcon from '@mui/icons-material/Folder';
-import RestoreIcon from '@mui/icons-material/Restore';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import LocationOnIcon from '@mui/icons-material/LocationOn';
+import Icon from '@tecton-mui/ui/Icon';
 
 export default function LabelBottomNavigation() {
   const [value, setValue] = React.useState('recents');
@@ -20,19 +17,19 @@ export default function LabelBottomNavigation() {
       <BottomNavigationAction
         label="Recents"
         value="recents"
-        icon={<RestoreIcon />}
+        icon={<Icon name="history" size="medium" />}
       />
       <BottomNavigationAction
         label="Favorites"
         value="favorites"
-        icon={<FavoriteIcon />}
+        icon={<Icon name="star" variant="filled" size="medium" />}
       />
       <BottomNavigationAction
         label="Nearby"
         value="nearby"
-        icon={<LocationOnIcon />}
+        icon={<Icon name="pin" size="medium" />}
       />
-      <BottomNavigationAction label="Folder" value="folder" icon={<FolderIcon />} />
+      <BottomNavigationAction label="Folder" value="folder" icon={<Icon name="folder" size="medium" />} />
     </BottomNavigation>
   );
 }

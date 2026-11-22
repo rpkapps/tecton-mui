@@ -10,7 +10,7 @@ import AccordionDetails, {
   accordionDetailsClasses,
 } from '@tecton-mui/ui/AccordionDetails';
 import Typography from '@tecton-mui/ui/Typography';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import Icon from '@tecton-mui/ui/Icon';
 import Fade from '@tecton-mui/ui/Fade';
 
 export default function AccordionTransition() {
@@ -49,7 +49,7 @@ export default function AccordionTransition() {
         ]}
       >
         <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
+          expandIcon={<Icon name="chevron-down" />}
           aria-controls={`${id}-panel1-content`}
           id={`${id}-panel1-header`}
         >
@@ -64,7 +64,7 @@ export default function AccordionTransition() {
       </Accordion>
       <Accordion>
         <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
+          expandIcon={<Icon name="chevron-down" />}
           aria-controls={`${id}-panel2-content`}
           id={`${id}-panel2-header`}
         >

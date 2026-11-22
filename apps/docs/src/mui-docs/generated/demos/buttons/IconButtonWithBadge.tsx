@@ -3,7 +3,7 @@
 import { styled } from '@tecton-mui/ui/styles';
 import IconButton from '@tecton-mui/ui/IconButton';
 import Badge, { badgeClasses } from '@tecton-mui/ui/Badge';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCartOutlined';
+import Icon from '@tecton-mui/ui/Icon';
 
 const CartBadge = styled(Badge)`
   & .${badgeClasses.badge} {
@@ -15,7 +15,7 @@ const CartBadge = styled(Badge)`
 export default function IconButtonWithBadge() {
   return (
     <IconButton aria-label="view cart with 2 items">
-      <ShoppingCartIcon fontSize="small" />
+      <Icon name="money" size="small" />
       <CartBadge badgeContent={2} color="primary" overlap="circular" />
     </IconButton>
   );

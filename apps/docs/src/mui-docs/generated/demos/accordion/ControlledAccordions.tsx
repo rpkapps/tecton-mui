@@ -5,7 +5,7 @@ import Accordion from '@tecton-mui/ui/Accordion';
 import AccordionDetails from '@tecton-mui/ui/AccordionDetails';
 import AccordionSummary from '@tecton-mui/ui/AccordionSummary';
 import Typography from '@tecton-mui/ui/Typography';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import Icon from '@tecton-mui/ui/Icon';
 
 export default function ControlledAccordions() {
   const [expanded, setExpanded] = React.useState<string | false>(false);
@@ -19,7 +19,7 @@ export default function ControlledAccordions() {
     <div>
       <Accordion expanded={expanded === 'panel1'} onChange={handleChange('panel1')}>
         <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
+          expandIcon={<Icon name="chevron-down" />}
           aria-controls="panel1bh-content"
           id="panel1bh-header"
         >
@@ -39,7 +39,7 @@ export default function ControlledAccordions() {
       </Accordion>
       <Accordion expanded={expanded === 'panel2'} onChange={handleChange('panel2')}>
         <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
+          expandIcon={<Icon name="chevron-down" />}
           aria-controls="panel2bh-content"
           id="panel2bh-header"
         >
@@ -60,7 +60,7 @@ export default function ControlledAccordions() {
       </Accordion>
       <Accordion expanded={expanded === 'panel3'} onChange={handleChange('panel3')}>
         <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
+          expandIcon={<Icon name="chevron-down" />}
           aria-controls="panel3bh-content"
           id="panel3bh-header"
         >
@@ -80,7 +80,7 @@ export default function ControlledAccordions() {
       </Accordion>
       <Accordion expanded={expanded === 'panel4'} onChange={handleChange('panel4')}>
         <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
+          expandIcon={<Icon name="chevron-down" />}
           aria-controls="panel4bh-content"
           id="panel4bh-header"
         >

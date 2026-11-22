@@ -7,12 +7,7 @@ import ListItemButton from '@tecton-mui/ui/ListItemButton';
 import ListItemIcon from '@tecton-mui/ui/ListItemIcon';
 import ListItemText from '@tecton-mui/ui/ListItemText';
 import Collapse from '@tecton-mui/ui/Collapse';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import DraftsIcon from '@mui/icons-material/Drafts';
-import SendIcon from '@mui/icons-material/Send';
-import ExpandLess from '@mui/icons-material/ExpandLess';
-import ExpandMore from '@mui/icons-material/ExpandMore';
-import StarBorder from '@mui/icons-material/StarBorder';
+import Icon from '@tecton-mui/ui/Icon';
 
 export default function NestedList() {
   const [open, setOpen] = React.useState(true);
@@ -34,28 +29,28 @@ export default function NestedList() {
     >
       <ListItemButton>
         <ListItemIcon>
-          <SendIcon />
+          <Icon name="arrow-right" size="medium" />
         </ListItemIcon>
         <ListItemText primary="Sent mail" />
       </ListItemButton>
       <ListItemButton>
         <ListItemIcon>
-          <DraftsIcon />
+          <Icon name="chat" size="medium" />
         </ListItemIcon>
         <ListItemText primary="Drafts" />
       </ListItemButton>
       <ListItemButton onClick={handleClick}>
         <ListItemIcon>
-          <InboxIcon />
+          <Icon name="download" size="medium" />
         </ListItemIcon>
         <ListItemText primary="Inbox" />
-        {open ? <ExpandLess /> : <ExpandMore />}
+        {open ? <Icon name="chevron-up" size="medium" /> : <Icon name="chevron-down" size="medium" />}
       </ListItemButton>
       <Collapse in={open} timeout="auto" unmountOnExit>
         <List component="div" disablePadding>
           <ListItemButton sx={{ pl: 4 }}>
             <ListItemIcon>
-              <StarBorder />
+              <Icon name="star" size="medium" />
             </ListItemIcon>
             <ListItemText primary="Starred" />
           </ListItemButton>

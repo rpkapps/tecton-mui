@@ -3,21 +3,19 @@
 import { green, pink } from '@tecton-mui/ui/colors';
 import Avatar from '@tecton-mui/ui/Avatar';
 import Stack from '@tecton-mui/ui/Stack';
-import FolderIcon from '@mui/icons-material/Folder';
-import PageviewIcon from '@mui/icons-material/Pageview';
-import AssignmentIcon from '@mui/icons-material/Assignment';
+import Icon from '@tecton-mui/ui/Icon';
 
 export default function IconAvatars() {
   return (
     <Stack direction="row" spacing={2}>
       <Avatar>
-        <FolderIcon />
+        <Icon name="folder" />
       </Avatar>
       <Avatar sx={{ bgcolor: pink[500] }}>
-        <PageviewIcon />
+        <Icon name="search" />
       </Avatar>
       <Avatar sx={{ bgcolor: green[500] }}>
-        <AssignmentIcon />
+        <Icon name="reports-analytics" />
       </Avatar>
     </Stack>
   );

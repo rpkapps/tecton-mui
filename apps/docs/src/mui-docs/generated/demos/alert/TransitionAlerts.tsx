@@ -6,7 +6,7 @@ import Alert from '@tecton-mui/ui/Alert';
 import IconButton from '@tecton-mui/ui/IconButton';
 import Collapse from '@tecton-mui/ui/Collapse';
 import Button from '@tecton-mui/ui/Button';
-import CloseIcon from '@mui/icons-material/Close';
+import Icon from '@tecton-mui/ui/Icon';
 
 export default function TransitionAlerts() {
   const [open, setOpen] = React.useState(true);
@@ -24,7 +24,7 @@ export default function TransitionAlerts() {
                 setOpen(false);
               }}
             >
-              <CloseIcon fontSize="inherit" />
+              <Icon name="close" />
             </IconButton>
           }
           sx={{ mb: 2 }}

@@ -6,7 +6,7 @@ import Badge from '@tecton-mui/ui/Badge';
 import IconButton from '@tecton-mui/ui/IconButton';
 import Switch from '@tecton-mui/ui/Switch';
 import FormControlLabel from '@tecton-mui/ui/FormControlLabel';
-import MailIcon from '@mui/icons-material/Mail';
+import Icon from '@tecton-mui/ui/Icon';
 
 const unreadMessagesCount = 4;
 
@@ -31,7 +31,7 @@ export default function BadgeVisibility() {
           badgeContent={unreadMessagesCount}
           invisible={invisible}
         >
-          <MailIcon />
+          <Icon name="chat" size="medium" />
         </Badge>
       </IconButton>
       <FormControlLabel

@@ -3,7 +3,7 @@
 import Avatar from '@tecton-mui/ui/Avatar';
 import Stack from '@tecton-mui/ui/Stack';
 import { deepOrange, green } from '@tecton-mui/ui/colors';
-import AssignmentIcon from '@mui/icons-material/Assignment';
+import Icon from '@tecton-mui/ui/Icon';
 
 export default function VariantAvatars() {
   return (
@@ -12,7 +12,7 @@ export default function VariantAvatars() {
         N
       </Avatar>
       <Avatar sx={{ bgcolor: green[500] }} variant="rounded">
-        <AssignmentIcon />
+        <Icon name="reports-analytics" />
       </Avatar>
     </Stack>
   );

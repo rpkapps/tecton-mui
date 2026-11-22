@@ -3,11 +3,7 @@
 import * as React from 'react';
 import { styled } from '@tecton-mui/ui/styles';
 import Rating, { type IconContainerProps } from '@tecton-mui/ui/Rating';
-import SentimentVeryDissatisfiedIcon from '@mui/icons-material/SentimentVeryDissatisfied';
-import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
-import SentimentSatisfiedIcon from '@mui/icons-material/SentimentSatisfied';
-import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAltOutlined';
-import SentimentVerySatisfiedIcon from '@mui/icons-material/SentimentVerySatisfied';
+import Icon from '@tecton-mui/ui/Icon';
 
 const StyledRating = styled(Rating)(({ theme }) => ({
   '& .MuiRating-iconEmpty .MuiSvgIcon-root': {
@@ -22,23 +18,23 @@ const customIcons: {
   };
 } = {
   1: {
-    icon: <SentimentVeryDissatisfiedIcon color="error" />,
+    icon: <Icon name="thumbs-down" size="medium" sx={{ color: 'error.main' }} />,
     label: 'Very Dissatisfied',
   },
   2: {
-    icon: <SentimentDissatisfiedIcon color="error" />,
+    icon: <Icon name="thumbs-down" size="medium" sx={{ color: 'error.main' }} />,
     label: 'Dissatisfied',
   },
   3: {
-    icon: <SentimentSatisfiedIcon color="warning" />,
+    icon: <Icon name="thumbs-up" size="medium" sx={{ color: 'warning.main' }} />,
     label: 'Neutral',
   },
   4: {
-    icon: <SentimentSatisfiedAltIcon color="success" />,
+    icon: <Icon name="thumbs-up" size="medium" sx={{ color: 'success.main' }} />,
     label: 'Satisfied',
   },
   5: {
-    icon: <SentimentVerySatisfiedIcon color="success" />,
+    icon: <Icon name="thumbs-up" size="medium" sx={{ color: 'success.main' }} />,
     label: 'Very Satisfied',
   },
 };

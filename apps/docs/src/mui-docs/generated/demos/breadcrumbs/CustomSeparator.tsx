@@ -5,7 +5,7 @@ import Breadcrumbs from '@tecton-mui/ui/Breadcrumbs';
 import Typography from '@tecton-mui/ui/Typography';
 import Link from '@tecton-mui/ui/Link';
 import Stack from '@tecton-mui/ui/Stack';
-import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import Icon from '@tecton-mui/ui/Icon';
 
 function handleClick(event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) {
   event.preventDefault();
@@ -40,7 +40,7 @@ export default function CustomSeparator() {
         {breadcrumbs}
       </Breadcrumbs>
       <Breadcrumbs
-        separator={<NavigateNextIcon fontSize="small" />}
+        separator={<Icon name="chevron-right" size="small" />}
         aria-label="breadcrumb"
       >
         {breadcrumbs}

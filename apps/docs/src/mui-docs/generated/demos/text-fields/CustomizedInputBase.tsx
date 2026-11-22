@@ -4,9 +4,7 @@ import Paper from '@tecton-mui/ui/Paper';
 import InputBase from '@tecton-mui/ui/InputBase';
 import Divider from '@tecton-mui/ui/Divider';
 import IconButton from '@tecton-mui/ui/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
-import SearchIcon from '@mui/icons-material/Search';
-import DirectionsIcon from '@mui/icons-material/Directions';
+import Icon from '@tecton-mui/ui/Icon';
 
 export default function CustomizedInputBase() {
   return (
@@ -15,7 +13,7 @@ export default function CustomizedInputBase() {
       sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: 400 }}
     >
       <IconButton sx={{ p: '10px' }} aria-label="menu">
-        <MenuIcon />
+        <Icon name="menu" />
       </IconButton>
       <InputBase
         sx={{ ml: 1, flex: 1 }}
@@ -23,11 +21,11 @@ export default function CustomizedInputBase() {
         inputProps={{ 'aria-label': 'search google maps' }}
       />
       <IconButton type="button" sx={{ p: '10px' }} aria-label="search">
-        <SearchIcon />
+        <Icon name="search" />
       </IconButton>
       <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
       <IconButton color="primary" sx={{ p: '10px' }} aria-label="directions">
-        <DirectionsIcon />
+        <Icon name="trajectory" />
       </IconButton>
     </Paper>
   );

@@ -5,9 +5,7 @@ import Box from '@tecton-mui/ui/Box';
 import CssBaseline from '@tecton-mui/ui/CssBaseline';
 import BottomNavigation from '@tecton-mui/ui/BottomNavigation';
 import BottomNavigationAction from '@tecton-mui/ui/BottomNavigationAction';
-import RestoreIcon from '@mui/icons-material/Restore';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import ArchiveIcon from '@mui/icons-material/Archive';
+import Icon from '@tecton-mui/ui/Icon';
 import Paper from '@tecton-mui/ui/Paper';
 import List from '@tecton-mui/ui/List';
 import ListItemButton from '@tecton-mui/ui/ListItemButton';
@@ -54,9 +52,9 @@ export default function FixedBottomNavigation() {
             setValue(newValue);
           }}
         >
-          <BottomNavigationAction label="Recents" icon={<RestoreIcon />} />
-          <BottomNavigationAction label="Favorites" icon={<FavoriteIcon />} />
-          <BottomNavigationAction label="Archive" icon={<ArchiveIcon />} />
+          <BottomNavigationAction label="Recents" icon={<Icon name="history" size="medium" />} />
+          <BottomNavigationAction label="Favorites" icon={<Icon name="star" variant="filled" size="medium" />} />
+          <BottomNavigationAction label="Archive" icon={<Icon name="folder" size="medium" />} />
         </BottomNavigation>
       </Paper>
     </Box>

@@ -4,9 +4,7 @@ import * as React from 'react';
 import { useTheme, styled } from '@tecton-mui/ui/styles';
 import Popper from '@tecton-mui/ui/Popper';
 import ClickAwayListener from '@tecton-mui/ui/ClickAwayListener';
-import SettingsIcon from '@mui/icons-material/Settings';
-import CloseIcon from '@mui/icons-material/Close';
-import DoneIcon from '@mui/icons-material/Done';
+import Icon, { type IconProps } from '@tecton-mui/ui/Icon';
 import Autocomplete, {
   type AutocompleteCloseReason,
   autocompleteClasses,
@@ -14,6 +12,14 @@ import Autocomplete, {
 import ButtonBase from '@tecton-mui/ui/ButtonBase';
 import InputBase from '@tecton-mui/ui/InputBase';
 import Box from '@tecton-mui/ui/Box';
+
+function DoneIcon(props: Omit<IconProps, 'name'>) {
+  return <Icon name="check" {...props} />;
+}
+
+function CloseIcon(props: Omit<IconProps, 'name'>) {
+  return <Icon name="close" {...props} />;
+}
 
 interface PopperComponentProps {
   anchorEl?: any;
@@ -159,7 +165,7 @@ export default function GitHubLabel() {
       <Box sx={{ width: 221, fontSize: 13 }}>
         <Button disableRipple aria-describedby={id} onClick={handleClick}>
           <span>Labels</span>
-          <SettingsIcon />
+          <Icon name="settings" size="medium" />
         </Button>
         {value.map((label) => (
           <Box

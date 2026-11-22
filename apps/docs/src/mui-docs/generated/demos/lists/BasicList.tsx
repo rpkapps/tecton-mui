@@ -7,8 +7,7 @@ import ListItemButton from '@tecton-mui/ui/ListItemButton';
 import ListItemIcon from '@tecton-mui/ui/ListItemIcon';
 import ListItemText from '@tecton-mui/ui/ListItemText';
 import Divider from '@tecton-mui/ui/Divider';
-import InboxIcon from '@mui/icons-material/Inbox';
-import DraftsIcon from '@mui/icons-material/Drafts';
+import Icon from '@tecton-mui/ui/Icon';
 
 export default function BasicList() {
   return (
@@ -18,7 +17,7 @@ export default function BasicList() {
           <ListItem disablePadding>
             <ListItemButton>
               <ListItemIcon>
-                <InboxIcon />
+                <Icon name="folder" size="medium" />
               </ListItemIcon>
               <ListItemText primary="Inbox" />
             </ListItemButton>
@@ -26,7 +25,7 @@ export default function BasicList() {
           <ListItem disablePadding>
             <ListItemButton>
               <ListItemIcon>
-                <DraftsIcon />
+                <Icon name="chat" size="medium" />
               </ListItemIcon>
               <ListItemText primary="Drafts" />
             </ListItemButton>

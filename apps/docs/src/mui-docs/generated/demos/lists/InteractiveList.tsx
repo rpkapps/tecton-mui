@@ -15,8 +15,7 @@ import FormControlLabel from '@tecton-mui/ui/FormControlLabel';
 import Checkbox from '@tecton-mui/ui/Checkbox';
 import Grid from '@tecton-mui/ui/Grid';
 import Typography from '@tecton-mui/ui/Typography';
-import FolderIcon from '@mui/icons-material/Folder';
-import DeleteIcon from '@mui/icons-material/Delete';
+import Icon from '@tecton-mui/ui/Icon';
 
 function generate(element: React.ReactElement<unknown>) {
   return [0, 1, 2].map((value) =>
@@ -93,7 +92,7 @@ export default function InteractiveList() {
               {generate(
                 <ListItem>
                   <ListItemIcon>
-                    <FolderIcon />
+                    <Icon name="folder" size="medium" />
                   </ListItemIcon>
                   <ListItemText
                     primary="Single-line item"
@@ -121,7 +120,7 @@ export default function InteractiveList() {
                 <ListItem>
                   <ListItemAvatar>
                     <Avatar>
-                      <FolderIcon />
+                      <Icon name="folder" />
                     </Avatar>
                   </ListItemAvatar>
                   <ListItemText
@@ -148,13 +147,13 @@ export default function InteractiveList() {
                 <ListItem
                   secondaryAction={
                     <IconButton edge="end" aria-label="delete">
-                      <DeleteIcon />
+                      <Icon name="delete" />
                     </IconButton>
                   }
                 >
                   <ListItemAvatar>
                     <Avatar>
-                      <FolderIcon />
+                      <Icon name="folder" />
                     </Avatar>
                   </ListItemAvatar>
                   <ListItemText

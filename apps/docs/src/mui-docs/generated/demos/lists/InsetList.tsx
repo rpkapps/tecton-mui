@@ -5,7 +5,7 @@ import ListItem from '@tecton-mui/ui/ListItem';
 import ListItemButton from '@tecton-mui/ui/ListItemButton';
 import ListItemIcon from '@tecton-mui/ui/ListItemIcon';
 import ListItemText from '@tecton-mui/ui/ListItemText';
-import StarIcon from '@mui/icons-material/Star';
+import Icon from '@tecton-mui/ui/Icon';
 
 export default function InsetList() {
   return (
@@ -16,7 +16,7 @@ export default function InsetList() {
       <ListItem disablePadding>
         <ListItemButton>
           <ListItemIcon>
-            <StarIcon />
+            <Icon name="star" variant="filled" size="medium" />
           </ListItemIcon>
           <ListItemText primary="Chelsea Otakan" />
         </ListItemButton>

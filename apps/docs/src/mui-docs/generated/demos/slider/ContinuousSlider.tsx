@@ -4,8 +4,7 @@ import * as React from 'react';
 import Box from '@tecton-mui/ui/Box';
 import Stack from '@tecton-mui/ui/Stack';
 import Slider from '@tecton-mui/ui/Slider';
-import VolumeDown from '@mui/icons-material/VolumeDown';
-import VolumeUp from '@mui/icons-material/VolumeUp';
+import Icon from '@tecton-mui/ui/Icon';
 
 export default function ContinuousSlider() {
   const [value, setValue] = React.useState<number>(30);
@@ -17,9 +16,9 @@ export default function ContinuousSlider() {
   return (
     <Box sx={{ width: 200 }}>
       <Stack spacing={2} direction="row" sx={{ alignItems: 'center', mb: 1 }}>
-        <VolumeDown />
+        <Icon name="microphone" size="medium" />
         <Slider aria-label="Volume" value={value} onChange={handleChange} />
-        <VolumeUp />
+        <Icon name="microphone" size="medium" />
       </Stack>
       <Slider disabled defaultValue={30} aria-label="Disabled slider" />
     </Box>

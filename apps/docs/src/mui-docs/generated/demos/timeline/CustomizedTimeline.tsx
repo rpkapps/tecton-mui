@@ -7,10 +7,7 @@ import TimelineConnector from '@tecton-mui/ui/TimelineConnector';
 import TimelineContent from '@tecton-mui/ui/TimelineContent';
 import TimelineOppositeContent from '@tecton-mui/ui/TimelineOppositeContent';
 import TimelineDot from '@tecton-mui/ui/TimelineDot';
-import FastfoodIcon from '@mui/icons-material/Fastfood';
-import LaptopMacIcon from '@mui/icons-material/LaptopMac';
-import HotelIcon from '@mui/icons-material/Hotel';
-import RepeatIcon from '@mui/icons-material/Repeat';
+import Icon from '@tecton-mui/ui/Icon';
 import Typography from '@tecton-mui/ui/Typography';
 
 export default function CustomizedTimeline() {
@@ -30,7 +27,7 @@ export default function CustomizedTimeline() {
         <TimelineSeparator>
           <TimelineConnector />
           <TimelineDot>
-            <FastfoodIcon />
+            <Icon name="co2-leaf" size="medium" />
           </TimelineDot>
           <TimelineConnector />
         </TimelineSeparator>
@@ -54,7 +51,7 @@ export default function CustomizedTimeline() {
         <TimelineSeparator>
           <TimelineConnector />
           <TimelineDot color="primary">
-            <LaptopMacIcon />
+            <Icon name="window" size="medium" />
           </TimelineDot>
           <TimelineConnector />
         </TimelineSeparator>
@@ -69,7 +66,7 @@ export default function CustomizedTimeline() {
         <TimelineSeparator>
           <TimelineConnector />
           <TimelineDot color="primary" variant="outlined">
-            <HotelIcon />
+            <Icon name="facility" size="medium" />
           </TimelineDot>
           <TimelineConnector sx={{ bgcolor: 'secondary.main' }} />
         </TimelineSeparator>
@@ -84,7 +81,7 @@ export default function CustomizedTimeline() {
         <TimelineSeparator>
           <TimelineConnector sx={{ bgcolor: 'secondary.main' }} />
           <TimelineDot color="secondary">
-            <RepeatIcon />
+            <Icon name="retry" size="medium" />
           </TimelineDot>
           <TimelineConnector />
         </TimelineSeparator>

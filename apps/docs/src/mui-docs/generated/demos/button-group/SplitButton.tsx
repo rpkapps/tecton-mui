@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Button from '@tecton-mui/ui/Button';
 import ButtonGroup from '@tecton-mui/ui/ButtonGroup';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import Icon from '@tecton-mui/ui/Icon';
 import ClickAwayListener from '@tecton-mui/ui/ClickAwayListener';
 import Grow from '@tecton-mui/ui/Grow';
 import Paper from '@tecton-mui/ui/Paper';
@@ -61,7 +61,7 @@ export default function SplitButton() {
           aria-haspopup="menu"
           onClick={handleToggle}
         >
-          <ArrowDropDownIcon />
+          <Icon name="chevron-down" size="medium" />
         </Button>
       </ButtonGroup>
       <Popper

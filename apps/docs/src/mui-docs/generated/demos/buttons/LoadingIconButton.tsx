@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Tooltip from '@tecton-mui/ui/Tooltip';
 import IconButton from '@tecton-mui/ui/IconButton';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import Icon from '@tecton-mui/ui/Icon';
 
 export default function LoadingIconButton() {
   const [loading, setLoading] = React.useState(false);
@@ -16,7 +16,7 @@ export default function LoadingIconButton() {
   return (
     <Tooltip title="Click to see loading">
       <IconButton onClick={() => setLoading(true)} loading={loading}>
-        <ShoppingCartIcon />
+        <Icon name="money" />
       </IconButton>
     </Tooltip>
   );

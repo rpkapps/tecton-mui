@@ -80,6 +80,13 @@
             "replace": "    '& svg, & .TectonIcon-root': {\n      color: 'currentColor',",
             "reason": "Docs icons are Tecton <span> elements, not <svg>: show the check on the focused option."
           }
+        ],
+        "CheckboxesTags": [
+          {
+            "find": "padding: 9,",
+            "replace": "padding: 2,",
+            "reason": "The checkbox icons that mark selected options use the padding of Tecton's Checkbox (2px), not MUI's (9px), so the options keep Tecton's row height."
+          }
         ]
       }
     },
@@ -157,7 +164,16 @@
       "package": "@mui/material",
       "source": "docs/data/material/components/selects/selects.md",
       "status": "included",
-      "target": "selects"
+      "target": "selects",
+      "demoEdits": {
+        "MultipleSelectCheckmarks": [
+          {
+            "find": "padding: 9,",
+            "replace": "padding: 2,",
+            "reason": "The checkbox icons that mark selected options use the padding of Tecton's Checkbox (2px), not MUI's (9px), so the options keep Tecton's row height."
+          }
+        ]
+      }
     },
     {
       "package": "@mui/material",
@@ -196,6 +212,18 @@
             "find": "sx={{ px: 2, py: 0.5 }}",
             "replace": "sx={{ px: 1.5, py: 0.5 }}",
             "reason": "Line the header checkbox up with the item checkboxes: Tecton's dense menu items are padded 12px (space-150), not 16px."
+          },
+          {
+            "find": "padding: '9px',",
+            "replace": "padding: '2px',",
+            "reason": "The item checkbox icons use the padding of Tecton's Checkbox (2px), not MUI's (9px), so they line up with the header Checkbox and keep Tecton's row height."
+          }
+        ],
+        "TransferList": [
+          {
+            "find": "padding: '9px',",
+            "replace": "padding: '2px',",
+            "reason": "The item checkbox icons use the padding of Tecton's Checkbox (2px), not MUI's (9px), so the items keep Tecton's row height."
           }
         ]
       }
@@ -286,6 +314,13 @@
             "find": "        <Paper elevation={0} sx={{ maxWidth: 256 }}>",
             "replace": "        <Paper elevation={0} sx={{ maxWidth: 256 }} data-theme=\"dark\">",
             "reason": "Tecton styles read CSS variables scoped by data-theme; a nested ThemeProvider with another palette mode also needs data-theme on its section, or Tecton surfaces keep the page's mode."
+          }
+        ],
+        "CheckboxList": [
+          {
+            "find": "padding: '9px',\n                    marginLeft: '-12px',",
+            "replace": "padding: '2px',",
+            "reason": "The checkbox icons use the padding of Tecton's Checkbox (2px), not MUI's (9px), so the items keep Tecton's row height; the -12px offset only compensated MUI's padding."
           }
         ]
       }

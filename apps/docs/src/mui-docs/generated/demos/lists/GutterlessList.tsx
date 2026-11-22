@@ -3,7 +3,7 @@
 import List from '@tecton-mui/ui/List';
 import ListItem from '@tecton-mui/ui/ListItem';
 import ListItemText from '@tecton-mui/ui/ListItemText';
-import CommentIcon from '@mui/icons-material/Comment';
+import Icon from '@tecton-mui/ui/Icon';
 import IconButton from '@tecton-mui/ui/IconButton';
 
 export default function GutterlessList() {
@@ -15,7 +15,7 @@ export default function GutterlessList() {
           disableGutters
           secondaryAction={
             <IconButton aria-label="comment">
-              <CommentIcon />
+              <Icon name="chat" />
             </IconButton>
           }
         >

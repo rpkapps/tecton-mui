@@ -4,7 +4,7 @@ import ImageList from '@tecton-mui/ui/ImageList';
 import ImageListItem from '@tecton-mui/ui/ImageListItem';
 import ImageListItemBar from '@tecton-mui/ui/ImageListItemBar';
 import IconButton from '@tecton-mui/ui/IconButton';
-import StarBorderIcon from '@mui/icons-material/StarBorder';
+import Icon from '@tecton-mui/ui/Icon';
 
 function srcset(image: string, width: number, height: number, rows = 1, cols = 1) {
   return {
@@ -51,7 +51,7 @@ export default function CustomImageList() {
                   sx={{ color: 'white' }}
                   aria-label={`star ${item.title}`}
                 >
-                  <StarBorderIcon />
+                  <Icon name="star" />
                 </IconButton>
               }
               actionPosition="left"

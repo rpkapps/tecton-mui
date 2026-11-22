@@ -4,7 +4,7 @@ import * as React from 'react';
 import { styled } from '@tecton-mui/ui/styles';
 import Chip from '@tecton-mui/ui/Chip';
 import Paper from '@tecton-mui/ui/Paper';
-import TagFacesIcon from '@mui/icons-material/TagFaces';
+import Icon from '@tecton-mui/ui/Icon';
 
 interface ChipData {
   key: number;
@@ -44,7 +44,7 @@ export default function ChipsArray() {
         let icon;
 
         if (data.label === 'React') {
-          icon = <TagFacesIcon />;
+          icon = <Icon name="person" size="medium" />;
         }
 
         return (

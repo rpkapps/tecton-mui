@@ -12,10 +12,7 @@ import Switch from '@tecton-mui/ui/Switch';
 import SpeedDial, { type SpeedDialProps } from '@tecton-mui/ui/SpeedDial';
 import SpeedDialIcon from '@tecton-mui/ui/SpeedDialIcon';
 import SpeedDialAction from '@tecton-mui/ui/SpeedDialAction';
-import FileCopyIcon from '@mui/icons-material/FileCopyOutlined';
-import SaveIcon from '@mui/icons-material/Save';
-import PrintIcon from '@mui/icons-material/Print';
-import ShareIcon from '@mui/icons-material/Share';
+import Icon from '@tecton-mui/ui/Icon';
 
 const StyledSpeedDial = styled(SpeedDial)(({ theme }) => ({
   position: 'absolute',
@@ -30,10 +27,10 @@ const StyledSpeedDial = styled(SpeedDial)(({ theme }) => ({
 }));
 
 const actions = [
-  { icon: <FileCopyIcon />, name: 'Copy' },
-  { icon: <SaveIcon />, name: 'Save' },
-  { icon: <PrintIcon />, name: 'Print' },
-  { icon: <ShareIcon />, name: 'Share' },
+  { icon: <Icon name="copy" size="medium" />, name: 'Copy' },
+  { icon: <Icon name="download" size="medium" />, name: 'Save' },
+  { icon: <Icon name="reports-analytics" size="medium" />, name: 'Print' },
+  { icon: <Icon name="link" size="medium" />, name: 'Share' },
 ];
 
 export default function PlaygroundSpeedDial() {
