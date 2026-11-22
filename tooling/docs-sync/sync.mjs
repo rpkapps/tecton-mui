@@ -121,11 +121,22 @@ function checkManifest() {
         errors.push(`${where}: commercial MUI X documentation cannot be included`);
       if (manifest.upstream[page.package]?.repo !== 'mui/material-ui')
         errors.push(`${where}: only the MIT-licensed mui/material-ui documentation can be synced`);
-      if (page.status === 'modified' && !page.patch && !page.edits?.length)
-        errors.push(`${where}: modified pages need a patch file or declarative edits`);
+      if (
+        page.status === 'modified' &&
+        !page.patch &&
+        !page.edits?.length &&
+        !Object.keys(page.droppedSections ?? {}).length
+      )
+        errors.push(
+          `${where}: modified pages need a patch file, declarative edits or dropped sections`,
+        );
+      if (page.status === 'included' && (page.edits || page.droppedSections))
+        errors.push(`${where}: pages with edits or dropped sections must be "modified"`);
       for (const edit of page.edits ?? [])
         if (!edit.find || edit.replace === undefined || !edit.reason)
           errors.push(`${where}: each edit needs find, replace and reason`);
+      for (const [heading, reason] of Object.entries(page.droppedSections ?? {}))
+        if (!reason) errors.push(`${where}: dropped section "${heading}" needs a reason`);
       if (page.target && !slugMap.pages[page.target])
         errors.push(`${where}: no entry for "${page.target}" in slug-map.json`);
       for (const [demo, reason] of Object.entries(page.excludedDemos ?? {}))
@@ -274,10 +285,13 @@ async function sync(packages) {
     if (page.source.startsWith(MUI_COMPONENTS_DIR) && !upstreamSources.has(page.source))
       console.warn(`  warning: ${page.source} is no longer listed upstream`);
 
-  // Sections about third-party projects are not part of this library's documentation: drop each
-  // one (its heading and everything up to the next heading of the same or a higher level).
+  // Sections about third-party projects are not part of this library's documentation, and a page
+  // can drop sections that do not apply to this library (manifest `droppedSections`, each heading
+  // must match exactly once): each is removed with its heading and everything up to the next
+  // heading of the same or a higher level.
   const DROPPED_SECTIONS = /^supplementary projects$/i;
-  const dropSections = (markdown) => {
+  const dropSections = (markdown, entry) => {
+    const named = new Map(Object.keys(entry.droppedSections ?? {}).map((h) => [h, 0]));
     const out = [];
     let skipLevel = 0;
     let inFence = false;
@@ -287,13 +301,19 @@ async function sync(packages) {
       if (heading) {
         const level = heading[1].length;
         if (skipLevel && level <= skipLevel) skipLevel = 0;
-        if (!skipLevel && DROPPED_SECTIONS.test(heading[2])) {
+        if (!skipLevel && (DROPPED_SECTIONS.test(heading[2]) || named.has(heading[2]))) {
+          if (named.has(heading[2])) named.set(heading[2], named.get(heading[2]) + 1);
           skipLevel = level;
           continue;
         }
       }
       if (!skipLevel) out.push(line);
     }
+    for (const [name, count] of named)
+      if (count !== 1)
+        throw new Error(
+          `${entry.source}: dropped section "${name}" matched ${count} headings (must be exactly once)`,
+        );
     return out.join('\n');
   };
 
@@ -314,7 +334,7 @@ async function sync(packages) {
         );
       text = text.replace(edit.find, edit.replace);
     }
-    text = dropSections(text);
+    text = dropSections(text, entry);
     const page = parsePage(text, parsers);
     const dir = entry.source.slice(0, entry.source.lastIndexOf('/'));
     const demoBlocks = [];

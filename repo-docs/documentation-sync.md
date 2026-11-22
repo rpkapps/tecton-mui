@@ -48,21 +48,22 @@ from the repository root so the ignore file applies.
 `@mui/lab` uses the `@mui/material` tag because Lab docs live in the same repository) and every
 upstream page considered for the portal (`pages`):
 
-| Field           | Required for           | Meaning                                                                     |
-| --------------- | ---------------------- | --------------------------------------------------------------------------- |
-| `package`       | all                    | Upstream npm package, which must be a key of `upstream`                     |
-| `source`        | all                    | Path of the page in the upstream repository                                 |
-| `status`        | all                    | `included`, `modified` or `excluded`                                        |
-| `reason`        | `excluded`             | Why the page is not synced                                                  |
-| `target`        | `included`, `modified` | Page id: generated demo folder and key in `slug-map.json`                   |
-| `edits`         | `modified`             | Declarative `{ find, replace, reason }` edits; each must match exactly once |
-| `patch`         | `modified` (or edits)  | File with local modifications to re-apply after a sync                      |
-| `excludedDemos` | optional               | `{ "DemoName": "reason" }`: examples left out by hand (e.g. type errors)    |
+| Field             | Required for           | Meaning                                                                                                                           |
+| ----------------- | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `package`         | all                    | Upstream npm package, which must be a key of `upstream`                                                                           |
+| `source`          | all                    | Path of the page in the upstream repository                                                                                       |
+| `status`          | all                    | `included`, `modified` or `excluded`                                                                                              |
+| `reason`          | `excluded`             | Why the page is not synced                                                                                                        |
+| `target`          | `included`, `modified` | Page id: generated demo folder and key in `slug-map.json`                                                                         |
+| `edits`           | `modified`             | Declarative `{ find, replace, reason }` edits; each must match exactly once                                                       |
+| `droppedSections` | `modified`             | `{ "Heading": "reason" }`: sections removed with their subsections (e.g. Roboto font setup); each heading must match exactly once |
+| `patch`           | `modified` (or edits)  | File with local modifications to re-apply after a sync                                                                            |
+| `excludedDemos`   | optional               | `{ "DemoName": "reason" }`: examples left out by hand (e.g. type errors)                                                          |
 
 | Status       | Meaning                                                                                              |
 | ------------ | ---------------------------------------------------------------------------------------------------- |
 | **included** | Synced with the mechanical adaptation rules below                                                    |
-| **modified** | As included, plus the page's own `edits` (or `patch`)                                                |
+| **modified** | As included, plus the page's own `edits`, `droppedSections` (or `patch`)                             |
 | **excluded** | Never synced: commercial or unlicensed content, no matching portal page, MUI process or tooling page |
 
 The sync fails when upstream lists a component page that the manifest does not mention, so new
