@@ -6,9 +6,7 @@ import ListItemButton from '@tecton-mui/ui/ListItemButton';
 import ListItemIcon from '@tecton-mui/ui/ListItemIcon';
 import ListItemText from '@tecton-mui/ui/ListItemText';
 import Paper from '@tecton-mui/ui/Paper';
-import DraftsIcon from '@mui/icons-material/Drafts';
-import InboxIcon from '@mui/icons-material/Inbox';
-import SendIcon from '@mui/icons-material/Send';
+import Icon from '@tecton-mui/ui/Icon';
 
 const unreadMessagesCount = 4;
 
@@ -23,20 +21,20 @@ export default function BadgeListItem() {
         >
           <ListItemIcon>
             <Badge badgeContent={unreadMessagesCount} color="primary">
-              <InboxIcon />
+              <Icon name="folder" size="medium" />
             </Badge>
           </ListItemIcon>
           <ListItemText primary="Inbox" />
         </ListItemButton>
         <ListItemButton>
           <ListItemIcon>
-            <SendIcon />
+            <Icon name="arrow-right" size="medium" />
           </ListItemIcon>
           <ListItemText primary="Sent" />
         </ListItemButton>
         <ListItemButton>
           <ListItemIcon>
-            <DraftsIcon />
+            <Icon name="chat" size="medium" />
           </ListItemIcon>
           <ListItemText primary="Drafts" />
         </ListItemButton>

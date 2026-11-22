@@ -5,9 +5,7 @@ import ListItem from '@tecton-mui/ui/ListItem';
 import ListItemText from '@tecton-mui/ui/ListItemText';
 import ListItemAvatar from '@tecton-mui/ui/ListItemAvatar';
 import Avatar from '@tecton-mui/ui/Avatar';
-import ImageIcon from '@mui/icons-material/Image';
-import WorkIcon from '@mui/icons-material/Work';
-import BeachAccessIcon from '@mui/icons-material/BeachAccess';
+import Icon from '@tecton-mui/ui/Icon';
 
 export default function FolderList() {
   return (
@@ -15,7 +13,7 @@ export default function FolderList() {
       <ListItem>
         <ListItemAvatar>
           <Avatar>
-            <ImageIcon />
+            <Icon name="image" />
           </Avatar>
         </ListItemAvatar>
         <ListItemText primary="Photos" secondary="Jan 9, 2014" />
@@ -23,7 +21,7 @@ export default function FolderList() {
       <ListItem>
         <ListItemAvatar>
           <Avatar>
-            <WorkIcon />
+            <Icon name="project" />
           </Avatar>
         </ListItemAvatar>
         <ListItemText primary="Work" secondary="Jan 7, 2014" />
@@ -31,7 +29,7 @@ export default function FolderList() {
       <ListItem>
         <ListItemAvatar>
           <Avatar>
-            <BeachAccessIcon />
+            <Icon name="light-mode" />
           </Avatar>
         </ListItemAvatar>
         <ListItemText primary="Vacation" secondary="July 20, 2014" />

@@ -7,9 +7,7 @@ import CardContent from '@tecton-mui/ui/CardContent';
 import CardMedia from '@tecton-mui/ui/CardMedia';
 import IconButton from '@tecton-mui/ui/IconButton';
 import Typography from '@tecton-mui/ui/Typography';
-import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import SkipNextIcon from '@mui/icons-material/SkipNext';
+import Icon from '@tecton-mui/ui/Icon';
 
 export default function MediaControlCard() {
   const theme = useTheme();
@@ -31,13 +29,13 @@ export default function MediaControlCard() {
         </CardContent>
         <Box sx={{ display: 'flex', alignItems: 'center', pl: 1, pb: 1 }}>
           <IconButton aria-label="previous">
-            {theme.direction === 'rtl' ? <SkipNextIcon /> : <SkipPreviousIcon />}
+            {theme.direction === 'rtl' ? <Icon name="arrow-right" /> : <Icon name="arrow-left" />}
           </IconButton>
           <IconButton aria-label="play/pause">
-            <PlayArrowIcon sx={{ height: 38, width: 38 }} />
+            <Icon name="play" sx={{ height: 38, width: 38 }} />
           </IconButton>
           <IconButton aria-label="next">
-            {theme.direction === 'rtl' ? <SkipPreviousIcon /> : <SkipNextIcon />}
+            {theme.direction === 'rtl' ? <Icon name="arrow-left" /> : <Icon name="arrow-right" />}
           </IconButton>
         </Box>
       </Box>

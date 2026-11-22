@@ -5,12 +5,8 @@ import { styled, alpha } from '@tecton-mui/ui/styles';
 import Button from '@tecton-mui/ui/Button';
 import Menu, { type MenuProps } from '@tecton-mui/ui/Menu';
 import MenuItem from '@tecton-mui/ui/MenuItem';
-import EditIcon from '@mui/icons-material/Edit';
+import Icon from '@tecton-mui/ui/Icon';
 import Divider from '@tecton-mui/ui/Divider';
-import ArchiveIcon from '@mui/icons-material/Archive';
-import FileCopyIcon from '@mui/icons-material/FileCopy';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
 const StyledMenu = styled((props: MenuProps) => (
   <Menu
@@ -78,7 +74,7 @@ export default function CustomizedMenus() {
         variant="contained"
         disableElevation
         onClick={handleClick}
-        endIcon={<KeyboardArrowDownIcon />}
+        endIcon={<Icon name="chevron-down" />}
       >
         Options
       </Button>
@@ -94,20 +90,20 @@ export default function CustomizedMenus() {
         onClose={handleClose}
       >
         <MenuItem onClick={handleClose} disableRipple>
-          <EditIcon />
+          <Icon name="edit-square" size="medium" />
           Edit
         </MenuItem>
         <MenuItem onClick={handleClose} disableRipple>
-          <FileCopyIcon />
+          <Icon name="copy" size="medium" />
           Duplicate
         </MenuItem>
         <Divider sx={{ my: 0.5 }} />
         <MenuItem onClick={handleClose} disableRipple>
-          <ArchiveIcon />
+          <Icon name="folder" size="medium" />
           Archive
         </MenuItem>
         <MenuItem onClick={handleClose} disableRipple>
-          <MoreHorizIcon />
+          <Icon name="more-vert" size="medium" />
           More
         </MenuItem>
       </StyledMenu>

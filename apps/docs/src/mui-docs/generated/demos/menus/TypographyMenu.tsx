@@ -5,9 +5,7 @@ import MenuItem from '@tecton-mui/ui/MenuItem';
 import Paper from '@tecton-mui/ui/Paper';
 import ListItemIcon from '@tecton-mui/ui/ListItemIcon';
 import Typography from '@tecton-mui/ui/Typography';
-import DraftsIcon from '@mui/icons-material/Drafts';
-import SendIcon from '@mui/icons-material/Send';
-import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
+import Icon from '@tecton-mui/ui/Icon';
 
 export default function TypographyMenu() {
   return (
@@ -15,19 +13,19 @@ export default function TypographyMenu() {
       <MenuList>
         <MenuItem>
           <ListItemIcon>
-            <SendIcon fontSize="small" />
+            <Icon name="arrow-right" size="small" />
           </ListItemIcon>
           <Typography variant="inherit">A short message</Typography>
         </MenuItem>
         <MenuItem>
           <ListItemIcon>
-            <PriorityHighIcon fontSize="small" />
+            <Icon name="warning" size="small" />
           </ListItemIcon>
           <Typography variant="inherit">A very long text that overflows</Typography>
         </MenuItem>
         <MenuItem>
           <ListItemIcon>
-            <DraftsIcon fontSize="small" />
+            <Icon name="chat" size="small" />
           </ListItemIcon>
           <Typography variant="inherit" noWrap>
             A very long text that overflows

@@ -3,19 +3,7 @@
 import Box from '@tecton-mui/ui/Box';
 import Grid from '@tecton-mui/ui/Grid';
 import Typography from '@tecton-mui/ui/Typography';
-import DeleteIcon from '@mui/icons-material/Delete';
-import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
-import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
-import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
-import DeleteSharpIcon from '@mui/icons-material/DeleteSharp';
-import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
-import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
-import DeleteForeverRoundedIcon from '@mui/icons-material/DeleteForeverRounded';
-import DeleteForeverTwoToneIcon from '@mui/icons-material/DeleteForeverTwoTone';
-import DeleteForeverSharpIcon from '@mui/icons-material/DeleteForeverSharp';
-import ThreeDRotationIcon from '@mui/icons-material/ThreeDRotation';
-import FourKIcon from '@mui/icons-material/FourK';
-import ThreeSixtyIcon from '@mui/icons-material/ThreeSixty';
+import Icon from '@tecton-mui/ui/Icon';
 
 export default function SvgMaterialIcons() {
   return (
@@ -25,44 +13,44 @@ export default function SvgMaterialIcons() {
           <Typography>Filled</Typography>
         </Grid>
         <Grid size={8}>
-          <DeleteIcon />
-          <DeleteForeverIcon />
+          <Icon name="delete" size="medium" />
+          <Icon name="delete" size="medium" />
         </Grid>
         <Grid size={4}>
           <Typography>Outlined</Typography>
         </Grid>
         <Grid size={8}>
-          <DeleteOutlinedIcon />
-          <DeleteForeverOutlinedIcon />
+          <Icon name="delete" size="medium" />
+          <Icon name="delete" size="medium" />
         </Grid>
         <Grid size={4}>
           <Typography>Rounded</Typography>
         </Grid>
         <Grid size={8}>
-          <DeleteRoundedIcon />
-          <DeleteForeverRoundedIcon />
+          <Icon name="delete" size="medium" />
+          <Icon name="delete" size="medium" />
         </Grid>
         <Grid size={4}>
           <Typography>Two Tone</Typography>
         </Grid>
         <Grid size={8}>
-          <DeleteTwoToneIcon />
-          <DeleteForeverTwoToneIcon />
+          <Icon name="delete" size="medium" />
+          <Icon name="delete" size="medium" />
         </Grid>
         <Grid size={4}>
           <Typography>Sharp</Typography>
         </Grid>
         <Grid size={8}>
-          <DeleteSharpIcon />
-          <DeleteForeverSharpIcon />
+          <Icon name="delete" size="medium" />
+          <Icon name="delete" size="medium" />
         </Grid>
         <Grid size={4}>
           <Typography>Edge-cases</Typography>
         </Grid>
         <Grid size={8}>
-          <ThreeDRotationIcon />
-          <FourKIcon />
-          <ThreeSixtyIcon />
+          <Icon name="3d" size="medium" />
+          <Icon name="image" size="medium" />
+          <Icon name="rotate" size="medium" />
         </Grid>
       </Grid>
     </Box>

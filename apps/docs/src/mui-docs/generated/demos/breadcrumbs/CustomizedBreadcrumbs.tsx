@@ -4,8 +4,7 @@ import * as React from 'react';
 import { emphasize, styled } from '@tecton-mui/ui/styles';
 import Breadcrumbs from '@tecton-mui/ui/Breadcrumbs';
 import Chip from '@tecton-mui/ui/Chip';
-import HomeIcon from '@mui/icons-material/Home';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import Icon from '@tecton-mui/ui/Icon';
 
 const StyledBreadcrumb = styled(Chip)(({ theme }) => {
   return {
@@ -45,12 +44,12 @@ export default function CustomizedBreadcrumbs() {
           component="a"
           href="#"
           label="Home"
-          icon={<HomeIcon fontSize="small" />}
+          icon={<Icon name="home" size="small" />}
         />
         <StyledBreadcrumb component="a" href="#" label="Catalog" />
         <StyledBreadcrumb
           label="Accessories"
-          deleteIcon={<ExpandMoreIcon />}
+          deleteIcon={<Icon name="chevron-down" size="medium" />}
           onDelete={handleClick}
         />
       </Breadcrumbs>

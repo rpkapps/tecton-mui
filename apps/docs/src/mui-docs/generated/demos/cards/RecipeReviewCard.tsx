@@ -11,10 +11,7 @@ import Collapse from '@tecton-mui/ui/Collapse';
 import Avatar from '@tecton-mui/ui/Avatar';
 import IconButton, { type IconButtonProps } from '@tecton-mui/ui/IconButton';
 import Typography from '@tecton-mui/ui/Typography';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import ShareIcon from '@mui/icons-material/Share';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+import Icon from '@tecton-mui/ui/Icon';
 
 interface ExpandMoreProps extends IconButtonProps {
   expand: boolean;
@@ -61,7 +58,7 @@ export default function RecipeReviewCard() {
         }
         action={
           <IconButton aria-label="settings">
-            <MoreVertIcon />
+            <Icon name="more-vert" />
           </IconButton>
         }
         title="Shrimp and Chorizo Paella"
@@ -82,10 +79,10 @@ export default function RecipeReviewCard() {
       </CardContent>
       <CardActions disableSpacing>
         <IconButton aria-label="add to favorites">
-          <FavoriteIcon />
+          <Icon name="star" variant="filled" />
         </IconButton>
         <IconButton aria-label="share">
-          <ShareIcon />
+          <Icon name="link" />
         </IconButton>
         <ExpandMore
           expand={expanded}
@@ -93,7 +90,7 @@ export default function RecipeReviewCard() {
           aria-expanded={expanded}
           aria-label="show more"
         >
-          <ExpandMoreIcon />
+          <Icon name="chevron-down" size="medium" />
         </ExpandMore>
       </CardActions>
       <Collapse in={expanded} timeout="auto" unmountOnExit>

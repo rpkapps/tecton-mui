@@ -6,7 +6,7 @@ import MenuList from '@tecton-mui/ui/MenuList';
 import MenuItem from '@tecton-mui/ui/MenuItem';
 import ListItemText from '@tecton-mui/ui/ListItemText';
 import ListItemIcon from '@tecton-mui/ui/ListItemIcon';
-import Check from '@mui/icons-material/Check';
+import Icon from '@tecton-mui/ui/Icon';
 
 const options = ['Show toolbar', 'Show sidebar', 'Show status bar'];
 
@@ -30,7 +30,7 @@ export default function CheckboxMenu() {
             onClick={handleToggle(option)}
           >
             <ListItemIcon>
-              {checked[option] ? <Check fontSize="small" /> : null}
+              {checked[option] ? <Icon name="check" size="small" /> : null}
             </ListItemIcon>
             <ListItemText>{option}</ListItemText>
           </MenuItem>

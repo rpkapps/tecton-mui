@@ -5,7 +5,7 @@ import Accordion from '@tecton-mui/ui/Accordion';
 import AccordionSummary from '@tecton-mui/ui/AccordionSummary';
 import AccordionDetails from '@tecton-mui/ui/AccordionDetails';
 import Typography from '@tecton-mui/ui/Typography';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import Icon from '@tecton-mui/ui/Icon';
 
 export default function DisabledAccordion() {
   const id = React.useId();
@@ -13,7 +13,7 @@ export default function DisabledAccordion() {
     <div>
       <Accordion>
         <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
+          expandIcon={<Icon name="chevron-down" />}
           aria-controls={`${id}-panel1-content`}
           id={`${id}-panel1-header`}
         >
@@ -28,7 +28,7 @@ export default function DisabledAccordion() {
       </Accordion>
       <Accordion>
         <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
+          expandIcon={<Icon name="chevron-down" />}
           aria-controls={`${id}-panel2-content`}
           id={`${id}-panel2-header`}
         >
@@ -43,7 +43,7 @@ export default function DisabledAccordion() {
       </Accordion>
       <Accordion disabled>
         <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
+          expandIcon={<Icon name="chevron-down" />}
           aria-controls={`${id}-panel3-content`}
           id={`${id}-panel3-header`}
         >

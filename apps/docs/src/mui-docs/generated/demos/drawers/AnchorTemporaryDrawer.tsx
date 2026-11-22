@@ -10,8 +10,7 @@ import ListItem from '@tecton-mui/ui/ListItem';
 import ListItemButton from '@tecton-mui/ui/ListItemButton';
 import ListItemIcon from '@tecton-mui/ui/ListItemIcon';
 import ListItemText from '@tecton-mui/ui/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
+import Icon from '@tecton-mui/ui/Icon';
 
 type Anchor = 'top' | 'left' | 'bottom' | 'right';
 
@@ -49,7 +48,7 @@ export default function AnchorTemporaryDrawer() {
           <ListItem key={text} disablePadding>
             <ListItemButton>
               <ListItemIcon>
-                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                {index % 2 === 0 ? <Icon name="download" size="medium" /> : <Icon name="chat" size="medium" />}
               </ListItemIcon>
               <ListItemText primary={text} />
             </ListItemButton>
@@ -62,7 +61,7 @@ export default function AnchorTemporaryDrawer() {
           <ListItem key={text} disablePadding>
             <ListItemButton>
               <ListItemIcon>
-                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                {index % 2 === 0 ? <Icon name="download" size="medium" /> : <Icon name="chat" size="medium" />}
               </ListItemIcon>
               <ListItemText primary={text} />
             </ListItemButton>

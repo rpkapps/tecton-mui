@@ -4,9 +4,7 @@ import * as React from 'react';
 import Typography from '@tecton-mui/ui/Typography';
 import Breadcrumbs from '@tecton-mui/ui/Breadcrumbs';
 import Link from '@tecton-mui/ui/Link';
-import HomeIcon from '@mui/icons-material/Home';
-import WhatshotIcon from '@mui/icons-material/Whatshot';
-import GrainIcon from '@mui/icons-material/Grain';
+import Icon from '@tecton-mui/ui/Icon';
 
 function handleClick(event: React.MouseEvent<HTMLDivElement, MouseEvent>) {
   event.preventDefault();
@@ -23,7 +21,7 @@ export default function IconBreadcrumbs() {
           color="inherit"
           href="/"
         >
-          <HomeIcon sx={{ mr: 0.5 }} fontSize="inherit" />
+          <Icon name="home" sx={{ mr: 0.5 }} />
           MUI
         </Link>
         <Link
@@ -32,13 +30,13 @@ export default function IconBreadcrumbs() {
           color="inherit"
           href="/material-ui/getting-started/installation/"
         >
-          <WhatshotIcon sx={{ mr: 0.5 }} fontSize="inherit" />
+          <Icon name="electricity" sx={{ mr: 0.5 }} />
           Core
         </Link>
         <Typography
           sx={{ color: 'text.primary', display: 'flex', alignItems: 'center' }}
         >
-          <GrainIcon sx={{ mr: 0.5 }} fontSize="inherit" />
+          <Icon name="apps" sx={{ mr: 0.5 }} />
           Breadcrumb
         </Typography>
       </Breadcrumbs>

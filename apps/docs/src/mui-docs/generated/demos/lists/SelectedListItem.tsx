@@ -7,8 +7,7 @@ import ListItemButton from '@tecton-mui/ui/ListItemButton';
 import ListItemIcon from '@tecton-mui/ui/ListItemIcon';
 import ListItemText from '@tecton-mui/ui/ListItemText';
 import Divider from '@tecton-mui/ui/Divider';
-import InboxIcon from '@mui/icons-material/Inbox';
-import DraftsIcon from '@mui/icons-material/Drafts';
+import Icon from '@tecton-mui/ui/Icon';
 
 export default function SelectedListItem() {
   const [selectedIndex, setSelectedIndex] = React.useState(1);
@@ -28,7 +27,7 @@ export default function SelectedListItem() {
           onClick={(event) => handleListItemClick(event, 0)}
         >
           <ListItemIcon>
-            <InboxIcon />
+            <Icon name="folder" size="medium" />
           </ListItemIcon>
           <ListItemText primary="Inbox" />
         </ListItemButton>
@@ -37,7 +36,7 @@ export default function SelectedListItem() {
           onClick={(event) => handleListItemClick(event, 1)}
         >
           <ListItemIcon>
-            <DraftsIcon />
+            <Icon name="chat" size="medium" />
           </ListItemIcon>
           <ListItemText primary="Drafts" />
         </ListItemButton>

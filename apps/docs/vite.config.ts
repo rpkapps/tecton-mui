@@ -69,13 +69,6 @@ export default defineConfig(({ isSsrBuild }) => ({
         find: /^@tecton-mui\/ui\/styles\/global\.css$/,
         replacement: fileURLToPath(new URL('./src/styles/tecton-global.css', import.meta.url)),
       },
-      // Synced MUI examples (src/mui-docs): `@mui/icons-material/<Name>` -> docs-only Tecton icon shim.
-      {
-        find: /^@mui\/icons-material\/(\w+)$/,
-        replacement: fileURLToPath(
-          new URL('./src/mui-docs/generated/icons/$1.tsx', import.meta.url),
-        ),
-      },
     ],
   },
   ssr: {

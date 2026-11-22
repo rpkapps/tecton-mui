@@ -3,8 +3,15 @@
 import * as React from 'react';
 import TextField from '@tecton-mui/ui/TextField';
 import Autocomplete from '@tecton-mui/ui/Autocomplete';
-import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
-import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import Icon, { type IconProps } from '@tecton-mui/ui/Icon';
+
+function CheckBoxIcon(props: Omit<IconProps, 'name'>) {
+  return <Icon name="checkbox-checked" variant="filled" {...props} />;
+}
+
+function CheckBoxOutlineBlankIcon(props: Omit<IconProps, 'name'>) {
+  return <Icon name="checkbox-unchecked" {...props} />;
+}
 
 export default function CheckboxesTags() {
   const [value, setValue] = React.useState<typeof top100Films>([]);
@@ -27,8 +34,8 @@ export default function CheckboxesTags() {
         return (
           <li key={key} {...optionProps}>
             <SelectionIcon
-              fontSize="small"
-              style={{ marginRight: 8, padding: 9, boxSizing: 'content-box' }}
+              size="small"
+              style={{ marginRight: 8, padding: 2, boxSizing: 'content-box' }}
             />
             {option.title}
           </li>

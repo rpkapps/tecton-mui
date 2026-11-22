@@ -9,8 +9,15 @@ import Paper from '@tecton-mui/ui/Paper';
 import Stack from '@tecton-mui/ui/Stack';
 import MenuItem from '@tecton-mui/ui/MenuItem';
 import MenuList from '@tecton-mui/ui/MenuList';
-import CheckBoxIcon from '@mui/icons-material/CheckBox';
-import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import Icon, { type IconProps } from '@tecton-mui/ui/Icon';
+
+function CheckBoxIcon(props: Omit<IconProps, 'name'>) {
+  return <Icon name="checkbox-checked" variant="filled" {...props} />;
+}
+
+function CheckBoxOutlineBlankIcon(props: Omit<IconProps, 'name'>) {
+  return <Icon name="checkbox-unchecked" {...props} />;
+}
 
 function not(a: readonly number[], b: readonly number[]) {
   return a.filter((value) => !b.includes(value));
@@ -59,9 +66,10 @@ const CustomList = React.forwardRef(function CustomList(
             >
               <ListItemIcon>
                 <SelectionIcon
+                  size="medium"
                   sx={{
                     color: isSelected ? 'primary.main' : 'text.secondary',
-                    padding: '9px',
+                    padding: '2px',
                     boxSizing: 'content-box',
                   }}
                 />

@@ -5,8 +5,7 @@ import Accordion from '@tecton-mui/ui/Accordion';
 import AccordionSummary from '@tecton-mui/ui/AccordionSummary';
 import AccordionDetails from '@tecton-mui/ui/AccordionDetails';
 import Typography from '@tecton-mui/ui/Typography';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import Icon from '@tecton-mui/ui/Icon';
 
 export default function AccordionExpandIcon() {
   const id = React.useId();
@@ -14,7 +13,7 @@ export default function AccordionExpandIcon() {
     <div>
       <Accordion>
         <AccordionSummary
-          expandIcon={<ArrowDownwardIcon />}
+          expandIcon={<Icon name="arrow-down" />}
           aria-controls={`${id}-panel1-content`}
           id={`${id}-panel1-header`}
         >
@@ -29,7 +28,7 @@ export default function AccordionExpandIcon() {
       </Accordion>
       <Accordion>
         <AccordionSummary
-          expandIcon={<ArrowDropDownIcon />}
+          expandIcon={<Icon name="chevron-down" />}
           aria-controls={`${id}-panel2-content`}
           id={`${id}-panel2-header`}
         >

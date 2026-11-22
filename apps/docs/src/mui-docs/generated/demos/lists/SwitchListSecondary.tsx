@@ -7,8 +7,7 @@ import ListItemIcon from '@tecton-mui/ui/ListItemIcon';
 import ListItemText from '@tecton-mui/ui/ListItemText';
 import ListSubheader from '@tecton-mui/ui/ListSubheader';
 import Switch from '@tecton-mui/ui/Switch';
-import WifiIcon from '@mui/icons-material/Wifi';
-import BluetoothIcon from '@mui/icons-material/Bluetooth';
+import Icon from '@tecton-mui/ui/Icon';
 
 export default function SwitchListSecondary() {
   const [checked, setChecked] = React.useState(['wifi']);
@@ -33,7 +32,7 @@ export default function SwitchListSecondary() {
     >
       <ListItem>
         <ListItemIcon>
-          <WifiIcon />
+          <Icon name="pulse" size="medium" />
         </ListItemIcon>
         <ListItemText id="switch-list-label-wifi" primary="Wi-Fi" />
         <Switch
@@ -47,7 +46,7 @@ export default function SwitchListSecondary() {
       </ListItem>
       <ListItem>
         <ListItemIcon>
-          <BluetoothIcon />
+          <Icon name="link" size="medium" />
         </ListItemIcon>
         <ListItemText id="switch-list-label-bluetooth" primary="Bluetooth" />
         <Switch

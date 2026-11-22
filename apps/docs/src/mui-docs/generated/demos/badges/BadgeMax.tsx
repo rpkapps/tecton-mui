@@ -3,24 +3,24 @@
 import Stack from '@tecton-mui/ui/Stack';
 import Badge from '@tecton-mui/ui/Badge';
 import IconButton from '@tecton-mui/ui/IconButton';
-import MailIcon from '@mui/icons-material/Mail';
+import Icon from '@tecton-mui/ui/Icon';
 
 export default function BadgeMax() {
   return (
     <Stack spacing={2} direction="row">
       <IconButton aria-label="show 99 unread messages">
         <Badge color="secondary" badgeContent={99}>
-          <MailIcon />
+          <Icon name="chat" size="medium" />
         </Badge>
       </IconButton>
       <IconButton aria-label="show more than 99 unread messages">
         <Badge color="secondary" badgeContent={100}>
-          <MailIcon />
+          <Icon name="chat" size="medium" />
         </Badge>
       </IconButton>
       <IconButton aria-label="show more than 999 unread messages">
         <Badge color="secondary" badgeContent={1000} max={999}>
-          <MailIcon />
+          <Icon name="chat" size="medium" />
         </Badge>
       </IconButton>
     </Stack>

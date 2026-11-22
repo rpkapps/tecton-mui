@@ -4,9 +4,7 @@ import * as React from 'react';
 import Box from '@tecton-mui/ui/Box';
 import BottomNavigation from '@tecton-mui/ui/BottomNavigation';
 import BottomNavigationAction from '@tecton-mui/ui/BottomNavigationAction';
-import RestoreIcon from '@mui/icons-material/Restore';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import LocationOnIcon from '@mui/icons-material/LocationOn';
+import Icon from '@tecton-mui/ui/Icon';
 
 export default function SimpleBottomNavigation() {
   const [value, setValue] = React.useState(0);
@@ -20,9 +18,9 @@ export default function SimpleBottomNavigation() {
           setValue(newValue);
         }}
       >
-        <BottomNavigationAction label="Recents" icon={<RestoreIcon />} />
-        <BottomNavigationAction label="Favorites" icon={<FavoriteIcon />} />
-        <BottomNavigationAction label="Nearby" icon={<LocationOnIcon />} />
+        <BottomNavigationAction label="Recents" icon={<Icon name="history" size="medium" />} />
+        <BottomNavigationAction label="Favorites" icon={<Icon name="star" variant="filled" size="medium" />} />
+        <BottomNavigationAction label="Nearby" icon={<Icon name="pin" size="medium" />} />
       </BottomNavigation>
     </Box>
   );

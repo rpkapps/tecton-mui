@@ -7,10 +7,7 @@ import MenuItem from '@tecton-mui/ui/MenuItem';
 import ListItemText from '@tecton-mui/ui/ListItemText';
 import ListItemIcon from '@tecton-mui/ui/ListItemIcon';
 import Typography from '@tecton-mui/ui/Typography';
-import ContentCut from '@mui/icons-material/ContentCut';
-import ContentCopy from '@mui/icons-material/ContentCopy';
-import ContentPaste from '@mui/icons-material/ContentPaste';
-import Cloud from '@mui/icons-material/Cloud';
+import Icon from '@tecton-mui/ui/Icon';
 
 export default function IconMenu() {
   return (
@@ -18,7 +15,7 @@ export default function IconMenu() {
       <MenuList>
         <MenuItem>
           <ListItemIcon>
-            <ContentCut fontSize="small" />
+            <Icon name="slice" size="small" />
           </ListItemIcon>
           <ListItemText>Cut</ListItemText>
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
@@ -27,7 +24,7 @@ export default function IconMenu() {
         </MenuItem>
         <MenuItem>
           <ListItemIcon>
-            <ContentCopy fontSize="small" />
+            <Icon name="copy" size="small" />
           </ListItemIcon>
           <ListItemText>Copy</ListItemText>
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
@@ -36,7 +33,7 @@ export default function IconMenu() {
         </MenuItem>
         <MenuItem>
           <ListItemIcon>
-            <ContentPaste fontSize="small" />
+            <Icon name="copy" size="small" />
           </ListItemIcon>
           <ListItemText>Paste</ListItemText>
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
@@ -46,7 +43,7 @@ export default function IconMenu() {
         <Divider />
         <MenuItem>
           <ListItemIcon>
-            <Cloud fontSize="small" />
+            <Icon name="database" size="small" />
           </ListItemIcon>
           <ListItemText>Web Clipboard</ListItemText>
         </MenuItem>

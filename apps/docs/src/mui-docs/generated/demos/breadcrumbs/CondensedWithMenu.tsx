@@ -6,7 +6,7 @@ import Link from '@tecton-mui/ui/Link';
 import Menu from '@tecton-mui/ui/Menu';
 import MenuItem from '@tecton-mui/ui/MenuItem';
 import IconButton from '@tecton-mui/ui/IconButton';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import Icon from '@tecton-mui/ui/Icon';
 
 export default function CondensedWithMenu() {
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
@@ -39,7 +39,7 @@ export default function CondensedWithMenu() {
           Breadcrumb 1
         </Link>
         <IconButton color="primary" size="small" onClick={handleClick}>
-          <MoreHorizIcon />
+          <Icon name="more-vert" />
         </IconButton>
         <Link color="primary" href="#condensed-with-menu">
           Breadcrumb 5

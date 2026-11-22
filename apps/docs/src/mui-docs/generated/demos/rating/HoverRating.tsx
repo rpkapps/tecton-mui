@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Rating from '@tecton-mui/ui/Rating';
 import Box from '@tecton-mui/ui/Box';
-import StarIcon from '@mui/icons-material/Star';
+import Icon from '@tecton-mui/ui/Icon';
 
 const labels: { [index: string]: string } = {
   0.5: 'Useless',
@@ -39,7 +39,7 @@ export default function HoverRating() {
         onChangeActive={(event, newHover) => {
           setHover(newHover);
         }}
-        emptyIcon={<StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />}
+        emptyIcon={<Icon name="star" variant="filled" style={{ opacity: 0.55 }} />}
       />
       {value !== null && (
         <Box sx={{ ml: 2 }}>{labels[hover !== -1 ? hover : value]}</Box>

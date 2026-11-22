@@ -12,9 +12,7 @@ import FormHelperText from '@tecton-mui/ui/FormHelperText';
 import FormControl from '@tecton-mui/ui/FormControl';
 import TextField from '@tecton-mui/ui/TextField';
 import MenuItem from '@tecton-mui/ui/MenuItem';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import InfoOutlined from '@mui/icons-material/InfoOutlined';
+import Icon from '@tecton-mui/ui/Icon';
 
 export default function InputAdornments() {
   const outlinedStartId = React.useId();
@@ -44,12 +42,12 @@ export default function InputAdornments() {
   // An endAdornment coexists with the Select's chevron without overlapping it.
   const infoEndAdornment = (
     <InputAdornment position="end">
-      <InfoOutlined />
+      <Icon name="info" size="medium" />
     </InputAdornment>
   );
   const infoStartAdornment = (
     <InputAdornment position="start">
-      <InfoOutlined />
+      <Icon name="info" size="medium" />
     </InputAdornment>
   );
 
@@ -95,7 +93,7 @@ export default function InputAdornments() {
                   onMouseUp={handleMouseUpPassword}
                   edge="end"
                 >
-                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                  {showPassword ? <Icon name="visibility-off" /> : <Icon name="visibility" />}
                 </IconButton>
               </InputAdornment>
             }
@@ -178,7 +176,7 @@ export default function InputAdornments() {
                   onMouseUp={handleMouseUpPassword}
                   edge="end"
                 >
-                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                  {showPassword ? <Icon name="visibility-off" /> : <Icon name="visibility" />}
                 </IconButton>
               </InputAdornment>
             }
@@ -260,7 +258,7 @@ export default function InputAdornments() {
                   onMouseDown={handleMouseDownPassword}
                   onMouseUp={handleMouseUpPassword}
                 >
-                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                  {showPassword ? <Icon name="visibility-off" /> : <Icon name="visibility" />}
                 </IconButton>
               </InputAdornment>
             }

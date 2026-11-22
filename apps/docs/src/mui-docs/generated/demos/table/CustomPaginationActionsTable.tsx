@@ -12,10 +12,7 @@ import TablePagination from '@tecton-mui/ui/TablePagination';
 import TableRow from '@tecton-mui/ui/TableRow';
 import Paper from '@tecton-mui/ui/Paper';
 import IconButton from '@tecton-mui/ui/IconButton';
-import FirstPageIcon from '@mui/icons-material/FirstPage';
-import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
-import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
-import LastPageIcon from '@mui/icons-material/LastPage';
+import Icon from '@tecton-mui/ui/Icon';
 
 interface TablePaginationActionsProps {
   count: number;
@@ -56,28 +53,28 @@ function TablePaginationActions(props: TablePaginationActionsProps) {
         disabled={page === 0}
         aria-label="first page"
       >
-        {theme.direction === 'rtl' ? <LastPageIcon /> : <FirstPageIcon />}
+        {theme.direction === 'rtl' ? <Icon name="chevron-right" /> : <Icon name="chevron-left" />}
       </IconButton>
       <IconButton
         onClick={handleBackButtonClick}
         disabled={page === 0}
         aria-label="previous page"
       >
-        {theme.direction === 'rtl' ? <KeyboardArrowRight /> : <KeyboardArrowLeft />}
+        {theme.direction === 'rtl' ? <Icon name="chevron-right" /> : <Icon name="chevron-left" />}
       </IconButton>
       <IconButton
         onClick={handleNextButtonClick}
         disabled={page >= Math.ceil(count / rowsPerPage) - 1}
         aria-label="next page"
       >
-        {theme.direction === 'rtl' ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
+        {theme.direction === 'rtl' ? <Icon name="chevron-left" /> : <Icon name="chevron-right" />}
       </IconButton>
       <IconButton
         onClick={handleLastPageButtonClick}
         disabled={page >= Math.ceil(count / rowsPerPage) - 1}
         aria-label="last page"
       >
-        {theme.direction === 'rtl' ? <FirstPageIcon /> : <LastPageIcon />}
+        {theme.direction === 'rtl' ? <Icon name="chevron-left" /> : <Icon name="chevron-right" />}
       </IconButton>
     </Box>
   );

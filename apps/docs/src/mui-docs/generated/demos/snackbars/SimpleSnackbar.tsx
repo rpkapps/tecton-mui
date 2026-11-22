@@ -4,7 +4,7 @@ import * as React from 'react';
 import Button from '@tecton-mui/ui/Button';
 import Snackbar, { type SnackbarCloseReason } from '@tecton-mui/ui/Snackbar';
 import IconButton from '@tecton-mui/ui/IconButton';
-import CloseIcon from '@mui/icons-material/Close';
+import Icon from '@tecton-mui/ui/Icon';
 
 export default function SimpleSnackbar() {
   const [open, setOpen] = React.useState(false);
@@ -35,7 +35,7 @@ export default function SimpleSnackbar() {
         color="inherit"
         onClick={handleClose}
       >
-        <CloseIcon fontSize="small" />
+        <Icon name="close" size="small" />
       </IconButton>
     </React.Fragment>
   );

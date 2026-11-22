@@ -7,8 +7,15 @@ import MenuItem from '@tecton-mui/ui/MenuItem';
 import FormControl from '@tecton-mui/ui/FormControl';
 import ListItemText from '@tecton-mui/ui/ListItemText';
 import Select, { type SelectChangeEvent } from '@tecton-mui/ui/Select';
-import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
-import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import Icon, { type IconProps } from '@tecton-mui/ui/Icon';
+
+function CheckBoxIcon(props: Omit<IconProps, 'name'>) {
+  return <Icon name="checkbox-checked" variant="filled" {...props} />;
+}
+
+function CheckBoxOutlineBlankIcon(props: Omit<IconProps, 'name'>) {
+  return <Icon name="checkbox-unchecked" {...props} />;
+}
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -70,8 +77,8 @@ export default function MultipleSelectCheckmarks() {
             return (
               <MenuItem key={name} value={name}>
                 <SelectionIcon
-                  fontSize="small"
-                  style={{ marginRight: 8, padding: 9, boxSizing: 'content-box' }}
+                  size="small"
+                  style={{ marginRight: 8, padding: 2, boxSizing: 'content-box' }}
                 />
                 <ListItemText primary={name} />
               </MenuItem>

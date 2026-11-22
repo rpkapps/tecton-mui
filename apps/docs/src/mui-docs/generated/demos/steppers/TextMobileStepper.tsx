@@ -7,8 +7,7 @@ import MobileStepper from '@tecton-mui/ui/MobileStepper';
 import Paper from '@tecton-mui/ui/Paper';
 import Typography from '@tecton-mui/ui/Typography';
 import Button from '@tecton-mui/ui/Button';
-import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
-import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
+import Icon from '@tecton-mui/ui/Icon';
 
 const steps = [
   {
@@ -97,9 +96,9 @@ export default function TextMobileStepper() {
           >
             Next
             {theme.direction === 'rtl' ? (
-              <KeyboardArrowLeft />
+              <Icon name="chevron-left" size="medium" />
             ) : (
-              <KeyboardArrowRight />
+              <Icon name="chevron-right" size="medium" />
             )}
           </Button>
         }
@@ -111,9 +110,9 @@ export default function TextMobileStepper() {
             ref={backButtonRef}
           >
             {theme.direction === 'rtl' ? (
-              <KeyboardArrowRight />
+              <Icon name="chevron-right" size="medium" />
             ) : (
-              <KeyboardArrowLeft />
+              <Icon name="chevron-left" size="medium" />
             )}
             Back
           </Button>

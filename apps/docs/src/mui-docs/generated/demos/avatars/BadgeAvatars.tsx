@@ -4,7 +4,7 @@ import { styled } from '@tecton-mui/ui/styles';
 import Badge from '@tecton-mui/ui/Badge';
 import Avatar from '@tecton-mui/ui/Avatar';
 import Stack from '@tecton-mui/ui/Stack';
-import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+import Icon from '@tecton-mui/ui/Icon';
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
@@ -66,10 +66,11 @@ export default function BadgeAvatars() {
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         badgeContent={<SmallAvatar alt="" src="https://mui.com/static/images/avatar/1.jpg" />}
       >
-        <InsertDriveFileIcon
-          color="action"
-          fontSize="large"
-          titleAccess="Q4 budget spreadsheet, last edited by Remy Sharp"
+        <Icon
+          name="project"
+          sx={{ color: 'action.active' }}
+          size="large"
+          title="Q4 budget spreadsheet, last edited by Remy Sharp"
         />
       </Badge>
     </Stack>

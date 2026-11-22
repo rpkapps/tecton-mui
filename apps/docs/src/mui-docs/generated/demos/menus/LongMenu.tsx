@@ -4,7 +4,7 @@ import * as React from 'react';
 import IconButton from '@tecton-mui/ui/IconButton';
 import Menu from '@tecton-mui/ui/Menu';
 import MenuItem from '@tecton-mui/ui/MenuItem';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+import Icon from '@tecton-mui/ui/Icon';
 
 const options = [
   'None',
@@ -45,7 +45,7 @@ export default function LongMenu() {
         aria-haspopup="true"
         onClick={handleClick}
       >
-        <MoreVertIcon />
+        <Icon name="more-vert" />
       </IconButton>
       <Menu
         id="long-menu"

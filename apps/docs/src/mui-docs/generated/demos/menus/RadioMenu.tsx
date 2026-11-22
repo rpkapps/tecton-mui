@@ -6,8 +6,7 @@ import MenuList from '@tecton-mui/ui/MenuList';
 import MenuItem from '@tecton-mui/ui/MenuItem';
 import ListItemText from '@tecton-mui/ui/ListItemText';
 import ListItemIcon from '@tecton-mui/ui/ListItemIcon';
-import RadioButtonChecked from '@mui/icons-material/RadioButtonChecked';
-import RadioButtonUnchecked from '@mui/icons-material/RadioButtonUnchecked';
+import Icon from '@tecton-mui/ui/Icon';
 
 const options = ['Name', 'Date modified', 'Size'];
 
@@ -26,9 +25,9 @@ export default function RadioMenu() {
           >
             <ListItemIcon>
               {selected === option ? (
-                <RadioButtonChecked fontSize="small" />
+                <Icon name="radio-button" variant="filled" size="small" />
               ) : (
-                <RadioButtonUnchecked fontSize="small" />
+                <Icon name="radio-button" size="small" />
               )}
             </ListItemIcon>
             <ListItemText>{option}</ListItemText>

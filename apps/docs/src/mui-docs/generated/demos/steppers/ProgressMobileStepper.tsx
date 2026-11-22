@@ -4,8 +4,7 @@ import * as React from 'react';
 import { useTheme } from '@tecton-mui/ui/styles';
 import MobileStepper from '@tecton-mui/ui/MobileStepper';
 import Button from '@tecton-mui/ui/Button';
-import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
-import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
+import Icon from '@tecton-mui/ui/Icon';
 
 export default function ProgressMobileStepper() {
   const theme = useTheme();
@@ -59,9 +58,9 @@ export default function ProgressMobileStepper() {
         >
           Next
           {theme.direction === 'rtl' ? (
-            <KeyboardArrowLeft />
+            <Icon name="chevron-left" size="medium" />
           ) : (
-            <KeyboardArrowRight />
+            <Icon name="chevron-right" size="medium" />
           )}
         </Button>
       }
@@ -73,9 +72,9 @@ export default function ProgressMobileStepper() {
           ref={backButtonRef}
         >
           {theme.direction === 'rtl' ? (
-            <KeyboardArrowRight />
+            <Icon name="chevron-right" size="medium" />
           ) : (
-            <KeyboardArrowLeft />
+            <Icon name="chevron-left" size="medium" />
           )}
           Back
         </Button>

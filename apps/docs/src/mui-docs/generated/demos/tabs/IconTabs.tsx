@@ -3,9 +3,7 @@
 import * as React from 'react';
 import Tabs from '@tecton-mui/ui/Tabs';
 import Tab from '@tecton-mui/ui/Tab';
-import PhoneIcon from '@mui/icons-material/Phone';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import PersonPinIcon from '@mui/icons-material/PersonPin';
+import Icon from '@tecton-mui/ui/Icon';
 
 export default function IconTabs() {
   const [value, setValue] = React.useState(0);
@@ -16,9 +14,9 @@ export default function IconTabs() {
 
   return (
     <Tabs value={value} onChange={handleChange} aria-label="icon tabs example">
-      <Tab icon={<PhoneIcon />} aria-label="phone" />
-      <Tab icon={<FavoriteIcon />} aria-label="favorite" />
-      <Tab icon={<PersonPinIcon />} aria-label="person" />
+      <Tab icon={<Icon name="chat" size="medium" />} aria-label="phone" />
+      <Tab icon={<Icon name="star" variant="filled" size="medium" />} aria-label="favorite" />
+      <Tab icon={<Icon name="person" size="medium" />} aria-label="person" />
     </Tabs>
   );
 }

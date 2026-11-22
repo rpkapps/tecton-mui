@@ -5,8 +5,7 @@ import Button from '@tecton-mui/ui/Button';
 import Box from '@tecton-mui/ui/Box';
 import FormControlLabel from '@tecton-mui/ui/FormControlLabel';
 import Switch from '@tecton-mui/ui/Switch';
-import SaveIcon from '@mui/icons-material/Save';
-import SendIcon from '@mui/icons-material/Send';
+import Icon from '@tecton-mui/ui/Icon';
 
 export default function LoadingButtonsTransition() {
   const [loading, setLoading] = React.useState(true);
@@ -50,7 +49,7 @@ export default function LoadingButtonsTransition() {
         <Button
           size="small"
           onClick={handleClick}
-          endIcon={<SendIcon />}
+          endIcon={<Icon name="arrow-right" />}
           loading={loading}
           loadingPosition="end"
           variant="contained"
@@ -63,7 +62,7 @@ export default function LoadingButtonsTransition() {
           onClick={handleClick}
           loading={loading}
           loadingPosition="start"
-          startIcon={<SaveIcon />}
+          startIcon={<Icon name="download" />}
           variant="contained"
         >
           Save
@@ -83,7 +82,7 @@ export default function LoadingButtonsTransition() {
         </Button>
         <Button
           onClick={handleClick}
-          endIcon={<SendIcon />}
+          endIcon={<Icon name="arrow-right" />}
           loading={loading}
           loadingPosition="end"
           variant="contained"
@@ -95,7 +94,7 @@ export default function LoadingButtonsTransition() {
           onClick={handleClick}
           loading={loading}
           loadingPosition="start"
-          startIcon={<SaveIcon />}
+          startIcon={<Icon name="download" />}
           variant="contained"
         >
           Save

@@ -6,10 +6,7 @@ import Stack from '@tecton-mui/ui/Stack';
 import Stepper from '@tecton-mui/ui/Stepper';
 import Step from '@tecton-mui/ui/Step';
 import StepLabel from '@tecton-mui/ui/StepLabel';
-import Check from '@mui/icons-material/Check';
-import SettingsIcon from '@mui/icons-material/Settings';
-import GroupAddIcon from '@mui/icons-material/GroupAdd';
-import VideoLabelIcon from '@mui/icons-material/VideoLabel';
+import Icon from '@tecton-mui/ui/Icon';
 import StepConnector, { stepConnectorClasses } from '@tecton-mui/ui/StepConnector';
 import { type StepIconProps } from '@tecton-mui/ui/StepIcon';
 
@@ -76,7 +73,7 @@ function QontoStepIcon(props: StepIconProps) {
   return (
     <QontoStepIconRoot ownerState={{ active }} className={className}>
       {completed ? (
-        <Check className="QontoStepIcon-completedIcon" />
+        <Icon name="check" size="medium" className="QontoStepIcon-completedIcon" />
       ) : (
         <div className="QontoStepIcon-circle" />
       )}
@@ -149,9 +146,9 @@ function ColorlibStepIcon(props: StepIconProps) {
   const { active, completed, className } = props;
 
   const icons: { [index: string]: React.ReactElement<unknown> } = {
-    1: <SettingsIcon />,
-    2: <GroupAddIcon />,
-    3: <VideoLabelIcon />,
+    1: <Icon name="settings" size="medium" />,
+    2: <Icon name="person" size="medium" />,
+    3: <Icon name="image" size="medium" />,
   };
 
   return (

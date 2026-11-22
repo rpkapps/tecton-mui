@@ -5,8 +5,7 @@ import Box from '@tecton-mui/ui/Box';
 import CircularProgress from '@tecton-mui/ui/CircularProgress';
 import Button from '@tecton-mui/ui/Button';
 import Fab from '@tecton-mui/ui/Fab';
-import CheckIcon from '@mui/icons-material/Check';
-import SaveIcon from '@mui/icons-material/Save';
+import Icon from '@tecton-mui/ui/Icon';
 
 export default function CircularIntegration() {
   const [loading, setLoading] = React.useState(false);
@@ -48,7 +47,7 @@ export default function CircularIntegration() {
           sx={buttonSx}
           onClick={handleButtonClick}
         >
-          {success ? <CheckIcon /> : <SaveIcon />}
+          {success ? <Icon name="check" /> : <Icon name="download" />}
         </Fab>
         {loading && (
           <CircularProgress

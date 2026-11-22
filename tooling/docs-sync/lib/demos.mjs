@@ -1,10 +1,12 @@
 // Adapts an upstream MUI demo (TypeScript source) to the portal: rewrites imports to the public
-// `@tecton-mui/ui` entry points and decides whether the demo can be included. The demo logic itself
-// is never changed. The content rewrites are MUI-site-relative asset URLs (`/static/...`), which are
+// `@tecton-mui/ui` entry points, `@mui/icons-material` icons to the Tecton `Icon` component
+// (lib/icons.mjs) and decides whether the demo can be included. The demo logic itself is never
+// changed. The other content rewrites are MUI-site-relative asset URLs (`/static/...`), which are
 // made absolute so they keep loading from mui.com, and the hard-coded placeholder colors of layout
 // demos, which are removed so the Tecton surface shows.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { rewriteIcons } from './icons.mjs';
 
 /** Export surface of `@tecton-mui/ui`, read from the generated root barrel. */
 export function readUiSurface(repo) {
@@ -85,10 +87,6 @@ function renderNamed(elements, typeOnly) {
 }
 
 /**
- * @returns {{ status: 'included', code: string, deps: string[], icons: string[], notes: string[] }
- *   | { status: 'excluded', reason: string }}
- */
-/**
  * Local names of imports used only in type positions. Upstream demos import types without `type`
  * (e.g. `import Select, { SelectChangeEvent } from ...`); the portal compiles with
  * `verbatimModuleSyntax`, so those imports get an inline `type` modifier (no runtime change).
@@ -115,7 +113,15 @@ function typeOnlyLocals(ts, sf, locals) {
   return new Set([...usage].filter(([, u]) => u.type > 0 && u.value === 0).map(([n]) => n));
 }
 
-export function transformDemo(source, { ts, surface, fileName }) {
+/**
+ * @param {string} source upstream TypeScript source of a demo or of one of its local modules
+ * @param {{ ts: object, surface: object, iconMap: object, fileName: string }} options `iconMap` is
+ *   tooling/docs-sync/icon-map.json
+ * @returns {{ status: 'included', code: string, deps: string[], icons: string[], notes: string[] }
+ *   | { status: 'excluded', reason: string }
+ *   | { status: 'unmapped', icons: string[] }} `unmapped`: icons without an icon-map.json entry
+ */
+export function transformDemo(source, { ts, surface, iconMap, fileName }) {
   const sf = ts.createSourceFile(fileName, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
   const edits = [];
   const namedLocals = new Set();
@@ -130,6 +136,7 @@ export function transformDemo(source, { ts, surface, fileName }) {
   const typeOnly = typeOnlyLocals(ts, sf, namedLocals);
   const deps = [];
   const icons = [];
+  const iconImports = [];
   const notes = [];
   const exclude = (reason) => ({ status: 'excluded', reason });
 
@@ -173,18 +180,14 @@ export function transformDemo(source, { ts, surface, fileName }) {
 
     let m;
     if ((m = /^@mui\/icons-material(?:\/(\w+))?$/.exec(spec))) {
-      if (m[1]) {
-        icons.push(m[1]);
+      // Rewritten to the Tecton `Icon` component once all imports are known (lib/icons.mjs).
+      if (m[1] && clause.default && !clause.named.length && !clause.namespace) {
+        iconImports.push({ stmt, local: clause.default, name: m[1] });
         continue;
       }
-      if (clause.default || clause.namespace)
-        return exclude('imports the @mui/icons-material barrel');
-      icons.push(...clause.named.map((n) => n.imported));
-      replaceStatement(
-        clause.named
-          .map((n) => `import ${n.local} from '@mui/icons-material/${n.imported}';`)
-          .join('\n'),
-      );
+      if (m[1] || clause.default || clause.namespace)
+        return exclude(`imports \`${spec}\` in a form the icon rewrite does not support`);
+      for (const n of clause.named) iconImports.push({ stmt, local: n.local, name: n.imported });
       continue;
     }
     if (spec === '@mui/material/styles') {
@@ -249,6 +252,17 @@ export function transformDemo(source, { ts, surface, fileName }) {
   if (/\bfetch\(/.test(source)) return exclude('loads remote data with fetch()');
   if (/googleapis|loadScript\(|document\.createElement\('script'\)/.test(source))
     return exclude('loads an external script');
+
+  if (iconImports.length) {
+    const result = rewriteIcons({ ts, sf, fileName, imports: iconImports, iconMap, edits });
+    if (result.missing) return { status: 'unmapped', icons: result.missing };
+    if (result.exclude) return exclude(result.exclude);
+    icons.push(...result.icons);
+    if (result.wrappers.length)
+      notes.push(
+        `icons passed as components use local \`Icon\` wrappers (${result.wrappers.join(', ')})`,
+      );
+  }
 
   let code = source;
   for (const edit of edits.sort((a, b) => b.start - a.start)) {

@@ -28,13 +28,13 @@ A private portal does not waive copyright or contractual obligations (SPEC §8.4
 | ------------------------------------- | --------- | ------------------------------------------------------------------------- |
 | `tooling/docs-sync/manifest.json`     | reviewed  | Every upstream page considered, with its status and reason                |
 | `tooling/docs-sync/slug-map.json`     | reviewed  | Which synced page (or which of its sections) renders on which portal slug |
-| `tooling/docs-sync/icon-map.json`     | reviewed  | `@mui/icons-material` name → Tecton icon name for the docs-only icon shim |
+| `tooling/docs-sync/icon-map.json`     | reviewed  | `@mui/icons-material` name → Tecton icon name for the demos' `Icon` code  |
 | `tooling/docs-sync/sync.mjs`, `lib/`  | reviewed  | The sync (fetch, transform, emit, check)                                  |
 | `tooling/docs-sync/verify-pages.mjs`  | reviewed  | Browser sweep of every synced page in light and dark mode                 |
 | `tooling/docs-sync/sync-lock.json`    | generated | What was synced: pages, every demo with status/reason, icons, file hashes |
-| `apps/docs/src/mui-docs/generated/**` | generated | One page module per portal slug, the adapted demos, the icon shim modules |
+| `apps/docs/src/mui-docs/generated/**` | generated | One page module per portal slug and the adapted demos                     |
 | `apps/docs/src/mui-docs/index.ts`     | reviewed  | `hasMuiDocs(slug)`, `<MuiDocsSection slug>`, `preloadMuiDocs(slug)`       |
-| `apps/docs/src/mui-docs/runtime/**`   | reviewed  | Prose elements, demo frame + error boundary, icon shim component          |
+| `apps/docs/src/mui-docs/runtime/**`   | reviewed  | Prose elements, demo frame + error boundary                               |
 
 **Never edit generated files.** `pnpm docs:sync --check` fails when a file under
 `apps/docs/src/mui-docs/generated/` differs from the hash recorded in `sync-lock.json`, when a file
@@ -59,6 +59,7 @@ upstream page considered for the portal (`pages`):
 | `droppedSections` | `modified`             | `{ "Heading": "reason" }`: sections removed with their subsections (e.g. Roboto font setup); each heading must match exactly once |
 | `patch`           | `modified` (or edits)  | File with local modifications to re-apply after a sync                                                                            |
 | `excludedDemos`   | optional               | `{ "DemoName": "reason" }`: examples left out by hand (e.g. type errors)                                                          |
+| `demoEdits`       | optional               | `{ "DemoName": [{ find, replace, reason }] }`: code edits of an included demo, applied after the adaptation; each matches once    |
 
 | Status       | Meaning                                                                                              |
 | ------------ | ---------------------------------------------------------------------------------------------------- |
@@ -78,7 +79,8 @@ pnpm docs:sync --check
 Offline; CI runs it in the `docs` job. It validates the manifest (statuses, reasons, targets, no
 commercial MUI X paths, only `mui/material-ui` sources), the slug map (every slug must be a portal
 component page: an authored page or the auto page of an export that no authored page lists) and the
-generated files against `sync-lock.json` (hashes, no missing or extra files, installed versions).
+generated files against `sync-lock.json` (hashes, no missing or extra files, installed versions)
+and `icon-map.json` (Tecton monochrome icons only; `filled` and `notes` name mapped icons).
 
 ```bash
 pnpm docs:sync --packages @mui/material,@mui/lab [--offline] [--refresh]
@@ -96,7 +98,7 @@ tag (`v<version>`) into `node_modules/.cache/tecton-docs-sync/` (`--offline` use
    callouts, `<codeblock>` groups and the `<p class="description">` lead;
 3. adapts every demo (`<Name>.tsx`; a demo without a TypeScript source is excluded) and its local
    modules (`./top100Films` and similar), see below;
-4. writes one page module per portal slug, the demos, the icon shim modules and `sync-lock.json`.
+4. writes one page module per portal slug, the demos and `sync-lock.json`.
 
 The result is a working-tree change. Nothing is committed or merged automatically.
 
@@ -110,10 +112,35 @@ The demo logic is not changed. The mechanical rules are:
   `@emotion/react` names → the `@tecton-mui/ui` entry that exports them.
 - Imports used only as types get an inline `type` modifier (the portal compiles with
   `verbatimModuleSyntax`).
-- `@mui/icons-material/<Name>` stays as written. A Vite alias in `apps/docs/vite.config.ts` points it
-  to a generated shim that renders the closest Tecton icon through `@tecton-mui/ui/Icon`
-  (`icon-map.json`; unmapped names render a neutral fallback, listed in the lock). It accepts the
-  SvgIcon props demos pass (`fontSize`, `color`, `htmlColor`, `titleAccess`, `sx`).
+- `@mui/icons-material` icons → the Tecton `Icon` component (`tooling/docs-sync/lib/icons.mjs`), so
+  the code readers copy is the code a product UI writes: one `import Icon from '@tecton-mui/ui/Icon'`
+  replaces the icon imports and `<DeleteIcon fontSize="small" />` becomes
+  `<Icon name="delete" size="small" />`.
+  - The Tecton name comes from `icon-map.json` (base name without the
+    `Outlined`/`Rounded`/`Sharp`/`TwoTone` suffix). **The sync fails on an icon without an
+    entry**: add it to `icons`, and when the Tecton icon is only a stand-in for a symbol Tecton does
+    not have, give the reason in `notes` (copied to the lock).
+  - Icons use Tecton's default outline style. Names in `filled` get `variant="filled"`: the demos
+    pair them with an outline counterpart to show a state (`Star`/`StarBorder`,
+    `CheckBox`/`CheckBoxOutlineBlank`, ...).
+  - SvgIcon props: `fontSize` → `size` (`inherit` is dropped, it is `Icon`'s default);
+    `color` → `sx.color` with the palette path (`error` → `'error.main'`, `action` →
+    `'action.active'`) and `htmlColor` → `sx.color` (`Icon` has no `color` prop); `titleAccess`
+    → `title`. Other props are kept.
+  - An icon without `fontSize` gets `size="medium"` (SvgIcon's default, Tecton 20px; `Icon`
+    otherwise takes 1em of the text), except where the Tecton theme sizes the icons of the component
+    it sits in (`IconButton`, `Fab`, `ToggleButton`, `Avatar`, `Button` start/end icons,
+    `AccordionSummary` expand icon, ...; `SIZED_BY_CONTAINER` in `lib/icons.mjs`) or its `sx` /
+    `style` sets a `fontSize`.
+  - An icon passed as a component (`slots={{ previous: ArrowBackIcon }}`, `component={DoneIcon}`,
+    `const SelectionIcon = checked ? CheckBoxIcon : CheckBoxOutlineBlankIcon`) becomes a local
+    wrapper with the same name, after the imports:
+    `function ArrowBackIcon(props: Omit<IconProps, 'name'>) { return <Icon name="arrow-left" {...props} />; }`.
+    Elements rendered through such an alias get the same prop translation. The lock notes these
+    demos.
+  - A demo is excluded when the rewrite cannot translate it (a computed `color`, an SvgIcon-only
+    prop such as `viewBox`, its own binding named `Icon`). No `@mui/icons-material` import is left in
+    the generated files; the sync fails otherwise.
 - MUI-site-relative asset URLs (`/static/...`, `/broken-image.jpg`) become `https://mui.com/...`.
 - Layout demos' placeholder `Item`s lose their hard-coded `#fff` / `#1A2027` (`applyStyles('dark')`)
   background, so the Tecton `Paper` surface shows in both modes. Hard-coded and Material palette colors
@@ -179,7 +206,7 @@ Before approving a sync PR:
       in the manifest; new upstream pages have a reviewed status
 - [ ] License and copyright notices are present for reused content
 - [ ] No MUI X content was introduced
-- [ ] The `sync-lock.json` diff (demos excluded, icon fallbacks) was reviewed
+- [ ] The `sync-lock.json` diff (demos excluded, icon mapping and stand-in notes) was reviewed
 - [ ] `pnpm docs:sync --check`, the docs typecheck and `pnpm --filter @tecton-mui/docs build` pass
 - [ ] `verify-pages.mjs` passes in both modes; visual and accessibility tests pass
       (`pnpm test:e2e`)

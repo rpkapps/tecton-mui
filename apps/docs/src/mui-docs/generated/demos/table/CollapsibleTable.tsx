@@ -12,8 +12,7 @@ import TableHead from '@tecton-mui/ui/TableHead';
 import TableRow from '@tecton-mui/ui/TableRow';
 import Typography from '@tecton-mui/ui/Typography';
 import Paper from '@tecton-mui/ui/Paper';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import Icon from '@tecton-mui/ui/Icon';
 
 function createData(
   name: string,
@@ -61,7 +60,7 @@ function Row(props: { row: ReturnType<typeof createData> }) {
             size="small"
             onClick={() => setOpen(!open)}
           >
-            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+            {open ? <Icon name="chevron-up" /> : <Icon name="chevron-down" />}
           </IconButton>
         </TableCell>
         <TableCell component="th" scope="row">

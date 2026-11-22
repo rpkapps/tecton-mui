@@ -10,8 +10,7 @@ import ListItemButton from '@tecton-mui/ui/ListItemButton';
 import ListItemText from '@tecton-mui/ui/ListItemText';
 import DialogTitle from '@tecton-mui/ui/DialogTitle';
 import Dialog from '@tecton-mui/ui/Dialog';
-import PersonIcon from '@mui/icons-material/Person';
-import AddIcon from '@mui/icons-material/Add';
+import Icon from '@tecton-mui/ui/Icon';
 import Typography from '@tecton-mui/ui/Typography';
 
 const emails = ['username@gmail.com', 'user02@gmail.com'];
@@ -42,7 +41,7 @@ function SimpleDialog(props: SimpleDialogProps) {
             <ListItemButton onClick={() => handleListItemClick(email)}>
               <ListItemAvatar>
                 <Avatar>
-                  <PersonIcon />
+                  <Icon name="person" />
                 </Avatar>
               </ListItemAvatar>
               <ListItemText primary={email} />
@@ -56,7 +55,7 @@ function SimpleDialog(props: SimpleDialogProps) {
           >
             <ListItemAvatar>
               <Avatar>
-                <AddIcon />
+                <Icon name="add" />
               </Avatar>
             </ListItemAvatar>
             <ListItemText primary="Add account" />

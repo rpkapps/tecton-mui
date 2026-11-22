@@ -3,26 +3,24 @@
 import Badge from '@tecton-mui/ui/Badge';
 import Stack from '@tecton-mui/ui/Stack';
 import IconButton from '@tecton-mui/ui/IconButton';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import FolderOpenIcon from '@mui/icons-material/FolderOpen';
-import ReportProblemOutlinedIcon from '@mui/icons-material/ReportProblemOutlined';
+import Icon from '@tecton-mui/ui/Icon';
 
 export default function ColorBadge() {
   return (
     <Stack spacing={2} direction="row">
       <IconButton aria-label="show 8 shared files">
         <Badge badgeContent={8} color="primary">
-          <FolderOpenIcon />
+          <Icon name="folder-open" size="medium" />
         </Badge>
       </IconButton>
       <IconButton aria-label="show 2 confirmed events">
         <Badge badgeContent={2} color="success">
-          <CalendarMonthIcon />
+          <Icon name="calendar" size="medium" />
         </Badge>
       </IconButton>
       <IconButton aria-label="show 1 critical alert">
         <Badge badgeContent={1} color="error">
-          <ReportProblemOutlinedIcon />
+          <Icon name="warning" size="medium" />
         </Badge>
       </IconButton>
     </Stack>

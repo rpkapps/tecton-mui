@@ -7,7 +7,7 @@ import InputLabel from '@tecton-mui/ui/InputLabel';
 import InputAdornment from '@tecton-mui/ui/InputAdornment';
 import FormControl from '@tecton-mui/ui/FormControl';
 import TextField from '@tecton-mui/ui/TextField';
-import AccountCircle from '@mui/icons-material/AccountCircle';
+import Icon from '@tecton-mui/ui/Icon';
 
 export default function InputWithIcon() {
   const adornmentId = React.useId();
@@ -23,7 +23,7 @@ export default function InputWithIcon() {
           id={`${adornmentId}-input`}
           startAdornment={
             <InputAdornment position="start">
-              <AccountCircle />
+              <Icon name="person" size="medium" />
             </InputAdornment>
           }
         />
@@ -35,7 +35,7 @@ export default function InputWithIcon() {
           input: {
             startAdornment: (
               <InputAdornment position="start">
-                <AccountCircle />
+                <Icon name="person" size="medium" />
               </InputAdornment>
             ),
           },
@@ -43,7 +43,7 @@ export default function InputWithIcon() {
         variant="standard"
       />
       <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
-        <AccountCircle sx={{ color: 'action.active', mr: 1, my: 0.5 }} />
+        <Icon name="person" size="medium" sx={{ color: 'action.active', mr: 1, my: 0.5 }} />
         <TextField id={`${sxId}-input`} label="With sx" variant="standard" />
       </Box>
     </Box>
