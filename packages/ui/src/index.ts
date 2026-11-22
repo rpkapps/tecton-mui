@@ -294,7 +294,7 @@ export type { TimelineSeparatorClassKey, TimelineSeparatorClasses, TimelineSepar
 export { default as Masonry, getMasonryUtilityClass, masonryClasses } from './Masonry/index.js';
 export type { MasonryClassKey, MasonryClasses, MasonryOwnProps, MasonryProps, MasonryTypeMap } from './Masonry/index.js';
 export { default as ActionBar, ActionBarButton, ActionBarGroup, ActionBarSelect, ActionBarTool, ActionBarToolMenu, actionBarClasses } from './ActionBar/index.js';
-export type { ActionBarButtonProps, ActionBarGroupProps, ActionBarProps, ActionBarSelectProps, ActionBarToolMenuProps, ActionBarToolProps, ActionBarValue } from './ActionBar/index.js';
+export type { ActionBarButtonProps, ActionBarElevation, ActionBarGroupProps, ActionBarProps, ActionBarSelectProps, ActionBarToolMenuProps, ActionBarToolProps, ActionBarValue } from './ActionBar/index.js';
 export { default as AppBar, appBarClasses, getAppBarUtilityClass } from './AppBar/index.js';
 export type { AppBarClassKey, AppBarClasses, AppBarFixedTab, AppBarIconName, AppBarNavigationProps, AppBarOwnProps, AppBarProps, AppBarPropsColorOverrides, AppBarTab, AppBarTypeMap } from './AppBar/index.js';
 export { default as ChatBox, chatBoxClasses, getChatBoxUtilityClass, useChatBoxUtilityClasses } from './ChatBox/index.js';

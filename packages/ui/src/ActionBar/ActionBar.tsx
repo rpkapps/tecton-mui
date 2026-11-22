@@ -4,8 +4,8 @@
 // composed from Material parts so that every surface, state and colour comes from the theme:
 //
 // - The bar is a WAI-ARIA toolbar: one tab stop, Up/Down/Home/End move between its controls.
-// - Groups are bordered `Paper` surfaces (Figma <Paper> Elevation 1, Border), stacked or in a row
-//   (two selects side by side); Left/Right move along a row.
+// - Groups are bordered `Paper` surfaces (Figma <Paper> Border, Elevation 1 unless `elevation`
+//   picks 0 or 2), stacked or in a row (two selects side by side); Left/Right move along a row.
 // - Buttons are square tertiary `IconButton`s with a `Tooltip` (Figma <IconButton> Medium,
 //   Tertiary, Square; "Hovered Long" shows the tooltip beside the button).
 // - A tool menu button holds several tools: it shows the last tool picked, marks itself with a
@@ -24,7 +24,7 @@ import ListItemIcon, { listItemIconClasses } from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Menu, { type MenuProps } from '@mui/material/Menu';
 import MenuItem, { type MenuItemProps } from '@mui/material/MenuItem';
-import Paper, { type PaperProps } from '@mui/material/Paper';
+import Paper, { paperClasses, type PaperProps } from '@mui/material/Paper';
 import { inputBaseClasses } from '@mui/material/InputBase';
 import Select, {
   selectClasses,
@@ -53,6 +53,13 @@ export const actionBarClasses = {
 
 /** The value that identifies a tool. */
 export type ActionBarValue = string | number;
+
+/**
+ * Figma <Paper> Elevation of a group: its background. `0` is surface/base (`color-bg-default`),
+ * `1` surface/elevation 1 (`color-bg-paper`, the theme's `Paper`), `2` surface/elevation 2
+ * (`color-surface-elevation-2-bg`: white in light mode, black in dark mode).
+ */
+export type ActionBarElevation = 0 | 1 | 2;
 
 /** Figma "Hovered Long": the tool name appears once the pointer rests on a button. */
 const TOOLTIP_ENTER_DELAY = 500;
@@ -121,6 +128,8 @@ interface ActionBarContextValue {
   popupSide: 'left' | 'right';
   /** Tooltip placement; the Popper mirrors it in RTL. */
   tooltipPlacement: 'left' | 'right';
+  /** Elevation of the groups that set none. */
+  elevation: ActionBarElevation;
   select(event: React.SyntheticEvent, value: ActionBarValue): void;
   /** Moves the tab stop to the first enabled control when its holder is gone or disabled. */
   reconcile(removedId?: string): void;
@@ -196,6 +205,12 @@ export interface ActionBarProps extends Omit<
    * groups line up on this edge. Mirrored in RTL, like the `Drawer` anchor. Default `left`.
    */
   alignment?: 'left' | 'right';
+  /**
+   * Figma <Paper> Elevation of the groups, which sets their background: `0` the page background,
+   * `1` the `Paper` background (default), `2` the raised surface of a `Dialog` (white in light
+   * mode, black in dark mode). A group's own `elevation` wins.
+   */
+  elevation?: ActionBarElevation;
   /** The current tool (controlled). `null` for none. */
   value?: ActionBarValue | null;
   /** The initial tool (uncontrolled). */
@@ -213,6 +228,7 @@ export interface ActionBarProps extends Omit<
 export const ActionBar = React.forwardRef<HTMLDivElement, ActionBarProps>(function ActionBar(
   {
     alignment = 'left',
+    elevation = 1,
     value: valueProp,
     defaultValue = null,
     onChange,
@@ -274,10 +290,11 @@ export const ActionBar = React.forwardRef<HTMLDivElement, ActionBarProps>(functi
       barSide,
       popupSide: barSide === 'left' ? 'right' : 'left',
       tooltipPlacement: alignment === 'left' ? 'right' : 'left',
+      elevation,
       select,
       reconcile,
     }),
-    [store, barSide, alignment, select, reconcile],
+    [store, barSide, alignment, elevation, select, reconcile],
   );
 
   // A control that gets focus (pointer or keyboard) becomes the tab stop. Events from portalled
@@ -374,11 +391,21 @@ const GroupRoot = styled(Paper, { name: 'TectonActionBar', slot: 'Group' })({
   padding: `calc(${cssVar('space-50')} - ${cssVar('border-width-100')})`,
   border: `${cssVar('border-width-100')} solid ${cssVar('color-divider-subtle')}`,
   borderRadius: cssVar('radius-50'),
+  // Figma <Paper> Elevation, on Paper's own elevation classes; every elevation has the same
+  // border. 1 keeps the theme Paper's bg-paper (surface/elevation 1). 0 is surface/base; 2 is
+  // surface/elevation 2, the Dialog's surface (white in light mode, black in dark mode).
+  [`&.${paperClasses.elevation0}`]: { backgroundColor: cssVar('color-bg-default') },
+  [`&.${paperClasses.elevation2}`]: { backgroundColor: cssVar('color-surface-elevation-2-bg') },
   // Figma "Legacy" double dropdown: two selects side by side in one Paper, same spacing.
   [`&.${actionBarClasses.groupHorizontal}`]: { flexDirection: 'row' },
 });
 
-export interface ActionBarGroupProps extends PaperProps {
+export interface ActionBarGroupProps extends Omit<PaperProps, 'elevation'> {
+  /**
+   * Figma <Paper> Elevation of this group (its background), when it differs from the bar's
+   * `elevation`. See `ActionBar`.
+   */
+  elevation?: ActionBarElevation;
   /**
    * `vertical` stacks the controls (default). `horizontal` puts them in a row, for example two
    * `ActionBarSelect`s; Left and Right then move between them.
@@ -386,13 +413,18 @@ export interface ActionBarGroupProps extends PaperProps {
   orientation?: 'vertical' | 'horizontal';
 }
 
-/** A surface that holds related controls of the bar (a bordered elevation 1 `Paper`). */
+/**
+ * A surface that holds related controls of the bar: a bordered `Paper` at the bar's `elevation`
+ * (1 by default), or at its own.
+ */
 export const ActionBarGroup = React.forwardRef<HTMLDivElement, ActionBarGroupProps>(
-  function ActionBarGroup({ orientation = 'vertical', className, ...other }, ref) {
+  function ActionBarGroup({ orientation = 'vertical', elevation, className, ...other }, ref) {
+    const context = React.useContext(ActionBarContext);
     return (
       <GroupRoot
         ref={ref}
         role="group"
+        elevation={elevation ?? context?.elevation ?? 1}
         className={clsx(
           actionBarClasses.group,
           orientation === 'horizontal' && actionBarClasses.groupHorizontal,
