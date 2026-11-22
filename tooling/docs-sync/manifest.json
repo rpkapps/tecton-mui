@@ -520,7 +520,7 @@
           {
             "find": "({ color: '#fff', zIndex",
             "replace": "({ zIndex",
-            "reason": "The Tecton backdrop is light in light mode, so a hard-coded white spinner would not show; the progress keeps its theme color."
+            "reason": "Removes a hard-coded white from the code shown to readers. No visible change: the Tecton progress keeps its theme color either way."
           }
         ]
       }
