@@ -106,6 +106,29 @@ export interface AppBarNavigationProps {
 
 const EMPTY: readonly never[] = [];
 
+interface AppBarRootElementProps extends React.HTMLAttributes<HTMLElement> {
+  tier?: unknown;
+  productColor?: unknown;
+  /** The consumer's `component`, rendered in place of the default `header`. */
+  rootComponent?: React.ElementType;
+}
+
+/**
+ * The bar's root element. `tier` and `productColor` are Tecton props that the `MuiAppBar` theme
+ * variants match, so they still go to the MUI AppBar, but the MUI AppBar passes every prop it does
+ * not know on to its root element: `tier` would render there as an invalid attribute and React
+ * would warn about `productColor`. They stop here, after the theme has matched them.
+ */
+const AppBarRootElement = React.forwardRef<HTMLElement, AppBarRootElementProps>(
+  function AppBarRootElement(
+    { tier: _tier, productColor: _productColor, rootComponent = 'header', ...other },
+    ref,
+  ) {
+    const Root = rootComponent as React.ElementType;
+    return <Root ref={ref} {...other} />;
+  },
+);
+
 // Module-level styled parts (stable identities).
 const BrandingRegion = styled(Box)({
   borderRight: `1px solid ${cssVar('color-divider-subtle')}`,
@@ -235,6 +258,7 @@ export const AppBarNavigation = React.forwardRef<HTMLElement, AppBarNavigationLa
       onTabAdd,
       tier = 'primary',
       position = 'static',
+      component,
       ...other
     } = props;
     const primary = tier === 'primary';
@@ -317,6 +341,8 @@ export const AppBarNavigation = React.forwardRef<HTMLElement, AppBarNavigationLa
             data-region="app-bar"
             role="banner"
             {...other}
+            component={AppBarRootElement}
+            {...(component ? { rootComponent: component } : null)}
           >
             <Toolbar
               disableGutters
@@ -326,7 +352,13 @@ export const AppBarNavigation = React.forwardRef<HTMLElement, AppBarNavigationLa
               <Stack data-region="left" direction="row" sx={leftSx}>
                 {primary && (
                   <BrandingRegion data-region="branding" data-component="Branding" sx={brandingSx}>
-                    <BrandingLockup data-region="branding-lockup" sx={lockupSx}>
+                    {/* `tecton-appbar-product`: the theme colours the logo and the name with
+                        the product colour (`productColor`, else the tertiary text colour). */}
+                    <BrandingLockup
+                      data-region="branding-lockup"
+                      className="tecton-appbar-product"
+                      sx={lockupSx}
+                    >
                       <Box data-region="branding-container" sx={brandingContainerSx}>
                         <Box data-region="branding-logo" sx={logoSx}>
                           {logo ? (

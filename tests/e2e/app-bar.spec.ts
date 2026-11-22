@@ -27,6 +27,13 @@ test.describe('Tecton app bar: drop-in behaviour', () => {
     await expect(tab(page, /Tab 2/)).toHaveAttribute('aria-selected', 'true');
   });
 
+  test('tier="secondary" styles the bar without a tier attribute', async ({ page }) => {
+    await open(page, 'secondary');
+    const bar = page.locator('[data-region="app-bar"]').first();
+    await expect(bar).not.toHaveAttribute('tier');
+    await expect(bar.locator('.MuiToolbar-root')).toHaveCSS('height', '40px');
+  });
+
   test('a click on an action reaches the page', async ({ page }) => {
     await open(page, 'primary');
     await page.getByRole('button', { name: 'notifications' }).click();

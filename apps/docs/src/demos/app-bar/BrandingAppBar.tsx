@@ -15,6 +15,14 @@ export default function BrandingAppBar() {
       <AppBar appName="Field Planner" logo="map-filled" fixedTabs={HOME} activeTab="home" />
       {/* An image, used when `logo` is not set */}
       <AppBar appName="Asset Viewer" logoSrc={LOGO} fixedTabs={HOME} activeTab="home" />
+      {/* A product colour for the logo and the name */}
+      <AppBar
+        appName="Field Planner"
+        logo="map-filled"
+        productColor="app2"
+        fixedTabs={HOME}
+        activeTab="home"
+      />
     </Stack>
   );
 }

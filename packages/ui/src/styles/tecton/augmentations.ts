@@ -97,7 +97,11 @@ declare module '@mui/material/AppBar' {
   interface AppBarOwnProps {
     /** Secondary (40px) in-page navigation tier. */
     tier?: 'primary' | 'secondary';
-    /** Product branding color token published as --tecton-appbar-product-color. */
+    /**
+     * Product branding color (`color-branding-app1` to `-app4`) for the app bar's logo and app
+     * name. Published as `--tecton-appbar-product-color`; without it they use the tertiary text
+     * color.
+     */
     productColor?: 'app1' | 'app2' | 'app3' | 'app4';
   }
 }
