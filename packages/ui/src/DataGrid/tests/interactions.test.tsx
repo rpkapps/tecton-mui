@@ -94,13 +94,19 @@ describe('DataGrid column menu', () => {
     fireEvent.click(screen.getByText('Stop grouping by Dept'));
     expect(onRowGroupingModelChange).toHaveBeenLastCalledWith([]);
 
+    // Moves stay within the column's section: Dept leads the unpinned columns (Name is pinned
+    // right), so it cannot move left.
     await openColumnMenu(api, 'dept');
     fireEvent.click(screen.getByText('Move left'));
+    expect(onColumnOrderChange).not.toHaveBeenCalled();
+    await openColumnMenu(api, 'salary');
+    fireEvent.click(screen.getByText('Move left'));
     expect(onColumnOrderChange).toHaveBeenCalledWith({
-      field: 'dept',
-      oldIndex: 1,
-      targetIndex: 0,
+      field: 'salary',
+      oldIndex: 2,
+      targetIndex: 1,
     });
+    expect(headerFields()).toEqual(['salary', 'dept', 'name']);
 
     await openColumnMenu(api, 'salary');
     fireEvent.click(screen.getByText(/sort by desc/i));
@@ -254,6 +260,99 @@ describe('DataGrid drag reordering', () => {
   it('disables row reordering while sorted', () => {
     render(<Harness rowReordering sortModel={[{ field: 'name', sort: 'asc' }]} />);
     expect(document.querySelector('[data-row-reorder-handle]')).toBeDisabled();
+  });
+
+  it('moves a focused column header with Alt+Arrow keys, within its section', () => {
+    const onColumnOrderChange = vi.fn();
+    render(<Harness onColumnOrderChange={onColumnOrderChange} />);
+    const header = (field: string) =>
+      document.querySelector<HTMLElement>(`.MuiDataGrid-columnHeader[data-field="${field}"]`)!;
+    fireEvent.keyDown(header('name'), { key: 'ArrowRight', altKey: true });
+    expect(onColumnOrderChange).toHaveBeenCalledWith({
+      field: 'name',
+      oldIndex: 0,
+      targetIndex: 1,
+    });
+    expect(headerFields()).toEqual(['dept', 'name', 'salary']);
+    fireEvent.keyDown(header('name'), { key: 'ArrowLeft', altKey: true });
+    expect(headerFields()).toEqual(['name', 'dept', 'salary']);
+    // At the edge nothing moves, and the browser's Alt+Left (Back) is still held off.
+    const edge = fireEvent.keyDown(header('name'), { key: 'ArrowLeft', altKey: true });
+    expect(edge).toBe(false);
+    expect(headerFields()).toEqual(['name', 'dept', 'salary']);
+  });
+
+  it('reorders within a pinned section through the pinned list', () => {
+    const onPinnedColumnsChange = vi.fn();
+    render(
+      <Harness
+        initialState={{ pinnedColumns: { left: ['name', 'dept'] } }}
+        onPinnedColumnsChange={onPinnedColumnsChange}
+      />,
+    );
+    fireEvent.keyDown(
+      document.querySelector<HTMLElement>('.MuiDataGrid-columnHeader[data-field="dept"]')!,
+      { key: 'ArrowLeft', altKey: true },
+    );
+    expect(onPinnedColumnsChange).toHaveBeenLastCalledWith({ left: ['dept', 'name'] });
+    expect(headerFields()).toEqual(['dept', 'name', 'salary']);
+    // Pinned and unpinned columns do not trade places.
+    fireEvent.keyDown(
+      document.querySelector<HTMLElement>('.MuiDataGrid-columnHeader[data-field="name"]')!,
+      { key: 'ArrowRight', altKey: true },
+    );
+    expect(headerFields()).toEqual(['dept', 'name', 'salary']);
+  });
+});
+
+describe('DataGrid header filters', () => {
+  const selectColumns: GridColDef<Row>[] = [
+    { field: 'name', headerName: 'Name' },
+    { field: 'dept', headerName: 'Dept', type: 'singleSelect', valueOptions: ['Eng', 'Ops'] },
+    { field: 'salary', headerName: 'Salary', type: 'number' },
+  ];
+
+  it('names operators in words and keeps one picked before there is a value', async () => {
+    render(<Harness headerFilters />);
+    fireEvent.click(screen.getByRole('button', { name: 'Salary filter operator: Equals' }));
+    const menu = await screen.findByRole('menu', { name: 'Salary filter operator' });
+    expect(
+      Array.from(menu.querySelectorAll('[role="menuitem"]')).map((i) => i.textContent),
+    ).toContain('>Greater than');
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Greater than' }));
+    // No value yet: the operator still shows as picked.
+    expect(
+      await screen.findByRole('button', { name: 'Salary filter operator: Greater than' }),
+    ).toBeInTheDocument();
+    fireEvent.change(screen.getByRole('spinbutton', { name: 'Filter Salary' }), {
+      target: { value: '150' },
+    });
+    await waitFor(() => expect(cellsOf('salary')).toEqual(['300', '200']));
+  });
+
+  it('keeps arrow keys inside the operator menu', async () => {
+    render(<Harness headerFilters />);
+    fireEvent.click(screen.getByRole('button', { name: 'Salary filter operator: Equals' }));
+    await screen.findByRole('menu', { name: 'Salary filter operator' });
+    const equals = screen.getByRole('menuitem', { name: 'Equals' });
+    await waitFor(() => expect(equals).toHaveFocus());
+    fireEvent.keyDown(equals, { key: 'ArrowDown' });
+    expect(screen.getByRole('menuitem', { name: 'Not equals' })).toHaveFocus();
+    fireEvent.keyDown(document.activeElement!, { key: 'ArrowDown' });
+    expect(screen.getByRole('menuitem', { name: 'Greater than' })).toHaveFocus();
+  });
+
+  it('filters single-select columns with a Tecton select, one value or any of several', async () => {
+    render(<Harness headerFilters columns={selectColumns} />);
+    expect(document.querySelector('.TectonDataGrid-headerFilterRow select')).toBeNull();
+    fireEvent.mouseDown(screen.getByRole('combobox', { name: 'Filter Dept' }));
+    fireEvent.click(await screen.findByRole('option', { name: 'Ops' }));
+    await waitFor(() => expect(cellsOf('name')).toEqual(['Bob']));
+    fireEvent.click(screen.getByRole('button', { name: 'Dept filter operator: Is' }));
+    fireEvent.click(await screen.findByRole('menuitem', { name: 'Is any of' }));
+    fireEvent.mouseDown(screen.getByRole('combobox', { name: 'Filter Dept' }));
+    fireEvent.click(await screen.findByRole('option', { name: 'Eng' }));
+    await waitFor(() => expect(cellsOf('name')).toEqual(['Ada', 'Bob', 'Cy']));
   });
 });
 
