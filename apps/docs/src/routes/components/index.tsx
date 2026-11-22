@@ -37,7 +37,6 @@ function ComponentsIndex() {
         crumbs={[{ title: 'Components' }]}
       />
       <TextField
-        size="small"
         placeholder="Filter components"
         value={filter}
         onChange={(e) => setFilter(e.target.value)}

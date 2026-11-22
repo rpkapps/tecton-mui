@@ -379,7 +379,6 @@ export function IconBrowser({
       >
         <TextField
           inputRef={inputRef}
-          size="small"
           placeholder="Search icons (trash, gear, chevron…)"
           value={text}
           onFocus={() => setFocused(true)}

@@ -17,7 +17,6 @@ export default function IconsInComponents() {
       </IconButton>
       <Chip icon={<Icon name="map" size="small" />} label="Map layer" />
       <TextField
-        size="small"
         label="Find"
         slotProps={{
           input: {
