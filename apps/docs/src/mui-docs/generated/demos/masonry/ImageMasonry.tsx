@@ -6,16 +6,12 @@ import Masonry from '@tecton-mui/ui/Masonry';
 import { styled } from '@tecton-mui/ui/styles';
 
 const Label = styled(Paper)(({ theme }) => ({
-  backgroundColor: '#fff',
   ...theme.typography.body2,
   padding: theme.spacing(0.5),
   textAlign: 'center',
   color: (theme.vars || theme).palette.text.secondary,
   borderBottomLeftRadius: 0,
   borderBottomRightRadius: 0,
-  ...theme.applyStyles('dark', {
-    backgroundColor: '#1A2027',
-  }),
 }));
 
 export default function ImageMasonry() {

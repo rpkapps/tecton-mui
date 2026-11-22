@@ -6,6 +6,7 @@ import {
   Callout,
   CodeBlock,
   Demo,
+  ExcludedDemo,
   Heading,
   M,
   MuiDocsContent,
@@ -33,10 +34,6 @@ import RenderGroup from '../demos/autocomplete/RenderGroup';
 import RenderGroupSource from '../demos/autocomplete/RenderGroup.tsx?raw';
 import DisabledOptions from '../demos/autocomplete/DisabledOptions';
 import DisabledOptionsSource from '../demos/autocomplete/DisabledOptions.tsx?raw';
-import UseAutocomplete from '../demos/autocomplete/UseAutocomplete';
-import UseAutocompleteSource from '../demos/autocomplete/UseAutocomplete.tsx?raw';
-import CustomizedHook from '../demos/autocomplete/CustomizedHook';
-import CustomizedHookSource from '../demos/autocomplete/CustomizedHook.tsx?raw';
 import Asynchronous from '../demos/autocomplete/Asynchronous';
 import AsynchronousSource from '../demos/autocomplete/Asynchronous.tsx?raw';
 import CustomSingleValueRendering from '../demos/autocomplete/CustomSingleValueRendering';
@@ -51,14 +48,6 @@ import LimitTags from '../demos/autocomplete/LimitTags';
 import LimitTagsSource from '../demos/autocomplete/LimitTags.tsx?raw';
 import Sizes from '../demos/autocomplete/Sizes';
 import SizesSource from '../demos/autocomplete/Sizes.tsx?raw';
-import CustomInputAutocomplete from '../demos/autocomplete/CustomInputAutocomplete';
-import CustomInputAutocompleteSource from '../demos/autocomplete/CustomInputAutocomplete.tsx?raw';
-import GloballyCustomizedOptions from '../demos/autocomplete/GloballyCustomizedOptions';
-import GloballyCustomizedOptionsSource from '../demos/autocomplete/GloballyCustomizedOptions.tsx?raw';
-import GitHubLabel from '../demos/autocomplete/GitHubLabel';
-import GitHubLabelSource from '../demos/autocomplete/GitHubLabel.tsx?raw';
-import AutocompleteHint from '../demos/autocomplete/AutocompleteHint';
-import AutocompleteHintSource from '../demos/autocomplete/AutocompleteHint.tsx?raw';
 import Filter from '../demos/autocomplete/Filter';
 import FilterSource from '../demos/autocomplete/Filter.tsx?raw';
 
@@ -82,8 +71,6 @@ const demos = {
   Grouped: defineDemo('Grouped', Grouped, { code: GroupedSource }),
   RenderGroup: defineDemo('RenderGroup', RenderGroup, { code: RenderGroupSource }),
   DisabledOptions: defineDemo('DisabledOptions', DisabledOptions, { code: DisabledOptionsSource }),
-  UseAutocomplete: defineDemo('UseAutocomplete', UseAutocomplete, { code: UseAutocompleteSource }),
-  CustomizedHook: defineDemo('CustomizedHook', CustomizedHook, { code: CustomizedHookSource }),
   Asynchronous: defineDemo('Asynchronous', Asynchronous, { code: AsynchronousSource }),
   CustomSingleValueRendering: defineDemo('CustomSingleValueRendering', CustomSingleValueRendering, {
     code: CustomSingleValueRenderingSource,
@@ -93,16 +80,6 @@ const demos = {
   CheckboxesTags: defineDemo('CheckboxesTags', CheckboxesTags, { code: CheckboxesTagsSource }),
   LimitTags: defineDemo('LimitTags', LimitTags, { code: LimitTagsSource }),
   Sizes: defineDemo('Sizes', Sizes, { code: SizesSource }),
-  CustomInputAutocomplete: defineDemo('CustomInputAutocomplete', CustomInputAutocomplete, {
-    code: CustomInputAutocompleteSource,
-  }),
-  GloballyCustomizedOptions: defineDemo('GloballyCustomizedOptions', GloballyCustomizedOptions, {
-    code: GloballyCustomizedOptionsSource,
-  }),
-  GitHubLabel: defineDemo('GitHubLabel', GitHubLabel, { code: GitHubLabelSource }),
-  AutocompleteHint: defineDemo('AutocompleteHint', AutocompleteHint, {
-    code: AutocompleteHintSource,
-  }),
   Filter: defineDemo('Filter', Filter, { code: FilterSource }),
 };
 
@@ -464,39 +441,6 @@ export default function MuiDocs() {
         {'Disabled options'}
       </Heading>
       <Demo name="DisabledOptions" />
-      <Heading level={3} id="useautocomplete">
-        <M.code>{'useAutocomplete'}</M.code>
-      </Heading>
-      <M.p>
-        {'For advanced customization use cases, a headless '}
-        <M.code>{'useAutocomplete()'}</M.code>
-        {
-          ' hook is exposed.\nIt accepts almost the same options as the Autocomplete component minus all the props\nrelated to the rendering of JSX.\nThe Autocomplete component is built on this hook.'
-        }
-      </M.p>
-      <CodeBlock
-        code={"import useAutocomplete from '@tecton-mui/ui/useAutocomplete';"}
-        language={'tsx'}
-      />
-      <M.ul>
-        <M.li>
-          {'📦 '}
-          <M.a href={'https://bundlephobia.com/package/@mui/material'}>{'4.6 kB gzipped'}</M.a>
-          {'.'}
-        </M.li>
-      </M.ul>
-      <Demo name="UseAutocomplete" />
-      <Heading level={4} id="customized-hook">
-        {'Customized hook'}
-      </Heading>
-      <Demo name="CustomizedHook" />
-      <M.p>
-        {'Head to the '}
-        <M.a href={'/components/autocomplete#customization'}>{'customization'}</M.a>
-        {' section for an example with the '}
-        <M.code>{'Autocomplete'}</M.code>
-        {' component instead of the hook.'}
-      </M.p>
       <Heading level={3} id="asynchronous-requests">
         {'Asynchronous requests'}
       </Heading>
@@ -532,6 +476,67 @@ export default function MuiDocs() {
         {' prop:'}
       </M.p>
       <CodeBlock code={'<Autocomplete filterOptions={(x) => x} />'} language={'jsx'} />
+      <Heading level={4} id="google-maps-place">
+        {'Google Maps place'}
+      </Heading>
+      <M.p>
+        {
+          'A customized UI for Google Maps Places Autocomplete.\nFor this demo, we need to load the '
+        }
+        <M.a href={'https://developers.google.com/maps/documentation/javascript/overview'}>
+          {'Google Maps JavaScript'}
+        </M.a>
+        {' and '}
+        <M.a href={'https://developers.google.com/maps/documentation/places/web-service/overview'}>
+          {'Google Places'}
+        </M.a>
+        {' API.'}
+      </M.p>
+      <ExcludedDemo
+        name="GoogleMaps"
+        reason="requires the third-party package autosuggest-highlight, which the portal does not depend on"
+      />
+      <M.p>
+        {'The demo relies on '}
+        <M.a href={'https://github.com/moroshko/autosuggest-highlight'}>
+          {'autosuggest-highlight'}
+        </M.a>
+        {
+          ', a small (1 kB) utility for highlighting text in autosuggest and autocomplete components.'
+        }
+      </M.p>
+      <Callout severity="error">
+        <M.p>
+          {
+            'Before you can start using the Google Maps JavaScript API and Places API, you need to get your own '
+          }
+          <M.a href={'https://developers.google.com/maps/documentation/javascript/get-api-key'}>
+            {'API key'}
+          </M.a>
+          {'.'}
+        </M.p>
+        <M.p>
+          {
+            'This demo has limited quotas to make API requests. When your quota exceeds, you will see the response for "Paris".'
+          }
+        </M.p>
+      </Callout>
+      <Heading level={4} id="infinite-loading">
+        {'Infinite loading'}
+      </Heading>
+      <M.p>
+        {'This demo uses '}
+        <M.code>{'@tanstack/react-query'}</M.code>
+        {' to additively fetch new data onto existing '}
+        <M.code>{'options'}</M.code>
+        {' upon reaching the end of the current list. The list is virtualized using '}
+        <M.code>{'@tanstack/react-virtual'}</M.code>
+        {'.'}
+      </M.p>
+      <ExcludedDemo
+        name="InfiniteLoading"
+        reason="requires the third-party package @tanstack/react-query, which the portal does not depend on"
+      />
       <Heading level={3} id="single-value-rendering">
         {'Single value rendering'}
       </Heading>
@@ -641,102 +646,22 @@ export default function MuiDocs() {
         {' prop.'}
       </M.p>
       <Demo name="Sizes" />
-      <Heading level={3} id="customization">
-        {'Customization'}
-      </Heading>
-      <Callout severity="info">
-        {
-          'These examples restyle the component beyond the Tecton defaults to show the customization APIs (sx, styled and theme overrides). Product UIs should keep the Tecton theme styling.'
-        }
-      </Callout>
-      <Heading level={4} id="custom-input">
-        {'Custom input'}
+      <Heading level={3} id="highlights">
+        {'Highlights'}
       </Heading>
       <M.p>
-        {'The '}
-        <M.code>{'renderInput'}</M.code>
-        {
-          ' prop allows you to customize the rendered input. Its argument contains props that must be forwarded.\nPay particular attention to '
-        }
-        <M.code>{'params.slotProps.input'}</M.code>
-        {' (including its '}
-        <M.code>{'ref'}</M.code>
-        {') and '}
-        <M.code>{'params.slotProps.htmlInput'}</M.code>
-        {'.'}
-      </M.p>
-      <M.p>
-        {'Autocomplete renders selected values through '}
-        <M.code>{'params.slotProps.input.startAdornment'}</M.code>
-        {'. When adding a custom start\nadornment, preserve the provided adornment:'}
-      </M.p>
-      <CodeBlock
-        code={
-          'const getInputSlotProps = (params) => ({\n  ...params.slotProps.input,\n  startAdornment: (\n    <>\n      {customStartAdornment}\n      {params.slotProps.input.startAdornment}\n    </>\n  ),\n});\n\n<Autocomplete\n  options={options}\n  renderInput={(params) => (\n    <TextField\n      {...params}\n      slotProps={{\n        ...params.slotProps,\n        input: getInputSlotProps(params),\n      }}\n    />\n  )}\n/>;'
-        }
-        language={'tsx'}
-      />
-      <M.p>
-        {'Likewise, preserve '}
-        <M.code>{'params.slotProps.input.endAdornment'}</M.code>
-        {" when customizing it. It contains Autocomplete's built-in controls."}
-      </M.p>
-      <Callout severity="warning">
-        <M.p>
-          {
-            "If you're using a custom input component inside the Autocomplete, make sure that you forward the ref to the underlying DOM element."
-          }
-        </M.p>
-      </Callout>
-      <Demo name="CustomInputAutocomplete" />
-      <Heading level={4} id="globally-customized-options">
-        {'Globally customized options'}
-      </Heading>
-      <M.p>
-        {
-          'To globally customize the Autocomplete options for all components in your app,\nyou can use the '
-        }
-        <M.a
-          href={'https://mui.com/material-ui/customization/theme-components/#theme-default-props'}
-        >
-          {'theme default props'}
+        {'The following demo relies on '}
+        <M.a href={'https://github.com/moroshko/autosuggest-highlight'}>
+          {'autosuggest-highlight'}
         </M.a>
-        {' and set the '}
-        <M.code>{'renderOption'}</M.code>
-        {' property in the '}
-        <M.code>{'defaultProps'}</M.code>
-        {' key.\nThe '}
-        <M.code>{'renderOption'}</M.code>
-        {' property takes the '}
-        <M.code>{'ownerState'}</M.code>
         {
-          ' as the fourth parameter, which includes props and internal component state.\nTo display the label, you can use the '
-        }
-        <M.code>{'getOptionLabel'}</M.code>
-        {' prop from the '}
-        <M.code>{'ownerState'}</M.code>
-        {
-          '.\nThis approach enables different options for each Autocomplete component while keeping the options styling consistent.'
+          ', a small (1 kB) utility for highlighting text in autosuggest and autocomplete components.'
         }
       </M.p>
-      <Demo name="GloballyCustomizedOptions" />
-      <Heading level={4} id="githubs-picker">
-        {"GitHub's picker"}
-      </Heading>
-      <M.p>{"This demo reproduces GitHub's label picker:"}</M.p>
-      <Demo name="GitHubLabel" />
-      <M.p>
-        {'Head to the '}
-        <M.a href={'/components/autocomplete#customized-hook'}>{'Customized hook'}</M.a>
-        {' section for a customization example with the '}
-        <M.code>{'useAutocomplete'}</M.code>
-        {' hook instead of the component.'}
-      </M.p>
-      <Heading level={4} id="hint">
-        {'Hint'}
-      </Heading>
-      <M.p>{'The following demo shows how to add a hint feature to the Autocomplete:'}</M.p>
-      <Demo name="AutocompleteHint" />
+      <ExcludedDemo
+        name="Highlights"
+        reason="requires the third-party package autosuggest-highlight, which the portal does not depend on"
+      />
       <Heading level={3} id="custom-filter">
         {'Custom filter'}
       </Heading>
@@ -840,6 +765,32 @@ export default function MuiDocs() {
         language={'jsx'}
       />
       <Demo name="Filter" />
+      <Heading level={4} id="advanced">
+        {'Advanced'}
+      </Heading>
+      <M.p>
+        {"For richer filtering mechanisms, like fuzzy matching, it's recommended to look at "}
+        <M.a href={'https://github.com/kentcdodds/match-sorter'}>{'match-sorter'}</M.a>
+        {'. For instance:'}
+      </M.p>
+      <CodeBlock
+        code={
+          "import { matchSorter } from 'match-sorter';\n\nconst filterOptions = (options, { inputValue }) => matchSorter(options, inputValue);\n\n<Autocomplete filterOptions={filterOptions} />;"
+        }
+        language={'jsx'}
+      />
+      <Heading level={3} id="virtualization">
+        {'Virtualization'}
+      </Heading>
+      <M.p>
+        {'Search within 10,000 randomly generated options. The list is virtualized thanks to '}
+        <M.a href={'https://github.com/bvaughn/react-window'}>{'react-window'}</M.a>
+        {'.'}
+      </M.p>
+      <ExcludedDemo
+        name="Virtualize"
+        reason="requires the third-party package react-window, which the portal does not depend on"
+      />
       <Heading level={3} id="events">
         {'Events'}
       </Heading>

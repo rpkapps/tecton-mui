@@ -13,11 +13,7 @@ import Paper from '@tecton-mui/ui/Paper';
 const heights = [150, 30, 90, 70, 90, 100, 150, 30, 50, 80];
 
 const StyledAccordion = styled(Accordion)(({ theme }) => ({
-  backgroundColor: '#fff',
   color: (theme.vars || theme).palette.text.secondary,
-  ...theme.applyStyles('dark', {
-    backgroundColor: '#1A2027',
-  }),
 }));
 
 export default function MasonryWithVariableHeightItems() {

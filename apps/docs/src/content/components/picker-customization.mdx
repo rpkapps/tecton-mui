@@ -51,10 +51,10 @@ work too.
 ## Layout
 
 `PickersLayout` is a CSS grid with areas for the toolbar, the shortcuts, the views and the action bar.
-`slotProps.layout` passes props to it, and `pickersLayoutClasses` lets you restyle each area. Here the
-landscape orientation places the toolbar beside the calendar.
+`slotProps.layout` passes props to it. Here the landscape orientation places the toolbar beside the
+calendar.
 
-<Demo name="LayoutStyling" />
+<Demo name="LandscapeLayout" />
 
 For a different arrangement, replace the `layout` slot. `usePickerLayout` returns the rendered parts
 (`toolbar`, `content`, `actionBar`, `shortcuts`, `tabs`) and the owner state; place them inside

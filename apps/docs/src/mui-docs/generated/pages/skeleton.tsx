@@ -15,8 +15,6 @@ import SkeletonTypography from '../demos/skeleton/SkeletonTypography';
 import SkeletonTypographySource from '../demos/skeleton/SkeletonTypography.tsx?raw';
 import SkeletonChildren from '../demos/skeleton/SkeletonChildren';
 import SkeletonChildrenSource from '../demos/skeleton/SkeletonChildren.tsx?raw';
-import SkeletonColor from '../demos/skeleton/SkeletonColor';
-import SkeletonColorSource from '../demos/skeleton/SkeletonColor.tsx?raw';
 
 const demos = {
   Variants: defineDemo('Variants', Variants, { code: VariantsSource }),
@@ -29,12 +27,6 @@ const demos = {
   SkeletonChildren: defineDemo('SkeletonChildren', SkeletonChildren, {
     code: SkeletonChildrenSource,
   }),
-  SkeletonColor: defineDemo(
-    'SkeletonColor',
-    SkeletonColor,
-    { code: SkeletonColorSource },
-    { bg: 'inline' },
-  ),
 };
 
 export default function MuiDocs() {
@@ -145,17 +137,6 @@ export default function MuiDocs() {
         language={'jsx'}
       />
       <Demo name="SkeletonChildren" />
-      <Heading level={3} id="color">
-        {'Color'}
-      </Heading>
-      <M.p>
-        {'The color of the component can be customized by changing its '}
-        <M.code>{'background-color'}</M.code>
-        {
-          ' CSS property.\nThis is especially useful when on a black background (as the skeleton will otherwise be invisible).'
-        }
-      </M.p>
-      <Demo name="SkeletonColor" />
       <Heading level={3} id="accessibility">
         {'Accessibility'}
       </Heading>

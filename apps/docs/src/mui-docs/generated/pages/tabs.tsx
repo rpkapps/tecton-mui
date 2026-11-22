@@ -3,7 +3,6 @@
  * Do not edit: change the manifest or the sync and run `pnpm docs:sync`. */
 import {
   Attribution,
-  Callout,
   CodeBlock,
   Demo,
   ExcludedDemo,
@@ -36,8 +35,6 @@ import ScrollableTabsButtonVisible from '../demos/tabs/ScrollableTabsButtonVisib
 import ScrollableTabsButtonVisibleSource from '../demos/tabs/ScrollableTabsButtonVisible.tsx?raw';
 import ScrollableTabsButtonPrevent from '../demos/tabs/ScrollableTabsButtonPrevent';
 import ScrollableTabsButtonPreventSource from '../demos/tabs/ScrollableTabsButtonPrevent.tsx?raw';
-import CustomizedTabs from '../demos/tabs/CustomizedTabs';
-import CustomizedTabsSource from '../demos/tabs/CustomizedTabs.tsx?raw';
 import VerticalTabs from '../demos/tabs/VerticalTabs';
 import VerticalTabsSource from '../demos/tabs/VerticalTabs.tsx?raw';
 import NavTabs from '../demos/tabs/NavTabs';
@@ -97,7 +94,6 @@ const demos = {
     { code: ScrollableTabsButtonPreventSource },
     { bg: true },
   ),
-  CustomizedTabs: defineDemo('CustomizedTabs', CustomizedTabs, { code: CustomizedTabsSource }),
   VerticalTabs: defineDemo(
     'VerticalTabs',
     VerticalTabs,
@@ -302,29 +298,6 @@ export default function MuiDocs() {
         }
       </M.p>
       <Demo name="ScrollableTabsButtonPrevent" />
-      <Heading level={3} id="customization">
-        {'Customization'}
-      </Heading>
-      <Callout severity="info">
-        {
-          'These examples restyle the component beyond the Tecton defaults to show the customization APIs (sx, styled and theme overrides). Product UIs should keep the Tecton theme styling.'
-        }
-      </Callout>
-      <M.p>
-        {'Here is an example of customizing the component.\nYou can learn more about this in the '}
-        <M.a href={'https://mui.com/material-ui/customization/how-to-customize/'}>
-          {'overrides documentation page'}
-        </M.a>
-        {'.'}
-      </M.p>
-      <Demo name="CustomizedTabs" />
-      <M.p>
-        {'🎨 If you are looking for inspiration, you can check '}
-        <M.a href={'https://mui-treasury.com/primitive/tabs'}>
-          {"MUI Treasury's customization examples"}
-        </M.a>
-        {'.'}
-      </M.p>
       <Heading level={3} id="vertical-tabs">
         {'Vertical tabs'}
       </Heading>

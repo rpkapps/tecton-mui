@@ -260,8 +260,7 @@ import Button from '@tecton-mui/ui/Button';
 - Without `title` the icon is decorative (`aria-hidden`). With `title` it gets `role="img"` and an
   `aria-label`.
 - Icons are CSS classes, so the host must load `icons.css` (included in `global.css`).
-- MUI's font-ligature `Icon` is not exported. Use `Icon` with a Tecton icon name for every icon; do
-  not add SVG icons or other icon sets.
+- MUI's font-ligature `Icon` is not exported. `SvgIcon` and plain SVG children still work.
 
 ## Dates: LocalizationProvider
 
@@ -278,14 +277,18 @@ import DatePicker from '@tecton-mui/ui/DatePicker';
 </LocalizationProvider>;
 ```
 
-Change the locale with `adapterLocale`. Pickers work with native `Date` values and `date-fns` in
-every Tecton application; do not switch to another date library.
+Change the locale with `adapterLocale`, or use another adapter with `dateAdapter`. The other
+adapters are separate subpaths and are never bundled by default. Install the date library yourself.
 
 ```tsx
 import { de } from 'date-fns/locale/de';
+import { AdapterDayjs } from '@tecton-mui/ui/AdapterDayjs'; // requires `dayjs` in your app
 
 <LocalizationProvider adapterLocale={de}>…</LocalizationProvider>;
+<LocalizationProvider dateAdapter={AdapterDayjs}>…</LocalizationProvider>;
 ```
+
+Available adapters: `AdapterDateFns` (default), `AdapterDayjs`, `AdapterLuxon`, `AdapterMoment`.
 
 ## Number fields
 

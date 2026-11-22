@@ -4,8 +4,8 @@
 import {
   Attribution,
   Callout,
-  CodeBlock,
   Demo,
+  ExcludedDemo,
   Heading,
   M,
   MuiDocsContent,
@@ -27,8 +27,6 @@ import PaginationRanges from '../demos/pagination/PaginationRanges';
 import PaginationRangesSource from '../demos/pagination/PaginationRanges.tsx?raw';
 import PaginationControlled from '../demos/pagination/PaginationControlled';
 import PaginationControlledSource from '../demos/pagination/PaginationControlled.tsx?raw';
-import UsePagination from '../demos/pagination/UsePagination';
-import UsePaginationSource from '../demos/pagination/UsePagination.tsx?raw';
 import TablePaginationDemo from '../demos/pagination/TablePaginationDemo';
 import TablePaginationDemoSource from '../demos/pagination/TablePaginationDemo.tsx?raw';
 
@@ -51,7 +49,6 @@ const demos = {
   PaginationControlled: defineDemo('PaginationControlled', PaginationControlled, {
     code: PaginationControlledSource,
   }),
-  UsePagination: defineDemo('UsePagination', UsePagination, { code: UsePaginationSource }),
   TablePaginationDemo: defineDemo('TablePaginationDemo', TablePaginationDemo, {
     code: TablePaginationDemoSource,
   }),
@@ -110,21 +107,13 @@ export default function MuiDocs() {
         {'Controlled pagination'}
       </Heading>
       <Demo name="PaginationControlled" />
-      <Heading level={3} id="usepagination">
-        <M.code>{'usePagination'}</M.code>
+      <Heading level={3} id="router-integration">
+        {'Router integration'}
       </Heading>
-      <M.p>
-        {'For advanced customization use cases, a headless '}
-        <M.code>{'usePagination()'}</M.code>
-        {
-          ' hook is exposed.\nIt accepts almost the same options as the Pagination component minus all the props\nrelated to the rendering of JSX.\nThe Pagination component is built on this hook.'
-        }
-      </M.p>
-      <CodeBlock
-        code={"import usePagination from '@tecton-mui/ui/usePagination';"}
-        language={'jsx'}
+      <ExcludedDemo
+        name="PaginationLink"
+        reason="requires the third-party package react-router, which the portal does not depend on"
       />
-      <Demo name="UsePagination" />
       <Heading level={3} id="table-pagination">
         {'Table pagination'}
       </Heading>
@@ -156,7 +145,7 @@ export default function MuiDocs() {
       </Callout>
       <M.p>
         {'You can learn more about this use case in the '}
-        <M.a href={'/components/table#custom-pagination-options'}>{'table section'}</M.a>
+        <M.a href={'/components/table'}>{'table section'}</M.a>
         {' of the documentation.'}
       </M.p>
       <Heading level={3} id="pagination-accessibility">

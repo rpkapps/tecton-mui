@@ -3,9 +3,9 @@
  * Do not edit: change the manifest or the sync and run `pnpm docs:sync`. */
 import {
   Attribution,
-  Callout,
   CodeBlock,
   Demo,
+  ExcludedDemo,
   Heading,
   M,
   MuiDocsContent,
@@ -35,8 +35,6 @@ import InsetList from '../demos/lists/InsetList';
 import InsetListSource from '../demos/lists/InsetList.tsx?raw';
 import GutterlessList from '../demos/lists/GutterlessList';
 import GutterlessListSource from '../demos/lists/GutterlessList.tsx?raw';
-import CustomizedList from '../demos/lists/CustomizedList';
-import CustomizedListSource from '../demos/lists/CustomizedList.tsx?raw';
 
 const demos = {
   BasicList: defineDemo('BasicList', BasicList, { code: BasicListSource }, { bg: true }),
@@ -91,7 +89,6 @@ const demos = {
     { code: GutterlessListSource },
     { bg: true },
   ),
-  CustomizedList: defineDemo('CustomizedList', CustomizedList, { code: CustomizedListSource }),
 };
 
 export default function MuiDocs() {
@@ -140,6 +137,13 @@ export default function MuiDocs() {
         }
         language={'jsx'}
       />
+      <M.p>
+        {'You can find a '}
+        <M.a href={'https://mui.com/material-ui/integrations/routing/#list'}>
+          {'demo with React Router following this section'}
+        </M.a>
+        {' of the documentation.'}
+      </M.p>
       <Heading level={3} id="basics">
         {'Basics'}
       </Heading>
@@ -244,24 +248,31 @@ export default function MuiDocs() {
         {'.'}
       </M.p>
       <Demo name="GutterlessList" />
-      <Heading level={3} id="customization">
-        {'Customization'}
+      <Heading level={3} id="virtualized-list">
+        {'Virtualized List'}
       </Heading>
-      <Callout severity="info">
-        {
-          'These examples restyle the component beyond the Tecton defaults to show the customization APIs (sx, styled and theme overrides). Product UIs should keep the Tecton theme styling.'
-        }
-      </Callout>
       <M.p>
+        {'In the following example, we demonstrate how to use '}
+        <M.a href={'https://github.com/bvaughn/react-window'}>{'react-window'}</M.a>
+        {' with the '}
+        <M.code>{'List'}</M.code>
         {
-          'Here are some examples of customizing the component.\nYou can learn more about this in the\n'
+          ' component.\nIt renders 200 rows and can easily handle more.\nVirtualization helps with performance issues.'
         }
-        <M.a href={'https://mui.com/material-ui/customization/how-to-customize/'}>
-          {'overrides documentation page'}
-        </M.a>
+      </M.p>
+      <ExcludedDemo
+        name="VirtualizedList"
+        reason="requires the third-party package react-window, which the portal does not depend on"
+      />
+      <M.p>
+        {'The use of '}
+        <M.a href={'https://github.com/bvaughn/react-window'}>{'react-window'}</M.a>
+        {
+          " when possible is encouraged.\nIf this library doesn't cover your use case, you should consider using alternatives like "
+        }
+        <M.a href={'https://github.com/petyosi/react-virtuoso'}>{'react-virtuoso'}</M.a>
         {'.'}
       </M.p>
-      <Demo name="CustomizedList" />
       <Attribution
         version="9.5.0"
         sources={[

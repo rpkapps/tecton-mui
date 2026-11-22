@@ -27,8 +27,6 @@ import MultiActionAreaCard from '../demos/cards/MultiActionAreaCard';
 import MultiActionAreaCardSource from '../demos/cards/MultiActionAreaCard.tsx?raw';
 import MediaControlCard from '../demos/cards/MediaControlCard';
 import MediaControlCardSource from '../demos/cards/MediaControlCard.tsx?raw';
-import SelectActionCard from '../demos/cards/SelectActionCard';
-import SelectActionCardSource from '../demos/cards/SelectActionCard.tsx?raw';
 
 const demos = {
   BasicCard: defineDemo('BasicCard', BasicCard, { code: BasicCardSource }, { bg: true }),
@@ -67,12 +65,6 @@ const demos = {
     'MediaControlCard',
     MediaControlCard,
     { code: MediaControlCardSource },
-    { bg: true },
-  ),
-  SelectActionCard: defineDemo(
-    'SelectActionCard',
-    SelectActionCard,
-    { code: SelectActionCardSource },
     { bg: true },
   ),
 };
@@ -178,24 +170,6 @@ export default function MuiDocs() {
       </M.p>
       <M.p>{"Here's an example of a media control card."}</M.p>
       <Demo name="MediaControlCard" />
-      <Heading level={3} id="active-state-styles">
-        {'Active state styles'}
-      </Heading>
-      <M.p>
-        {"To customize a Card's styles when it's in an active state, you can attach a "}
-        <M.code>{'data-active'}</M.code>
-        {' attribute to the Card Action Area component and apply styles with the '}
-        <M.code>{'&[data-active]'}</M.code>
-        {' selector, as shown below:'}
-      </M.p>
-      <Demo name="SelectActionCard" />
-      <M.p>
-        {'🎨 If you are looking for inspiration, you can check '}
-        <M.a href={'https://mui-treasury.com/primitive/card'}>
-          {"MUI Treasury's customization examples"}
-        </M.a>
-        {'.'}
-      </M.p>
       <Attribution
         version="9.5.0"
         sources={[

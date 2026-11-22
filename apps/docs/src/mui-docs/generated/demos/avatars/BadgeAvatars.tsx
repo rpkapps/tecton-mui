@@ -8,8 +8,8 @@ import Icon from '@tecton-mui/ui/Icon';
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
-    backgroundColor: '#44b700',
-    color: '#44b700',
+    backgroundColor: (theme.vars ?? theme).palette.success.main,
+    color: (theme.vars ?? theme).palette.success.main,
     boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
     '&::after': {
       position: 'absolute',

@@ -13,23 +13,9 @@ import {
 import { defineDemo } from '../../runtime/demo';
 import SimplePaper from '../demos/paper/SimplePaper';
 import SimplePaperSource from '../demos/paper/SimplePaper.tsx?raw';
-import Elevation from '../demos/paper/Elevation';
-import ElevationSource from '../demos/paper/Elevation.tsx?raw';
-import Variants from '../demos/paper/Variants';
-import VariantsSource from '../demos/paper/Variants.tsx?raw';
-import SquareCorners from '../demos/paper/SquareCorners';
-import SquareCornersSource from '../demos/paper/SquareCorners.tsx?raw';
 
 const demos = {
   SimplePaper: defineDemo('SimplePaper', SimplePaper, { code: SimplePaperSource }, { bg: true }),
-  Elevation: defineDemo('Elevation', Elevation, { code: ElevationSource }, { bg: 'outlined' }),
-  Variants: defineDemo('Variants', Variants, { code: VariantsSource }, { bg: true }),
-  SquareCorners: defineDemo(
-    'SquareCorners',
-    SquareCorners,
-    { code: SquareCornersSource },
-    { bg: true },
-  ),
 };
 
 export default function MuiDocs() {
@@ -50,7 +36,7 @@ export default function MuiDocs() {
         {
           'Material UI implements this concept with the Paper component, a container-like surface that features the '
         }
-        <M.a href={'/components/paper#elevation'}>
+        <M.a href={'/components/paper'}>
           <M.code>{'elevation'}</M.code>
         </M.a>
         {' prop for pulling box-shadow values from the theme.'}
@@ -80,73 +66,6 @@ export default function MuiDocs() {
         {'Component'}
       </Heading>
       <CodeBlock code={"import Paper from '@tecton-mui/ui/Paper';"} language={'jsx'} />
-      <Heading level={3} id="customization">
-        {'Customization'}
-      </Heading>
-      <Callout severity="info">
-        {
-          'These examples restyle the component beyond the Tecton defaults to show the customization APIs (sx, styled and theme overrides). Product UIs should keep the Tecton theme styling.'
-        }
-      </Callout>
-      <Heading level={4} id="elevation">
-        {'Elevation'}
-      </Heading>
-      <M.p>
-        {'Use the '}
-        <M.code>{'elevation'}</M.code>
-        {
-          " prop to establish hierarchy through the use of shadows.\nThe Paper component's default elevation level is "
-        }
-        <M.code>{'1'}</M.code>
-        {'.\nThe prop accepts values from '}
-        <M.code>{'0'}</M.code>
-        {' to '}
-        <M.code>{'24'}</M.code>
-        {'.\nThe higher the number, the further away the Paper appears to be from its background.'}
-      </M.p>
-      <M.p>
-        {
-          'In dark mode, increasing the elevation also makes the background color lighter.\nThis is done by applying a semi-transparent gradient with the '
-        }
-        <M.code>{'background-image'}</M.code>
-        {' CSS property.'}
-      </M.p>
-      <Callout severity="warning">
-        <M.p>
-          {
-            'The aforementioned dark mode behavior can lead to confusion when overriding the Paper component, because changing the '
-          }
-          <M.code>{'background-color'}</M.code>
-          {
-            " property won't affect the lighter shading.\nTo override it, you must either use a new background value, or customize the values for both "
-          }
-          <M.code>{'background-color'}</M.code>
-          {' and '}
-          <M.code>{'background-image'}</M.code>
-          {'.'}
-        </M.p>
-      </Callout>
-      <Demo name="Elevation" />
-      <Heading level={4} id="variants">
-        {'Variants'}
-      </Heading>
-      <M.p>
-        {'Set the '}
-        <M.code>{'variant'}</M.code>
-        {' prop to '}
-        <M.code>{'"outlined"'}</M.code>
-        {' for a flat, outlined Paper with no shadows:'}
-      </M.p>
-      <Demo name="Variants" />
-      <Heading level={4} id="corners">
-        {'Corners'}
-      </Heading>
-      <M.p>
-        {'The Paper component features rounded corners by default.\nAdd the '}
-        <M.code>{'square'}</M.code>
-        {' prop for square corners:'}
-      </M.p>
-      <Demo name="SquareCorners" />
       <Heading level={3} id="anatomy">
         {'Anatomy'}
       </Heading>

@@ -7,8 +7,6 @@ import ImageAvatars from '../demos/avatars/ImageAvatars';
 import ImageAvatarsSource from '../demos/avatars/ImageAvatars.tsx?raw';
 import LetterAvatars from '../demos/avatars/LetterAvatars';
 import LetterAvatarsSource from '../demos/avatars/LetterAvatars.tsx?raw';
-import BackgroundLetterAvatars from '../demos/avatars/BackgroundLetterAvatars';
-import BackgroundLetterAvatarsSource from '../demos/avatars/BackgroundLetterAvatars.tsx?raw';
 import SizeAvatars from '../demos/avatars/SizeAvatars';
 import SizeAvatarsSource from '../demos/avatars/SizeAvatars.tsx?raw';
 import IconAvatars from '../demos/avatars/IconAvatars';
@@ -33,9 +31,6 @@ import UploadAvatarsSource from '../demos/avatars/UploadAvatars.tsx?raw';
 const demos = {
   ImageAvatars: defineDemo('ImageAvatars', ImageAvatars, { code: ImageAvatarsSource }),
   LetterAvatars: defineDemo('LetterAvatars', LetterAvatars, { code: LetterAvatarsSource }),
-  BackgroundLetterAvatars: defineDemo('BackgroundLetterAvatars', BackgroundLetterAvatars, {
-    code: BackgroundLetterAvatarsSource,
-  }),
   SizeAvatars: defineDemo('SizeAvatars', SizeAvatars, { code: SizeAvatarsSource }),
   IconAvatars: defineDemo('IconAvatars', IconAvatars, { code: IconAvatarsSource }),
   VariantAvatars: defineDemo('VariantAvatars', VariantAvatars, { code: VariantAvatarsSource }),
@@ -82,10 +77,9 @@ export default function MuiDocs() {
       <Demo name="LetterAvatars" />
       <M.p>
         {
-          'You can use different background colors for the avatar.\nThe following demo generates the color based on the name of the person.'
+          'Without a background color, a Tecton letter avatar gets a stable accent color derived from its text, so each person keeps the same color.'
         }
       </M.p>
-      <Demo name="BackgroundLetterAvatars" />
       <Heading level={3} id="sizes">
         {'Sizes'}
       </Heading>
