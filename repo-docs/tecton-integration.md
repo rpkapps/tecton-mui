@@ -275,7 +275,7 @@ hidden`) and drops Tecton's own box-shadow ring on Tab and ListItemButton, where
   - **RichTreeView defaults:** Tecton themes only `MuiSimpleTreeView`. The correction makes
     `MuiRichTreeView` share the same theme entry.
 - `tecton/augmentations.ts` re-declares the Tecton prop augmentations (`activated`, `shape`,
-  `emphasis`, `tier`, `productColor`, extra variants and sizes). Upstream declares them in its entry
+  `emphasis`, `tier`, extra variants and sizes). Upstream declares them in its entry
   module, which is not part of the source map, so they are derived from the variant predicates in
   the generated theme.
 - `modeStore.ts` bridges the shared theme manager to React with `useSyncExternalStore`. The manager

@@ -5,7 +5,16 @@ import '@tecton-mui/ui/styles/fonts.css';
 import '@tecton-mui/ui/styles/icons.css';
 import '@tecton-mui/ui/styles/tokens.css';
 import { initTecton, ThemeProvider, useTectonMode } from '@tecton-mui/ui/styles';
-import { AppBar, Box, Button, CssBaseline } from '@tecton-mui/ui';
+import {
+  AppBar,
+  AppBarActions,
+  AppBarBrand,
+  AppBarTab,
+  AppBarTabs,
+  Box,
+  Button,
+  CssBaseline,
+} from '@tecton-mui/ui';
 import Icon from '@tecton-mui/ui/Icon';
 import { Showcase } from './App.js';
 import { GridScenarios } from './GridScenarios.js';
@@ -18,7 +27,6 @@ const VIEWS = [
   { id: 'tree-view', label: 'Tree View' },
 ] as const;
 type ViewId = (typeof VIEWS)[number]['id'];
-const GALLERY_TABS = VIEWS.map((v) => ({ id: v.id, label: v.label, closeable: false }));
 
 const viewFromHash = (): ViewId => {
   const id = window.location.hash.slice(1);
@@ -51,32 +59,32 @@ function Gallery() {
     <ThemeProvider direction={rtl ? 'rtl' : 'ltr'}>
       <CssBaseline />
       <div dir={rtl ? 'rtl' : 'ltr'}>
-        <AppBar
-          position="sticky"
-          appName="Tecton MUI"
-          tabs={GALLERY_TABS}
-          activeTab={view}
-          disableTabAdd
-          onTabSelect={(next) => select(next as ViewId)}
-          sx={{ top: 'env(safe-area-inset-top, 0px)' }}
-        >
-          <Button
-            variant="text"
-            color="tertiary"
-            size="small"
-            onClick={() => setRtl((r) => !r)}
-            aria-pressed={rtl}
-          >
-            {rtl ? 'RTL' : 'LTR'}
-          </Button>
-          <Button
-            variant="outlined"
-            size="small"
-            startIcon={<Icon name={mode === 'dark' ? 'light-mode' : 'dark-mode'} />}
-            onClick={toggleMode}
-          >
-            {mode === 'dark' ? 'Light mode' : 'Dark mode'}
-          </Button>
+        <AppBar position="sticky" sx={{ top: 'env(safe-area-inset-top, 0px)' }}>
+          <AppBarBrand>Tecton MUI</AppBarBrand>
+          <AppBarTabs value={view} onChange={(_event, next) => select(next as ViewId)}>
+            {VIEWS.map((v) => (
+              <AppBarTab key={v.id} value={v.id} label={v.label} />
+            ))}
+          </AppBarTabs>
+          <AppBarActions>
+            <Button
+              variant="text"
+              color="tertiary"
+              size="small"
+              onClick={() => setRtl((r) => !r)}
+              aria-pressed={rtl}
+            >
+              {rtl ? 'RTL' : 'LTR'}
+            </Button>
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<Icon name={mode === 'dark' ? 'light-mode' : 'dark-mode'} />}
+              onClick={toggleMode}
+            >
+              {mode === 'dark' ? 'Light mode' : 'Dark mode'}
+            </Button>
+          </AppBarActions>
         </AppBar>
         <Box component="main" sx={{ maxWidth: 1440, mx: 'auto' }}>
           {view === 'components' && <Showcase />}

@@ -2,24 +2,76 @@ import * as React from 'react';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderToString } from 'react-dom/server';
-import Toolbar from '@mui/material/Toolbar';
+import SvgIcon from '@mui/material/SvgIcon';
 import { ThemeProvider } from '../../styles/index.js';
+import Icon from '../../Icon/index.js';
 import AppBar, {
+  AppBarActions,
+  AppBarBrand,
+  AppBarTab,
+  AppBarTabs,
   appBarClasses,
-  type AppBarFixedTab,
   type AppBarProps,
-  type AppBarTab,
+  type AppBarTabsProps,
 } from '../index.js';
 import * as root from '../../index.js';
 
-const HOME: AppBarFixedTab[] = [{ id: 'home', icon: 'home', label: 'Home' }];
-const TABS: AppBarTab[] = [
-  { id: 'tab-1', label: 'Tab 1', icon: 'project' },
-  { id: 'tab-2', label: 'Tab 2', icon: 'project' },
+interface Item {
+  id: string;
+  label: string;
+  closeable?: boolean;
+  disabled?: boolean;
+  tags?: string[];
+}
+
+const TABS: Item[] = [
+  { id: 'tab-1', label: 'Tab 1' },
+  { id: 'tab-2', label: 'Tab 2' },
 ];
 
 function wrap(ui: React.ReactElement) {
   return render(<ThemeProvider>{ui}</ThemeProvider>);
+}
+
+/** A primary bar: branding, Home, the given tabs (closeable unless said otherwise) and actions. */
+function Bar({
+  value,
+  tabs = TABS,
+  home = true,
+  onChange,
+  onClose = () => {},
+  onAdd,
+  children,
+  ...props
+}: {
+  value: AppBarTabsProps['value'];
+  tabs?: Item[];
+  home?: boolean;
+  onChange?: AppBarTabsProps['onChange'];
+  onClose?: (id: string, event: React.SyntheticEvent) => void;
+  onAdd?: AppBarTabsProps['onAdd'];
+  children?: React.ReactNode;
+} & Omit<AppBarProps, 'children' | 'onChange'>) {
+  return (
+    <AppBar {...props}>
+      <AppBarBrand logo={<Icon name="apps" variant="filled" />}>APP</AppBarBrand>
+      <AppBarTabs value={value} onChange={onChange} onAdd={onAdd}>
+        {home && <AppBarTab value="home" icon={<Icon name="home" />} aria-label="Home" />}
+        {tabs.map((tab) => (
+          <AppBarTab
+            key={tab.id}
+            value={tab.id}
+            label={tab.label}
+            icon={<Icon name="project" />}
+            tags={tab.tags}
+            disabled={tab.disabled}
+            onClose={tab.closeable === false ? undefined : (event) => onClose(tab.id, event)}
+          />
+        ))}
+      </AppBarTabs>
+      {children && <AppBarActions>{children}</AppBarActions>}
+    </AppBar>
+  );
 }
 
 /** A page that owns the tabs, as the drop-in stories' host does. */
@@ -29,7 +81,7 @@ function Host({
   maxTabs,
   onEvent = () => {},
 }: {
-  initialTabs?: AppBarTab[];
+  initialTabs?: Item[];
   initialActive?: string;
   maxTabs?: number;
   onEvent?: (event: string) => void;
@@ -37,17 +89,14 @@ function Host({
   const [state, setState] = React.useState({ tabs: initialTabs, active: initialActive });
   const added = React.useRef(0);
   return (
-    <AppBar
-      appName="APP"
-      fixedTabs={HOME}
+    <Bar
+      value={state.active}
       tabs={state.tabs}
-      activeTab={state.active}
-      maxTabs={maxTabs}
-      onTabSelect={(id) => {
+      onChange={(_event, id) => {
         onEvent(`select ${id}`);
-        setState((s) => ({ ...s, active: id }));
+        setState((s) => ({ ...s, active: String(id) }));
       }}
-      onTabClose={(id) => {
+      onClose={(id) => {
         onEvent(`close ${id}`);
         setState((s) => {
           const index = s.tabs.findIndex((t) => t.id === id);
@@ -58,141 +107,273 @@ function Host({
           };
         });
       }}
-      onTabAdd={() => {
-        onEvent('add');
-        added.current += 1;
-        const id = `new-${added.current}`;
-        setState((s) => ({
-          tabs: [...s.tabs, { id, label: `New tab ${added.current}`, icon: 'project' }],
-          active: id,
-        }));
-      }}
+      onAdd={
+        maxTabs == null || state.tabs.length < maxTabs
+          ? () => {
+              onEvent('add');
+              added.current += 1;
+              const id = `new-${added.current}`;
+              setState((s) => ({
+                tabs: [...s.tabs, { id, label: `New tab ${added.current}` }],
+                active: id,
+              }));
+            }
+          : undefined
+      }
     />
   );
 }
 
-describe('AppBar: replaces the MUI AppBar', () => {
-  it('always renders the Tecton app bar, also without props', () => {
+/** A Tecton token as the browser resolves it, for comparison with computed styles. */
+function tokenColor(token: string) {
+  const probe = document.createElement('div');
+  probe.style.color = `var(--tecton-${token})`;
+  document.body.append(probe);
+  const color = getComputedStyle(probe).color;
+  probe.remove();
+  return color;
+}
+
+describe('AppBar: the bar', () => {
+  it('draws the Tecton row with only the parts it is given', () => {
     const { container } = wrap(<AppBar />);
     const bar = screen.getByRole('banner');
     expect(bar.tagName).toBe('HEADER');
     expect(bar).toHaveAttribute('data-region', 'app-bar');
     expect(bar).toHaveClass(appBarClasses.root, appBarClasses.positionStatic);
-    expect(within(bar).getByText('APP')).toBeInTheDocument();
-    expect(container.querySelector('[data-region="branding"]')).not.toBeNull();
-    expect(screen.getByRole('button', { name: 'Add tab' })).toBeInTheDocument();
+    expect(bar.querySelector('.MuiToolbar-root')).not.toBeNull();
+    // No drop-in defaults: no branding, tabs or add button unless composed.
+    expect(container.querySelector('[data-region="branding"]')).toBeNull();
+    expect(screen.queryAllByRole('tab')).toHaveLength(0);
+    expect(screen.queryByRole('button', { name: 'Add tab' })).toBeNull();
   });
 
-  it('renders children in the actions region, not as the bar content', () => {
+  it('renders the parts and any other content in its row', () => {
     const { container } = wrap(
+      <Bar value="tab-1">
+        <button type="button">notifications</button>
+      </Bar>,
+    );
+    const bar = screen.getByRole('banner');
+    expect(within(bar).getByText('APP')).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Home' })).toBeInTheDocument();
+    expect(screen.getAllByRole('tab')).toHaveLength(3);
+    const actions = container.querySelector('[data-region="right"][data-slot="actions"]');
+    expect(within(actions as HTMLElement).getByText('notifications')).toBeInTheDocument();
+    wrap(
       <AppBar>
-        <Toolbar>Content</Toolbar>
+        <span data-testid="free">Anything</span>
       </AppBar>,
     );
-    const actions = container.querySelector('[data-region="right"][data-slot="actions"]');
-    expect(actions).toHaveTextContent('Content');
-    expect(container.querySelector('[data-region="left"]')).not.toHaveTextContent('Content');
+    expect(screen.getByTestId('free').closest('.MuiToolbar-root')).not.toBeNull();
   });
 
   it('keeps the MUI root props, the ref and `component`', () => {
     const ref = React.createRef<HTMLElement>();
     wrap(
-      <AppBar
-        ref={ref}
-        component="nav"
-        appName="Planner"
-        position="sticky"
-        className="mine"
-        sx={{ mt: 1 }}
-      />,
+      <AppBar ref={ref} component="nav" position="sticky" className="mine" sx={{ mt: 1 }}>
+        <AppBarBrand>Planner</AppBarBrand>
+      </AppBar>,
     );
     expect(ref.current?.tagName).toBe('NAV');
     expect(ref.current).toHaveAttribute('data-region', 'app-bar');
     expect(ref.current).toHaveClass('mine', appBarClasses.positionSticky);
     expect(screen.getByText('Planner')).toBeInTheDocument();
-    expect(screen.queryAllByRole('tab')).toHaveLength(0);
   });
 
-  it('is the export of the root barrel', () => {
+  it('exports the parts from the root barrel', () => {
     expect(root.AppBar).toBe(AppBar);
+    expect(root.AppBarBrand).toBe(AppBarBrand);
+    expect(root.AppBarTabs).toBe(AppBarTabs);
+    expect(root.AppBarTab).toBe(AppBarTab);
+    expect(root.AppBarActions).toBe(AppBarActions);
     expect(root.appBarClasses).toBe(appBarClasses);
+  });
+
+  it('styles tier through the theme without putting it on the DOM', () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+    try {
+      const { container } = wrap(
+        <>
+          <Bar value="tab-1" />
+          <AppBar tier="secondary">
+            <AppBarTabs value="a">
+              <AppBarTab value="a" label="A" />
+            </AppBarTabs>
+          </AppBar>
+          <AppBar component="nav" tier="secondary" />
+        </>,
+      );
+      const bars = Array.from(container.querySelectorAll('[data-region="app-bar"]'));
+      expect(bars.map((bar) => bar.tagName)).toEqual(['HEADER', 'HEADER', 'NAV']);
+      for (const bar of bars) {
+        for (const name of ['tier', 'rootcomponent']) {
+          expect(bar).not.toHaveAttribute(name);
+        }
+      }
+      expect(error).not.toHaveBeenCalled();
+      const toolbarHeight = (bar: Element) =>
+        getComputedStyle(bar.querySelector('.MuiToolbar-root')!).height;
+      expect(toolbarHeight(bars[1]!)).toBe('40px');
+      expect(toolbarHeight(bars[0]!)).not.toBe('40px');
+    } finally {
+      error.mockRestore();
+    }
+  });
+
+  it('renders on the server', () => {
+    const html = renderToString(
+      <ThemeProvider>
+        <Bar value="tab-1">
+          <span>x</span>
+        </Bar>
+      </ThemeProvider>,
+    );
+    expect(html).toContain('data-region="app-bar"');
+    expect(html).toContain('Tab 2');
+    // The close button is laid over the tab after mount, never inside it.
+    expect(html).not.toContain('close tab');
   });
 });
 
-describe('AppBar: Tecton app bar layout', () => {
-  it('renders the branding, the fixed tabs, the tabs, + and the actions region', () => {
-    wrap(
-      <AppBar fixedTabs={HOME} tabs={TABS} activeTab="tab-1">
-        <button type="button">notifications</button>
+describe('AppBarBrand', () => {
+  it('shows the logo and the name in the documented regions', () => {
+    const { container } = wrap(
+      <AppBar>
+        <AppBarBrand logo={<Icon name="apps" variant="filled" />}>Apps</AppBarBrand>
+        <AppBarBrand logo={<img src="x.svg" alt="Product" />}>Product</AppBarBrand>
+        <AppBarBrand>Placeholder</AppBarBrand>
+        <AppBarBrand logo={null}>No logo</AppBarBrand>
       </AppBar>,
     );
-    const bar = screen.getByRole('banner');
-    expect(bar).toHaveAttribute('data-region', 'app-bar');
-    expect(bar).toHaveClass(appBarClasses.positionStatic);
-    expect(within(bar).getByText('APP')).toBeInTheDocument();
-    expect(screen.getByRole('tab', { name: 'Home' })).toBeInTheDocument();
-    expect(screen.getAllByRole('tab')).toHaveLength(3);
-    expect(screen.getByRole('button', { name: 'Add tab' })).toBeInTheDocument();
-    const actions = bar.querySelector('[data-region="right"][data-slot="actions"]');
-    expect(within(actions as HTMLElement).getByText('notifications')).toBeInTheDocument();
+    const [icon, image, placeholder, none] = Array.from(
+      container.querySelectorAll('[data-region="branding"]'),
+    );
+    for (const part of ['branding-lockup', 'branding-logo', 'branding-name']) {
+      expect(icon!.querySelector(`[data-region="${part}"]`)).not.toBeNull();
+    }
+    expect(icon!.querySelector('.tecton-apps-filled.tecton-appbar-icon')).not.toBeNull();
+    expect(image!.querySelector('[data-region="branding-logo"] > img')).toHaveAttribute(
+      'alt',
+      'Product',
+    );
+    // Left out: the Tecton generic app icon, a pink square, as on the drop-in.
+    const square = placeholder!.querySelector('[data-region="branding-logo"] > div')!;
+    expect(square).not.toBeNull();
+    expect(getComputedStyle(square).backgroundColor).toBe(tokenColor('color-accent-pink-fill'));
+    // `null`: no logo at all.
+    expect(none!.querySelector('[data-region="branding-logo"]')).toBeNull();
+    expect(none).toHaveTextContent('No logo');
   });
 
-  it('shows the filled icon on the active tab and the outline icon elsewhere', () => {
-    const { container } = wrap(<AppBar fixedTabs={HOME} tabs={TABS} activeTab="tab-1" />);
-    expect(container.querySelector('.tecton-home-outline')).not.toBeNull();
-    const [tab1, tab2] = screen.getAllByRole('tab').slice(1);
-    expect(tab1.querySelector('.tecton-project-filled')).not.toBeNull();
-    expect(tab2.querySelector('.tecton-project-outline')).not.toBeNull();
-  });
-
-  it('resolves the branding source: logo, then logoSrc, then a placeholder', () => {
-    const { rerender, container } = wrap(
-      <AppBar appName="Apps" logo="apps-filled" logoSrc="x.svg" />,
-    );
-    const branding = () => container.querySelector('[data-region="branding"]') as HTMLElement;
-    expect(branding().querySelector('.tecton-apps-filled')).not.toBeNull();
-    expect(branding().querySelector('img')).toBeNull();
-    rerender(
-      <ThemeProvider>
-        <AppBar appName="Product" logoSrc="x.svg" />
-      </ThemeProvider>,
-    );
-    expect(branding().querySelector('img')).toHaveAttribute('alt', 'Product');
-    rerender(
-      <ThemeProvider>
-        <AppBar appName="APP" tabs={[]} />
-      </ThemeProvider>,
-    );
-    expect(branding().querySelector('img, .tecton-appbar-icon')).toBeNull();
-    expect(branding().querySelector('[data-region="branding-logo"] > div')).not.toBeNull();
-  });
-
-  it('tier="secondary" drops the branding and the fixed tabs', () => {
+  it('colours the logo and the name with the tertiary text colour', () => {
     const { container } = wrap(
-      <AppBar tier="secondary" fixedTabs={HOME} tabs={TABS} activeTab="tab-1" />,
+      <AppBar>
+        <AppBarBrand logo={<Icon name="map" variant="filled" />}>Field Planner</AppBarBrand>
+      </AppBar>,
     );
-    expect(container.querySelector('[data-region="branding"]')).toBeNull();
-    expect(screen.queryByRole('tab', { name: 'Home' })).toBeNull();
-    expect(screen.getAllByRole('tab')).toHaveLength(2);
-    expect(screen.getByRole('banner')).not.toHaveAttribute('tier');
+    const lockup = container.querySelector('[data-region="branding-lockup"]') as HTMLElement;
+    expect(getComputedStyle(lockup.querySelector('.tecton-appbar-icon')!).color).toBe(
+      tokenColor('color-action-tertiary-text'),
+    );
+    expect(getComputedStyle(within(lockup).getByText('Field Planner')).color).toBe(
+      tokenColor('color-action-tertiary-text'),
+    );
+  });
+  it('takes an MUI SvgIcon logo at the icon size, and a raw SVG mark fills the box', () => {
+    const { container } = wrap(
+      <AppBar>
+        <AppBarBrand
+          logo={
+            <SvgIcon data-testid="svg-icon">
+              <path d="M12 2 22 12 12 22 2 12z" />
+            </SvgIcon>
+          }
+        >
+          Survey Studio
+        </AppBarBrand>
+        <AppBarBrand
+          logo={
+            <svg data-testid="raw-svg" viewBox="0 0 24 24">
+              <path d="M12 2 22 12 12 22 2 12z" />
+            </svg>
+          }
+        >
+          Raw mark
+        </AppBarBrand>
+      </AppBar>,
+    );
+    const icon = screen.getByTestId('svg-icon');
+    // Sized and coloured like a Tecton Icon by the theme's `.tecton-appbar-icon` rule, not stretched.
+    expect(icon).toHaveClass('tecton-appbar-icon');
+    expect(getComputedStyle(icon).width).not.toBe('100%');
+    expect(getComputedStyle(icon).color).toBe(tokenColor('color-action-tertiary-text'));
+    expect(icon.closest('[data-region="branding-logo"]')).not.toBeNull();
+    const raw = screen.getByTestId('raw-svg');
+    expect(getComputedStyle(raw).width).toBe('100%');
+    expect(getComputedStyle(raw).height).toBe('100%');
+    expect(container.querySelectorAll('[data-region="branding-name"]')).toHaveLength(2);
+  });
+});
+
+describe('AppBarTabs and AppBarTab', () => {
+  it('shows a Tecton icon filled on the selected tab and outlined elsewhere', () => {
+    const { container } = wrap(
+      <AppBar>
+        <AppBarTabs value="tab-1">
+          <AppBarTab value="home" icon={<Icon name="home" />} aria-label="Home" />
+          <AppBarTab value="tab-1" icon={<Icon name="project" />} label="Tab 1" />
+          <AppBarTab value="tab-2" icon={<Icon name="project" />} label="Tab 2" />
+          <AppBarTab value="pinned" icon={<Icon name="pin" variant="filled" />} label="Pinned" />
+        </AppBarTabs>
+      </AppBar>,
+    );
+    expect(container.querySelector('.tecton-home-outline.tecton-appbar-icon')).not.toBeNull();
+    const [, tab1, tab2, pinned] = screen.getAllByRole('tab');
+    expect(tab1!.querySelector('.tecton-project-filled')).not.toBeNull();
+    expect(tab2!.querySelector('.tecton-project-outline')).not.toBeNull();
+    // An explicit variant is kept.
+    expect(pinned!.querySelector('.tecton-pin-filled')).not.toBeNull();
   });
 
-  it('applies the per-tab options: tags, closeable and disabled', () => {
+  it('takes an MUI SvgIcon as a tab icon, without a Tecton variant', () => {
     wrap(
-      <AppBar
+      <AppBar>
+        <AppBarTabs value="survey">
+          <AppBarTab
+            value="survey"
+            label="Survey"
+            icon={
+              <SvgIcon data-testid="tab-svg-icon">
+                <path d="M12 2 22 12 12 22 2 12z" />
+              </SvgIcon>
+            }
+          />
+        </AppBarTabs>
+      </AppBar>,
+    );
+    const icon = screen.getByTestId('tab-svg-icon');
+    expect(icon).toHaveClass('tecton-appbar-icon');
+    expect(icon).not.toHaveAttribute('variant');
+    expect(within(screen.getByRole('tab')).getByText('Survey')).toBeInTheDocument();
+  });
+
+  it('applies the per-tab options: tags, onClose and disabled', () => {
+    wrap(
+      <Bar
+        value="pinned"
+        home={false}
         tabs={[
           { id: 'overview', label: 'Overview', tags: ['beta'] },
           { id: 'pinned', label: 'Pinned', closeable: false },
           { id: 'archived', label: 'Archived', disabled: true },
         ]}
-        activeTab="pinned"
       />,
     );
     const overview = screen.getByRole('tab', { name: /Overview/ });
     expect(within(overview).getByText('beta').closest('.MuiChip-root')).not.toBeNull();
-    expect(within(overview).queryByRole('button', { name: 'close tab' })).toBeNull();
-    const pinned = screen.getByRole('tab', { name: /Pinned/ });
-    expect(pinned).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('tab', { name: /Pinned/ })).toHaveAttribute('aria-selected', 'true');
+    // The selected tab has no onClose: no close button.
     expect(screen.queryByRole('button', { name: 'close tab' })).toBeNull();
     expect(screen.getByRole('tab', { name: /Archived/ })).toHaveAttribute('aria-disabled', 'true');
   });
@@ -204,33 +385,44 @@ describe('AppBar: Tecton app bar layout', () => {
     await user.click(screen.getByRole('tab', { name: /Tab 2/ }));
     expect(screen.getByRole('tab', { name: /Tab 2/ })).toHaveAttribute('aria-selected', 'true');
     await user.click(screen.getByRole('button', { name: 'Add tab' }));
-    const added = screen.getByRole('tab', { name: /New tab 1/ });
-    expect(added).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('tab', { name: /New tab 1/ })).toHaveAttribute('aria-selected', 'true');
     await user.click(screen.getByRole('button', { name: 'close tab' }));
     expect(screen.queryByRole('tab', { name: /New tab 1/ })).toBeNull();
     expect(screen.getByRole('tab', { name: /Tab 2/ })).toHaveAttribute('aria-selected', 'true');
     expect(events).toEqual(['select tab-2', 'add', 'close new-1']);
   });
 
-  it('does not change the tabs on its own', async () => {
+  it('passes the event to onChange and onClose, and does not change the tabs on its own', async () => {
     const user = userEvent.setup();
-    const onTabClose = vi.fn();
-    wrap(<AppBar tabs={TABS} activeTab="tab-1" onTabClose={onTabClose} />);
+    const onChange = vi.fn();
+    const onClose = vi.fn();
+    wrap(<Bar value="tab-1" onChange={onChange} onClose={onClose} />);
+    await user.click(screen.getByRole('tab', { name: /Tab 2/ }));
+    expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ type: 'click' }), 'tab-2');
     await user.click(screen.getByRole('button', { name: 'close tab' }));
-    expect(onTabClose).toHaveBeenCalledWith('tab-1', expect.anything());
-    expect(screen.getAllByRole('tab')).toHaveLength(2);
+    expect(onClose).toHaveBeenCalledWith('tab-1', expect.objectContaining({ type: 'click' }));
+    expect(screen.getAllByRole('tab')).toHaveLength(3);
   });
 
-  it('hides + with disableTabAdd, and once tabs.length reaches maxTabs', () => {
-    const { unmount } = wrap(<AppBar tabs={TABS} disableTabAdd />);
+  it('shows + only with onAdd, with the props of slotProps.addButton', async () => {
+    const user = userEvent.setup();
+    const { unmount } = wrap(<Bar value="tab-1" />);
     expect(screen.queryByRole('button', { name: 'Add tab' })).toBeNull();
     unmount();
-    wrap(<AppBar tabs={TABS} maxTabs={0} />);
-    expect(screen.queryByRole('button', { name: 'Add tab' })).toBeNull();
+    const onAdd = vi.fn();
+    wrap(
+      <AppBar>
+        <AppBarTabs value="a" onAdd={onAdd} slotProps={{ addButton: { 'aria-label': 'New view' } }}>
+          <AppBarTab value="a" label="A" />
+        </AppBarTabs>
+      </AppBar>,
+    );
+    await user.click(screen.getByRole('button', { name: 'New view' }));
+    expect(onAdd).toHaveBeenCalledTimes(1);
   });
 
   it('keeps controls out of the tabs and has a single tab list', () => {
-    const { container } = wrap(<AppBar fixedTabs={HOME} tabs={TABS} activeTab="tab-1" />);
+    const { container } = wrap(<Bar value="tab-1" />);
     expect(container.querySelectorAll('[role="tablist"]')).toHaveLength(1);
     expect(container.querySelector('.MuiTabs-root')).not.toHaveAttribute('role');
     for (const tab of screen.getAllByRole('tab')) {
@@ -239,18 +431,18 @@ describe('AppBar: Tecton app bar layout', () => {
     const close = screen.getByRole('button', { name: 'close tab' });
     expect(close.closest('[role="tab"]')).toBeNull();
     expect(close.parentElement).toHaveClass('MuiTabs-scroller');
-    // The active tab keeps an empty slot of the button's size.
+    // The selected tab keeps an empty slot of the button's size.
     expect(
       screen.getByRole('tab', { name: /Tab 1/ }).querySelector('[data-close-slot]'),
     ).not.toBeNull();
   });
 
-  it('shows the close button only for the active closeable tab', () => {
-    const { rerender } = wrap(<AppBar fixedTabs={HOME} tabs={TABS} activeTab="home" />);
+  it('shows the close button only for the selected tab that has onClose', () => {
+    const { rerender } = wrap(<Bar value="home" />);
     expect(screen.queryByRole('button', { name: 'close tab' })).toBeNull();
     rerender(
       <ThemeProvider>
-        <AppBar fixedTabs={HOME} tabs={TABS} activeTab="tab-2" />
+        <Bar value="tab-2" />
       </ThemeProvider>,
     );
     expect(screen.getAllByRole('button', { name: 'close tab' })).toHaveLength(1);
@@ -260,44 +452,32 @@ describe('AppBar: Tecton app bar layout', () => {
     expect(
       screen.getByRole('tab', { name: /Tab 1/ }).querySelector('[data-close-slot]'),
     ).toBeNull();
-  });
-
-  it('server markup has no button inside a tab', () => {
-    const html = renderToString(
+    rerender(
       <ThemeProvider>
-        <AppBar tabs={TABS} activeTab="tab-1" />
+        <Bar value={false} />
       </ThemeProvider>,
     );
-    expect(html).not.toContain('close tab');
+    expect(screen.queryByRole('button', { name: 'close tab' })).toBeNull();
+    expect(screen.getAllByRole('tab').some((t) => t.getAttribute('aria-selected') === 'true')).toBe(
+      false,
+    );
   });
 
   it('re-renders in place when props change, keeping the same root', () => {
-    const { rerender } = wrap(<AppBar tabs={TABS} activeTab="tab-1" />);
+    const { rerender } = wrap(<Bar value="tab-1" onAdd={() => {}} />);
     const bar = screen.getByRole('banner');
     rerender(
       <ThemeProvider>
-        <AppBar tabs={TABS} activeTab="tab-1" appName="Renamed app" maxTabs={2} />
+        <Bar value="tab-2" />
       </ThemeProvider>,
     );
     expect(screen.getByRole('banner')).toBe(bar);
-    expect(screen.getByText('Renamed app')).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: /Tab 2/ })).toHaveAttribute('aria-selected', 'true');
     expect(screen.queryByRole('button', { name: 'Add tab' })).toBeNull();
-  });
-
-  it('renders on the server', () => {
-    const html = renderToString(
-      <ThemeProvider>
-        <AppBar fixedTabs={HOME} tabs={TABS} activeTab="tab-1">
-          <span>x</span>
-        </AppBar>
-      </ThemeProvider>,
-    );
-    expect(html).toContain('data-region="app-bar"');
-    expect(html).toContain('Tab 2');
   });
 });
 
-describe('AppBar: keyboard', () => {
+describe('AppBarTabs: keyboard', () => {
   it('moves between tabs with the arrow keys and selects with Enter', async () => {
     const user = userEvent.setup();
     const events: string[] = [];
@@ -309,43 +489,49 @@ describe('AppBar: keyboard', () => {
     expect(events).toEqual(['select tab-2']);
   });
 
-  it('closes the active closeable tab with Delete or Backspace', () => {
-    const onTabClose = vi.fn();
-    wrap(<AppBar tabs={TABS} activeTab="tab-1" onTabClose={onTabClose} />);
+  it('closes the selected closeable tab with Delete or Backspace', () => {
+    const onClose = vi.fn();
+    wrap(<Bar value="tab-1" onClose={onClose} />);
     const active = screen.getByRole('tab', { name: /Tab 1/ });
     expect(active).toHaveAttribute('aria-keyshortcuts', 'Delete');
     fireEvent.keyDown(active, { key: 'Delete' });
     fireEvent.keyDown(active, { key: 'Backspace' });
-    expect(onTabClose.mock.calls.map(([id]) => id)).toEqual(['tab-1', 'tab-1']);
+    expect(onClose.mock.calls.map(([id]) => id)).toEqual(['tab-1', 'tab-1']);
   });
 
-  it('does not close inactive, non-closeable or disabled tabs from the keyboard', () => {
-    const onTabClose = vi.fn();
-    const { rerender } = wrap(<AppBar tabs={TABS} activeTab="tab-1" onTabClose={onTabClose} />);
+  it('does not close other, unclosable or disabled tabs from the keyboard', () => {
+    const onClose = vi.fn();
+    const { rerender } = wrap(<Bar value="tab-1" onClose={onClose} />);
     const inactive = screen.getByRole('tab', { name: /Tab 2/ });
     expect(inactive).not.toHaveAttribute('aria-keyshortcuts');
     fireEvent.keyDown(inactive, { key: 'Delete' });
     rerender(
       <ThemeProvider>
-        <AppBar
+        <Bar
+          value="pinned"
           tabs={[{ id: 'pinned', label: 'Pinned', closeable: false }]}
-          activeTab="pinned"
-          onTabClose={onTabClose}
+          onClose={onClose}
         />
       </ThemeProvider>,
     );
     fireEvent.keyDown(screen.getByRole('tab', { name: /Pinned/ }), { key: 'Delete' });
-    expect(onTabClose).not.toHaveBeenCalled();
+    rerender(
+      <ThemeProvider>
+        <Bar value="off" tabs={[{ id: 'off', label: 'Off', disabled: true }]} onClose={onClose} />
+      </ThemeProvider>,
+    );
+    fireEvent.keyDown(screen.getByRole('tab', { name: /Off/ }), { key: 'Delete' });
+    expect(onClose).not.toHaveBeenCalled();
   });
 
   it('ignores Delete pressed on the close button itself', () => {
-    const onTabClose = vi.fn();
-    wrap(<AppBar tabs={TABS} activeTab="tab-1" onTabClose={onTabClose} />);
+    const onClose = vi.fn();
+    wrap(<Bar value="tab-1" onClose={onClose} />);
     fireEvent.keyDown(screen.getByRole('button', { name: 'close tab' }), { key: 'Delete' });
-    expect(onTabClose).not.toHaveBeenCalled();
+    expect(onClose).not.toHaveBeenCalled();
   });
 
-  it('moves focus to the newly active tab after the focused tab is closed', async () => {
+  it('moves focus to the newly selected tab after the focused tab is closed', async () => {
     const user = userEvent.setup();
     wrap(<Host initialActive="tab-2" />);
     act(() => screen.getByRole('tab', { name: /Tab 2/ }).focus());
@@ -354,17 +540,17 @@ describe('AppBar: keyboard', () => {
     expect(screen.getByRole('tab', { name: /Tab 1/ })).toHaveFocus();
   });
 
-  it('moves focus to the newly active tab after its close button is used', async () => {
+  it('moves focus to the newly selected tab after its close button is used', async () => {
     const user = userEvent.setup();
     wrap(<Host />);
     act(() => screen.getByRole('button', { name: 'close tab' }).focus());
     await user.keyboard('{Enter}');
     expect(screen.queryByRole('tab', { name: /Tab 1/ })).toBeNull();
-    // Tab 1 was the first tab: the host activates Tab 2, which receives focus.
+    // Tab 1 was the first tab: the host selects Tab 2, which receives focus.
     expect(screen.getByRole('tab', { name: /Tab 2/ })).toHaveFocus();
   });
 
-  it('moves focus to the active tab when + disappears at maxTabs', async () => {
+  it('moves focus to the selected tab when + goes away', async () => {
     const user = userEvent.setup();
     wrap(<Host maxTabs={3} />);
     act(() => screen.getByRole('button', { name: 'Add tab' }).focus());
@@ -387,7 +573,7 @@ describe('AppBar: keyboard', () => {
     const user = userEvent.setup();
     const outside = document.createElement('button');
     document.body.appendChild(outside);
-    wrap(<AppBar tabs={TABS} activeTab="tab-1" onTabClose={() => {}} />);
+    wrap(<Bar value="tab-1" />);
     const active = screen.getByRole('tab', { name: /Tab 1/ });
     act(() => active.focus());
     await user.keyboard('{Delete}');
@@ -399,75 +585,50 @@ describe('AppBar: keyboard', () => {
   });
 });
 
-/** A Tecton token as the browser resolves it, for comparison with computed styles. */
-function tokenColor(token: string) {
-  const probe = document.createElement('div');
-  probe.style.color = `var(--tecton-${token})`;
-  document.body.append(probe);
-  const color = getComputedStyle(probe).color;
-  probe.remove();
-  return color;
-}
+describe('AppBarTabs: attached', () => {
+  const fill = (bar: Element, name: RegExp) =>
+    getComputedStyle(within(bar as HTMLElement).getByRole('tab', { name })).backgroundColor;
+  /** Any fully transparent colour (the theme's transparent tokens are `#ffffff00` or `#00000000`). */
+  const TRANSPARENT = /^rgba\(\d+, \d+, \d+, 0\)$/;
+  const tabs = (attached: boolean | string) => (
+    <AppBarTabs value="tab-2" attached={attached}>
+      <AppBarTab value="tab-1" label="Tab 1" />
+      <AppBarTab value="tab-2" label="Tab 2" />
+    </AppBarTabs>
+  );
 
-describe('AppBar: tier and productColor', () => {
-  it('style the bar through the theme without reaching the DOM', () => {
-    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
-    try {
-      const { container } = wrap(
-        <>
-          <AppBar productColor="app2" />
-          <AppBar tier="secondary" tabs={TABS} activeTab="tab-1" />
-          <AppBar component="nav" tier="secondary" productColor="app3" />
-        </>,
-      );
-      const bars = Array.from(container.querySelectorAll('[data-region="app-bar"]'));
-      expect(bars.map((bar) => bar.tagName)).toEqual(['HEADER', 'HEADER', 'NAV']);
-      for (const bar of bars) {
-        for (const name of ['tier', 'productcolor', 'productColor', 'rootcomponent']) {
-          expect(bar).not.toHaveAttribute(name);
-        }
-      }
-      expect(error).not.toHaveBeenCalled();
-      // The MuiAppBar theme variants still match them.
-      const toolbarHeight = (bar: Element) =>
-        getComputedStyle(bar.querySelector('.MuiToolbar-root')!).height;
-      expect(toolbarHeight(bars[1]!)).toBe('40px');
-      expect(toolbarHeight(bars[0]!)).not.toBe('40px');
-    } finally {
-      error.mockRestore();
-    }
-  });
-
-  it('colours the logo and the app name with the product colour', () => {
+  it('fills the selected tab with the content surface, in both tiers', () => {
     const { container } = wrap(
       <>
-        <AppBar appName="Field Planner" logo="map-filled" productColor="app2" />
-        <AppBar appName="Asset Viewer" logo="map-filled" />
+        <AppBar>{tabs(true)}</AppBar>
+        <AppBar tier="secondary">{tabs(true)}</AppBar>
+        <AppBar>{tabs(false)}</AppBar>
       </>,
     );
-    const [branded, plain] = Array.from(
-      container.querySelectorAll('[data-region="branding-lockup"]'),
+    const [primary, secondary, plain] = Array.from(
+      container.querySelectorAll('[data-region="app-bar"]'),
     );
-    for (const lockup of [branded!, plain!]) {
-      // The documented markers for restyling the branding.
-      for (const part of ['branding-container', 'branding-logo', 'branding-name']) {
-        expect(lockup.querySelector(`[data-region="${part}"]`)).not.toBeNull();
-      }
-      expect(lockup).toHaveClass('tecton-appbar-product');
+    for (const bar of [primary!, secondary!]) {
+      expect(fill(bar, /Tab 2/)).toBe(tokenColor('color-bg-default'));
+      // The other tabs stay clear, so the bar's bottom line shows under them.
+      expect(fill(bar, /Tab 1/)).toMatch(TRANSPARENT);
+      expect(bar.querySelector('[attached]')).toBeNull();
     }
-    const colours = (lockup: Element) => [
-      getComputedStyle(lockup.querySelector('.tecton-appbar-icon')!).color,
-      getComputedStyle(within(lockup as HTMLElement).getByText(/Field Planner|Asset Viewer/)).color,
-    ];
-    expect(colours(branded!)).toEqual([
-      tokenColor('color-branding-app2'),
-      tokenColor('color-branding-app2'),
-    ]);
-    // Without productColor: the tertiary text colour, as before.
-    expect(colours(plain!)).toEqual([
-      tokenColor('color-action-tertiary-text'),
-      tokenColor('color-action-tertiary-text'),
-    ]);
+    // Without `attached` the selected tab keeps the theme's look (no fill).
+    expect(fill(plain!, /Tab 2/)).toMatch(TRANSPARENT);
+  });
+
+  it('takes the content color as a theme palette path or a CSS color', () => {
+    const { container } = wrap(
+      <>
+        <AppBar tier="secondary">{tabs('background.paper')}</AppBar>
+        <AppBar tier="secondary">{tabs('rgb(1, 2, 3)')}</AppBar>
+      </>,
+    );
+    const [paper, custom] = Array.from(container.querySelectorAll('[data-region="app-bar"]'));
+    expect(fill(paper!, /Tab 2/)).toBe(tokenColor('color-bg-paper'));
+    expect(fill(custom!, /Tab 2/)).toBe('rgb(1, 2, 3)');
+    expect(fill(custom!, /Tab 1/)).toMatch(TRANSPARENT);
   });
 });
 
@@ -482,14 +643,32 @@ export function typeChecks() {
   return (
     <>
       <AppBar position="fixed" />
-      <AppBar tabs={TABS} onTabSelect={(id: string) => id}>
-        <button type="button">Share</button>
-      </AppBar>
-      <AppBar component="nav" tabs={TABS} />
-      {/* @ts-expect-error Tabs need an id. */}
-      <AppBar tabs={[{ label: 'No id' }]} />
+      <AppBar component="nav" tier="secondary" />
+      {/* @ts-expect-error productColor was removed. */}
+      <AppBar productColor="app1" />
+      {/* @ts-expect-error The theme sets the bar's colors. */}
+      <AppBar color="primary" />
+      {/* @ts-expect-error The theme sets the bar's colors. */}
+      <AppBar enableColorOnDark />
+      {/* @ts-expect-error The theme sets the bar's surface. */}
+      <AppBar elevation={0} />
+      {/* @ts-expect-error The theme sets the bar's surface. */}
+      <AppBar square={false} />
+      {/* @ts-expect-error The theme sets the bar's surface. */}
+      <AppBar variant="outlined" />
+      <AppBarTabs value={false} onChange={(_event, value: string | number) => value}>
+        <AppBarTab value="a" label="A" onClose={(event: React.SyntheticEvent) => event} />
+      </AppBarTabs>
+      {/* @ts-expect-error A tab needs a value. */}
+      <AppBarTab label="No value" />
+      {/* @ts-expect-error The strip lays its tabs out itself. */}
+      <AppBarTabs value="a" variant="fullWidth" />
+      {/* @ts-expect-error The bar sets the tabs' height. */}
+      <AppBarTabs value="a" size="small" />
+      {/* @ts-expect-error A tab's content goes in `label`. */}
+      <AppBarTab value="a">A</AppBarTab>
       {/* @ts-expect-error Unknown tier. */}
-      <AppBar tabs={TABS} tier="tertiary" />
+      <AppBar tier="tertiary" />
     </>
   );
 }

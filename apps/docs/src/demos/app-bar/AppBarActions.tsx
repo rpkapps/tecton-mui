@@ -1,5 +1,5 @@
 import * as React from 'react';
-import AppBar from '@tecton-mui/ui/AppBar';
+import AppBar, { AppBarActions, AppBarBrand, AppBarTab, AppBarTabs } from '@tecton-mui/ui/AppBar';
 import Avatar from '@tecton-mui/ui/Avatar';
 import Button from '@tecton-mui/ui/Button';
 import Icon from '@tecton-mui/ui/Icon';
@@ -9,17 +9,19 @@ import Menu from '@tecton-mui/ui/Menu';
 import MenuItem from '@tecton-mui/ui/MenuItem';
 import Stack from '@tecton-mui/ui/Stack';
 
-const FIXED_TABS = [{ id: 'home', icon: 'home', label: 'Home' }];
-const TABS = [{ id: 'report', label: 'Q3 report', icon: 'project', closeable: false }];
-
-export default function AppBarActions() {
+export default function AppBarActionsDemo() {
   const [anchor, setAnchor] = React.useState<HTMLElement | null>(null);
   const open = Boolean(anchor);
 
   return (
-    <AppBar appName="APP" fixedTabs={FIXED_TABS} tabs={TABS} activeTab="report" disableTabAdd>
-      {/* `children` fill the actions region at the right end of the bar. */}
-      <Stack direction="row" spacing={2} sx={{ alignItems: 'center', height: '100%' }}>
+    <AppBar>
+      <AppBarBrand>APP</AppBarBrand>
+      <AppBarTabs value="report">
+        <AppBarTab value="home" icon={<Icon name="home" />} aria-label="Home" />
+        <AppBarTab value="report" icon={<Icon name="project" />} label="Q3 report" />
+      </AppBarTabs>
+      {/* The actions region at the right end of the bar. */}
+      <AppBarActions sx={{ gap: 2 }}>
         <Stack direction="row" spacing={1}>
           <IconButton color="tertiary" aria-label="Search">
             <Icon name="search" />
@@ -41,7 +43,7 @@ export default function AppBarActions() {
         >
           <Avatar size="xsmall">JD</Avatar>
         </IconButton>
-      </Stack>
+      </AppBarActions>
       <Menu
         id="app-bar-account-menu"
         anchorEl={anchor}

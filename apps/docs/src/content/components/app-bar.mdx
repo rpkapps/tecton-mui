@@ -4,9 +4,16 @@ The app bar is the strip across the top of a Tecton application: the logo and ap
 people switch between, and room on the right for the app's own buttons. In a micro-frontend setup
 the shell typically owns it.
 
-`AppBar` is the Tecton App Bar from the Figma design, the React version of the Tecton
-`<wc-app-bar>` drop-in, with the same looks and behaviour. It replaces the MUI `AppBar`: there is no
-`Toolbar` composition, the bar draws its own layout and your content goes into its actions region.
+`AppBar` is the Tecton App Bar from the Figma design, with the looks and behaviour of the Tecton
+`<wc-app-bar>` drop-in. It replaces the MUI `AppBar` and draws the Tecton row itself (no `Toolbar` to
+add). Compose it from its parts, which follow MUI's `Tabs` and `Tab`:
+
+| Part            | What it is                                                                        |
+| --------------- | --------------------------------------------------------------------------------- |
+| `AppBarBrand`   | The product mark (`logo`) and the app name (children)                             |
+| `AppBarTabs`    | MUI `Tabs` props, plus `onAdd` for the add button and `attached`                  |
+| `AppBarTab`     | MUI `Tab` props, plus `onClose` for a close button and `tags`; icon-only for Home |
+| `AppBarActions` | Your buttons, at the end of the bar                                               |
 
 ## Basic app bar
 
@@ -14,48 +21,33 @@ Select a tab, close the active one with its close button, or add one with +.
 
 <Demo name="TectonAppBar" />
 
-**Your page owns the data.** Each interaction calls back (`onTabSelect(id)`, `onTabClose(id)`,
-`onTabAdd()`) and the page updates `tabs` and `activeTab`. The bar never changes the tabs on its
-own. When the active tab is closed, select the tab before it, as the examples do.
+**Your page owns the tabs.** `AppBarTabs` calls `onChange(event, value)` when a tab is selected and
+`onAdd(event)` for +; a tab calls its own `onClose(event)`. The page updates its tabs and `value`;
+the bar never changes them on its own. When the selected tab is closed, select the tab before it, as
+the examples do.
 
 ## Branding
 
-A Tecton icon (`logo`, suffix included, for example `map-filled`) or an image (`logoSrc`) shows next
-to `appName` (default `APP`). `logo` wins over `logoSrc`; with neither, a placeholder square shows.
-`productColor` (`app1` to `app4`) colors the logo and the app name with one of the
-[product colors](/foundations/colors#product-branding); without it they use the tertiary text color.
+`AppBarBrand` shows its `logo` next to the app name: a Tecton `Icon`, an `<img>` or any element.
+Without a `logo`, a placeholder square shows (the Tecton design's generic app icon); `logo={null}`
+shows none.
 
 <Demo name="BrandingAppBar" />
 
-To restyle the branding further, target its regions, the same markers as on the `<wc-app-bar>`
-drop-in: `branding` (the cell), `branding-lockup` (the logo and the name), `branding-logo` and
-`branding-name`. For example, a lockup on a pill:
-
-```tsx
-import { cssVar } from '@tecton-mui/ui/styles';
-
-<AppBar
-  appName="Field Planner"
-  logo="map-filled"
-  productColor="app2"
-  sx={{
-    '& [data-region="branding-lockup"]': { bgcolor: cssVar('color-surface-elevation-2-bg') },
-  }}
-/>;
-```
-
 ## Tabs
 
-`fixedTabs` are icon-only tabs, such as Home, before the other tabs; their `label` is the accessible
-name. Each of the `tabs` has an icon, a label and optional `tags`. The active tab shows the filled
-icon and a close button, unless the tab is `closeable: false`. A `disabled` tab cannot be selected.
+An `AppBarTab` takes the MUI `Tab` props: `value`, `label`, `icon`, `disabled`, `sx` and the rest.
+Without a `label` it is an icon-only cell, such as Home; give it an `aria-label`. A Tecton `Icon` shows
+filled on the selected tab and outlined on the others, unless you set its `variant`. `tags` adds
+small chips after the label, and `onClose` gives the tab a close button, shown while it is selected.
 
 <Demo name="TabOptionsAppBar" />
 
-### Limiting the number of tabs
+### Adding tabs
 
-`maxTabs` hides the add button once `tabs.length` reaches the cap (`0` always hides it);
-`disableTabAdd` turns it off. Add two tabs below and the + goes away; close one and it comes back.
+`onAdd` on `AppBarTabs` shows the add button after the tabs. To cap the number of tabs, leave
+`onAdd` out once the cap is reached: add two tabs below and the + goes away; close one and it comes
+back.
 
 <Demo name="TabLimitsAppBar" />
 
@@ -64,25 +56,35 @@ icon and a close button, unless the tab is `closeable: false`. A `disabled` tab 
 When the tabs outgrow the bar, the tab strip scrolls with arrows, while the branding, the add button
 and the actions keep their place. An arrow only shows while the strip can scroll its way, and is a
 cell as wide as the Home cell. A click slides the strip by the tabs that fit, and a newly selected
-or added tab slides into view; an arrow that goes away does so as the slide starts, and one that shows grows in. Both take the
-theme's `transitions.duration.standard`, and with reduced motion the strip jumps instead.
+or added tab slides into view; an arrow that goes away does so as the slide starts, and one that
+shows grows in. Both take the theme's `transitions.duration.standard`, and with reduced motion the
+strip jumps instead.
 
 <Demo name="ManyTabsAppBar" />
 
 ## Actions
 
-`children` render in the actions region at the right end of the bar, centred vertically. Use icon
-buttons, text buttons, a menu button or an avatar; lay several out with a `Stack`. The region never
-shrinks, so wide content takes room from the tabs.
+`AppBarActions` sits at the end of the bar and centres its content: icon buttons, text buttons, a
+menu button or an avatar. It never shrinks, so wide content takes room from the tabs. Other content,
+such as a [Menubar](/components/menubar), can go anywhere in the bar.
 
 <Demo name="AppBarActions" />
 
 ## Secondary tier
 
-`tier="secondary"` gives the slimmer 40px bar for a section of a page, without branding and fixed
-tabs.
+`tier="secondary"` gives the slimmer 40px bar for a section of a page. It usually holds tabs only.
 
 <Demo name="SecondaryTectonAppBar" />
+
+## Tabs that open into the content
+
+With `attached` on `AppBarTabs`, the selected tab opens into the content under the bar, like a
+folder tab: the bar's bottom line stops under it and the tab takes the content's color. It works in
+both tiers and suits a secondary bar that switches the views of a page. `attached` alone uses the
+page background; when the content below has another color, pass it instead, as `sx`'s `bgcolor`
+takes it: a theme palette path such as `attached="background.paper"`, or any CSS color.
+
+<Demo name="AttachedTabsAppBar" />
 
 ## Application shell
 
@@ -91,40 +93,20 @@ Both are driven by the page's state.
 
 <Demo name="AppShellAppBar" />
 
-## Moving from `<wc-app-bar>`
-
-| `<wc-app-bar>`                   | `AppBar`                               |
-| -------------------------------- | -------------------------------------- |
-| `app-name`, `logo`, `logo-src`   | `appName`, `logo`, `logoSrc`           |
-| `active-tab`, `tier`             | `activeTab`, `tier`                    |
-| `max-tabs`, `disable-tab-add`    | `maxTabs`, `disableTabAdd`             |
-| `.fixedTabs`, `.tabs`            | `fixedTabs`, `tabs` (same item shapes) |
-| `<div slot="actions">`           | `children`                             |
-| `wc-app-bar-tab-select` `{ id }` | `onTabSelect(id, event)`               |
-| `wc-app-bar-tab-remove` `{ id }` | `onTabClose(id, event)`                |
-| `wc-app-bar-tab-add`             | `onTabAdd(event)`                      |
-
-## Moving from the MUI `AppBar`
-
-The bar is built on the MUI `AppBar`, so its root props (`position`, `sx`, `className`,
-`component`, `ref`) and the `MuiAppBar` theme keys still apply; `position` defaults to `static`. A
-bar composed with `Toolbar` and your own title, navigation and buttons becomes `appName`, `tabs`
-and `children`. `Toolbar` is still available as a general-purpose row.
-
 ## Accessibility
 
-- Tab reaches the tab list once (on the active tab), then the active tab's close button, the add
+- Tab reaches the tab list once (on the selected tab), then the selected tab's close button, the add
   button and your actions. Inside the tab list, Left and Right arrow move between tabs, Home and End
   jump to the first and last, and Enter or Space selects the focused tab.
-- Delete or Backspace on the active tab closes it, like its close button (announced through
-  `aria-keyshortcuts`). After a tab is closed, or the add button disappears at `maxTabs`, focus
-  moves to the newly active tab instead of being lost.
+- Delete or Backspace on the selected tab closes it, like its close button (announced through
+  `aria-keyshortcuts`). After a tab is closed, or the add button goes away, focus moves to the newly
+  selected tab instead of being lost.
 - The close button is a separate button next to its tab, not inside it, so screen readers and
   touch users reach it as a normal button. The tab list holds only tabs.
+- Icon-only tabs need an `aria-label`, as do icon buttons in the actions.
 - The bar is a `<header>` with `role="banner"`. With two bars on a page, as in the application
   shell, give the second one an `aria-label` (or `component="nav"`) so the landmarks can be told
   apart.
 - Provide a "skip to content" link before the app bar so keyboard users can bypass it, as this portal
   does.
-- Icon buttons in the actions need `aria-label`s.
 - With `position="fixed"`, add padding so content is not hidden behind the bar.

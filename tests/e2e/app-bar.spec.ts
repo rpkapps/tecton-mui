@@ -412,6 +412,58 @@ test.describe('Tecton app bar: close button placement', () => {
   });
 });
 
+test.describe('Tecton app bar: attachedTabs', () => {
+  /** Where the selected tab of a bar meets the bar's bottom line, measured in the page. */
+  const opening = (page: Page, label: string) =>
+    page.evaluate((name) => {
+      const bar = document.querySelector(`[aria-label="${name}"]`)!;
+      const box = bar.getBoundingClientRect();
+      const selected = bar.querySelector('[role="tab"][aria-selected="true"]')!;
+      const tab = selected.getBoundingClientRect();
+      const onLine = document.elementFromPoint(tab.left + tab.width / 2, box.bottom - 0.5);
+      return {
+        tab: selected.textContent,
+        reachesBottom: Math.abs(tab.bottom - box.bottom) < 0.5,
+        coversLine: onLine?.closest('[role="tab"]') === selected,
+        borderBottom: getComputedStyle(bar).borderBottomWidth,
+        fill: getComputedStyle(selected).backgroundColor,
+        content: getComputedStyle(document.querySelector(`[data-testid="content-${name}"]`)!)
+          .backgroundColor,
+      };
+    }, label);
+
+  for (const dir of ['ltr', 'rtl']) {
+    test(`the selected tab opens into the content below, in both tiers (${dir})`, async ({
+      page,
+    }) => {
+      await page.goto(`/?scenario=app-bar-attached&mode=dark&dir=${dir}`);
+      await expect(page.getByRole('banner', { name: 'surface' })).toBeVisible();
+      for (const label of ['primary', 'secondary', 'surface']) {
+        const result = await opening(page, label);
+        expect(result).toMatchObject({
+          tab: 'Framework Model',
+          reachesBottom: true,
+          coversLine: true,
+          borderBottom: '1px',
+        });
+        expect(result.fill).toBe(result.content);
+      }
+      // Selecting another tab moves the opening; the previous tab goes back to the bar.
+      const bar = page.getByRole('banner', { name: 'secondary' });
+      await bar.getByRole('tab', { name: /Well Paths/ }).click();
+      expect(await opening(page, 'secondary')).toMatchObject({
+        tab: 'Well Paths',
+        reachesBottom: true,
+        coversLine: true,
+      });
+      await expect(bar.getByRole('tab', { name: /Framework Model/ })).toHaveCSS(
+        'background-color',
+        /rgba\(\d+, \d+, \d+, 0\)/,
+      );
+    });
+  }
+});
+
 test.describe('Tecton app bar: axe', () => {
   for (const story of ['primary', 'tab-options', 'secondary']) {
     for (const mode of ['light', 'dark']) {
