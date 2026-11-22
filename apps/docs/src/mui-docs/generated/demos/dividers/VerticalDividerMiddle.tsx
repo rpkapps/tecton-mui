@@ -14,7 +14,7 @@ export default function VerticalDividerMiddle() {
       sx={{
         display: 'flex',
         color: 'text.secondary',
-        '& svg': {
+        '& svg, & .TectonIcon-root': {
           m: 1,
         },
         [`& .${dividerClasses.root}`]: {

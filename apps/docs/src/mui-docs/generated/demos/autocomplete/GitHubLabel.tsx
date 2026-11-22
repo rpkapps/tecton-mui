@@ -123,10 +123,10 @@ const Button = styled(ButtonBase)(({ theme }) => ({
       color: '#58a6ff',
     }),
   },
-  '& span': {
+  '& span:not(.TectonIcon-root)': {
     width: '100%',
   },
-  '& svg': {
+  '& svg, & .TectonIcon-root': {
     width: 16,
     height: 16,
   },

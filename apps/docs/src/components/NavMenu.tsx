@@ -105,7 +105,7 @@ function Group({
               '[dir=rtl] &': { transform: open ? 'rotate(90deg)' : 'scaleX(-1)' },
             }}
           >
-            <Icon name="chevron-right-small" size="small" />
+            <Icon name="chevron-right" size="small" />
           </Box>
         </Box>
       </ListItemButton>

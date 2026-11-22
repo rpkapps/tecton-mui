@@ -24,7 +24,7 @@ export default function SizeRadioButtons() {
       <Radio
         {...controlProps('c')}
         sx={{
-          '& .MuiSvgIcon-root': {
+          '& .MuiSvgIcon-root, & [class*="tecton-"]': {
             fontSize: 28,
           },
         }}

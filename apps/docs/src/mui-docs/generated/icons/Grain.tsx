@@ -2,4 +2,4 @@
  * stand-in for @mui/icons-material/Grain. Do not edit. */
 import { createMuiIcon } from '../../runtime/MuiIcon';
 
-export default createMuiIcon('seismic', 'filled', 'Grain');
+export default createMuiIcon('apps', 'filled', 'Grain');

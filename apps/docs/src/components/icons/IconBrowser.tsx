@@ -88,9 +88,11 @@ const IconTile = React.memo(function IconTile({
           height: '100%',
           minHeight: 92,
           flexDirection: 'column',
-          justifyContent: 'center',
+          // Top-aligned so icons line up across a row when some names wrap to two lines.
+          justifyContent: 'flex-start',
           gap: 1,
           p: 1.25,
+          pt: 2.75,
           borderRadius: 1.5,
           border: '1px solid var(--tecton-color-divider-subtle)',
           color: 'text.primary',

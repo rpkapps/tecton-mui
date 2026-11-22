@@ -12,7 +12,7 @@ export default function SizeCheckboxes() {
       <Checkbox
         {...label}
         defaultChecked
-        sx={{ '& .MuiSvgIcon-root': { fontSize: 28 } }}
+        sx={{ '& .MuiSvgIcon-root, & [class*="tecton-"]': { fontSize: 28 } }}
       />
     </div>
   );

@@ -106,12 +106,12 @@ const StyledItem = styled(Item)<ItemProps>(({ theme }) => ({
       borderColor: '#177ddc',
     }),
   },
-  '& span': {
+  '& span:not(.TectonIcon-root)': {
     overflow: 'hidden',
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
   },
-  '& svg': {
+  '& svg, & .TectonIcon-root': {
     fontSize: '12px',
     cursor: 'pointer',
     padding: '4px',
@@ -136,10 +136,10 @@ const Listbox = styled('ul')(({ theme }) => ({
   '& li': {
     padding: '5px 12px',
     display: 'flex',
-    '& span': {
+    '& span:not(.TectonIcon-root)': {
       flexGrow: 1,
     },
-    '& svg': {
+    '& svg, & .TectonIcon-root': {
       color: 'transparent',
     },
   },
@@ -149,7 +149,7 @@ const Listbox = styled('ul')(({ theme }) => ({
     ...theme.applyStyles('dark', {
       backgroundColor: '#2b2b2b',
     }),
-    '& svg': {
+    '& svg, & .TectonIcon-root': {
       color: '#1890ff',
     },
   },
@@ -159,7 +159,7 @@ const Listbox = styled('ul')(({ theme }) => ({
     ...theme.applyStyles('dark', {
       backgroundColor: '#003b57',
     }),
-    '& svg': {
+    '& svg, & .TectonIcon-root': {
       color: 'currentColor',
     },
   },

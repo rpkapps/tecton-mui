@@ -2,4 +2,4 @@
  * stand-in for @mui/icons-material/SkipPrevious. Do not edit. */
 import { createMuiIcon } from '../../runtime/MuiIcon';
 
-export default createMuiIcon('chevron-left', 'filled', 'SkipPrevious');
+export default createMuiIcon('arrow-left', 'filled', 'SkipPrevious');

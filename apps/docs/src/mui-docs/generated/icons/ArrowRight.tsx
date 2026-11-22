@@ -2,4 +2,4 @@
  * stand-in for @mui/icons-material/ArrowRight. Do not edit. */
 import { createMuiIcon } from '../../runtime/MuiIcon';
 
-export default createMuiIcon('chevron-right-small', 'filled', 'ArrowRight');
+export default createMuiIcon('chevron-right', 'filled', 'ArrowRight');

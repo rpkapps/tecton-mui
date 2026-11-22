@@ -37,7 +37,7 @@ const StyledMenu = styled((props: MenuProps) => (
       padding: '4px 0',
     },
     '& .MuiMenuItem-root': {
-      '& .MuiSvgIcon-root': {
+      '& .MuiSvgIcon-root, & .TectonIcon-root': {
         fontSize: 18,
         color: theme.palette.text.secondary,
         marginRight: theme.spacing(1.5),

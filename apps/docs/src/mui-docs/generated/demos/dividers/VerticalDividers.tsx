@@ -18,7 +18,7 @@ export default function VerticalDividers() {
         borderRadius: 1,
         bgcolor: 'background.paper',
         color: 'text.secondary',
-        '& svg': {
+        '& svg, & .TectonIcon-root': {
           m: 1,
         },
         [`& .${dividerClasses.root}`]: {
