@@ -1,0 +1,81 @@
+import {
+  BorderWidthTable,
+  IconSizeTable,
+  RadiusTable,
+  SpacingTable,
+} from '../../components/TokenTables';
+
+## Where the values come from
+
+Spacing, corner radius, border width and icon size are Tecton tokens. They ship in two forms:
+
+- CSS variables (`--tecton-space-200`, `--tecton-radius-50`, …) in `@tecton-mui/ui/styles/tokens.css`,
+  part of `global.css`. They are the same in light and dark mode.
+- Numeric constants exported from `@tecton-mui/ui/styles`: `tectonSpacing`, `tectonBorderRadius`,
+  `tectonBorderWidth` and `tectonIconSize`, in pixels, for code that needs a number (for example a
+  virtualized list's row height).
+
+The tables on this page are generated from those exports, so they match the installed Tecton
+version. Click a name in the **CSS variable** column to copy it.
+
+## Using the tokens
+
+| Where              | Use                                                          | Example                                         |
+| ------------------ | ------------------------------------------------------------ | ----------------------------------------------- |
+| `sx` spacing props | The theme multiplier: one unit is `--tecton-space-100`       | `sx={{ p: 2, gap: 1.5 }}` (16px and 12px)       |
+| `sx` corner radius | The theme multiplier: one unit is `theme.shape.borderRadius` | `sx={{ borderRadius: 2 }}` (8px)                |
+| `sx` and `styled`  | `cssVar()` from `@tecton-mui/ui/styles`                      | `sx={{ borderRadius: cssVar('radius-round') }}` |
+| Plain CSS          | The CSS variable                                             | `padding: var(--tecton-space-200);`             |
+| Component logic    | The numeric constants                                        | `tectonSpacing[200]` (16)                       |
+
+`theme.spacing(n)` returns `calc(var(--tecton-space-100) * n)`, so every spacing in `sx` and in
+components resolves to the Tecton scale. Stay on the scale: use the multipliers listed in the tables
+(`0.25`, `0.5`, `0.75`, `1`, `1.5`, `2`, …), not values between steps such as `1.25`.
+
+```tsx
+import Box from '@tecton-mui/ui/Box';
+import { cssVar } from '@tecton-mui/ui/styles';
+
+<Box
+  sx={{
+    p: 2, // --tecton-space-200 (16px)
+    gap: 1, // --tecton-space-100 (8px)
+    borderRadius: cssVar('radius-100'),
+    border: `${cssVar('border-width-100')} solid ${cssVar('color-divider')}`,
+  }}
+/>;
+```
+
+### Keep the Tecton scale
+
+- Use the tokens on this page; never hard-code pixel, `rem` or `em` values for spacing, radius or
+  border width.
+- Do not change `spacing` or `shape` in the theme.
+- Size icons with the `Icon` `size` prop, or with an icon size token for the larger steps.
+
+## Spacing
+
+Layout rhythm: component padding, gaps between elements and the separation of page sections.
+
+<SpacingTable />
+
+## Corner radius
+
+Corner shape of controls, cards, grouped surfaces, pills and circles. `theme.shape.borderRadius` is
+the default Tecton radius, so a numeric `borderRadius` in `sx` multiplies it.
+
+<RadiusTable />
+
+## Border width
+
+Stroke thickness of controls, dividers, focus rings and callouts.
+
+<BorderWidthTable />
+
+## Icon size
+
+The box an icon renders in. The four control sizes are available on the `Icon` component's `size`
+prop. For the larger steps, keep the default `size="inherit"` and set the font size:
+`<Icon name="settings" sx={{ fontSize: cssVar('icon-size-300') }} />`.
+
+<IconSizeTable />

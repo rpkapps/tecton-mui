@@ -15,6 +15,8 @@ import { Route as ApiIndexRouteImport } from './routes/api/index';
 import { Route as ApiSlugRouteImport } from './routes/api/$slug';
 import { Route as ComponentsIndexRouteImport } from './routes/components/index';
 import { Route as ComponentsSlugRouteImport } from './routes/components/$slug';
+import { Route as FoundationsColorsRouteImport } from './routes/foundations/colors';
+import { Route as FoundationsSpacingAndRadiusRouteImport } from './routes/foundations/spacing-and-radius';
 import { Route as GettingStartedInstallationRouteImport } from './routes/getting-started/installation';
 import { Route as GettingStartedMfeStandaloneRouteImport } from './routes/getting-started/mfe-standalone';
 import { Route as GettingStartedMigrationFromMuiRouteImport } from './routes/getting-started/migration-from-mui';
@@ -22,12 +24,10 @@ import { Route as GettingStartedQuickStartRouteImport } from './routes/getting-s
 import { Route as GettingStartedShellIntegrationRouteImport } from './routes/getting-started/shell-integration';
 import { Route as GettingStartedSsrRouteImport } from './routes/getting-started/ssr';
 import { Route as GuidesCompatibilityRouteImport } from './routes/guides/compatibility';
-import { Route as GuidesLicensingRouteImport } from './routes/guides/licensing';
 import { Route as GuidesLocalizationRouteImport } from './routes/guides/localization';
 import { Route as GuidesStylesAndIconsRouteImport } from './routes/guides/styles-and-icons';
 import { Route as GuidesThemingRouteImport } from './routes/guides/theming';
 import { Route as ReleasesChangelogRouteImport } from './routes/releases/changelog';
-import { Route as ReleasesMigrationGuidesRouteImport } from './routes/releases/migration-guides';
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -59,6 +59,17 @@ const ComponentsSlugRoute = ComponentsSlugRouteImport.update({
   path: '/components/$slug',
   getParentRoute: () => rootRouteImport,
 } as any);
+const FoundationsColorsRoute = FoundationsColorsRouteImport.update({
+  id: '/foundations/colors',
+  path: '/foundations/colors',
+  getParentRoute: () => rootRouteImport,
+} as any);
+const FoundationsSpacingAndRadiusRoute =
+  FoundationsSpacingAndRadiusRouteImport.update({
+    id: '/foundations/spacing-and-radius',
+    path: '/foundations/spacing-and-radius',
+    getParentRoute: () => rootRouteImport,
+  } as any);
 const GettingStartedInstallationRoute =
   GettingStartedInstallationRouteImport.update({
     id: '/getting-started/installation',
@@ -99,11 +110,6 @@ const GuidesCompatibilityRoute = GuidesCompatibilityRouteImport.update({
   path: '/guides/compatibility',
   getParentRoute: () => rootRouteImport,
 } as any);
-const GuidesLicensingRoute = GuidesLicensingRouteImport.update({
-  id: '/guides/licensing',
-  path: '/guides/licensing',
-  getParentRoute: () => rootRouteImport,
-} as any);
 const GuidesLocalizationRoute = GuidesLocalizationRouteImport.update({
   id: '/guides/localization',
   path: '/guides/localization',
@@ -124,17 +130,14 @@ const ReleasesChangelogRoute = ReleasesChangelogRouteImport.update({
   path: '/releases/changelog',
   getParentRoute: () => rootRouteImport,
 } as any);
-const ReleasesMigrationGuidesRoute = ReleasesMigrationGuidesRouteImport.update({
-  id: '/releases/migration-guides',
-  path: '/releases/migration-guides',
-  getParentRoute: () => rootRouteImport,
-} as any);
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute;
   '/icons': typeof IconsRoute;
   '/api/$slug': typeof ApiSlugRoute;
   '/components/$slug': typeof ComponentsSlugRoute;
+  '/foundations/colors': typeof FoundationsColorsRoute;
+  '/foundations/spacing-and-radius': typeof FoundationsSpacingAndRadiusRoute;
   '/getting-started/installation': typeof GettingStartedInstallationRoute;
   '/getting-started/mfe-standalone': typeof GettingStartedMfeStandaloneRoute;
   '/getting-started/migration-from-mui': typeof GettingStartedMigrationFromMuiRoute;
@@ -142,12 +145,10 @@ export interface FileRoutesByFullPath {
   '/getting-started/shell-integration': typeof GettingStartedShellIntegrationRoute;
   '/getting-started/ssr': typeof GettingStartedSsrRoute;
   '/guides/compatibility': typeof GuidesCompatibilityRoute;
-  '/guides/licensing': typeof GuidesLicensingRoute;
   '/guides/localization': typeof GuidesLocalizationRoute;
   '/guides/styles-and-icons': typeof GuidesStylesAndIconsRoute;
   '/guides/theming': typeof GuidesThemingRoute;
   '/releases/changelog': typeof ReleasesChangelogRoute;
-  '/releases/migration-guides': typeof ReleasesMigrationGuidesRoute;
   '/api/': typeof ApiIndexRoute;
   '/components/': typeof ComponentsIndexRoute;
 }
@@ -156,6 +157,8 @@ export interface FileRoutesByTo {
   '/icons': typeof IconsRoute;
   '/api/$slug': typeof ApiSlugRoute;
   '/components/$slug': typeof ComponentsSlugRoute;
+  '/foundations/colors': typeof FoundationsColorsRoute;
+  '/foundations/spacing-and-radius': typeof FoundationsSpacingAndRadiusRoute;
   '/getting-started/installation': typeof GettingStartedInstallationRoute;
   '/getting-started/mfe-standalone': typeof GettingStartedMfeStandaloneRoute;
   '/getting-started/migration-from-mui': typeof GettingStartedMigrationFromMuiRoute;
@@ -163,12 +166,10 @@ export interface FileRoutesByTo {
   '/getting-started/shell-integration': typeof GettingStartedShellIntegrationRoute;
   '/getting-started/ssr': typeof GettingStartedSsrRoute;
   '/guides/compatibility': typeof GuidesCompatibilityRoute;
-  '/guides/licensing': typeof GuidesLicensingRoute;
   '/guides/localization': typeof GuidesLocalizationRoute;
   '/guides/styles-and-icons': typeof GuidesStylesAndIconsRoute;
   '/guides/theming': typeof GuidesThemingRoute;
   '/releases/changelog': typeof ReleasesChangelogRoute;
-  '/releases/migration-guides': typeof ReleasesMigrationGuidesRoute;
   '/api': typeof ApiIndexRoute;
   '/components': typeof ComponentsIndexRoute;
 }
@@ -178,6 +179,8 @@ export interface FileRoutesById {
   '/icons': typeof IconsRoute;
   '/api/$slug': typeof ApiSlugRoute;
   '/components/$slug': typeof ComponentsSlugRoute;
+  '/foundations/colors': typeof FoundationsColorsRoute;
+  '/foundations/spacing-and-radius': typeof FoundationsSpacingAndRadiusRoute;
   '/getting-started/installation': typeof GettingStartedInstallationRoute;
   '/getting-started/mfe-standalone': typeof GettingStartedMfeStandaloneRoute;
   '/getting-started/migration-from-mui': typeof GettingStartedMigrationFromMuiRoute;
@@ -185,12 +188,10 @@ export interface FileRoutesById {
   '/getting-started/shell-integration': typeof GettingStartedShellIntegrationRoute;
   '/getting-started/ssr': typeof GettingStartedSsrRoute;
   '/guides/compatibility': typeof GuidesCompatibilityRoute;
-  '/guides/licensing': typeof GuidesLicensingRoute;
   '/guides/localization': typeof GuidesLocalizationRoute;
   '/guides/styles-and-icons': typeof GuidesStylesAndIconsRoute;
   '/guides/theming': typeof GuidesThemingRoute;
   '/releases/changelog': typeof ReleasesChangelogRoute;
-  '/releases/migration-guides': typeof ReleasesMigrationGuidesRoute;
   '/api/': typeof ApiIndexRoute;
   '/components/': typeof ComponentsIndexRoute;
 }
@@ -201,6 +202,8 @@ export interface FileRouteTypes {
     | '/icons'
     | '/api/$slug'
     | '/components/$slug'
+    | '/foundations/colors'
+    | '/foundations/spacing-and-radius'
     | '/getting-started/installation'
     | '/getting-started/mfe-standalone'
     | '/getting-started/migration-from-mui'
@@ -208,12 +211,10 @@ export interface FileRouteTypes {
     | '/getting-started/shell-integration'
     | '/getting-started/ssr'
     | '/guides/compatibility'
-    | '/guides/licensing'
     | '/guides/localization'
     | '/guides/styles-and-icons'
     | '/guides/theming'
     | '/releases/changelog'
-    | '/releases/migration-guides'
     | '/api/'
     | '/components/';
   fileRoutesByTo: FileRoutesByTo;
@@ -222,6 +223,8 @@ export interface FileRouteTypes {
     | '/icons'
     | '/api/$slug'
     | '/components/$slug'
+    | '/foundations/colors'
+    | '/foundations/spacing-and-radius'
     | '/getting-started/installation'
     | '/getting-started/mfe-standalone'
     | '/getting-started/migration-from-mui'
@@ -229,12 +232,10 @@ export interface FileRouteTypes {
     | '/getting-started/shell-integration'
     | '/getting-started/ssr'
     | '/guides/compatibility'
-    | '/guides/licensing'
     | '/guides/localization'
     | '/guides/styles-and-icons'
     | '/guides/theming'
     | '/releases/changelog'
-    | '/releases/migration-guides'
     | '/api'
     | '/components';
   id:
@@ -243,6 +244,8 @@ export interface FileRouteTypes {
     | '/icons'
     | '/api/$slug'
     | '/components/$slug'
+    | '/foundations/colors'
+    | '/foundations/spacing-and-radius'
     | '/getting-started/installation'
     | '/getting-started/mfe-standalone'
     | '/getting-started/migration-from-mui'
@@ -250,12 +253,10 @@ export interface FileRouteTypes {
     | '/getting-started/shell-integration'
     | '/getting-started/ssr'
     | '/guides/compatibility'
-    | '/guides/licensing'
     | '/guides/localization'
     | '/guides/styles-and-icons'
     | '/guides/theming'
     | '/releases/changelog'
-    | '/releases/migration-guides'
     | '/api/'
     | '/components/';
   fileRoutesById: FileRoutesById;
@@ -265,6 +266,8 @@ export interface RootRouteChildren {
   IconsRoute: typeof IconsRoute;
   ApiSlugRoute: typeof ApiSlugRoute;
   ComponentsSlugRoute: typeof ComponentsSlugRoute;
+  FoundationsColorsRoute: typeof FoundationsColorsRoute;
+  FoundationsSpacingAndRadiusRoute: typeof FoundationsSpacingAndRadiusRoute;
   GettingStartedInstallationRoute: typeof GettingStartedInstallationRoute;
   GettingStartedMfeStandaloneRoute: typeof GettingStartedMfeStandaloneRoute;
   GettingStartedMigrationFromMuiRoute: typeof GettingStartedMigrationFromMuiRoute;
@@ -272,12 +275,10 @@ export interface RootRouteChildren {
   GettingStartedShellIntegrationRoute: typeof GettingStartedShellIntegrationRoute;
   GettingStartedSsrRoute: typeof GettingStartedSsrRoute;
   GuidesCompatibilityRoute: typeof GuidesCompatibilityRoute;
-  GuidesLicensingRoute: typeof GuidesLicensingRoute;
   GuidesLocalizationRoute: typeof GuidesLocalizationRoute;
   GuidesStylesAndIconsRoute: typeof GuidesStylesAndIconsRoute;
   GuidesThemingRoute: typeof GuidesThemingRoute;
   ReleasesChangelogRoute: typeof ReleasesChangelogRoute;
-  ReleasesMigrationGuidesRoute: typeof ReleasesMigrationGuidesRoute;
   ApiIndexRoute: typeof ApiIndexRoute;
   ComponentsIndexRoute: typeof ComponentsIndexRoute;
 }
@@ -324,6 +325,20 @@ declare module '@tanstack/react-router' {
       path: '/components/$slug';
       fullPath: '/components/$slug';
       preLoaderRoute: typeof ComponentsSlugRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    '/foundations/colors': {
+      id: '/foundations/colors';
+      path: '/foundations/colors';
+      fullPath: '/foundations/colors';
+      preLoaderRoute: typeof FoundationsColorsRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    '/foundations/spacing-and-radius': {
+      id: '/foundations/spacing-and-radius';
+      path: '/foundations/spacing-and-radius';
+      fullPath: '/foundations/spacing-and-radius';
+      preLoaderRoute: typeof FoundationsSpacingAndRadiusRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     '/getting-started/installation': {
@@ -375,13 +390,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GuidesCompatibilityRouteImport;
       parentRoute: typeof rootRouteImport;
     };
-    '/guides/licensing': {
-      id: '/guides/licensing';
-      path: '/guides/licensing';
-      fullPath: '/guides/licensing';
-      preLoaderRoute: typeof GuidesLicensingRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
     '/guides/localization': {
       id: '/guides/localization';
       path: '/guides/localization';
@@ -410,13 +418,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReleasesChangelogRouteImport;
       parentRoute: typeof rootRouteImport;
     };
-    '/releases/migration-guides': {
-      id: '/releases/migration-guides';
-      path: '/releases/migration-guides';
-      fullPath: '/releases/migration-guides';
-      preLoaderRoute: typeof ReleasesMigrationGuidesRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
   }
 }
 
@@ -425,6 +426,8 @@ const rootRouteChildren: RootRouteChildren = {
   IconsRoute: IconsRoute,
   ApiSlugRoute: ApiSlugRoute,
   ComponentsSlugRoute: ComponentsSlugRoute,
+  FoundationsColorsRoute: FoundationsColorsRoute,
+  FoundationsSpacingAndRadiusRoute: FoundationsSpacingAndRadiusRoute,
   GettingStartedInstallationRoute: GettingStartedInstallationRoute,
   GettingStartedMfeStandaloneRoute: GettingStartedMfeStandaloneRoute,
   GettingStartedMigrationFromMuiRoute: GettingStartedMigrationFromMuiRoute,
@@ -432,12 +435,10 @@ const rootRouteChildren: RootRouteChildren = {
   GettingStartedShellIntegrationRoute: GettingStartedShellIntegrationRoute,
   GettingStartedSsrRoute: GettingStartedSsrRoute,
   GuidesCompatibilityRoute: GuidesCompatibilityRoute,
-  GuidesLicensingRoute: GuidesLicensingRoute,
   GuidesLocalizationRoute: GuidesLocalizationRoute,
   GuidesStylesAndIconsRoute: GuidesStylesAndIconsRoute,
   GuidesThemingRoute: GuidesThemingRoute,
   ReleasesChangelogRoute: ReleasesChangelogRoute,
-  ReleasesMigrationGuidesRoute: ReleasesMigrationGuidesRoute,
   ApiIndexRoute: ApiIndexRoute,
   ComponentsIndexRoute: ComponentsIndexRoute,
 };
