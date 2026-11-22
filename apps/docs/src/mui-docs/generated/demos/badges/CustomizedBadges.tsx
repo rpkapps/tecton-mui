@@ -7,7 +7,7 @@ import ListItemAvatar from '@tecton-mui/ui/ListItemAvatar';
 import ListItemButton from '@tecton-mui/ui/ListItemButton';
 import ListItemText from '@tecton-mui/ui/ListItemText';
 import Paper from '@tecton-mui/ui/Paper';
-import { styled } from '@tecton-mui/ui/styles';
+import { cssVar, styled } from '@tecton-mui/ui/styles';
 
 type ContactStatus = 'online' | 'offline';
 
@@ -28,20 +28,20 @@ const ContactStatusBadge = styled(Badge, {
   const themePalette = (theme.vars ?? theme).palette;
   const offlineBadgeColor = theme.vars
     ? theme.vars.palette.Avatar.defaultBg
-    : theme.palette.grey[400];
+    : cssVar('color-divider-subtle');
 
   return {
     '& .MuiBadge-badge': {
       height: 10,
       minWidth: 10,
-      border: `1px solid ${themePalette.grey[300]}`,
+      border: `1px solid ${cssVar('color-divider-subtle')}`,
       boxShadow: `0 0 0 2px ${themePalette.background.paper}`,
       ...(status === 'offline' && {
         backgroundColor: offlineBadgeColor,
         ...(theme.vars
           ? {}
           : theme.applyStyles('dark', {
-              backgroundColor: theme.palette.grey[600],
+              backgroundColor: cssVar('color-divider'),
             })),
       }),
     },

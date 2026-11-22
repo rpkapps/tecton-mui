@@ -58,19 +58,20 @@ const body: CSSObject = {
     paddingInlineStart: cssVar('space-150'),
     borderInlineStart: `${cssVar('border-width-200')} solid color-mix(in srgb, currentColor 45%, transparent)`,
   },
+  // Markdown tables (not a `Table` component that a custom part draws, which has its own styles).
   // Wide tables scroll inside the bubble instead of stretching it.
-  '& table': {
+  '& table:not(.MuiTable-root)': {
     display: 'block',
     maxWidth: '100%',
     overflowX: 'auto',
     borderCollapse: 'collapse',
   },
-  '& th, & td': {
+  '& :is(th, td):not(.MuiTableCell-root)': {
     padding: `${cssVar('space-50')} ${cssVar('space-150')} ${cssVar('space-50')} 0`,
     borderBottom: line(25),
     textAlign: 'start',
   },
-  '& th': { fontWeight: 600, borderBottom: line(55) },
+  '& th:not(.MuiTableCell-root)': { fontWeight: 600, borderBottom: line(55) },
   '& hr': { border: 0, borderTop: line(30), marginInline: 0 },
 };
 

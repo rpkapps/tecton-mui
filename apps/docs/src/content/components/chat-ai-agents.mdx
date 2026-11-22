@@ -27,6 +27,30 @@ by chunk.
 
 <Demo name="AgentPlayground" playground />
 
+## Assistant variant
+
+`variant="assistant"` lays the chat out the way AI assistants such as Claude or Copilot do. The
+assistant's answers have no bubble and span the full width of the thread, so tables, code and long
+answers have room. Only the answers are full width: your messages keep their bubbles, at most 70% of
+the thread's width, and only they show the time. There are no avatars or author names: a
+conversation with one assistant does not need them, and screen readers still name each message
+after its author. Set
+`slots.messageAvatar` or `slots.messageAuthorName` to show them (`undefined` gives Chat's default).
+The dots shown while an answer has not started sit where the answer will begin.
+
+Here the agent shows its reasoning, then sends the matching wells as data, a `data-wells` part, and
+`partRenderers` draws it
+with `Table` (see [Custom message parts](/components/chat-message#custom-message-parts)). A
+Markdown table in the text works too, but a component gives you the Tecton table, colours and
+actions.
+
+<Demo name="AssistantVariant" />
+
+The `assistant` variant is a Tecton addition: MUI X Chat has `default` and `compact`, and `ChatBox`
+draws `assistant` as MUI's `default` with its own slots. So inside the chat, `useChatVariant()`
+returns `default`. MUI types the theme's `MuiChatBox.defaultProps.variant` as `default` or
+`compact`, so set `variant="assistant"` on the component.
+
 ## Stopping an answer
 
 `useChat().stopStreaming()` aborts the `AbortSignal` that `sendMessage` received; the adapter then
