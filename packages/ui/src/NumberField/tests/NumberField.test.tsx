@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { renderToString } from 'react-dom/server';
+import InputAdornment from '@mui/material/InputAdornment';
 import { ThemeProvider, getDefaultTheme } from '../../styles/index.js';
 import NumberField, { NumberField as NamedNumberField, numberFieldClasses } from '../index.js';
 import { NumberField as RootNumberField } from '../../index.js';
@@ -272,6 +273,28 @@ describe('NumberField', () => {
     const empty = renderToString(<NumberField label="Empty" />);
     expect(empty).toMatch(/<label[^>]*data-shrink="false"/);
   });
+
+  it.each(['outlined', 'filled'] as const)(
+    'shows a unit adornment before the stepper (%s)',
+    (variant) => {
+      render(
+        <NumberField
+          variant={variant}
+          label="Rate"
+          defaultValue={48}
+          slotProps={{
+            input: { endAdornment: <InputAdornment position="end">kHz</InputAdornment> },
+          }}
+        />,
+      );
+      const unit = screen.getByText('kHz').closest('.MuiInputAdornment-root')!;
+      const stepper = document.querySelector(`.${numberFieldClasses.stepper}`)!;
+      expect(unit.nextElementSibling).toBe(stepper);
+      expect(unit.closest('.MuiInputBase-root')).toBe(input().closest('.MuiInputBase-root'));
+      fireEvent.click(increase());
+      expect(input()).toHaveValue('49');
+    },
+  );
 
   it.each(['light', 'dark'] as const)('renders in the %s Tecton theme', (mode) => {
     const errors = vi.spyOn(console, 'error');

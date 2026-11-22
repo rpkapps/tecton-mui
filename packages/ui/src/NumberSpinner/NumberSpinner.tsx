@@ -18,6 +18,7 @@ import {
   SSRInitialFilled,
   joinIds,
   textFieldRootStyles,
+  unitAdornmentStyles,
   useFieldIds,
   type NumberFieldBaseProps,
   type NumberFieldCommonSlotProps,
@@ -82,6 +83,12 @@ const spinnerInputStyles = {
   flex: 1,
   borderRadius: 0,
   '& .MuiInputBase-input': { textAlign: 'center' },
+  // With a unit, the value and the unit are centred together.
+  '&.MuiInputBase-adornedEnd': {
+    justifyContent: 'center',
+    '& .MuiInputBase-input': { width: 'auto', flex: '0 1 auto', paddingRight: 0 },
+  },
+  ...unitAdornmentStyles,
   [`&&${INPUT_FOCUS_VISIBLE_SELECTOR}`]: { boxShadow: 'none' },
 } as const;
 

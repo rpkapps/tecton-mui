@@ -329,6 +329,10 @@ export { default as MultiInputDateRangeField } from './MultiInputDateRangeField/
 export type { MultiInputDateRangeFieldProps, RangeFieldValidationError } from './MultiInputDateRangeField/index.js';
 export { default as NumberField, numberFieldClasses } from './NumberField/index.js';
 export type { NumberFieldBaseProps, NumberFieldCommonSlotProps, NumberFieldFilledInputSlotProps, NumberFieldHtmlInputSlotProps, NumberFieldInputSlotProps, NumberFieldProps, NumberFieldSlotProps } from './NumberField/index.js';
+export { default as NumberRangeSlider, numberRangeSliderClasses } from './NumberRangeSlider/index.js';
+export type { NumberRangeSliderHtmlInputSlotProps, NumberRangeSliderProps, NumberRangeSliderSlotProps, NumberRangeSliderValue } from './NumberRangeSlider/index.js';
+export { default as NumberSlider, numberSliderClasses } from './NumberSlider/index.js';
+export type { NumberSliderInputSlotProps, NumberSliderProps, NumberSliderRailSlotProps, NumberSliderSlotProps } from './NumberSlider/index.js';
 export { default as NumberSpinner, numberSpinnerClasses } from './NumberSpinner/index.js';
 export type { NumberSpinnerProps, NumberSpinnerSlotProps } from './NumberSpinner/index.js';
 export { default as RichTreeView, RichTreeViewRoot, TreeViewDataSourceCacheDefault, getRichTreeViewUtilityClass, richTreeViewClasses } from './RichTreeView/index.js';

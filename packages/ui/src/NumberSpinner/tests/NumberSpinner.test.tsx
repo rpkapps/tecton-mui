@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { renderToString } from 'react-dom/server';
+import InputAdornment from '@mui/material/InputAdornment';
 import { ThemeProvider, getDefaultTheme } from '../../styles/index.js';
 import NumberSpinner, { numberSpinnerClasses } from '../index.js';
 import { NumberSpinner as RootNumberSpinner } from '../../index.js';
@@ -135,6 +136,22 @@ describe('NumberSpinner', () => {
     const html = renderToString(<NumberSpinner label="Crew" defaultValue={12} />);
     expect(html).toContain('value="12"');
     expect(html).toMatch(/<label[^>]*data-shrink="true"/);
+  });
+
+  it('shows a unit adornment after the value, between the buttons', () => {
+    render(
+      <NumberSpinner
+        label="Step"
+        defaultValue={5}
+        slotProps={{ input: { endAdornment: <InputAdornment position="end">Hz</InputAdornment> } }}
+      />,
+    );
+    const inputRoot = input().closest('.MuiInputBase-root')!;
+    expect(inputRoot).toHaveClass('MuiInputBase-adornedEnd');
+    expect(inputRoot).toContainElement(screen.getByText('Hz'));
+    expect(inputRoot.nextElementSibling).toBe(increase());
+    fireEvent.click(increase());
+    expect(input()).toHaveValue('6');
   });
 
   it.each(['light', 'dark'] as const)('renders in the %s Tecton theme', (mode) => {

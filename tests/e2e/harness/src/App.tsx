@@ -37,6 +37,7 @@ import { StorybookScenario } from './storybook/StorybookScenario.js';
 import { MenubarScenario } from './MenubarScenario.js';
 import { ActionBarScenario } from './ActionBarScenario.js';
 import { NumberFieldScenario } from './NumberFieldScenario.js';
+import { NumberSliderScenario } from './NumberSliderScenario.js';
 import { InputFocusScenario } from './InputFocusScenario.js';
 import { ButtonFocusScenario } from './ButtonFocusScenario.js';
 import { ChatScenario } from './ChatScenario.js';
@@ -212,6 +213,8 @@ export function App({ scenario, rtl }: { scenario: string; rtl: boolean }) {
           <ActionBarScenario />
         ) : scenario === 'number-field' ? (
           <NumberFieldScenario />
+        ) : scenario === 'number-slider' ? (
+          <NumberSliderScenario />
         ) : scenario === 'input-focus' ? (
           <InputFocusScenario />
         ) : scenario === 'button-focus' ? (
