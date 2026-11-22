@@ -192,6 +192,22 @@ const stripState = (bar: Locator) =>
     };
   });
 
+/** Waits until a bar's tab strip has stopped sliding. */
+async function stripIdle(bar: Locator) {
+  let last = -1;
+  await expect
+    .poll(
+      async () => {
+        const { scrollLeft } = await stripState(bar);
+        const still = scrollLeft === last;
+        last = scrollLeft;
+        return still;
+      },
+      { intervals: [150], timeout: 5000 },
+    )
+    .toBe(true);
+}
+
 /**
  * Opens a story and waits until the page has loaded (fonts included) and the tab strips are idle,
  * as a person would before adding tabs. MUI's scroll arrows can miss an update when the strip is
@@ -267,21 +283,6 @@ test.describe('Tecton app bar: scroll arrows follow the strip', () => {
       for (const n of [0, 2]) {
         const bar = page.locator('[data-region="app-bar"]').nth(n);
         const arrows = bar.locator('.MuiTabs-scrollButtons');
-        /** Waits until the strip has stopped (smooth) scrolling. */
-        const idle = async () => {
-          let last = -1;
-          await expect
-            .poll(
-              async () => {
-                const { scrollLeft } = await stripState(bar);
-                const still = scrollLeft === last;
-                last = scrollLeft;
-                return still;
-              },
-              { intervals: [150], timeout: 5000 },
-            )
-            .toBe(true);
-        };
         /** The arrows the strip's position calls for (start, end), within a pixel of an edge. */
         const check = async (step: string) => {
           await expect
@@ -313,13 +314,13 @@ test.describe('Tecton app bar: scroll arrows follow the strip', () => {
         // Through the strip with the arrows (the selected tab may scroll away meanwhile).
         for (let i = 0; i < 20 && (await arrows.nth(1).isVisible()); i += 1) {
           await arrows.nth(1).click();
-          await idle();
+          await stripIdle(bar);
         }
         await expect(arrows.nth(1)).toBeHidden();
         await expect(arrows.nth(0)).toBeVisible();
         for (let i = 0; i < 20 && (await arrows.nth(0).isVisible()); i += 1) {
           await arrows.nth(0).click();
-          await idle();
+          await stripIdle(bar);
         }
         await expect(arrows.nth(0)).toBeHidden();
         await check('back at the start');
@@ -333,6 +334,44 @@ test.describe('Tecton app bar: scroll arrows follow the strip', () => {
         await check('close the active tab');
         await bar.getByRole('button', { name: 'close tab' }).click();
         await check('close it again');
+      }
+    });
+  }
+});
+
+test.describe('Tecton app bar: scroll arrows page through a narrow strip', () => {
+  for (const dir of ['ltr', 'rtl']) {
+    test(`each click moves the strip by whole tabs, not by Home's width (${dir})`, async ({
+      page,
+    }) => {
+      test.setTimeout(90_000);
+      // Wide enough for MUI to show the arrows (600px and up), narrow enough that the strip holds
+      // about one tab. MUI's page (the tabs that fit, counted from Home) was Home's 48px here: some
+      // 30 clicks from one end of 15 tabs to the other.
+      await page.setViewportSize({ width: 640, height: 720 });
+      await openSettled(page, 'overflow', `&dir=${dir}`);
+      const bar = page.locator('[data-region="app-bar"]').nth(0);
+      const arrows = bar.locator('.MuiTabs-scrollButtons');
+      const tabs = await bar.getByRole('tab').count();
+      for (const arrow of [arrows.nth(1), arrows.nth(0)]) {
+        const steps: { moved: number; strip: number }[] = [];
+        for (let i = 0; i < tabs && (await arrow.isVisible()); i += 1) {
+          const before = await stripState(bar);
+          await arrow.click();
+          await stripIdle(bar);
+          const after = await stripState(bar);
+          steps.push({
+            moved: Math.abs(after.scrollLeft - before.scrollLeft),
+            strip: before.stripWidth,
+          });
+        }
+        // At least a tab at a time: the strip is crossed in fewer clicks than it has tabs.
+        await expect(arrow).toBeHidden();
+        expect(steps.length).toBeLessThan(tabs);
+        // Every click but the last (to the end, however near) moves a third of the strip or more.
+        for (const { moved, strip } of steps.slice(0, -1)) {
+          expect(moved).toBeGreaterThanOrEqual(strip / 3);
+        }
       }
     });
   }

@@ -92,6 +92,33 @@ function makeStrip({ rtl = false } = {}): Strip {
   };
 }
 
+/**
+ * Replaces the strip's tabs with tabs `widths` px wide, laid out from its start (the view's left
+ * edge in LTR, its right edge in RTL), and fits the scroll width to them.
+ */
+function layTabs(strip: Strip, widths: readonly number[], { rtl = false } = {}) {
+  const list = strip.scroller.querySelector('[role="tablist"]')!;
+  list.replaceChildren();
+  let at = 0;
+  for (const width of widths) {
+    const tab = document.createElement('div');
+    tab.setAttribute('role', 'tab');
+    const offset = at;
+    tab.getBoundingClientRect = () => {
+      const { scrollLeft } = strip.scroller;
+      return rtl
+        ? rect(300 - scrollLeft - offset - width, width)
+        : rect(100 - scrollLeft + offset, width);
+    };
+    list.append(tab);
+    at += width;
+  }
+  Object.defineProperty(strip.scroller, 'scrollWidth', { value: at, configurable: true });
+}
+
+/** The other physical direction (RTL tests click the mirror image of the LTR ones). */
+const mirror = (direction: 'left' | 'right') => (direction === 'left' ? 'right' : 'left');
+
 function setWidth(el: HTMLElement, width: number) {
   Object.defineProperty(el, 'offsetWidth', { value: width, configurable: true });
   el.style.width = `${width}px`;
@@ -222,24 +249,32 @@ describe('createTabStripStore', () => {
   });
 
   describe('scrollPage', () => {
-    function pagedStrip() {
-      const strip = makeStrip();
-      const list = strip.scroller.querySelector('[role="tablist"]')!;
-      for (const width of [80, 90, 100]) {
-        const tab = document.createElement('div');
-        Object.defineProperty(tab, 'clientWidth', { value: width });
-        list.append(tab);
-      }
-      Object.defineProperty(strip.tab, 'clientWidth', { value: 0, configurable: true });
+    /** A 200px strip of tabs `widths` px wide (its scroll width fits them). */
+    function pagedStrip(widths: readonly number[], options: { rtl?: boolean } = {}) {
+      const strip = makeStrip(options);
+      layTabs(strip, widths, options);
       return strip;
     }
+    // 770px of tabs: [0, 80], [80, 170], [170, 270], then 100px each (max 570).
+    const WHOLE_TABS = [80, 90, 100, 100, 100, 100, 100, 100];
 
-    it("slides one page of whole tabs with MUI's duration and easing", () => {
-      const strip = pagedStrip();
+    /** Pages at once, one click per direction given, and returns where each click left the strip. */
+    function pageThrough(strip: Strip, clicks: readonly ('left' | 'right')[]) {
+      const store = createTabStripStore();
+      store.attach(strip.scroller);
+      store.setDuration(0);
+      return clicks.map((direction) => {
+        store.scrollPage(direction);
+        return strip.scroller.scrollLeft;
+      });
+    }
+
+    it("slides a page of whole tabs with MUI's duration and easing", () => {
+      const strip = pagedStrip(WHOLE_TABS);
       const store = createTabStripStore();
       store.scrollPage('right'); // not attached: nothing to scroll
       store.attach(strip.scroller);
-      store.scrollPage('right'); // 0 + 80 + 90 fit in 200
+      store.scrollPage('right'); // the tab across the right edge moves to the left edge
       expect(store.isSliding()).toBe(true);
       expect(strip.scroller.scrollLeft).toBe(0);
       runFrame(1000);
@@ -253,21 +288,62 @@ describe('createTabStripStore', () => {
     });
 
     it('pages on from where a slide in progress is going', () => {
-      const strip = pagedStrip();
+      const strip = pagedStrip(WHOLE_TABS);
       const store = createTabStripStore();
       store.attach(strip.scroller);
       store.scrollPage('right');
       runFrame(0);
       runFrame(150);
-      store.scrollPage('right');
+      store.scrollPage('right'); // from 170: the view [170, 370] ends on a tab edge
       runFrame(1000);
       expect(strip.scroller.scrollLeft).toBe(85); // carries on from where it is
       runFrame(1300);
-      expect(strip.scroller.scrollLeft).toBe(340);
+      expect(strip.scroller.scrollLeft).toBe(370);
+    });
+
+    it('pages from where the strip is, a tab cut off by a sliver counting as shown', () => {
+      // Home and a first tab 3px too wide for the strip together: MUI paged by Home's 48px.
+      // Tabs: [0, 48], [48, 203], [203, 413], [413, 583], [583, 753] (max 553).
+      const widths = [48, 155, 210, 170, 170];
+      const clicks = ['right', 'right', 'right', 'left', 'left', 'left'] as const;
+      // Right: past [48, 203] and [203, 413] (cut off by 3 and 10px), then [583, 753] (cut off by
+      // 140px) to the left edge, which is within a sliver of the end: to the end. Left: the mirror
+      // image, and from 3px, the start.
+      expect(pageThrough(pagedStrip(widths), clicks)).toEqual([203, 413, 553, 383, 213, 0]);
+      expect(pageThrough(pagedStrip(widths, { rtl: true }), clicks.map(mirror))).toEqual([
+        -203, -413, -553, -383, -213, 0,
+      ]);
+    });
+
+    it('moves one strip width at a time across a tab nearly as wide as the strip, or wider', () => {
+      // Tabs: [0, 48], [48, 468], [468, 568], [568, 668] (max 468).
+      const widths = [48, 420, 100, 100];
+      const clicks = ['right', 'right', 'right', 'left', 'left', 'left'] as const;
+      // Right: [48, 468] to the left edge would only be a 48px step: a strip width, twice; then
+      // [568, 668] to the left edge (past the end). Left: the wide tab's end to the right edge, a
+      // strip width, then its start is in view but for 20px: the start.
+      expect(pageThrough(pagedStrip(widths), clicks)).toEqual([200, 400, 468, 268, 68, 0]);
+      expect(pageThrough(pagedStrip(widths, { rtl: true }), clicks.map(mirror))).toEqual([
+        -200, -400, -468, -268, -68, 0,
+      ]);
+    });
+
+    it('follows its tab when an arrow narrows the strip on the way', () => {
+      const strip = pagedStrip([100, 100, 100, 100, 100, 100, 100, 100, 100, 100]);
+      writeScrollLeft(strip.scroller, 800); // at the end
+      const store = createTabStripStore();
+      store.attach(strip.scroller);
+      store.scrollPage('left'); // [700, 800] to the right edge: to 600
+      runFrame(0);
+      // The end arrow shows: the strip is 48px narrower.
+      Object.defineProperty(strip.scroller, 'clientWidth', { value: 152, configurable: true });
+      strip.scroller.getBoundingClientRect = () => rect(100, 152);
+      runFrame(300);
+      expect(strip.scroller.scrollLeft).toBe(648); // [700, 800] still ends at the right edge
     });
 
     it('jumps with no duration or reduced motion, and stays within the scroll range', () => {
-      const strip = pagedStrip();
+      const strip = pagedStrip(WHOLE_TABS);
       const store = createTabStripStore();
       store.attach(strip.scroller);
       store.setDuration(0);
@@ -275,22 +351,20 @@ describe('createTabStripStore', () => {
       expect(store.isSliding()).toBe(false);
       store.scrollPage('right');
       expect(strip.scroller.scrollLeft).toBe(170);
-      Object.defineProperty(strip.tab, 'clientWidth', { value: 500, configurable: true });
       store.setDuration(300);
       vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: true } as MediaQueryList);
-      store.scrollPage('right'); // a first tab wider than the strip: one strip width
+      store.scrollPage('right');
       expect(strip.scroller.scrollLeft).toBe(370);
-      for (let i = 0; i < 4; i += 1) store.scrollPage('right');
-      expect(strip.scroller.scrollLeft).toBe(800);
+      for (let i = 0; i < 3; i += 1) store.scrollPage('right');
+      expect(strip.scroller.scrollLeft).toBe(570);
     });
 
     it('shows the arrows for where a slide is going, so they change along with it', () => {
-      const strip = pagedStrip();
-      Object.defineProperty(strip.scroller, 'scrollWidth', { value: 300, configurable: true });
+      const strip = pagedStrip([80, 90, 130]); // max 100
       const store = createTabStripStore();
       store.attach(strip.scroller);
       expect(shown(store)).toBe(2);
-      store.scrollPage('right'); // to the end (max 100)
+      store.scrollPage('right'); // to the end
       expect(shown(store)).toBe(1); // at once: start arrow on, end arrow off
       runFrame(0);
       runFrame(150);
@@ -298,7 +372,7 @@ describe('createTabStripStore', () => {
       runFrame(300);
       expect(strip.scroller.scrollLeft).toBe(100);
       expect(shown(store)).toBe(1);
-      store.scrollPage('left');
+      store.scrollPage('left'); // to the start
       expect(shown(store)).toBe(2);
       runFrame(1000);
       runFrame(1150);
@@ -309,7 +383,7 @@ describe('createTabStripStore', () => {
     });
 
     it('stops when asked', () => {
-      const strip = pagedStrip();
+      const strip = pagedStrip(WHOLE_TABS);
       const store = createTabStripStore();
       store.attach(strip.scroller);
       store.scrollPage('right');
@@ -400,9 +474,7 @@ describe('selectedTabTarget', () => {
 describe('shift', () => {
   function slidingStrip({ rtl = false } = {}) {
     const strip = makeStrip({ rtl });
-    const list = strip.scroller.querySelector('[role="tablist"]')!;
-    Object.defineProperty(strip.tab, 'clientWidth', { value: 100, configurable: true });
-    list.append(document.createElement('div'));
+    layTabs(strip, Array<number>(10).fill(100), { rtl });
     const store = createTabStripStore();
     store.attach(strip.scroller);
     return { strip, store };
@@ -420,15 +492,15 @@ describe('shift', () => {
     for (const rtl of [false, true]) {
       const { strip, store } = slidingStrip({ rtl });
       writeScrollLeft(strip.scroller, rtl ? -400 : 400);
-      store.scrollPage(rtl ? 'right' : 'left'); // a page of 100 toward the start: to 300
+      store.scrollPage(rtl ? 'right' : 'left'); // a page toward the start: to 200
       runFrame(0);
-      runFrame(150); // half way: 350
-      expect(Math.abs(strip.scroller.scrollLeft)).toBe(350);
-      strip.userScroll(rtl ? -340 : 340); // the browser clamped it to a smaller range
-      store.shift(-48); // the start arrow went: the tabs keep their place
-      expect(Math.abs(strip.scroller.scrollLeft)).toBe(302);
-      runFrame(300);
+      runFrame(150); // half way: 300
       expect(Math.abs(strip.scroller.scrollLeft)).toBe(300);
+      strip.userScroll(rtl ? -290 : 290); // the browser clamped it to a smaller range
+      store.shift(-48); // the start arrow went: the tabs keep their place
+      expect(Math.abs(strip.scroller.scrollLeft)).toBe(252);
+      runFrame(300);
+      expect(Math.abs(strip.scroller.scrollLeft)).toBe(200);
       store.stop();
     }
   });
@@ -514,7 +586,7 @@ describe('TabStripScrollButton', () => {
     const strip = makeStrip();
     const store = createTabStripStore();
     store.attach(strip.scroller);
-    const scrollPage = vi.spyOn(store, 'scrollPage');
+    const scrollPage = vi.spyOn(store, 'scrollPage').mockImplementation(() => {});
     renderButtons(store);
     expect(screen.getByLabelText('left')).toHaveClass('Mui-disabled');
     expect(screen.getByLabelText('right')).not.toHaveClass('Mui-disabled');
@@ -599,8 +671,7 @@ describe('TabStripScrollButton', () => {
 
   it('hides an arrow at once when a click slides the strip to its end', () => {
     const strip = makeStrip();
-    Object.defineProperty(strip.scroller, 'scrollWidth', { value: 300, configurable: true });
-    Object.defineProperty(strip.tab, 'clientWidth', { value: 120 }); // a page of 120
+    layTabs(strip, [120, 180]); // max 100
     const store = createTabStripStore();
     store.attach(strip.scroller);
     renderButtons(store);
