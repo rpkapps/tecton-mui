@@ -30,7 +30,11 @@ export const gettingStarted: NavLink[] = [
   { title: 'Shell Integration', to: '/getting-started/shell-integration' },
   { title: 'MFE / Standalone Integration', to: '/getting-started/mfe-standalone' },
   { title: 'SSR Setup', to: '/getting-started/ssr' },
-  { title: 'Migration from MUI', to: '/getting-started/migration-from-mui' },
+];
+
+export const foundations: NavLink[] = [
+  { title: 'Colors', to: '/foundations/colors' },
+  { title: 'Spacing and radius', to: '/foundations/spacing-and-radius' },
 ];
 
 export const guides: NavLink[] = [
@@ -38,13 +42,9 @@ export const guides: NavLink[] = [
   { title: 'LocalizationProvider and locales', to: '/guides/localization' },
   { title: 'Fonts, icons and style entry points', to: '/guides/styles-and-icons' },
   { title: 'Compatibility and accessibility', to: '/guides/compatibility' },
-  { title: 'Licensing and provenance', to: '/guides/licensing' },
 ];
 
-export const releases: NavLink[] = [
-  { title: 'Changelog', to: '/releases/changelog' },
-  { title: 'Consumer migration guides', to: '/releases/migration-guides' },
-];
+export const releases: NavLink[] = [{ title: 'Changelog', to: '/releases/changelog' }];
 
 const byTitle = (a: NavLink, b: NavLink) =>
   a.title.localeCompare(b.title, 'en', { sensitivity: 'base' });
@@ -61,6 +61,7 @@ export const componentGroups: NavGroup[] = categories.map((category) => ({
 
 export const navSections: NavSection[] = [
   { id: 'getting-started', title: 'Getting Started', icon: 'home', items: gettingStarted },
+  { id: 'foundations', title: 'Foundations', icon: 'design', items: foundations },
   {
     id: 'components',
     title: 'Components',
