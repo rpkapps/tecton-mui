@@ -6,6 +6,7 @@ import {
   Callout,
   CodeBlock,
   Demo,
+  ExcludedDemo,
   Heading,
   M,
   MuiDocsContent,
@@ -153,6 +154,15 @@ export default function MuiDocs() {
         {'.'}
       </M.p>
       <Demo name="TransitionsModal" />
+      <M.p>
+        {'Alternatively, you can use '}
+        <M.a href={'https://github.com/pmndrs/react-spring'}>{'react-spring'}</M.a>
+        {'.'}
+      </M.p>
+      <ExcludedDemo
+        name="SpringModal"
+        reason="requires the third-party package @react-spring/web, which the portal does not depend on"
+      />
       <Heading level={3} id="performance">
         {'Performance'}
       </Heading>

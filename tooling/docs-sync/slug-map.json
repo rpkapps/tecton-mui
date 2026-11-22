@@ -22,6 +22,7 @@
     "badges": [{ "slug": "badge" }],
     "chips": [{ "slug": "chip" }],
     "dividers": [{ "slug": "divider" }],
+    "icons": [{ "slug": "svg-icon", "sections": ["svgicon", "accessibility"] }],
     "lists": [{ "slug": "list" }],
     "table": [{ "slug": "table" }],
     "tooltips": [{ "slug": "tooltip" }],

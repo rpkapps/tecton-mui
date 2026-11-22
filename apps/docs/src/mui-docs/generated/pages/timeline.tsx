@@ -17,8 +17,6 @@ import OutlinedTimeline from '../demos/timeline/OutlinedTimeline';
 import OutlinedTimelineSource from '../demos/timeline/OutlinedTimeline.tsx?raw';
 import OppositeContentTimeline from '../demos/timeline/OppositeContentTimeline';
 import OppositeContentTimelineSource from '../demos/timeline/OppositeContentTimeline.tsx?raw';
-import CustomizedTimeline from '../demos/timeline/CustomizedTimeline';
-import CustomizedTimelineSource from '../demos/timeline/CustomizedTimeline.tsx?raw';
 import LeftAlignedTimeline from '../demos/timeline/LeftAlignedTimeline';
 import LeftAlignedTimelineSource from '../demos/timeline/LeftAlignedTimeline.tsx?raw';
 import RightAlignedTimeline from '../demos/timeline/RightAlignedTimeline';
@@ -43,9 +41,6 @@ const demos = {
   }),
   OppositeContentTimeline: defineDemo('OppositeContentTimeline', OppositeContentTimeline, {
     code: OppositeContentTimelineSource,
-  }),
-  CustomizedTimeline: defineDemo('CustomizedTimeline', CustomizedTimeline, {
-    code: CustomizedTimelineSource,
   }),
   LeftAlignedTimeline: defineDemo('LeftAlignedTimeline', LeftAlignedTimeline, {
     code: LeftAlignedTimelineSource,
@@ -111,22 +106,6 @@ export default function MuiDocs() {
       </Heading>
       <M.p>{'The timeline can display content on opposite sides.'}</M.p>
       <Demo name="OppositeContentTimeline" />
-      <Heading level={3} id="customization">
-        {'Customization'}
-      </Heading>
-      <Callout severity="info">
-        {
-          'These examples restyle the component beyond the Tecton defaults to show the customization APIs (sx, styled and theme overrides). Product UIs should keep the Tecton theme styling.'
-        }
-      </Callout>
-      <M.p>
-        {'Here is an example of customizing the component.\nYou can learn more about this in the '}
-        <M.a href={'https://mui.com/material-ui/customization/how-to-customize/'}>
-          {'overrides documentation page'}
-        </M.a>
-        {'.'}
-      </M.p>
-      <Demo name="CustomizedTimeline" />
       <Heading level={3} id="alignment">
         {'Alignment'}
       </Heading>

@@ -3,6 +3,7 @@
 import * as React from 'react';
 import CssBaseline from '@tecton-mui/ui/CssBaseline';
 import Box from '@tecton-mui/ui/Box';
+import { cssVar } from '@tecton-mui/ui/styles';
 import Container from '@tecton-mui/ui/Container';
 
 export default function FixedContainer() {
@@ -10,7 +11,7 @@ export default function FixedContainer() {
     <React.Fragment>
       <CssBaseline />
       <Container fixed>
-        <Box sx={{ bgcolor: '#cfe8fc', height: '100vh' }} />
+        <Box sx={{ bgcolor: cssVar('color-status-info-muted'), height: '100vh' }} />
       </Container>
     </React.Fragment>
   );

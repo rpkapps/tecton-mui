@@ -6,6 +6,7 @@ import {
   Callout,
   CodeBlock,
   Demo,
+  ExcludedDemo,
   Heading,
   M,
   MuiDocsContent,
@@ -43,12 +44,6 @@ import Inputs from '../demos/text-fields/Inputs';
 import InputsSource from '../demos/text-fields/Inputs.tsx?raw';
 import ColorTextFields from '../demos/text-fields/ColorTextFields';
 import ColorTextFieldsSource from '../demos/text-fields/ColorTextFields.tsx?raw';
-import CustomizedInputsStyled from '../demos/text-fields/CustomizedInputsStyled';
-import CustomizedInputsStyledSource from '../demos/text-fields/CustomizedInputsStyled.tsx?raw';
-import CustomizedInputsStyleOverrides from '../demos/text-fields/CustomizedInputsStyleOverrides';
-import CustomizedInputsStyleOverridesSource from '../demos/text-fields/CustomizedInputsStyleOverrides.tsx?raw';
-import CustomizedInputBase from '../demos/text-fields/CustomizedInputBase';
-import CustomizedInputBaseSource from '../demos/text-fields/CustomizedInputBase.tsx?raw';
 import UseFormControl from '../demos/text-fields/UseFormControl';
 import UseFormControlSource from '../demos/text-fields/UseFormControl.tsx?raw';
 import HelperTextMisaligned from '../demos/text-fields/HelperTextMisaligned';
@@ -91,20 +86,6 @@ const demos = {
   }),
   Inputs: defineDemo('Inputs', Inputs, { code: InputsSource }),
   ColorTextFields: defineDemo('ColorTextFields', ColorTextFields, { code: ColorTextFieldsSource }),
-  CustomizedInputsStyled: defineDemo('CustomizedInputsStyled', CustomizedInputsStyled, {
-    code: CustomizedInputsStyledSource,
-  }),
-  CustomizedInputsStyleOverrides: defineDemo(
-    'CustomizedInputsStyleOverrides',
-    CustomizedInputsStyleOverrides,
-    { code: CustomizedInputsStyleOverridesSource },
-  ),
-  CustomizedInputBase: defineDemo(
-    'CustomizedInputBase',
-    CustomizedInputBase,
-    { code: CustomizedInputBaseSource },
-    { bg: true },
-  ),
   UseFormControl: defineDemo('UseFormControl', UseFormControl, { code: UseFormControlSource }),
   HelperTextMisaligned: defineDemo('HelperTextMisaligned', HelperTextMisaligned, {
     code: HelperTextMisalignedSource,
@@ -401,59 +382,6 @@ export default function MuiDocs() {
         {' prop changes the highlight color of the text field when focused.'}
       </M.p>
       <Demo name="ColorTextFields" />
-      <Heading level={3} id="customization">
-        {'Customization'}
-      </Heading>
-      <Callout severity="info">
-        {
-          'These examples restyle the component beyond the Tecton defaults to show the customization APIs (sx, styled and theme overrides). Product UIs should keep the Tecton theme styling.'
-        }
-      </Callout>
-      <M.p>
-        {
-          'Here are some examples of customizing the component.\nYou can learn more about this in the '
-        }
-        <M.a href={'https://mui.com/material-ui/customization/how-to-customize/'}>
-          {'overrides documentation page'}
-        </M.a>
-        {'.'}
-      </M.p>
-      <Heading level={4} id="using-the-styled-api">
-        {'Using the styled API'}
-      </Heading>
-      <Demo name="CustomizedInputsStyled" />
-      <Heading level={4} id="using-the-theme-style-overrides-api">
-        {'Using the theme style overrides API'}
-      </Heading>
-      <M.p>
-        {'Use the '}
-        <M.code>{'styleOverrides'}</M.code>
-        {' key to change any style injected by Material UI into the DOM.\nSee the '}
-        <M.a
-          href={'https://mui.com/material-ui/customization/theme-components/#theme-style-overrides'}
-        >
-          {'theme style overrides'}
-        </M.a>
-        {' documentation for further details.'}
-      </M.p>
-      <Demo name="CustomizedInputsStyleOverrides" />
-      <M.p>
-        {
-          'Customization does not stop at CSS.\nYou can use composition to build custom components and give your app a unique feel.\nBelow is an example using the '
-        }
-        <M.a href={'/api/input-base'}>
-          <M.code>{'InputBase'}</M.code>
-        </M.a>
-        {' component, inspired by Google Maps.'}
-      </M.p>
-      <Demo name="CustomizedInputBase" />
-      <M.p>
-        {'🎨 If you are looking for inspiration, you can check '}
-        <M.a href={'https://mui-treasury.com/primitive/text-field'}>
-          {"MUI Treasury's customization examples"}
-        </M.a>
-        {'.'}
-      </M.p>
       <Heading level={3} id="useformcontrol">
         <M.code>{'useFormControl'}</M.code>
       </Heading>
@@ -719,6 +647,46 @@ export default function MuiDocs() {
         {' prop:'}
       </M.p>
       <Demo name="HelperTextAligned" />
+      <Heading level={3} id="integration-with-3rd-party-input-libraries">
+        {'Integration with 3rd party input libraries'}
+      </Heading>
+      <M.p>
+        {
+          'You can use third-party libraries to format an input.\nYou have to provide a custom implementation of the '
+        }
+        <M.code>{'<input>'}</M.code>
+        {' element with the '}
+        <M.code>{'inputComponent'}</M.code>
+        {' property.'}
+      </M.p>
+      <M.p>
+        {'The following demo uses the '}
+        <M.a href={'https://github.com/uNmAnNeR/imaskjs'}>{'react-imask'}</M.a>
+        {' and '}
+        <M.a href={'https://github.com/s-yadav/react-number-format'}>{'react-number-format'}</M.a>
+        {' libraries. The same concept could be applied to, for example '}
+        <M.a href={'https://github.com/mui/material-ui/issues/16037'}>{'react-stripe-element'}</M.a>
+        {'.'}
+      </M.p>
+      <ExcludedDemo
+        name="FormattedInputs"
+        reason="requires the third-party package react-imask, which the portal does not depend on"
+      />
+      <M.p>
+        {
+          'The provided input component should expose a ref with a value that implements the following interface:'
+        }
+      </M.p>
+      <CodeBlock
+        code={'interface InputElement {\n  focus(): void;\n  value?: string;\n}'}
+        language={'ts'}
+      />
+      <CodeBlock
+        code={
+          'const MyInputComponent = React.forwardRef((props, ref) => {\n  const { component: Component, ...other } = props;\n\n  // implement `InputElement` interface\n  React.useImperativeHandle(ref, () => ({\n    focus: () => {\n      // logic to focus the rendered component from 3rd party belongs here\n    },\n    // hiding the value e.g. react-stripe-elements\n  }));\n\n  // `Component` will be your `SomeThirdPartyComponent` from below\n  return <Component {...other} />;\n});\n\n// usage\n<TextField\n  slotProps={{\n    input: {\n      inputComponent: MyInputComponent,\n      inputProps: {\n        component: SomeThirdPartyComponent,\n      },\n    },\n  }}\n/>;'
+        }
+        language={'jsx'}
+      />
       <Heading level={3} id="text-fields-accessibility">
         {'Accessibility'}
       </Heading>

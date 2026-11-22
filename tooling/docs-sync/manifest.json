@@ -35,59 +35,21 @@
       "status": "modified",
       "target": "autocomplete",
       "droppedSections": {
-        "Google Maps place": "Needs the Google Maps and Places APIs (with an API key) and the third-party autosuggest-highlight package, neither of which is part of @tecton-mui/ui.",
-        "Infinite loading": "Built on the third-party @tanstack/react-query and @tanstack/react-virtual packages, which are not part of @tecton-mui/ui.",
-        "Highlights": "Built on the third-party autosuggest-highlight package, which is not part of @tecton-mui/ui.",
-        "Advanced": "Recommends the third-party match-sorter package; Tecton UIs use the built-in createFilterOptions shown above.",
-        "Virtualization": "Built on the third-party react-window package, which is not part of @tecton-mui/ui."
-      },
-      "demoEdits": {
-        "GitHubLabel": [
-          {
-            "find": "  '& span': {\n    width: '100%',\n  },\n  '& svg': {\n    width: 16,\n    height: 16,\n  },",
-            "replace": "  '& span:not(.TectonIcon-root)': {\n    width: '100%',\n  },\n  '& svg, & .TectonIcon-root': {\n    width: 16,\n    height: 16,\n  },",
-            "reason": "Docs icons are Tecton <span class=\"TectonIcon-root\"> elements, not <svg>: the label rule stretched the gear to the full button width and the 16px icon rule never applied."
-          }
-        ],
-        "CustomizedHook": [
-          {
-            "find": "  '& span': {\n    overflow: 'hidden',",
-            "replace": "  '& span:not(.TectonIcon-root)': {\n    overflow: 'hidden',",
-            "reason": "Docs icons are Tecton <span> elements: keep the tag's text rule off the delete icon."
-          },
-          {
-            "find": "  '& svg': {\n    fontSize: '12px',",
-            "replace": "  '& svg, & .TectonIcon-root': {\n    fontSize: '12px',",
-            "reason": "Docs icons are Tecton <span> elements, not <svg>: apply the tag's 12px delete icon size to them."
-          },
-          {
-            "find": "    '& span': {\n      flexGrow: 1,",
-            "replace": "    '& span:not(.TectonIcon-root)': {\n      flexGrow: 1,",
-            "reason": "Docs icons are Tecton <span> elements: keep the option label rule from stretching the check icon."
-          },
-          {
-            "find": "    '& svg': {\n      color: 'transparent',",
-            "replace": "    '& svg, & .TectonIcon-root': {\n      color: 'transparent',",
-            "reason": "Docs icons are Tecton <span> elements, not <svg>: hide the check on unselected options as the demo intends."
-          },
-          {
-            "find": "    '& svg': {\n      color: '#1890ff',",
-            "replace": "    '& svg, & .TectonIcon-root': {\n      color: '#1890ff',",
-            "reason": "Docs icons are Tecton <span> elements, not <svg>: colour the check on selected options."
-          },
-          {
-            "find": "    '& svg': {\n      color: 'currentColor',",
-            "replace": "    '& svg, & .TectonIcon-root': {\n      color: 'currentColor',",
-            "reason": "Docs icons are Tecton <span> elements, not <svg>: show the check on the focused option."
-          }
-        ]
+        "`useAutocomplete`": "Headless hook for building a custom-styled autocomplete (its demos hard-code their own colors). Product UIs keep the Tecton styling: use the Autocomplete component."
       }
     },
     {
       "package": "@mui/material",
       "source": "docs/data/material/components/buttons/buttons.md",
-      "status": "included",
-      "target": "buttons"
+      "status": "modified",
+      "target": "buttons",
+      "edits": [
+        {
+          "find": "In addition to using the default button colors, you can add custom ones, or disable any you don't need. See the [Adding new colors](/material-ui/customization/palette/#custom-colors) examples for more info.",
+          "replace": "",
+          "reason": "Points to adding custom palette colors; the button colors are the Tecton palette."
+        }
+      ]
     },
     {
       "package": "@mui/material",
@@ -106,6 +68,18 @@
             "find": "sx={{ '& .MuiSvgIcon-root': { fontSize: 28 } }}",
             "replace": "sx={{ '& .MuiSvgIcon-root, & [class*=\"tecton-\"]': { fontSize: 28 } }}",
             "reason": "Tecton's checkbox icon is a <span class=\"tecton-checkbox-…\">, not an SvgIcon: without this the custom 28px size stayed at the medium 20px."
+          }
+        ],
+        "ColorCheckboxes": [
+          {
+            "find": "import { pink } from '@tecton-mui/ui/colors';\n",
+            "replace": "",
+            "reason": "The Material color palette is not part of the Tecton design; its import is no longer used."
+          },
+          {
+            "find": "      <Checkbox\n        {...label}\n        defaultChecked\n        sx={{\n          color: pink[800],\n          '&.Mui-checked': {\n            color: pink[600],\n          },\n        }}\n      />\n",
+            "replace": "",
+            "reason": "The extra control restyled with a Material palette color is removed; the demo keeps the theme colors. Product UIs keep the Tecton styling."
           }
         ]
       }
@@ -136,6 +110,18 @@
             "find": "          '& .MuiSvgIcon-root': {\n            fontSize: 28,",
             "replace": "          '& .MuiSvgIcon-root, & [class*=\"tecton-\"]': {\n            fontSize: 28,",
             "reason": "Tecton's radio icon is a <span class=\"tecton-radio-button-…\">, not an SvgIcon: without this the custom 28px size stayed at the medium 20px."
+          }
+        ],
+        "ColorRadioButtons": [
+          {
+            "find": "import { pink } from '@tecton-mui/ui/colors';\n",
+            "replace": "",
+            "reason": "The Material color palette is not part of the Tecton design; its import is no longer used."
+          },
+          {
+            "find": "      <Radio\n        {...controlProps('e')}\n        sx={{\n          color: pink[800],\n          '&.Mui-checked': {\n            color: pink[600],\n          },\n        }}\n      />\n",
+            "replace": "",
+            "reason": "The extra control restyled with a Material palette color is removed; the demo keeps the theme colors. Product UIs keep the Tecton styling."
           }
         ]
       }
@@ -169,15 +155,45 @@
       "package": "@mui/material",
       "source": "docs/data/material/components/switches/switches.md",
       "status": "included",
-      "target": "switches"
+      "target": "switches",
+      "demoEdits": {
+        "ColorSwitches": [
+          {
+            "find": "import { alpha, styled } from '@tecton-mui/ui/styles';\nimport { pink } from '@tecton-mui/ui/colors';\n",
+            "replace": "",
+            "reason": "The Material color palette is not part of the Tecton design; its import is no longer used. The styling helpers were only used by the pink switch."
+          },
+          {
+            "find": "const PinkSwitch = styled(Switch)(({ theme }) => ({\n  '& .MuiSwitch-switchBase.Mui-checked': {\n    color: pink[600],\n    '&:hover': {\n      backgroundColor: alpha(pink[600], theme.palette.action.hoverOpacity),\n    },\n  },\n  '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {\n    backgroundColor: pink[600],\n  },\n}));\n\n",
+            "replace": "",
+            "reason": "The extra control restyled with a Material palette color is removed; the demo keeps the theme colors. Product UIs keep the Tecton styling."
+          },
+          {
+            "find": "      <PinkSwitch {...label} defaultChecked />\n",
+            "replace": "",
+            "reason": "The extra control restyled with a Material palette color is removed; the demo keeps the theme colors. Product UIs keep the Tecton styling."
+          }
+        ]
+      }
     },
     {
       "package": "@mui/material",
       "source": "docs/data/material/components/text-fields/text-fields.md",
-      "status": "modified",
+      "status": "included",
       "target": "text-fields",
-      "droppedSections": {
-        "Integration with 3rd party input libraries": "Built on the third-party react-imask and react-number-format packages, which are not part of @tecton-mui/ui. Numbers use NumberField (linked from the type=\"number\" section)."
+      "demoEdits": {
+        "LayoutTextFields": [
+          {
+            "find": "import Box from '@tecton-mui/ui/Box';\n",
+            "replace": "import Box from '@tecton-mui/ui/Box';\nimport { cssVar } from '@tecton-mui/ui/styles';\n",
+            "reason": "Tecton colors come from tokens (cssVar)."
+          },
+          {
+            "find": "      sx={(theme) => ({\n        height: 20,\n        backgroundColor: 'rgba(255, 0, 0, 0.1)',\n        ...theme.applyStyles('dark', {\n          backgroundColor: 'rgb(255 132 132 / 25%)',\n        }),\n      })}",
+            "replace": "      sx={{\n        height: 20,\n        backgroundColor: cssVar('color-status-error-muted'),\n      }}",
+            "reason": "The spacing marker uses a Tecton token (which already switches with the mode) instead of hard-coded reds."
+          }
+        ]
       }
     },
     {
@@ -210,7 +226,79 @@
       "package": "@mui/material",
       "source": "docs/data/material/components/avatars/avatars.md",
       "status": "included",
-      "target": "avatars"
+      "target": "avatars",
+      "demoEdits": {
+        "FallbackAvatars": [
+          {
+            "find": "import { deepOrange } from '@tecton-mui/ui/colors';\n",
+            "replace": "",
+            "reason": "The Material color palette is not part of the Tecton design; its import is no longer used."
+          },
+          {
+            "find": "      <Avatar\n        sx={{ bgcolor: deepOrange[500] }}\n        alt=\"Remy Sharp\"\n        src=\"https://mui.com/broken-image.jpg\"\n      >\n        B\n      </Avatar>\n      <Avatar\n        sx={{ bgcolor: deepOrange[500] }}\n        alt=\"Remy Sharp\"\n        src=\"https://mui.com/broken-image.jpg\"\n      />",
+            "replace": "      <Avatar alt=\"Remy Sharp\" src=\"https://mui.com/broken-image.jpg\">\n        B\n      </Avatar>\n      <Avatar alt=\"Remy Sharp\" src=\"https://mui.com/broken-image.jpg\" />",
+            "reason": "Tecton avatars pick a stable accent color from their content; the hard-coded Material palette color is removed so the demo shows the Tecton fallback."
+          }
+        ],
+        "IconAvatars": [
+          {
+            "find": "import { green, pink } from '@tecton-mui/ui/colors';\n",
+            "replace": "",
+            "reason": "The Material color palette is not part of the Tecton design; its import is no longer used."
+          },
+          {
+            "find": "<Avatar sx={{ bgcolor: pink[500] }}>",
+            "replace": "<Avatar>",
+            "reason": "Tecton avatars pick a stable accent color from their content; the hard-coded Material palette color is removed so the demo shows the Tecton fallback."
+          },
+          {
+            "find": "<Avatar sx={{ bgcolor: green[500] }}>",
+            "replace": "<Avatar>",
+            "reason": "Tecton avatars pick a stable accent color from their content; the hard-coded Material palette color is removed so the demo shows the Tecton fallback."
+          }
+        ],
+        "LetterAvatars": [
+          {
+            "find": "import { deepOrange, deepPurple } from '@tecton-mui/ui/colors';\n",
+            "replace": "",
+            "reason": "The Material color palette is not part of the Tecton design; its import is no longer used."
+          },
+          {
+            "find": "<Avatar sx={{ bgcolor: deepOrange[500] }}>N</Avatar>",
+            "replace": "<Avatar>N</Avatar>",
+            "reason": "Tecton avatars pick a stable accent color from their content; the hard-coded Material palette color is removed so the demo shows the Tecton fallback."
+          },
+          {
+            "find": "<Avatar sx={{ bgcolor: deepPurple[500] }}>OP</Avatar>",
+            "replace": "<Avatar>OP</Avatar>",
+            "reason": "Tecton avatars pick a stable accent color from their content; the hard-coded Material palette color is removed so the demo shows the Tecton fallback."
+          }
+        ],
+        "VariantAvatars": [
+          {
+            "find": "import { deepOrange, green } from '@tecton-mui/ui/colors';\n",
+            "replace": "",
+            "reason": "The Material color palette is not part of the Tecton design; its import is no longer used."
+          },
+          {
+            "find": "<Avatar sx={{ bgcolor: deepOrange[500] }} variant=\"square\">",
+            "replace": "<Avatar variant=\"square\">",
+            "reason": "Tecton avatars pick a stable accent color from their content; the hard-coded Material palette color is removed so the demo shows the Tecton fallback."
+          },
+          {
+            "find": "<Avatar sx={{ bgcolor: green[500] }} variant=\"rounded\">",
+            "replace": "<Avatar variant=\"rounded\">",
+            "reason": "Tecton avatars pick a stable accent color from their content; the hard-coded Material palette color is removed so the demo shows the Tecton fallback."
+          }
+        ],
+        "BadgeAvatars": [
+          {
+            "find": "    backgroundColor: '#44b700',\n    color: '#44b700',",
+            "replace": "    backgroundColor: (theme.vars ?? theme).palette.success.main,\n    color: (theme.vars ?? theme).palette.success.main,",
+            "reason": "The online indicator uses the Tecton success color instead of a hard-coded green."
+          }
+        ]
+      }
     },
     {
       "package": "@mui/material",
@@ -237,13 +325,6 @@
             "reason": "Docs icons are Tecton <span> elements, not <svg>: without the margin the icons touched each other and the border, and the middle divider shrank to a tick."
           }
         ],
-        "VerticalDividerMiddle": [
-          {
-            "find": "        '& svg': {\n          m: 1,",
-            "replace": "        '& svg, & .TectonIcon-root': {\n          m: 1,",
-            "reason": "Docs icons are Tecton <span> elements, not <svg>: without the margin the icons touched each other and the border."
-          }
-        ],
         "FlexDivider": [
           {
             "find": "        '& svg': {\n          m: 1,",
@@ -256,8 +337,34 @@
     {
       "package": "@mui/material",
       "source": "docs/data/material/components/icons/icons.md",
-      "status": "excluded",
-      "reason": "Teaches custom SVG icons (SvgIcon, createSvgIcon, SVG loaders), third-party icon sets and Material font icons. Tecton UIs use the Tecton icon set through the Icon component, documented on the Icon page."
+      "status": "modified",
+      "target": "icons",
+      "edits": [
+        {
+          "find": "If you need a custom SVG icon (not available in the [Material Icons](/material-ui/material-icons/)) you can use the `SvgIcon` wrapper.",
+          "replace": "If you need a custom SVG icon (not available in the [Tecton icons](/material-ui/material-icons/)) you can use the `SvgIcon` wrapper.",
+          "reason": "The library's icon set is Tecton, not Material Icons (the link goes to the Icon page through slug-map.json#externalRoutes)."
+        },
+        {
+          "find": "The `createSvgIcon` utility component is used to create the [Material Icons](#material-svg-icons).",
+          "replace": "The `createSvgIcon` utility component creates a reusable icon component.",
+          "reason": "`@mui/icons-material` is not part of @tecton-mui/ui, and the Material SVG icons section is not synced."
+        }
+      ],
+      "demoEdits": {
+        "SvgIconsColor": [
+          {
+            "find": "import { pink } from '@tecton-mui/ui/colors';\n",
+            "replace": "",
+            "reason": "The Material color palette is not part of the Tecton design; its import is no longer used."
+          },
+          {
+            "find": "      <HomeIcon sx={{ color: pink[500] }} />\n",
+            "replace": "",
+            "reason": "The extra control restyled with a Material palette color is removed; the demo keeps the theme colors. Product UIs keep the Tecton styling."
+          }
+        ]
+      }
     },
     {
       "package": "@mui/material",
@@ -268,36 +375,14 @@
     {
       "package": "@mui/material",
       "source": "docs/data/material/components/lists/lists.md",
-      "status": "modified",
-      "target": "lists",
-      "edits": [
-        {
-          "find": "\n\nYou can find a [demo with React Router following this section](/material-ui/integrations/routing/#list) of the documentation.",
-          "replace": "",
-          "reason": "Points to a React Router recipe on mui.com; routing is the host application's choice, not part of @tecton-mui/ui."
-        }
-      ],
-      "droppedSections": {
-        "Virtualized List": "Built on the third-party react-window package and recommends react-virtuoso; neither is part of @tecton-mui/ui."
-      },
-      "demoEdits": {
-        "CustomizedList": [
-          {
-            "find": "        <Paper elevation={0} sx={{ maxWidth: 256 }}>",
-            "replace": "        <Paper elevation={0} sx={{ maxWidth: 256 }} data-theme=\"dark\">",
-            "reason": "Tecton styles read CSS variables scoped by data-theme; a nested ThemeProvider with another palette mode also needs data-theme on its section, or Tecton surfaces keep the page's mode."
-          }
-        ]
-      }
+      "status": "included",
+      "target": "lists"
     },
     {
       "package": "@mui/material",
       "source": "docs/data/material/components/table/table.md",
-      "status": "modified",
-      "target": "table",
-      "droppedSections": {
-        "Virtualized table": "Built on the third-party react-virtuoso package, which is not part of @tecton-mui/ui. Large data sets use the DataGrid (see Data table)."
-      }
+      "status": "included",
+      "target": "table"
     },
     {
       "package": "@mui/material",
@@ -342,15 +427,35 @@
       "package": "@mui/material",
       "source": "docs/data/material/components/backdrop/backdrop.md",
       "status": "included",
-      "target": "backdrop"
+      "target": "backdrop",
+      "demoEdits": {
+        "SimpleBackdrop": [
+          {
+            "find": "({ color: '#fff', zIndex",
+            "replace": "({ zIndex",
+            "reason": "The Tecton backdrop is light in light mode, so a hard-coded white spinner would not show; the progress keeps its theme color."
+          }
+        ]
+      }
     },
     {
       "package": "@mui/material",
       "source": "docs/data/material/components/dialogs/dialogs.md",
-      "status": "modified",
+      "status": "included",
       "target": "dialogs",
-      "droppedSections": {
-        "Draggable dialog": "Built on the third-party react-draggable package, which is not part of @tecton-mui/ui."
+      "demoEdits": {
+        "SimpleDialogDemo": [
+          {
+            "find": "import { blue } from '@tecton-mui/ui/colors';\n",
+            "replace": "",
+            "reason": "The Material color palette is not part of the Tecton design; its import is no longer used."
+          },
+          {
+            "find": "<Avatar sx={{ bgcolor: blue[100], color: blue[600] }}>",
+            "replace": "<Avatar>",
+            "reason": "Tecton avatars pick a stable accent color from their content; the hard-coded Material palette color is removed so the demo shows the Tecton fallback."
+          }
+        ]
       },
       "excludedDemos": {
         "CookiesBanner": "Composes MUI's AppBar with a Toolbar and its own content; @tecton-mui/ui's AppBar is the Tecton App Bar, which has no such composition.",
@@ -361,22 +466,46 @@
       "package": "@mui/material",
       "source": "docs/data/material/components/progress/progress.md",
       "status": "included",
-      "target": "progress"
+      "target": "progress",
+      "demoEdits": {
+        "CircularIntegration": [
+          {
+            "find": "import { green } from '@tecton-mui/ui/colors';\n",
+            "replace": "",
+            "reason": "The Material color palette is not part of the Tecton design; its import is no longer used."
+          },
+          {
+            "find": "      bgcolor: green[500],\n      '&:hover': {\n        bgcolor: green[700],",
+            "replace": "      bgcolor: 'success.main',\n      '&:hover': {\n        bgcolor: 'success.dark',",
+            "reason": "The success state uses the Tecton success palette instead of Material green."
+          },
+          {
+            "find": "            size={68}\n            sx={{\n              color: green[500],",
+            "replace": "            size={68}\n            sx={{\n              color: 'success.main',",
+            "reason": "The success state uses the Tecton success palette instead of Material green."
+          },
+          {
+            "find": "            size={24}\n            sx={{\n              color: green[500],",
+            "replace": "            size={24}\n            sx={{\n              color: 'success.main',",
+            "reason": "The success state uses the Tecton success palette instead of Material green."
+          }
+        ]
+      }
     },
     {
       "package": "@mui/material",
       "source": "docs/data/material/components/skeleton/skeleton.md",
-      "status": "included",
-      "target": "skeleton"
+      "status": "modified",
+      "target": "skeleton",
+      "droppedSections": {
+        "Color": "Shows how to change the skeleton's background color. Product UIs keep the Tecton styling."
+      }
     },
     {
       "package": "@mui/material",
       "source": "docs/data/material/components/snackbars/snackbars.md",
       "status": "included",
-      "target": "snackbars",
-      "excludedDemos": {
-        "FabIntegrationSnackbar": "Composes MUI's AppBar with a Toolbar and its own content; @tecton-mui/ui's AppBar is the Tecton App Bar, which has no such composition."
-      }
+      "target": "snackbars"
     },
     {
       "package": "@mui/material",
@@ -393,23 +522,31 @@
     {
       "package": "@mui/material",
       "source": "docs/data/material/components/cards/cards.md",
-      "status": "included",
-      "target": "cards"
+      "status": "modified",
+      "target": "cards",
+      "droppedSections": {
+        "Active state styles": "Restyles the selected card state and links to third-party restyling examples (MUI Treasury). Product UIs keep the Tecton styling."
+      },
+      "demoEdits": {
+        "RecipeReviewCard": [
+          {
+            "find": "import { red } from '@tecton-mui/ui/colors';\n",
+            "replace": "",
+            "reason": "The Material color palette is not part of the Tecton design; its import is no longer used."
+          },
+          {
+            "find": "<Avatar sx={{ bgcolor: red[500] }} aria-label=\"recipe\">",
+            "replace": "<Avatar aria-label=\"recipe\">",
+            "reason": "Tecton avatars pick a stable accent color from their content; the hard-coded Material palette color is removed so the demo shows the Tecton fallback."
+          }
+        ]
+      }
     },
     {
       "package": "@mui/material",
       "source": "docs/data/material/components/paper/paper.md",
       "status": "included",
-      "target": "paper",
-      "demoEdits": {
-        "Elevation": [
-          {
-            "find": "            <ThemeProvider theme={theme}>\n              <Box\n",
-            "replace": "            <ThemeProvider theme={theme}>\n              <Box\n                data-theme={theme.palette.mode}\n",
-            "reason": "Tecton styles read CSS variables scoped by data-theme; a nested ThemeProvider with another palette mode also needs data-theme on its section, or Tecton surfaces keep the page's mode."
-          }
-        ]
-      }
+      "target": "paper"
     },
     {
       "package": "@mui/material",
@@ -420,11 +557,8 @@
     {
       "package": "@mui/material",
       "source": "docs/data/material/components/breadcrumbs/breadcrumbs.md",
-      "status": "modified",
-      "target": "breadcrumbs",
-      "droppedSections": {
-        "Integration with react-router": "A React Router recipe; routing is the host application's choice, not part of @tecton-mui/ui."
-      }
+      "status": "included",
+      "target": "breadcrumbs"
     },
     {
       "package": "@mui/material",
@@ -453,11 +587,16 @@
       "status": "included",
       "target": "menus",
       "demoEdits": {
-        "CustomizedMenus": [
+        "AccountMenu": [
           {
-            "find": "      '& .MuiSvgIcon-root': {\n        fontSize: 18,",
-            "replace": "      '& .MuiSvgIcon-root, & .TectonIcon-root': {\n        fontSize: 18,",
-            "reason": "Docs icons are Tecton <span class=\"TectonIcon-root\"> elements, not SvgIcons: without this the menu icons rendered at 20px with no gap before their labels."
+            "find": "            elevation: 0,\n            sx: {\n              overflow: 'visible',\n              filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',\n              mt: 1.5,",
+            "replace": "            sx: {\n              mt: 1.5,",
+            "reason": "Removes the custom shadow so the menu keeps the Tecton paper elevation. Product UIs keep the Tecton styling."
+          },
+          {
+            "find": "              '&::before': {\n                content: '\"\"',\n                display: 'block',\n                position: 'absolute',\n                top: 0,\n                right: 14,\n                width: 10,\n                height: 10,\n                bgcolor: 'background.paper',\n                transform: 'translateY(-50%) rotate(45deg)',\n                zIndex: 0,\n              },\n",
+            "replace": "",
+            "reason": "Removes the custom arrow drawn on the menu paper. Product UIs keep the Tecton styling."
           }
         ]
       }
@@ -474,7 +613,7 @@
       "status": "modified",
       "target": "pagination",
       "droppedSections": {
-        "Router integration": "A React Router recipe; routing is the host application's choice, not part of @tecton-mui/ui."
+        "`usePagination`": "Headless hook for building a custom-styled pagination. Product UIs keep the Tecton styling: use the Pagination component."
       }
     },
     {
@@ -486,8 +625,11 @@
     {
       "package": "@mui/material",
       "source": "docs/data/material/components/steppers/steppers.md",
-      "status": "included",
+      "status": "modified",
       "target": "steppers",
+      "droppedSections": {
+        "Customized horizontal stepper": "Restyles the stepper with custom connectors, colors and gradients. Product UIs keep the Tecton styling."
+      },
       "excludedDemos": {
         "VerticalLinearStepper": "upstream demo defect: its focus-management effect also runs on mount and focuses the Continue button, which moves focus and scrolls the page on load (WCAG 3.2.1) and breaks #section links into the Stepper page; VerticalLinearAlternativeLabelStepper still shows the vertical stepper with StepContent"
       }
@@ -505,16 +647,39 @@
       "package": "@mui/material",
       "source": "docs/data/material/components/box/box.md",
       "status": "included",
-      "target": "box",
-      "excludedDemos": {
-        "BoxSx": "does not type-check: the @tecton-mui/ui ThemeProvider `theme` prop rejects the partial theme object that MUI's ThemeProvider accepts (library typing gap)"
-      }
+      "target": "box"
     },
     {
       "package": "@mui/material",
       "source": "docs/data/material/components/container/container.md",
       "status": "included",
-      "target": "container"
+      "target": "container",
+      "demoEdits": {
+        "FixedContainer": [
+          {
+            "find": "import Box from '@tecton-mui/ui/Box';\n",
+            "replace": "import Box from '@tecton-mui/ui/Box';\nimport { cssVar } from '@tecton-mui/ui/styles';\n",
+            "reason": "Tecton colors come from tokens (cssVar)."
+          },
+          {
+            "find": "bgcolor: '#cfe8fc'",
+            "replace": "bgcolor: cssVar('color-status-info-muted')",
+            "reason": "The placeholder area uses a Tecton token instead of a hard-coded light blue."
+          }
+        ],
+        "SimpleContainer": [
+          {
+            "find": "import Box from '@tecton-mui/ui/Box';\n",
+            "replace": "import Box from '@tecton-mui/ui/Box';\nimport { cssVar } from '@tecton-mui/ui/styles';\n",
+            "reason": "Tecton colors come from tokens (cssVar)."
+          },
+          {
+            "find": "bgcolor: '#cfe8fc'",
+            "replace": "bgcolor: cssVar('color-status-info-muted')",
+            "reason": "The placeholder area uses a Tecton token instead of a hard-coded light blue."
+          }
+        ]
+      }
     },
     {
       "package": "@mui/material",
@@ -527,7 +692,10 @@
           "replace": "check out [the `DataGrid` component](/x/react-data-grid/)",
           "reason": "The portal DataGrid is this library's unified grid, not the MUI X package."
         }
-      ]
+      ],
+      "droppedSections": {
+        "Custom breakpoints": "Changes the theme breakpoints, which are part of the Tecton theme. Product UIs keep the Tecton styling."
+      }
     },
     {
       "package": "@mui/material",
@@ -538,8 +706,20 @@
     {
       "package": "@mui/material",
       "source": "docs/data/material/components/image-list/image-list.md",
-      "status": "included",
-      "target": "image-list"
+      "status": "modified",
+      "target": "image-list",
+      "droppedSections": {
+        "Custom image list": "Restyles the image list with custom gradients and title bars. Product UIs keep the Tecton styling."
+      },
+      "demoEdits": {
+        "TitlebarImageList": [
+          {
+            "find": "                sx={{ color: 'rgba(255, 255, 255, 0.54)' }}",
+            "replace": "                color=\"inherit\"",
+            "reason": "The info button takes the title bar text color instead of a hard-coded translucent white."
+          }
+        ]
+      }
     },
     {
       "package": "@mui/material",
@@ -558,7 +738,10 @@
           "replace": "for better display of the Tecton fonts (Figtree and IBM Plex Mono).",
           "reason": "Tecton does not use Roboto."
         }
-      ]
+      ],
+      "droppedSections": {
+        "Scrollbars": "Restyles scrollbars through a theme style override. Product UIs keep the Tecton styling."
+      }
     },
     {
       "package": "@mui/material",
@@ -569,15 +752,45 @@
     {
       "package": "@mui/material",
       "source": "docs/data/material/components/modal/modal.md",
-      "status": "modified",
+      "status": "included",
       "target": "modal",
-      "edits": [
-        {
-          "find": "\n\nAlternatively, you can use [react-spring](https://github.com/pmndrs/react-spring).\n\n{{\"demo\": \"SpringModal.js\"}}",
-          "replace": "",
-          "reason": "Offers the third-party react-spring package as an alternative; Tecton UIs use the library's transitions (Fade above)."
-        }
-      ]
+      "demoEdits": {
+        "BasicModal": [
+          {
+            "find": "  border: '2px solid #000',\n",
+            "replace": "",
+            "reason": "Removes the hard-coded black border; the dialog box keeps the Tecton paper surface and shadow."
+          }
+        ],
+        "KeepMountedModal": [
+          {
+            "find": "  border: '2px solid #000',\n",
+            "replace": "",
+            "reason": "Removes the hard-coded black border; the dialog box keeps the Tecton paper surface and shadow."
+          }
+        ],
+        "NestedModal": [
+          {
+            "find": "  border: '2px solid #000',\n",
+            "replace": "",
+            "reason": "Removes the hard-coded black border; the dialog box keeps the Tecton paper surface and shadow."
+          }
+        ],
+        "TransitionsModal": [
+          {
+            "find": "  border: '2px solid #000',\n",
+            "replace": "",
+            "reason": "Removes the hard-coded black border; the dialog box keeps the Tecton paper surface and shadow."
+          }
+        ],
+        "ServerModal": [
+          {
+            "find": "            border: '2px solid #000',\n",
+            "replace": "",
+            "reason": "Removes the hard-coded black border; the dialog box keeps the Tecton paper surface and shadow."
+          }
+        ]
+      }
     },
     {
       "package": "@mui/material",
@@ -594,15 +807,8 @@
     {
       "package": "@mui/material",
       "source": "docs/data/material/components/popper/popper.md",
-      "status": "modified",
-      "target": "popper",
-      "edits": [
-        {
-          "find": "\n\nAlternatively, you can use [react-spring](https://github.com/pmndrs/react-spring).\n\n{{\"demo\": \"SpringPopper.js\"}}",
-          "replace": "",
-          "reason": "Offers the third-party react-spring package as an alternative; Tecton UIs use the library's transitions (Fade above)."
-        }
-      ]
+      "status": "included",
+      "target": "popper"
     },
     {
       "package": "@mui/material",
@@ -619,18 +825,8 @@
     {
       "package": "@mui/material",
       "source": "docs/data/material/components/transitions/transitions.md",
-      "status": "modified",
-      "target": "transitions",
-      "edits": [
-        {
-          "find": "For more information on creating a custom transition, visit the _react-transition-group_ [`Transition` documentation](https://reactcommunity.org/react-transition-group/transition/).\nYou can also visit the dedicated sections of some of the components:",
-          "replace": "For more information, visit the dedicated sections of some of the components:",
-          "reason": "Sends readers to build transitions with react-transition-group directly; Tecton UIs use the library's transition components."
-        }
-      ],
-      "droppedSections": {
-        "TransitionGroup": "Uses TransitionGroup from the third-party react-transition-group package directly; it is not exported by @tecton-mui/ui."
-      }
+      "status": "included",
+      "target": "transitions"
     },
     {
       "package": "@mui/material",
@@ -643,12 +839,7 @@
           "replace": "The media query string can be any valid CSS media query, for example `'(min-width:600px)'`.",
           "reason": "Light/dark mode comes from the Tecton theme manager; the portal's own guidance on this page says not to query prefers-color-scheme."
         }
-      ],
-      "droppedSections": {
-        "Using JavaScript syntax": "Built on the third-party json2mq package, which is not part of @tecton-mui/ui.",
-        "Testing": "Recommends the third-party css-mediaquery package; test setup is not part of the library's consumer documentation.",
-        "Server-side rendering": "Recommends the third-party ua-parser-js and css-mediaquery packages. Server rendering of useMediaQuery is covered by the authored section of this page and the SSR guide."
-      }
+      ]
     },
     {
       "package": "@mui/lab",

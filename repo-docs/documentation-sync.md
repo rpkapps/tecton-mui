@@ -115,6 +115,10 @@ The demo logic is not changed. The mechanical rules are:
   (`icon-map.json`; unmapped names render a neutral fallback, listed in the lock). It accepts the
   SvgIcon props demos pass (`fontSize`, `color`, `htmlColor`, `titleAccess`, `sx`).
 - MUI-site-relative asset URLs (`/static/...`, `/broken-image.jpg`) become `https://mui.com/...`.
+- Layout demos' placeholder `Item`s lose their hard-coded `#fff` / `#1A2027` (`applyStyles('dark')`)
+  background, so the Tecton `Paper` surface shows in both modes. Other hard-coded or Material palette
+  colors in demos are replaced through the manifest's `demoEdits` (Tecton palette keys or `cssVar()`
+  tokens), so no demo shows colors from outside the Tecton design.
 - A demo is **excluded** (with the reason in the lock, and a short note on the page) when it imports
   a module `@tecton-mui/ui` does not export (deprecated Lab stubs, `@mui/material/Icon`), MUI X,
   MUI docs-site helpers or third-party packages the portal does not depend on (`react-window`,
@@ -133,8 +137,9 @@ The demo logic is not changed. The mechanical rules are:
   `/api/<slug>`, the MUI X Data Grid/Pickers/Tree View roots and the Material Icons search page to
   our pages (`slug-map.json#externalRoutes`); everything else points to `https://mui.com`.
 - Imports in prose code snippets are rewritten like demo imports.
-- A note is added under each "Customization" heading: those examples restyle components beyond the
-  Tecton defaults and are shown for the customization APIs only.
+- "Customization" sections (any heading level) are dropped like "Supplementary projects": they restyle
+  components beyond the Tecton design, which product UIs keep. Other restyling sections are dropped
+  per page with `droppedSections` (for example Skeleton "Color", Card "Active state styles").
 
 ### Attribution
 

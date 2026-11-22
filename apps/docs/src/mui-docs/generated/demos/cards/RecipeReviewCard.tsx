@@ -11,7 +11,6 @@ import Collapse from '@tecton-mui/ui/Collapse';
 import Avatar from '@tecton-mui/ui/Avatar';
 import IconButton, { type IconButtonProps } from '@tecton-mui/ui/IconButton';
 import Typography from '@tecton-mui/ui/Typography';
-import { red } from '@tecton-mui/ui/colors';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShareIcon from '@mui/icons-material/Share';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -56,7 +55,7 @@ export default function RecipeReviewCard() {
     <Card sx={{ maxWidth: 345 }}>
       <CardHeader
         avatar={
-          <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
+          <Avatar aria-label="recipe">
             R
           </Avatar>
         }

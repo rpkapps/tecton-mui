@@ -32,12 +32,6 @@ import ColumnsGrid from '../demos/grid/ColumnsGrid';
 import ColumnsGridSource from '../demos/grid/ColumnsGrid.tsx?raw';
 import OffsetGrid from '../demos/grid/OffsetGrid';
 import OffsetGridSource from '../demos/grid/OffsetGrid.tsx?raw';
-import CenteredElementGrid from '../demos/grid/CenteredElementGrid';
-import CenteredElementGridSource from '../demos/grid/CenteredElementGrid.tsx?raw';
-import FullBorderedGrid from '../demos/grid/FullBorderedGrid';
-import FullBorderedGridSource from '../demos/grid/FullBorderedGrid.tsx?raw';
-import HalfBorderedGrid from '../demos/grid/HalfBorderedGrid';
-import HalfBorderedGridSource from '../demos/grid/HalfBorderedGrid.tsx?raw';
 import ColumnLayoutInsideGrid from '../demos/grid/ColumnLayoutInsideGrid';
 import ColumnLayoutInsideGridSource from '../demos/grid/ColumnLayoutInsideGrid.tsx?raw';
 
@@ -77,18 +71,6 @@ const demos = {
   ),
   ColumnsGrid: defineDemo('ColumnsGrid', ColumnsGrid, { code: ColumnsGridSource }, { bg: true }),
   OffsetGrid: defineDemo('OffsetGrid', OffsetGrid, { code: OffsetGridSource }, { bg: true }),
-  CenteredElementGrid: defineDemo(
-    'CenteredElementGrid',
-    CenteredElementGrid,
-    { code: CenteredElementGridSource },
-    { bg: true },
-  ),
-  FullBorderedGrid: defineDemo('FullBorderedGrid', FullBorderedGrid, {
-    code: FullBorderedGridSource,
-  }),
-  HalfBorderedGrid: defineDemo('HalfBorderedGrid', HalfBorderedGrid, {
-    code: HalfBorderedGridSource,
-  }),
   ColumnLayoutInsideGrid: defineDemo('ColumnLayoutInsideGrid', ColumnLayoutInsideGrid, {
     code: ColumnLayoutInsideGridSource,
   }),
@@ -137,7 +119,7 @@ export default function MuiDocs() {
           {
             'There are five default grid breakpoints: xs, sm, md, lg, and xl. If you need custom breakpoints, check out '
           }
-          <M.a href={'/components/grid#custom-breakpoints'}>{'custom breakpoints grid'}</M.a>
+          <M.a href={'/components/grid'}>{'custom breakpoints grid'}</M.a>
           {'.'}
         </M.li>
         <M.li>
@@ -440,75 +422,6 @@ export default function MuiDocs() {
       </M.ul>
       <M.p>{'The demo below illustrates how to use the offset props:'}</M.p>
       <Demo name="OffsetGrid" />
-      <Heading level={3} id="custom-breakpoints">
-        {'Custom breakpoints'}
-      </Heading>
-      <M.p>
-        {
-          'If you specify custom breakpoints in the theme, you can use those names as grid item props in responsive values:'
-        }
-      </M.p>
-      <CodeBlock
-        code={
-          "import { ThemeProvider, createTheme } from '@tecton-mui/ui/styles';\n\nfunction Demo() {\n  return (\n    <ThemeProvider\n      theme={createTheme({\n        breakpoints: {\n          values: {\n            laptop: 1024,\n            tablet: 640,\n            mobile: 0,\n            desktop: 1280,\n          },\n        },\n      })}\n    >\n      <Grid container spacing={{ mobile: 1, tablet: 2, laptop: 3 }}>\n        {Array.from(Array(4)).map((_, index) => (\n          <Grid key={index} size={{ mobile: 6, tablet: 4, laptop: 3 }}>\n            <div>{index + 1}</div>\n          </Grid>\n        ))}\n      </Grid>\n    </ThemeProvider>\n  );\n}"
-        }
-        language={'js'}
-      />
-      <Callout severity="info">
-        <M.p>
-          {'Custom breakpoints affect all '}
-          <M.a href={'/components/grid#responsive-values'}>{'responsive values'}</M.a>
-          {'.'}
-        </M.p>
-      </Callout>
-      <Heading level={4} id="typescript">
-        {'TypeScript'}
-      </Heading>
-      <M.p>{'You have to set module augmentation on the theme breakpoints interface.'}</M.p>
-      <CodeBlock
-        code={
-          "declare module '@mui/system' {\n  interface BreakpointOverrides {\n    // Your custom breakpoints\n    laptop: true;\n    tablet: true;\n    mobile: true;\n    desktop: true;\n    // Remove default breakpoints\n    xs: false;\n    sm: false;\n    md: false;\n    lg: false;\n    xl: false;\n  }\n}"
-        }
-        language={'ts'}
-      />
-      <Heading level={3} id="customization">
-        {'Customization'}
-      </Heading>
-      <Callout severity="info">
-        {
-          'These examples restyle the component beyond the Tecton defaults to show the customization APIs (sx, styled and theme overrides). Product UIs should keep the Tecton theme styling.'
-        }
-      </Callout>
-      <Heading level={4} id="centered-elements">
-        {'Centered elements'}
-      </Heading>
-      <M.p>
-        {"To center a grid item's content, specify "}
-        <M.code>{'display="flex"'}</M.code>
-        {' directly on the item.\nThen use '}
-        <M.code>{'justifyContent'}</M.code>
-        {' and/or '}
-        <M.code>{'alignItems'}</M.code>
-        {' to adjust the position of the content, as shown below:'}
-      </M.p>
-      <Demo name="CenteredElementGrid" />
-      <Callout severity="warning">
-        <M.p>
-          {'Using the '}
-          <M.code>{'container'}</M.code>
-          {
-            ' prop does not work in this situation because the grid container is designed exclusively to wrap grid items.\nIt cannot wrap other elements.'
-          }
-        </M.p>
-      </Callout>
-      <Heading level={4} id="full-border">
-        {'Full border'}
-      </Heading>
-      <Demo name="FullBorderedGrid" />
-      <Heading level={4} id="half-border">
-        {'Half border'}
-      </Heading>
-      <Demo name="HalfBorderedGrid" />
       <Heading level={3} id="grid-limitations">
         {'Limitations'}
       </Heading>

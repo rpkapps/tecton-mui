@@ -285,12 +285,12 @@ async function sync(packages) {
     if (page.source.startsWith(MUI_COMPONENTS_DIR) && !upstreamSources.has(page.source))
       console.warn(`  warning: ${page.source} is no longer listed upstream`);
 
-  // Sections about third-party projects and components ("Supplementary projects", "Supplementary
-  // components") are not part of this library's documentation, and a page can drop sections that
-  // do not apply to this library (manifest `droppedSections`, each heading must match exactly
-  // once): each is removed with its heading and everything up to the next heading of the same or a
-  // higher level.
-  const DROPPED_SECTIONS = /^supplementary (projects|components)$/i;
+  // Sections about third-party projects are not part of this library's documentation, and
+  // "Customization" sections restyle components beyond the Tecton design, which product UIs keep. A
+  // page can also drop sections that do not apply to this library (manifest `droppedSections`, each
+  // heading must match exactly once): each is removed with its heading and everything up to the
+  // next heading of the same or a higher level.
+  const DROPPED_SECTIONS = /^(supplementary projects|customization)$/i;
   const dropSections = (markdown, entry) => {
     const named = new Map(Object.keys(entry.droppedSections ?? {}).map((h) => [h, 0]));
     const out = [];
@@ -533,8 +533,6 @@ async function sync(packages) {
   }
 
   // 5. Emit one module per portal slug.
-  const CUSTOMIZATION_NOTE =
-    'These examples restyle the component beyond the Tecton defaults to show the customization APIs (sx, styled and theme overrides). Product UIs should keep the Tecton theme styling.';
   const lockPages = parsed.map(({ entry, id, demos }) => ({
     source: entry.source,
     status: entry.status,
@@ -605,12 +603,8 @@ async function sync(packages) {
       const blocks = (list) => list.map(block).join('\n');
       const block = (b) => {
         switch (b.type) {
-          case 'heading': {
-            const out = `<Heading level={${b.level}} id=${str(b.id)}>${emitter.inline(b.children)}</Heading>`;
-            return /^customization$/i.test(mdText({ children: b.children })) && b.depth === 2
-              ? `${out}\n<Callout severity="info">{${str(CUSTOMIZATION_NOTE)}}</Callout>`
-              : out;
-          }
+          case 'heading':
+            return `<Heading level={${b.level}} id=${str(b.id)}>${emitter.inline(b.children)}</Heading>`;
           case 'node':
             return emitter.block(b.node);
           case 'definition':

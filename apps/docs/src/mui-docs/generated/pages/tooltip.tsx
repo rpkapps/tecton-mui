@@ -18,8 +18,6 @@ import AccessibilityTooltips from '../demos/tooltips/AccessibilityTooltips';
 import AccessibilityTooltipsSource from '../demos/tooltips/AccessibilityTooltips.tsx?raw';
 import PositionedTooltips from '../demos/tooltips/PositionedTooltips';
 import PositionedTooltipsSource from '../demos/tooltips/PositionedTooltips.tsx?raw';
-import CustomizedTooltips from '../demos/tooltips/CustomizedTooltips';
-import CustomizedTooltipsSource from '../demos/tooltips/CustomizedTooltips.tsx?raw';
 import ArrowTooltips from '../demos/tooltips/ArrowTooltips';
 import ArrowTooltipsSource from '../demos/tooltips/ArrowTooltips.tsx?raw';
 import TooltipOffset from '../demos/tooltips/TooltipOffset';
@@ -50,9 +48,6 @@ const demos = {
   }),
   PositionedTooltips: defineDemo('PositionedTooltips', PositionedTooltips, {
     code: PositionedTooltipsSource,
-  }),
-  CustomizedTooltips: defineDemo('CustomizedTooltips', CustomizedTooltips, {
-    code: CustomizedTooltipsSource,
   }),
   ArrowTooltips: defineDemo('ArrowTooltips', ArrowTooltips, { code: ArrowTooltipsSource }),
   TooltipOffset: defineDemo('TooltipOffset', TooltipOffset, { code: TooltipOffsetSource }),
@@ -143,24 +138,6 @@ export default function MuiDocs() {
         }
       </M.p>
       <Demo name="PositionedTooltips" />
-      <Heading level={3} id="customization">
-        {'Customization'}
-      </Heading>
-      <Callout severity="info">
-        {
-          'These examples restyle the component beyond the Tecton defaults to show the customization APIs (sx, styled and theme overrides). Product UIs should keep the Tecton theme styling.'
-        }
-      </Callout>
-      <M.p>
-        {
-          'Here are some examples of customizing the component.\nYou can learn more about this in the '
-        }
-        <M.a href={'https://mui.com/material-ui/customization/how-to-customize/'}>
-          {'overrides documentation page'}
-        </M.a>
-        {'.'}
-      </M.p>
-      <Demo name="CustomizedTooltips" />
       <Heading level={3} id="arrow-tooltips">
         {'Arrow tooltips'}
       </Heading>
