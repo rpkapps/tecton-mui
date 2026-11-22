@@ -10,7 +10,7 @@ export default function ButtonColors() {
       <Button variant="contained" color="secondary">
         Secondary
       </Button>
-      <Button variant="contained" color="tertiary">
+      <Button variant="text" color="tertiary">
         Tertiary
       </Button>
       <Button variant="text" color="textOnly">
