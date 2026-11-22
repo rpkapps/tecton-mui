@@ -220,43 +220,6 @@ export default function MuiDocs() {
         }
       </M.p>
       <Demo name="ConsecutiveSnackbars" />
-      <Heading level={3} id="supplementary-components">
-        {'Supplementary components'}
-      </Heading>
-      <Heading level={4} id="notistack">
-        {'notistack'}
-      </Heading>
-      <M.p>
-        <M.img
-          src={
-            'https://img.shields.io/github/stars/iamhosseindhv/notistack.svg?style=social&label=Star'
-          }
-          alt={'stars'}
-        />
-        {'\n'}
-        <M.img src={'https://img.shields.io/npm/dm/notistack.svg'} alt={'npm downloads'} />
-      </M.p>
-      <M.p>
-        {'With an imperative API, '}
-        <M.a href={'https://github.com/iamhosseindhv/notistack'}>{'notistack'}</M.a>
-        {
-          ' lets you vertically stack multiple Snackbars without having to handle their open and close states.\nEven though this is discouraged in the Material Design guidelines, it is still a common pattern.'
-        }
-      </M.p>
-      <ExcludedDemo
-        name="IntegrationNotistack"
-        reason="requires the third-party package notistack, which the portal does not depend on"
-      />
-      <Callout severity="warning">
-        <M.p>
-          {'Note that notistack prevents Snackbars from being '}
-          <M.a href={'/components/snackbar#snackbars-accessibility'}>
-            {'closed by pressing '}
-            <M.kbd>{'Escape'}</M.kbd>
-          </M.a>
-          {'.'}
-        </M.p>
-      </Callout>
       <Heading level={3} id="snackbars-accessibility">
         {'Accessibility'}
       </Heading>

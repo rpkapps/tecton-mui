@@ -6,7 +6,6 @@ import {
   Callout,
   CodeBlock,
   Demo,
-  ExcludedDemo,
   Heading,
   M,
   MuiDocsContent,
@@ -141,13 +140,6 @@ export default function MuiDocs() {
         }
         language={'jsx'}
       />
-      <M.p>
-        {'You can find a '}
-        <M.a href={'https://mui.com/material-ui/integrations/routing/#list'}>
-          {'demo with React Router following this section'}
-        </M.a>
-        {' of the documentation.'}
-      </M.p>
       <Heading level={3} id="basics">
         {'Basics'}
       </Heading>
@@ -252,31 +244,6 @@ export default function MuiDocs() {
         {'.'}
       </M.p>
       <Demo name="GutterlessList" />
-      <Heading level={3} id="virtualized-list">
-        {'Virtualized List'}
-      </Heading>
-      <M.p>
-        {'In the following example, we demonstrate how to use '}
-        <M.a href={'https://github.com/bvaughn/react-window'}>{'react-window'}</M.a>
-        {' with the '}
-        <M.code>{'List'}</M.code>
-        {
-          ' component.\nIt renders 200 rows and can easily handle more.\nVirtualization helps with performance issues.'
-        }
-      </M.p>
-      <ExcludedDemo
-        name="VirtualizedList"
-        reason="requires the third-party package react-window, which the portal does not depend on"
-      />
-      <M.p>
-        {'The use of '}
-        <M.a href={'https://github.com/bvaughn/react-window'}>{'react-window'}</M.a>
-        {
-          " when possible is encouraged.\nIf this library doesn't cover your use case, you should consider using alternatives like "
-        }
-        <M.a href={'https://github.com/petyosi/react-virtuoso'}>{'react-virtuoso'}</M.a>
-        {'.'}
-      </M.p>
       <Heading level={3} id="customization">
         {'Customization'}
       </Heading>

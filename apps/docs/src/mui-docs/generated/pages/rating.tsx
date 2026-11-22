@@ -134,9 +134,7 @@ export default function MuiDocs() {
             'Labels for the radio buttons containing actual text ("1 Star", "2 Stars", …).\nBe sure to provide a suitable function to the '
           }
           <M.code>{'getLabelText'}</M.code>
-          {' prop when the page is in a language other than English. You can use the '}
-          <M.a href={'https://mui.com/material-ui/guides/localization/'}>{'included locales'}</M.a>
-          {', or provide your own.'}
+          {' prop when the page is in a language other than English.'}
         </M.li>
         <M.li>
           {

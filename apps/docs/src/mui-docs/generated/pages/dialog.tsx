@@ -251,24 +251,6 @@ export default function MuiDocs() {
         name="CookiesBanner"
         reason="Composes MUI's AppBar with a Toolbar and its own content; @tecton-mui/ui's AppBar is the Tecton App Bar, which has no such composition."
       />
-      <Heading level={3} id="draggable-dialog">
-        {'Draggable dialog'}
-      </Heading>
-      <M.p>
-        {'You can create a draggable dialog by using '}
-        <M.a href={'https://github.com/react-grid-layout/react-draggable'}>{'react-draggable'}</M.a>
-        {'.\nTo do so, you can pass the imported '}
-        <M.code>{'Draggable'}</M.code>
-        {' component as the '}
-        <M.code>{'PaperComponent'}</M.code>
-        {' of the '}
-        <M.code>{'Dialog'}</M.code>
-        {' component.\nThis will make the entire dialog draggable.'}
-      </M.p>
-      <ExcludedDemo
-        name="DraggableDialog"
-        reason="requires the third-party package react-draggable, which the portal does not depend on"
-      />
       <Heading level={3} id="scrolling-long-content">
         {'Scrolling long content'}
       </Heading>

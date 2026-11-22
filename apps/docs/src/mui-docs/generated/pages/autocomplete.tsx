@@ -6,7 +6,6 @@ import {
   Callout,
   CodeBlock,
   Demo,
-  ExcludedDemo,
   Heading,
   M,
   MuiDocsContent,
@@ -533,67 +532,6 @@ export default function MuiDocs() {
         {' prop:'}
       </M.p>
       <CodeBlock code={'<Autocomplete filterOptions={(x) => x} />'} language={'jsx'} />
-      <Heading level={4} id="google-maps-place">
-        {'Google Maps place'}
-      </Heading>
-      <M.p>
-        {
-          'A customized UI for Google Maps Places Autocomplete.\nFor this demo, we need to load the '
-        }
-        <M.a href={'https://developers.google.com/maps/documentation/javascript/overview'}>
-          {'Google Maps JavaScript'}
-        </M.a>
-        {' and '}
-        <M.a href={'https://developers.google.com/maps/documentation/places/web-service/overview'}>
-          {'Google Places'}
-        </M.a>
-        {' API.'}
-      </M.p>
-      <ExcludedDemo
-        name="GoogleMaps"
-        reason="requires the third-party package autosuggest-highlight, which the portal does not depend on"
-      />
-      <M.p>
-        {'The demo relies on '}
-        <M.a href={'https://github.com/moroshko/autosuggest-highlight'}>
-          {'autosuggest-highlight'}
-        </M.a>
-        {
-          ', a small (1 kB) utility for highlighting text in autosuggest and autocomplete components.'
-        }
-      </M.p>
-      <Callout severity="error">
-        <M.p>
-          {
-            'Before you can start using the Google Maps JavaScript API and Places API, you need to get your own '
-          }
-          <M.a href={'https://developers.google.com/maps/documentation/javascript/get-api-key'}>
-            {'API key'}
-          </M.a>
-          {'.'}
-        </M.p>
-        <M.p>
-          {
-            'This demo has limited quotas to make API requests. When your quota exceeds, you will see the response for "Paris".'
-          }
-        </M.p>
-      </Callout>
-      <Heading level={4} id="infinite-loading">
-        {'Infinite loading'}
-      </Heading>
-      <M.p>
-        {'This demo uses '}
-        <M.code>{'@tanstack/react-query'}</M.code>
-        {' to additively fetch new data onto existing '}
-        <M.code>{'options'}</M.code>
-        {' upon reaching the end of the current list. The list is virtualized using '}
-        <M.code>{'@tanstack/react-virtual'}</M.code>
-        {'.'}
-      </M.p>
-      <ExcludedDemo
-        name="InfiniteLoading"
-        reason="requires the third-party package @tanstack/react-query, which the portal does not depend on"
-      />
       <Heading level={3} id="single-value-rendering">
         {'Single value rendering'}
       </Heading>
@@ -799,22 +737,6 @@ export default function MuiDocs() {
       </Heading>
       <M.p>{'The following demo shows how to add a hint feature to the Autocomplete:'}</M.p>
       <Demo name="AutocompleteHint" />
-      <Heading level={3} id="highlights">
-        {'Highlights'}
-      </Heading>
-      <M.p>
-        {'The following demo relies on '}
-        <M.a href={'https://github.com/moroshko/autosuggest-highlight'}>
-          {'autosuggest-highlight'}
-        </M.a>
-        {
-          ', a small (1 kB) utility for highlighting text in autosuggest and autocomplete components.'
-        }
-      </M.p>
-      <ExcludedDemo
-        name="Highlights"
-        reason="requires the third-party package autosuggest-highlight, which the portal does not depend on"
-      />
       <Heading level={3} id="custom-filter">
         {'Custom filter'}
       </Heading>
@@ -918,32 +840,6 @@ export default function MuiDocs() {
         language={'jsx'}
       />
       <Demo name="Filter" />
-      <Heading level={4} id="advanced">
-        {'Advanced'}
-      </Heading>
-      <M.p>
-        {"For richer filtering mechanisms, like fuzzy matching, it's recommended to look at "}
-        <M.a href={'https://github.com/kentcdodds/match-sorter'}>{'match-sorter'}</M.a>
-        {'. For instance:'}
-      </M.p>
-      <CodeBlock
-        code={
-          "import { matchSorter } from 'match-sorter';\n\nconst filterOptions = (options, { inputValue }) => matchSorter(options, inputValue);\n\n<Autocomplete filterOptions={filterOptions} />;"
-        }
-        language={'jsx'}
-      />
-      <Heading level={3} id="virtualization">
-        {'Virtualization'}
-      </Heading>
-      <M.p>
-        {'Search within 10,000 randomly generated options. The list is virtualized thanks to '}
-        <M.a href={'https://github.com/bvaughn/react-window'}>{'react-window'}</M.a>
-        {'.'}
-      </M.p>
-      <ExcludedDemo
-        name="Virtualize"
-        reason="requires the third-party package react-window, which the portal does not depend on"
-      />
       <Heading level={3} id="events">
         {'Events'}
       </Heading>

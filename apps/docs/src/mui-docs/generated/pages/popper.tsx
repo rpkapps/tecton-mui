@@ -120,15 +120,6 @@ export default function MuiDocs() {
         {'.'}
       </M.p>
       <Demo name="TransitionsPopper" />
-      <M.p>
-        {'Alternatively, you can use '}
-        <M.a href={'https://github.com/pmndrs/react-spring'}>{'react-spring'}</M.a>
-        {'.'}
-      </M.p>
-      <ExcludedDemo
-        name="SpringPopper"
-        reason="requires the third-party package @react-spring/web, which the portal does not depend on"
-      />
       <Heading level={3} id="positioned-popper">
         {'Positioned popper'}
       </Heading>

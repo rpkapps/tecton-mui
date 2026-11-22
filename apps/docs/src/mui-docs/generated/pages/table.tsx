@@ -394,22 +394,6 @@ export default function MuiDocs() {
       </Heading>
       <M.p>{'A simple example with spanning rows & columns.'}</M.p>
       <Demo name="SpanningTable" />
-      <Heading level={3} id="virtualized-table">
-        {'Virtualized table'}
-      </Heading>
-      <M.p>
-        {'In the following example, we demonstrate how to use '}
-        <M.a href={'https://github.com/petyosi/react-virtuoso'}>{'react-virtuoso'}</M.a>
-        {' with the '}
-        <M.code>{'Table'}</M.code>
-        {
-          ' component.\nIt renders 200 rows and can easily handle more.\nVirtualization helps with performance issues.'
-        }
-      </M.p>
-      <ExcludedDemo
-        name="ReactVirtualizedTable"
-        reason="requires the third-party package react-virtuoso, which the portal does not depend on"
-      />
       <Heading level={3} id="table-accessibility">
         {'Accessibility'}
       </Heading>

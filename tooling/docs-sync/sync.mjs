@@ -285,11 +285,12 @@ async function sync(packages) {
     if (page.source.startsWith(MUI_COMPONENTS_DIR) && !upstreamSources.has(page.source))
       console.warn(`  warning: ${page.source} is no longer listed upstream`);
 
-  // Sections about third-party projects are not part of this library's documentation, and a page
-  // can drop sections that do not apply to this library (manifest `droppedSections`, each heading
-  // must match exactly once): each is removed with its heading and everything up to the next
-  // heading of the same or a higher level.
-  const DROPPED_SECTIONS = /^supplementary projects$/i;
+  // Sections about third-party projects and components ("Supplementary projects", "Supplementary
+  // components") are not part of this library's documentation, and a page can drop sections that
+  // do not apply to this library (manifest `droppedSections`, each heading must match exactly
+  // once): each is removed with its heading and everything up to the next heading of the same or a
+  // higher level.
+  const DROPPED_SECTIONS = /^supplementary (projects|components)$/i;
   const dropSections = (markdown, entry) => {
     const named = new Map(Object.keys(entry.droppedSections ?? {}).map((h) => [h, 0]));
     const out = [];

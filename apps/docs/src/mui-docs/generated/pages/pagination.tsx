@@ -6,7 +6,6 @@ import {
   Callout,
   CodeBlock,
   Demo,
-  ExcludedDemo,
   Heading,
   M,
   MuiDocsContent,
@@ -111,13 +110,6 @@ export default function MuiDocs() {
         {'Controlled pagination'}
       </Heading>
       <Demo name="PaginationControlled" />
-      <Heading level={3} id="router-integration">
-        {'Router integration'}
-      </Heading>
-      <ExcludedDemo
-        name="PaginationLink"
-        reason="requires the third-party package react-router, which the portal does not depend on"
-      />
       <Heading level={3} id="usepagination">
         <M.code>{'usePagination'}</M.code>
       </Heading>

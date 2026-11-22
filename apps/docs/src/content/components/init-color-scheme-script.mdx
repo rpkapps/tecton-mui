@@ -55,7 +55,6 @@ after it renders; switching the mode updates the Tecton values only.
 
 ## When to use InitColorSchemeScript
 
-Only for a subtree that you deliberately theme with Material UI's own `createTheme` from
-`@mui/material/styles`, with `cssVariables` and `colorSchemes`, outside the Tecton theme. Such a theme
-keeps its own mode state, separate from the rest of the page, which is why the Tecton documentation does
-not recommend it.
+Not in a Tecton application. Every page uses the Tecton theme, and its mode comes from the Tecton theme
+manager; render `TectonModeScript` to apply it before the first paint. `InitColorSchemeScript` stays
+exported only so that code written for Material UI keeps compiling.

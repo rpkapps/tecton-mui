@@ -32,8 +32,15 @@
     {
       "package": "@mui/material",
       "source": "docs/data/material/components/autocomplete/autocomplete.md",
-      "status": "included",
+      "status": "modified",
       "target": "autocomplete",
+      "droppedSections": {
+        "Google Maps place": "Needs the Google Maps and Places APIs (with an API key) and the third-party autosuggest-highlight package, neither of which is part of @tecton-mui/ui.",
+        "Infinite loading": "Built on the third-party @tanstack/react-query and @tanstack/react-virtual packages, which are not part of @tecton-mui/ui.",
+        "Highlights": "Built on the third-party autosuggest-highlight package, which is not part of @tecton-mui/ui.",
+        "Advanced": "Recommends the third-party match-sorter package; Tecton UIs use the built-in createFilterOptions shown above.",
+        "Virtualization": "Built on the third-party react-window package, which is not part of @tecton-mui/ui."
+      },
       "demoEdits": {
         "GitHubLabel": [
           {
@@ -136,8 +143,15 @@
     {
       "package": "@mui/material",
       "source": "docs/data/material/components/rating/rating.md",
-      "status": "included",
-      "target": "rating"
+      "status": "modified",
+      "target": "rating",
+      "edits": [
+        {
+          "find": " You can use the [included locales](/material-ui/guides/localization/), or provide your own.",
+          "replace": "",
+          "reason": "Points to the @mui/material/locale bundles, which @tecton-mui/ui does not re-export."
+        }
+      ]
     },
     {
       "package": "@mui/material",
@@ -160,8 +174,11 @@
     {
       "package": "@mui/material",
       "source": "docs/data/material/components/text-fields/text-fields.md",
-      "status": "included",
-      "target": "text-fields"
+      "status": "modified",
+      "target": "text-fields",
+      "droppedSections": {
+        "Integration with 3rd party input libraries": "Built on the third-party react-imask and react-number-format packages, which are not part of @tecton-mui/ui. Numbers use NumberField (linked from the type=\"number\" section)."
+      }
     },
     {
       "package": "@mui/material",
@@ -239,20 +256,8 @@
     {
       "package": "@mui/material",
       "source": "docs/data/material/components/icons/icons.md",
-      "status": "modified",
-      "target": "icons",
-      "edits": [
-        {
-          "find": "If you need a custom SVG icon (not available in the [Material Icons](/material-ui/material-icons/)) you can use the `SvgIcon` wrapper.",
-          "replace": "If you need a custom SVG icon (not available in the [Tecton icons](/material-ui/material-icons/)) you can use the `SvgIcon` wrapper.",
-          "reason": "The library's icon set is Tecton, not Material Icons (the link goes to the Icon page through slug-map.json#externalRoutes)."
-        },
-        {
-          "find": "The `createSvgIcon` utility component is used to create the [Material Icons](#material-svg-icons).",
-          "replace": "The `createSvgIcon` utility component creates a reusable icon component.",
-          "reason": "`@mui/icons-material` is not part of @tecton-mui/ui, and the Material SVG icons section is not synced."
-        }
-      ]
+      "status": "excluded",
+      "reason": "Teaches custom SVG icons (SvgIcon, createSvgIcon, SVG loaders), third-party icon sets and Material font icons. Tecton UIs use the Tecton icon set through the Icon component, documented on the Icon page."
     },
     {
       "package": "@mui/material",
@@ -263,8 +268,18 @@
     {
       "package": "@mui/material",
       "source": "docs/data/material/components/lists/lists.md",
-      "status": "included",
+      "status": "modified",
       "target": "lists",
+      "edits": [
+        {
+          "find": "\n\nYou can find a [demo with React Router following this section](/material-ui/integrations/routing/#list) of the documentation.",
+          "replace": "",
+          "reason": "Points to a React Router recipe on mui.com; routing is the host application's choice, not part of @tecton-mui/ui."
+        }
+      ],
+      "droppedSections": {
+        "Virtualized List": "Built on the third-party react-window package and recommends react-virtuoso; neither is part of @tecton-mui/ui."
+      },
       "demoEdits": {
         "CustomizedList": [
           {
@@ -278,8 +293,11 @@
     {
       "package": "@mui/material",
       "source": "docs/data/material/components/table/table.md",
-      "status": "included",
-      "target": "table"
+      "status": "modified",
+      "target": "table",
+      "droppedSections": {
+        "Virtualized table": "Built on the third-party react-virtuoso package, which is not part of @tecton-mui/ui. Large data sets use the DataGrid (see Data table)."
+      }
     },
     {
       "package": "@mui/material",
@@ -329,8 +347,11 @@
     {
       "package": "@mui/material",
       "source": "docs/data/material/components/dialogs/dialogs.md",
-      "status": "included",
+      "status": "modified",
       "target": "dialogs",
+      "droppedSections": {
+        "Draggable dialog": "Built on the third-party react-draggable package, which is not part of @tecton-mui/ui."
+      },
       "excludedDemos": {
         "CookiesBanner": "Composes MUI's AppBar with a Toolbar and its own content; @tecton-mui/ui's AppBar is the Tecton App Bar, which has no such composition.",
         "FullScreenDialog": "Composes MUI's AppBar with a Toolbar and its own content; @tecton-mui/ui's AppBar is the Tecton App Bar, which has no such composition."
@@ -399,8 +420,11 @@
     {
       "package": "@mui/material",
       "source": "docs/data/material/components/breadcrumbs/breadcrumbs.md",
-      "status": "included",
-      "target": "breadcrumbs"
+      "status": "modified",
+      "target": "breadcrumbs",
+      "droppedSections": {
+        "Integration with react-router": "A React Router recipe; routing is the host application's choice, not part of @tecton-mui/ui."
+      }
     },
     {
       "package": "@mui/material",
@@ -447,8 +471,11 @@
     {
       "package": "@mui/material",
       "source": "docs/data/material/components/pagination/pagination.md",
-      "status": "included",
-      "target": "pagination"
+      "status": "modified",
+      "target": "pagination",
+      "droppedSections": {
+        "Router integration": "A React Router recipe; routing is the host application's choice, not part of @tecton-mui/ui."
+      }
     },
     {
       "package": "@mui/material",
@@ -542,8 +569,15 @@
     {
       "package": "@mui/material",
       "source": "docs/data/material/components/modal/modal.md",
-      "status": "included",
-      "target": "modal"
+      "status": "modified",
+      "target": "modal",
+      "edits": [
+        {
+          "find": "\n\nAlternatively, you can use [react-spring](https://github.com/pmndrs/react-spring).\n\n{{\"demo\": \"SpringModal.js\"}}",
+          "replace": "",
+          "reason": "Offers the third-party react-spring package as an alternative; Tecton UIs use the library's transitions (Fade above)."
+        }
+      ]
     },
     {
       "package": "@mui/material",
@@ -560,8 +594,15 @@
     {
       "package": "@mui/material",
       "source": "docs/data/material/components/popper/popper.md",
-      "status": "included",
-      "target": "popper"
+      "status": "modified",
+      "target": "popper",
+      "edits": [
+        {
+          "find": "\n\nAlternatively, you can use [react-spring](https://github.com/pmndrs/react-spring).\n\n{{\"demo\": \"SpringPopper.js\"}}",
+          "replace": "",
+          "reason": "Offers the third-party react-spring package as an alternative; Tecton UIs use the library's transitions (Fade above)."
+        }
+      ]
     },
     {
       "package": "@mui/material",
@@ -578,14 +619,36 @@
     {
       "package": "@mui/material",
       "source": "docs/data/material/components/transitions/transitions.md",
-      "status": "included",
-      "target": "transitions"
+      "status": "modified",
+      "target": "transitions",
+      "edits": [
+        {
+          "find": "For more information on creating a custom transition, visit the _react-transition-group_ [`Transition` documentation](https://reactcommunity.org/react-transition-group/transition/).\nYou can also visit the dedicated sections of some of the components:",
+          "replace": "For more information, visit the dedicated sections of some of the components:",
+          "reason": "Sends readers to build transitions with react-transition-group directly; Tecton UIs use the library's transition components."
+        }
+      ],
+      "droppedSections": {
+        "TransitionGroup": "Uses TransitionGroup from the third-party react-transition-group package directly; it is not exported by @tecton-mui/ui."
+      }
     },
     {
       "package": "@mui/material",
       "source": "docs/data/material/components/use-media-query/use-media-query.md",
-      "status": "included",
-      "target": "use-media-query"
+      "status": "modified",
+      "target": "use-media-query",
+      "edits": [
+        {
+          "find": "The media query string can be any valid CSS media query, for example [`'(prefers-color-scheme: dark)'`](/material-ui/customization/dark-mode/#system-preference).",
+          "replace": "The media query string can be any valid CSS media query, for example `'(min-width:600px)'`.",
+          "reason": "Light/dark mode comes from the Tecton theme manager; the portal's own guidance on this page says not to query prefers-color-scheme."
+        }
+      ],
+      "droppedSections": {
+        "Using JavaScript syntax": "Built on the third-party json2mq package, which is not part of @tecton-mui/ui.",
+        "Testing": "Recommends the third-party css-mediaquery package; test setup is not part of the library's consumer documentation.",
+        "Server-side rendering": "Recommends the third-party ua-parser-js and css-mediaquery packages. Server rendering of useMediaQuery is covered by the authored section of this page and the SSR guide."
+      }
     },
     {
       "package": "@mui/lab",

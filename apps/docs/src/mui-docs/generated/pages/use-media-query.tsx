@@ -6,7 +6,6 @@ import {
   Callout,
   CodeBlock,
   Demo,
-  ExcludedDemo,
   Heading,
   M,
   MuiDocsContent,
@@ -57,9 +56,7 @@ export default function MuiDocs() {
         {
           'You should provide a media query to the first argument of the hook.\nThe media query string can be any valid CSS media query, for example '
         }
-        <M.a href={'https://mui.com/material-ui/customization/dark-mode/#system-preference'}>
-          <M.code>{"'(prefers-color-scheme: dark)'"}</M.code>
-        </M.a>
+        <M.code>{"'(min-width:600px)'"}</M.code>
         {'.'}
       </M.p>
       <Demo name="SimpleMediaQuery" showCode />
@@ -111,47 +108,6 @@ export default function MuiDocs() {
         <strong>{'no default'}</strong>
         {' theme support, you have to inject it in a parent theme provider.'}
       </M.p>
-      <Heading level={3} id="using-javascript-syntax">
-        {'Using JavaScript syntax'}
-      </Heading>
-      <M.p>
-        {'You can use '}
-        <M.a href={'https://github.com/akiran/json2mq'}>{'json2mq'}</M.a>
-        {' to generate media query string from a JavaScript object.'}
-      </M.p>
-      <ExcludedDemo
-        name="JavaScriptMedia"
-        reason="requires the third-party package json2mq, which the portal does not depend on"
-      />
-      <Heading level={3} id="testing">
-        {'Testing'}
-      </Heading>
-      <M.p>
-        {'You need an implementation of '}
-        <M.a href={'https://developer.mozilla.org/en-US/docs/Web/API/Window/matchMedia'}>
-          {'matchMedia'}
-        </M.a>
-        {' in your test environment.'}
-      </M.p>
-      <M.p>
-        {'For instance, '}
-        <M.a
-          href={
-            'https://jestjs.io/docs/manual-mocks#mocking-methods-which-are-not-implemented-in-jsdom'
-          }
-        >
-          {"jsdom doesn't support it yet"}
-        </M.a>
-        {'. You should polyfill it.\nUsing '}
-        <M.a href={'https://github.com/ericf/css-mediaquery'}>{'css-mediaquery'}</M.a>
-        {' to emulate it is recommended.'}
-      </M.p>
-      <CodeBlock
-        code={
-          "import mediaQuery from 'css-mediaquery';\n\nfunction createMatchMedia(width) {\n  return (query) => ({\n    matches: mediaQuery.match(query, {\n      width,\n    }),\n    addEventListener: () => {},\n    removeEventListener: () => {},\n  });\n}\n\ndescribe('MyTests', () => {\n  beforeAll(() => {\n    window.matchMedia = createMatchMedia(window.innerWidth);\n  });\n});"
-        }
-        language={'js'}
-      />
       <Heading level={3} id="client-side-only-rendering">
         {'Client-side only rendering'}
       </Heading>
@@ -190,88 +146,6 @@ export default function MuiDocs() {
           {' API (the client-side only API introduced in React 18).'}
         </M.p>
       </Callout>
-      <Heading level={3} id="server-side-rendering">
-        {'Server-side rendering'}
-      </Heading>
-      <Callout severity="warning">
-        <M.p>
-          {
-            'Server-side rendering and client-side media queries are fundamentally at odds.\nBe aware of the tradeoff. The support can only be partial.'
-          }
-        </M.p>
-      </Callout>
-      <M.p>
-        {'Try relying on client-side CSS media queries first.\nFor instance, you could use:'}
-      </M.p>
-      <M.ul>
-        <M.li>
-          <M.a href={'https://mui.com/system/display/#hiding-elements'}>
-            <M.code>{'<Box display>'}</M.code>
-          </M.a>
-        </M.li>
-        <M.li>
-          <M.a href={'https://mui.com/material-ui/customization/breakpoints/#css-media-queries'}>
-            <M.code>{'themes.breakpoints.up(x)'}</M.code>
-          </M.a>
-        </M.li>
-        <M.li>
-          {'or '}
-          <M.a href={'https://mui.com/system/getting-started/the-sx-prop/'}>
-            <M.code>{'sx prop'}</M.code>
-          </M.a>
-        </M.li>
-      </M.ul>
-      <M.p>
-        {
-          'If none of the above alternatives are an option, you can proceed reading this section of the documentation.'
-        }
-      </M.p>
-      <M.p>
-        {
-          'First, you need to guess the characteristics of the client request, from the server.\nYou have the choice between using:'
-        }
-      </M.p>
-      <M.ul>
-        <M.li>
-          <strong>{'User agent'}</strong>
-          {'. Parse the user agent string of the client to extract information. Using '}
-          <M.a href={'https://github.com/faisalman/ua-parser-js'}>{'ua-parser-js'}</M.a>
-          {' to parse the user agent is recommended.'}
-        </M.li>
-        <M.li>
-          <strong>{'Client hints'}</strong>
-          {'. Read the hints the client is sending to the server. Be aware that this feature is '}
-          <M.a href={'https://caniuse.com/#search=client%20hint'}>{'not supported everywhere'}</M.a>
-          {'.'}
-        </M.li>
-      </M.ul>
-      <M.p>
-        {'Finally, you need to provide an implementation of '}
-        <M.a href={'https://developer.mozilla.org/en-US/docs/Web/API/Window/matchMedia'}>
-          {'matchMedia'}
-        </M.a>
-        {' to the '}
-        <M.code>{'useMediaQuery'}</M.code>
-        {' with the previously guessed characteristics.\nUsing '}
-        <M.a href={'https://github.com/ericf/css-mediaquery'}>{'css-mediaquery'}</M.a>
-        {' to emulate matchMedia is recommended.'}
-      </M.p>
-      <M.p>{'For instance on the server-side:'}</M.p>
-      <CodeBlock
-        code={
-          "import * as ReactDOMServer from 'react-dom/server';\nimport parser from 'ua-parser-js';\nimport mediaQuery from 'css-mediaquery';\nimport { createTheme, ThemeProvider } from '@tecton-mui/ui/styles';\n\nfunction handleRender(req, res) {\n  const deviceType = parser(req.headers['user-agent']).device.type || 'desktop';\n  const ssrMatchMedia = (query) => ({\n    matches: mediaQuery.match(query, {\n      // The estimated CSS width of the browser.\n      width: deviceType === 'mobile' ? '0px' : '1024px',\n    }),\n  });\n\n  const theme = createTheme({\n    components: {\n      // Change the default options of useMediaQuery\n      MuiUseMediaQuery: {\n        defaultProps: {\n          ssrMatchMedia,\n        },\n      },\n    },\n  });\n\n  const html = ReactDOMServer.renderToString(\n    <ThemeProvider theme={theme}>\n      <App />\n    </ThemeProvider>,\n  );\n\n  // …\n}"
-        }
-        language={'js'}
-      />
-      <ExcludedDemo
-        name="ServerSide"
-        reason="requires the third-party package css-mediaquery, which the portal does not depend on"
-      />
-      <M.p>
-        {
-          'Make sure you provide the same custom match media implementation to the client-side to guarantee a hydration match.'
-        }
-      </M.p>
       <Heading level={3} id="migrating-from-withwidth">
         {'Migrating from '}
         <M.code>{'withWidth()'}</M.code>

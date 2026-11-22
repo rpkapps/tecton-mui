@@ -6,7 +6,7 @@ function LocalizationPage() {
   return (
     <MdxPage
       title="LocalizationProvider, date-fns and locales"
-      description="Configure date adapters and locales for the date and time pickers."
+      description="Set the date locale and translate the texts of the date and time pickers."
       section={{ title: 'Guides' }}
       Content={Content}
     />

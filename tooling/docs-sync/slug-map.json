@@ -22,7 +22,6 @@
     "badges": [{ "slug": "badge" }],
     "chips": [{ "slug": "chip" }],
     "dividers": [{ "slug": "divider" }],
-    "icons": [{ "slug": "svg-icon", "sections": ["svgicon", "accessibility"] }],
     "lists": [{ "slug": "list" }],
     "table": [{ "slug": "table" }],
     "tooltips": [{ "slug": "tooltip" }],
@@ -73,6 +72,7 @@
     "/x/react-data-grid/": "/components/data-grid",
     "/x/react-date-pickers/": "/components/date-picker",
     "/x/react-tree-view/": "/components/simple-tree-view",
-    "/material-ui/material-icons/": "/components/icon"
+    "/material-ui/material-icons/": "/components/icon",
+    "/material-ui/react-number-field/": "/components/number-field"
   }
 }

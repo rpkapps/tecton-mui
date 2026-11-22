@@ -6,7 +6,6 @@ import {
   Callout,
   CodeBlock,
   Demo,
-  ExcludedDemo,
   Heading,
   M,
   MuiDocsContent,
@@ -702,7 +701,7 @@ export default function MuiDocs() {
       </Callout>
       <M.p>
         {'If you need a text field with number validation, you can use '}
-        <M.a href={'https://mui.com/material-ui/react-number-field/'}>{'Number Field'}</M.a>
+        <M.a href={'/components/number-field'}>{'Number Field'}</M.a>
         {' instead.'}
       </M.p>
       <Heading level={4} id="helper-text">
@@ -720,46 +719,6 @@ export default function MuiDocs() {
         {' prop:'}
       </M.p>
       <Demo name="HelperTextAligned" />
-      <Heading level={3} id="integration-with-3rd-party-input-libraries">
-        {'Integration with 3rd party input libraries'}
-      </Heading>
-      <M.p>
-        {
-          'You can use third-party libraries to format an input.\nYou have to provide a custom implementation of the '
-        }
-        <M.code>{'<input>'}</M.code>
-        {' element with the '}
-        <M.code>{'inputComponent'}</M.code>
-        {' property.'}
-      </M.p>
-      <M.p>
-        {'The following demo uses the '}
-        <M.a href={'https://github.com/uNmAnNeR/imaskjs'}>{'react-imask'}</M.a>
-        {' and '}
-        <M.a href={'https://github.com/s-yadav/react-number-format'}>{'react-number-format'}</M.a>
-        {' libraries. The same concept could be applied to, for example '}
-        <M.a href={'https://github.com/mui/material-ui/issues/16037'}>{'react-stripe-element'}</M.a>
-        {'.'}
-      </M.p>
-      <ExcludedDemo
-        name="FormattedInputs"
-        reason="requires the third-party package react-imask, which the portal does not depend on"
-      />
-      <M.p>
-        {
-          'The provided input component should expose a ref with a value that implements the following interface:'
-        }
-      </M.p>
-      <CodeBlock
-        code={'interface InputElement {\n  focus(): void;\n  value?: string;\n}'}
-        language={'ts'}
-      />
-      <CodeBlock
-        code={
-          'const MyInputComponent = React.forwardRef((props, ref) => {\n  const { component: Component, ...other } = props;\n\n  // implement `InputElement` interface\n  React.useImperativeHandle(ref, () => ({\n    focus: () => {\n      // logic to focus the rendered component from 3rd party belongs here\n    },\n    // hiding the value e.g. react-stripe-elements\n  }));\n\n  // `Component` will be your `SomeThirdPartyComponent` from below\n  return <Component {...other} />;\n});\n\n// usage\n<TextField\n  slotProps={{\n    input: {\n      inputComponent: MyInputComponent,\n      inputProps: {\n        component: SomeThirdPartyComponent,\n      },\n    },\n  }}\n/>;'
-        }
-        language={'jsx'}
-      />
       <Heading level={3} id="text-fields-accessibility">
         {'Accessibility'}
       </Heading>

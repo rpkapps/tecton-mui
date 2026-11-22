@@ -2,7 +2,8 @@
 
 Date and time pickers need a `LocalizationProvider` above them. The one exported by
 `@tecton-mui/ui` is preconfigured with the `date-fns` adapter and the `en-US` locale, so no adapter
-import is needed. Values are native JavaScript `Date` objects.
+import is needed. Values are native JavaScript `Date` objects. Every Tecton application works with
+dates this way: use `Date` values and `date-fns` rather than another date library.
 
 ```tsx
 import { LocalizationProvider } from '@tecton-mui/ui';
@@ -45,32 +46,6 @@ application needs; keys you omit keep their English defaults:
   {/* pickers */}
 </LocalizationProvider>
 ```
-
-## Using another date library
-
-If your application already works with Day.js, Luxon or Moment values, pass the matching adapter.
-Adapters are exported on their own paths and are only bundled when imported; install the date
-library itself in your application.
-
-| Library            | Adapter import                  | Value type |
-| ------------------ | ------------------------------- | ---------- |
-| date-fns (default) | `@tecton-mui/ui/AdapterDateFns` | `Date`     |
-| Day.js             | `@tecton-mui/ui/AdapterDayjs`   | `Dayjs`    |
-| Luxon              | `@tecton-mui/ui/AdapterLuxon`   | `DateTime` |
-| Moment             | `@tecton-mui/ui/AdapterMoment`  | `Moment`   |
-
-```tsx
-import AdapterDayjs from '@tecton-mui/ui/AdapterDayjs';
-import { LocalizationProvider } from '@tecton-mui/ui';
-import 'dayjs/locale/fr';
-
-<LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="fr">
-  {/* pickers working with Dayjs values */}
-</LocalizationProvider>;
-```
-
-When `dateAdapter` is given, `adapterLocale` must be in that library's format (a string for Day.js,
-Luxon and Moment).
 
 ## Component text and direction
 
