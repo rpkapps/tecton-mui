@@ -1533,6 +1533,12 @@ function DataGridInner<R extends GridValidRowModel>(
           ...(own?.basePopper as { material?: object } | undefined)?.material,
         },
       },
+      // Community makes the toolbar quick filter, the columns panel search and the filter panel's
+      // column, operator and And/Or selects `small` (28px in Tecton), then applies these slot
+      // props on top. The Tecton drop-in filter and column menus use md (32px) fields, the height
+      // of the toolbar and panel buttons. A size set here by the consumer still wins.
+      baseTextField: { size: 'medium' as const, ...own?.baseTextField },
+      baseSelect: { size: 'medium' as const, ...own?.baseSelect },
     };
     return hideFooterRowCount
       ? { ...withPopper, pagination: { hideRowCount: true, ...own?.pagination } }

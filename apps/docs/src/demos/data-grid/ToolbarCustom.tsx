@@ -56,7 +56,6 @@ function WellsToolbar() {
               inputRef={ref}
               aria-label="Search wells"
               placeholder="Search…"
-              size="small"
               sx={{ width: 220, ml: 0.5 }}
               slotProps={{
                 input: {

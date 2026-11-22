@@ -1,6 +1,13 @@
 import * as React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { DataGrid, useGridApiRef, type GridColDef, type GridDataSource } from '../index.js';
+import {
+  DataGrid,
+  GridPreferencePanelsValue,
+  getGridStringOperators,
+  useGridApiRef,
+  type GridColDef,
+  type GridDataSource,
+} from '../index.js';
 
 type Row = { id: number; name: string; dept: string; salary: number };
 const rows: Row[] = [
@@ -117,6 +124,16 @@ describe('DataGrid column menu', () => {
   }, 60_000);
 });
 
+describe('DataGrid columns panel', () => {
+  it('has an md search field, as the Tecton drop-in column menu does', async () => {
+    let api!: ReturnType<typeof useGridApiRef>;
+    render(<Harness onApi={(a) => (api = a)} />);
+    await act(async () => api.current!.showPreferences(GridPreferencePanelsValue.columns));
+    const search = await screen.findByRole('searchbox');
+    expect(search.closest('.MuiInputBase-root')).not.toHaveClass('MuiInputBase-sizeSmall');
+  });
+});
+
 describe('DataGrid filter panel', () => {
   it('adds, edits and removes multiple filter items', async () => {
     let api!: ReturnType<typeof useGridApiRef>;
@@ -150,6 +167,42 @@ describe('DataGrid filter panel', () => {
     await waitFor(() => expect(add).toHaveFocus());
     fireEvent.click(add);
     expect(await screen.findAllByRole('textbox', { name: /value/i })).toHaveLength(1);
+  });
+
+  it('uses md fields and buttons and a filled trash bin, as the Tecton drop-in filter menu does', async () => {
+    let api!: ReturnType<typeof useGridApiRef>;
+    render(<Harness onApi={(a) => (api = a)} />);
+    await act(async () => api.current!.showFilterPanel());
+    fireEvent.click(await screen.findByRole('button', { name: 'Add filter' }));
+    const panel = document.querySelector('.TectonDataGrid-filterPanel')!;
+    // Two conditions: column, operator and value inputs, and the And/Or select.
+    await waitFor(() => expect(panel.querySelectorAll('.MuiDataGrid-filterForm')).toHaveLength(2));
+    expect(panel.querySelectorAll('.MuiInputBase-root').length).toBeGreaterThanOrEqual(7);
+    expect(panel.querySelector('.MuiInputBase-sizeSmall')).toBeNull();
+    for (const name of ['Add filter', 'Remove all']) {
+      expect(screen.getByRole('button', { name })).not.toHaveClass('MuiButton-sizeSmall');
+    }
+    const removeAll = screen.getByRole('button', { name: 'Remove all' });
+    expect(removeAll.querySelector('.tecton-delete-filled')).not.toBeNull();
+  });
+
+  it("keeps the size an operator's InputComponentProps sets on its value input", async () => {
+    let api!: ReturnType<typeof useGridApiRef>;
+    const small: GridColDef<Row>[] = columns.map((c) =>
+      c.field === 'name'
+        ? {
+            ...c,
+            filterOperators: getGridStringOperators().map((o) => ({
+              ...o,
+              InputComponentProps: { slotProps: { root: { size: 'small' } } },
+            })),
+          }
+        : c,
+    );
+    render(<Harness onApi={(a) => (api = a)} columns={small} />);
+    await act(async () => api.current!.showFilterPanel('name'));
+    const value = await screen.findByRole('textbox', { name: /value/i });
+    expect(value.closest('.MuiInputBase-root')).toHaveClass('MuiInputBase-sizeSmall');
   });
 
   it('merges filters started from the Community column menu', async () => {
