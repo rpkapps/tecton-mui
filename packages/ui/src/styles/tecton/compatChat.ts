@@ -48,6 +48,8 @@ const insetFocusRing = {
   },
 };
 const mono = { fontFamily: cssVar('font-family-mono') };
+// Code blocks: 8px around the code (Chat: 12px), in messages and on their own.
+const codeBlockPadding = cssVar('space-100');
 
 // Avatars. Chat draws an avatar as an empty grey disc unless the author has an `avatarUrl`: no
 // initials, no fallback icon. The avatar slots render the Tecton `Avatar` instead: the picture when
@@ -241,47 +243,54 @@ export const chatCompatOverrides = {
   MuiChatMessage: {
     styleOverrides: {
       root: insetFocusRing,
-      bubble: ({ ownerState }: ChatOwnerState & { ownerState?: { variant?: string } }) => ({
-        // Code in messages uses Tecton's monospace font, not the browser default.
-        '& code, & pre': mono,
-        '& button': focusRing,
-        // Inline code and code blocks: Chat tints them with action.hover, or with white at 15% on
-        // own messages. Other people's bubbles: Tecton's paper colour, a step away from the bubble
-        // in both modes (text-primary on it >= 14:1). Own bubbles have no Tecton "on primary"
-        // surface, so the code keeps the bubble colour inside a Tecton divider outline. Compact
-        // messages have no bubble: the selected-content fill.
-        '&& code, && pre': ownerState?.isOwnMessage
-          ? {
-              background: 'transparent',
-              boxShadow: `inset 0 0 0 ${token('border-width-100')} ${token('color-divider')}`,
-            }
-          : {
-              background:
-                (ownerState as { variant?: string } | undefined)?.variant === 'compact'
-                  ? selectedBg
-                  : token('color-bg-paper'),
-            },
-        '&& pre code, && .MuiChatCodeBlock-root code, && .MuiChatCodeBlock-root pre': {
-          background: 'none',
-          boxShadow: 'none',
-        },
-        // Links in Markdown and source links: Tecton's text-button colour (see linkColor). On own
-        // messages, the bubble's text colour, underlined.
-        '&& a': ownerState?.isOwnMessage
-          ? { color: 'inherit', textDecoration: 'underline' }
-          : { color: linkColor },
-        // Agent steps (`step-start` parts): Chat renders an empty, unstyled separator, so the
-        // rounds of a run were not told apart. Draw Tecton's subtle divider; none before the first.
-        '& [role="separator"]': {
-          borderTop: `${cssVar('border-width-100')} solid ${cssVar('color-divider-subtle')}`,
-          margin: `${cssVar('space-100')} 0`,
-        },
-        '& [role="separator"]:first-child': { display: 'none' },
-        // Other people's and the assistant's messages: Chat uses Material's `grey[100]` /
-        // `grey[800]`, on which Tecton's secondary text fails contrast in dark mode. Use Tecton's
-        // filled container fill. Own messages keep `primary.main`.
-        ...(ownerState?.isOwnMessage ? null : { '&&': { backgroundColor: otherBubbleBg } }),
-      }),
+      bubble: ({ ownerState }: ChatOwnerState & { ownerState?: { variant?: string } }) => {
+        // Compact content has no bubble (also the assistant's answers in ChatBox's
+        // `variant="assistant"`, which are drawn as compact content).
+        const isCompact = ownerState?.variant === 'compact';
+        return {
+          // Code in messages uses Tecton's monospace font, not the browser default.
+          '& code, & pre': mono,
+          '& button': focusRing,
+          // Inline code and code blocks: Chat tints them with action.hover, or with white at 15% on
+          // own messages. Other people's bubbles: Tecton's paper colour, a step away from the bubble
+          // in both modes (text-primary on it >= 14:1). Own bubbles have no Tecton "on primary"
+          // surface, so the code keeps the bubble colour inside a Tecton divider outline. Compact
+          // messages have no bubble: the selected-content fill.
+          '&& code, && pre': ownerState?.isOwnMessage
+            ? {
+                background: 'transparent',
+                boxShadow: `inset 0 0 0 ${token('border-width-100')} ${token('color-divider')}`,
+              }
+            : { background: isCompact ? selectedBg : token('color-bg-paper') },
+          '&& pre code, && .MuiChatCodeBlock-root code, && .MuiChatCodeBlock-root pre': {
+            background: 'none',
+            boxShadow: 'none',
+          },
+          // Chat's bubble also sets a code block's `pre` padding to 0 (in every variant), so the
+          // code touched the block's border. Give it the code block's padding (see
+          // MuiChatCodeBlock below).
+          '&& .MuiChatCodeBlock-root pre': { padding: codeBlockPadding },
+          // Links in Markdown and source links: Tecton's text-button colour (see linkColor). On own
+          // messages, the bubble's text colour, underlined.
+          '&& a': ownerState?.isOwnMessage
+            ? { color: 'inherit', textDecoration: 'underline' }
+            : { color: linkColor },
+          // Agent steps (`step-start` parts): Chat renders an empty, unstyled separator, so the
+          // rounds of a run were not told apart. Draw Tecton's subtle divider; none before the first.
+          '& [role="separator"]': {
+            borderTop: `${cssVar('border-width-100')} solid ${cssVar('color-divider-subtle')}`,
+            margin: `${cssVar('space-100')} 0`,
+          },
+          '& [role="separator"]:first-child': { display: 'none' },
+          // Other people's and the assistant's bubbles: Chat uses Material's `grey[100]` /
+          // `grey[800]`, on which Tecton's secondary text fails contrast in dark mode. Use Tecton's
+          // filled container fill. Own messages keep `primary.main`; compact content stays unfilled
+          // (the fill used to paint a tight box behind the text).
+          ...(ownerState?.isOwnMessage || isCompact
+            ? null
+            : { '&&': { backgroundColor: otherBubbleBg } }),
+        };
+      },
       // Small text Chat draws in text.disabled (2.2:1) or primary.main (2.2:1 on dark surfaces):
       // dates, times, the compact author name. Tecton secondary text is >= 5.84:1 on every chat
       // surface; the author name keeps a brand tone with the text-button colour.
@@ -323,10 +332,11 @@ export const chatCompatOverrides = {
   MuiChatCodeBlock: {
     styleOverrides: {
       root: copyIcons,
-      // Was action.hover; the label (text-secondary) stays >= 6.10:1 on it.
-      header: { backgroundColor: hoverBg },
+      // Was action.hover; the label (text-secondary) stays >= 6.10:1 on it. The label starts
+      // where the code does (Chat: 10px label, 12px code).
+      header: { backgroundColor: hoverBg, paddingInlineStart: codeBlockPadding },
       languageLabel: mono,
-      pre: mono,
+      pre: { ...mono, padding: codeBlockPadding },
       code: mono,
       copyButton: { ...focusRing, '&:hover': { backgroundColor: selectedBg } },
     },
