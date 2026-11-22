@@ -11,6 +11,7 @@ export {
 export type {
   ActionBarProps,
   ActionBarValue,
+  ActionBarElevation,
   ActionBarGroupProps,
   ActionBarButtonProps,
   ActionBarToolMenuProps,

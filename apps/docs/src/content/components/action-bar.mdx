@@ -10,6 +10,12 @@ Material UI has no action bar. `@tecton-mui/ui` builds it from Material parts, s
 state comes from the Tecton theme: groups are bordered `Paper` surfaces, buttons are square tertiary
 `IconButton`s, names show in a `Tooltip`, tool sets open a `Menu` and quick settings are `Select`s.
 
+## Playground
+
+Try the props and the content of `ActionBar`. The code under the playground follows your changes.
+
+<Demo name="ActionBarPlayground" playground />
+
 ## Basic action bar
 
 An `ActionBar` holds `ActionBarGroup`s of controls. An `ActionBarButton` with a `value` is a tool:
@@ -41,6 +47,20 @@ open on the other side, over the content. `alignment="left"` (the default) and `
 mirrored in right-to-left layouts, like the `Drawer` anchor.
 
 <Demo name="RightAlignedActionBar" />
+
+## Elevation
+
+`elevation` is the Figma `<Paper>` elevation of the groups, which sets their background. The border
+is the same at every elevation.
+
+- `1` (the default) is the `Paper` background.
+- `2` is the raised surface a `Dialog` uses: white in light mode and black in dark mode. Use it when
+  the bar needs to stand out from the canvas, for example a dark section or a 3D view.
+- `0` is the page background, for a bar that should blend in.
+
+Set it on the `ActionBar` for all its groups, or on one `ActionBarGroup` to change only that group.
+
+<Demo name="ActionBarElevations" />
 
 ## Quick settings
 
@@ -106,6 +126,7 @@ and `Select` styles, plus these Tecton tokens from the Figma component:
 | ----------------------- | ------------------------------------------------------------------------------------------------------------- |
 | Spacing between groups  | `space-50`                                                                                                    |
 | Group surface           | `color-bg-paper` (theme `Paper`), border `border-width-100` `color-divider-subtle`, `radius-50`               |
+| Group surface `0`, `2`  | `color-bg-default` (`elevation={0}`), `color-surface-elevation-2-bg` (`elevation={2}`, as `Dialog`)           |
 | Group padding and gap   | `space-50` (less the border width, as Figma strokes inside)                                                   |
 | Buttons                 | `IconButton` `color="tertiary"` `variant="square"`, medium (32px)                                             |
 | Current tool            | `color-action-tertiary-bg-active`, `color-action-tertiary-adornment-active` (the theme's activated state)     |

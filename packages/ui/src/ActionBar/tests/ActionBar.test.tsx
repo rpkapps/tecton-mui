@@ -100,6 +100,41 @@ describe('ActionBar', () => {
     expect(button('Redo')).not.toHaveAttribute('aria-pressed');
   });
 
+  describe('elevation', () => {
+    const groups = () => screen.getAllByRole('group');
+
+    it('gives the groups Paper elevation 1 by default', () => {
+      renderTools();
+      for (const group of groups()) expect(group).toHaveClass('MuiPaper-elevation1');
+    });
+
+    it('sets the elevation of every group from the bar', () => {
+      renderTools({ elevation: 2 });
+      for (const group of groups()) expect(group).toHaveClass('MuiPaper-elevation2');
+    });
+
+    it("lets a group's own elevation win, inside and outside a bar", () => {
+      render(
+        <ThemeProvider>
+          <ActionBar aria-label="Tools" elevation={2}>
+            <ActionBarGroup aria-label="Raised">
+              <ActionBarButton label="Pan" icon={<Icon name="pan-tool" />} />
+            </ActionBarGroup>
+            <ActionBarGroup aria-label="Flat" elevation={0}>
+              <ActionBarButton label="Undo" icon={<Icon name="undo" />} />
+            </ActionBarGroup>
+          </ActionBar>
+          <ActionBarGroup aria-label="Alone">
+            <ActionBarButton label="Redo" icon={<Icon name="redo" />} />
+          </ActionBarGroup>
+        </ThemeProvider>,
+      );
+      expect(screen.getByRole('group', { name: 'Raised' })).toHaveClass('MuiPaper-elevation2');
+      expect(screen.getByRole('group', { name: 'Flat' })).toHaveClass('MuiPaper-elevation0');
+      expect(screen.getByRole('group', { name: 'Alone' })).toHaveClass('MuiPaper-elevation1');
+    });
+  });
+
   it('keeps one tab stop and moves with Up, Down, Home and End (skipping disabled controls)', async () => {
     const user = userEvent.setup();
     renderTools({ undoDisabled: true });

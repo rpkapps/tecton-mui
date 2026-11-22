@@ -176,6 +176,40 @@ test.describe('ActionBar', () => {
     expect(await buttons.evaluate((el) => el.getBoundingClientRect().width)).toBe(40);
   });
 
+  for (const mode of ['light', 'dark'] as const) {
+    test(`elevation sets the Figma <Paper> surface of the groups (${mode})`, async ({ page }) => {
+      await page.goto(`/?scenario=action-bar&mode=${mode}`);
+      await expect(bar(page)).toBeVisible();
+      const surface = (name: string) =>
+        bar(page, name)
+          .getByRole('group')
+          .first()
+          .evaluate((el) => {
+            const style = getComputedStyle(el);
+            return [style.backgroundColor, style.borderTopColor];
+          });
+      const border = await tokenColor(page, 'color-divider-subtle');
+      // Default elevation 1: the theme Paper's background, as before.
+      expect(await surface('Canvas tools')).toEqual([
+        await tokenColor(page, 'color-bg-paper'),
+        border,
+      ]);
+      // Elevation 2: the Dialog's surface, white in light mode and black in dark mode.
+      expect(await surface('Map tools')).toEqual([
+        mode === 'light' ? 'rgb(255, 255, 255)' : 'rgb(0, 0, 0)',
+        border,
+      ]);
+      expect((await surface('Map tools'))[0]).toBe(
+        await tokenColor(page, 'color-surface-elevation-2-bg'),
+      );
+      // Elevation 0: the page background.
+      expect(await surface('View tools')).toEqual([
+        await tokenColor(page, 'color-bg-default'),
+        border,
+      ]);
+    });
+  }
+
   test('selects: Figma insets, and two selects in a row move with Left and Right', async ({
     page,
   }) => {

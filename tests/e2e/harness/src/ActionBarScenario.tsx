@@ -54,6 +54,7 @@ export function ActionBarScenario() {
       <ActionBar
         aria-label="Map tools"
         alignment="right"
+        elevation={2}
         defaultValue="pin"
         sx={{ position: 'absolute', top: 24, right: 24 }}
       >
@@ -65,7 +66,11 @@ export function ActionBarScenario() {
         </ActionBarGroup>
       </ActionBar>
       {/* Figma's double dropdown, with its "Value" placeholder text: two selects in one row. */}
-      <ActionBar aria-label="View tools" sx={{ position: 'absolute', top: 24, left: 240 }}>
+      <ActionBar
+        aria-label="View tools"
+        elevation={0}
+        sx={{ position: 'absolute', top: 24, left: 240 }}
+      >
         <ActionBarGroup orientation="horizontal" aria-label="View">
           <ActionBarSelect aria-label="Layer" defaultValue="value">
             <MenuItem value="value">Value</MenuItem>
