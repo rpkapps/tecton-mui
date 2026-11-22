@@ -5,7 +5,8 @@ customization APIs, preconfigured with the **Tecton** design system.
 
 - MUI Core and Lab components are direct re-exports of the MIT MUI packages (same components,
   props, slots and refs), styled by Tecton through the theme. MUI X Community Date and Time
-  Pickers and `SimpleTreeView` are included.
+  Pickers and `SimpleTreeView` are included, and so is MUI X Chat (`ChatBox` and its parts, with the
+  headless runtime at `@tecton-mui/ui/ChatHeadless`). Chat is an alpha upstream API.
 - One unified `DataGrid`, range pickers and one unified `RichTreeView` add advanced features,
   implemented independently on public MUI X Community APIs. No commercial MUI X code is used.
 - `NumberField`, `NumberSpinner` and `Menubar`, which Material UI 9.5.0 offers only as copy-paste

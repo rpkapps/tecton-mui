@@ -125,22 +125,24 @@ Type patches may only add type syntax. They must never change the emitted JavaSc
 Written by `emit` and listed with checksums in
 `packages/ui/src/styles/tecton/generated/GENERATED.json`:
 
-| Path (in `packages/ui`)                              | Contents                                                                     |
-| ---------------------------------------------------- | ---------------------------------------------------------------------------- |
-| `src/styles/tecton/generated/core/*`                 | tokens string, token injection, `ThemeManager`, palettes, scales, typography |
-| `src/styles/tecton/generated/mui/*`                  | `createMuiTheme`, component overrides, `useKeyboardFocusVisible`             |
-| `src/styles/tecton/generated/icons.ts`               | icon name types and variants                                                 |
-| `src/styles/tecton/generated/meta.ts`                | `TECTON_VERSION`, `TECTON_SOURCE`, `TECTON_MODES`, `TECTON_TOKEN_COUNT`      |
-| `assets/tecton/tokens.css`, `fonts.css`, `icons.css` | static CSS (with a "do not edit" header)                                     |
-| `assets/tecton/assets/fonts/*.woff2`                 | Figtree and IBM Plex Mono font files                                         |
-| `assets/tecton/provenance.json`                      | version, origin and the source URL of each artifact                          |
+| Path (in `packages/ui`)                              | Contents                                                                      |
+| ---------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `src/styles/tecton/generated/core/*`                 | tokens string, token injection, `ThemeManager`, palettes, scales, typography  |
+| `src/styles/tecton/generated/mui/*`                  | `createMuiTheme`, component overrides, `useKeyboardFocusVisible`              |
+| `src/styles/tecton/generated/icons.ts`               | icon name types and variants                                                  |
+| `src/styles/tecton/generated/iconUrls.ts`            | mask image of each monochrome icon, one named export each (`iconCopyOutline`) |
+| `src/styles/tecton/generated/meta.ts`                | `TECTON_VERSION`, `TECTON_SOURCE`, `TECTON_MODES`, `TECTON_TOKEN_COUNT`       |
+| `assets/tecton/tokens.css`, `fonts.css`, `icons.css` | static CSS (with a "do not edit" header)                                      |
+| `assets/tecton/assets/fonts/*.woff2`                 | Figtree and IBM Plex Mono font files                                          |
+| `assets/tecton/provenance.json`                      | version, origin and the source URL of each artifact                           |
 
 **Never edit these files.** `pnpm tecton:check` fails on any difference.
 
 ## Runtime layer (`packages/ui/src/styles`)
 
-- `tecton/index.ts` is the entry the rest of the package uses. Only it, `tecton/compat.ts` and
-  `ssr.tsx` (for the tokens string) import `generated/**`. `buildTectonTheme(mode, options)`
+- `tecton/index.ts` is the entry the rest of the package uses. Only it, the compat layer
+  (`tecton/compat.ts` and its helpers `compatIcons.ts` and `compatChat.ts`) and `ssr.tsx` (for the
+  tokens string) import `generated/**`. `buildTectonTheme(mode, options)`
   deep-merges `muiCompatOverrides` and the caller's options into the Tecton
   `createMuiTheme({ mode, overrides })` result, then applies `applyThemeCompat`.
 - `tecton/compat.ts` holds **documented corrections between Tecton 0.11.2 and the pinned MUI
@@ -218,6 +220,24 @@ Written by `emit` and listed with checksums in
     glyphs: first/last are two chevrons, "more" is the vertical glyph rotated, and the clock is
     Tecton's `history` icon. `styles/tests/icons.test.tsx` checks that none of these components
     render a Material SVG.
+  - **MUI X Chat** (`compatChat.ts`): Tecton has no chat styles. The corrections draw Tecton's focus
+    ring and monospace font, give other people's messages a Tecton fill, keep timestamps above
+    4.5:1, name the conversation list, draw agent step separators and space a confirmation inside a
+    message. The message and conversation avatar slots (`MuiChatMessageAvatar`,
+    `MuiChatConversationList` `defaultProps.slots`) render the Tecton `Avatar` with the author's
+    initials; upstream draws an empty disc without a picture. Tecton's theme does not define
+    `palette.grey`, `palette.common` or the `palette.action` states, so every Chat colour drawn
+    with those, with `alpha()`/`rgba()` tints, with `text.disabled` (2.2:1) or with `primary.main`
+    as text (2.2:1 on dark surfaces) is mapped to a Tecton token (`content-bg-hover/active`,
+    `disabled-*`, `status-*-outline-*`, `input-outlined-border*`, `action-tertiary-text` for links,
+    `text-secondary` for small text). `tests/e2e/chat.spec.ts` fails if any rendered text,
+    background or border colour in the chat is not a `--tecton-color-*` value, and runs axe on
+    every chat surface in both modes. Chat draws its icons as inline SVGs with
+    no slot, so each SVG is recognised by its shape and painted with a Tecton glyph through a CSS
+    mask, using the glyph URLs from `generated/iconUrls.ts` (named exports, so a bundle keeps only
+    the glyphs the theme references). Tecton has no send, double-check or file glyph: send is
+    `arrow-up`, "read" is `check-circle`, files are `attach-file`. `tests/e2e/chat.spec.ts` fails if
+    an SVG in the chat is not repainted, for example after a Chat upgrade changes an icon.
   - **Outlined input notch:** Tecton labels sit statically above the field. TextField keeps the
     outline closed by forcing `shrink: false`, but a `Select` or `OutlinedInput` with a `label`
     still cut a gap in the top border. The correction defaults `MuiOutlinedInput` `notched` to

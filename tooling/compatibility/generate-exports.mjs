@@ -76,6 +76,18 @@ const MATERIAL_EXCLUDED_REASON = {
   styles: 'replaced by the Tecton-preconfigured @tecton-mui/ui/styles',
   Icon: 'replaced by the Tecton Icon component (font-ligature Material Icon not supported)',
 };
+const CHAT_EXCLUDED_REASON = {
+  core: 'subset of `headless` (exposed as ChatHeadless)',
+  types: 'type-only subset of `headless` (exposed as ChatHeadless)',
+  locales: 'only `chatEnUS`, the built-in default locale text',
+  themeAugmentation:
+    'type-only module; @tecton-mui/ui/styles loads it (styles/tecton/augmentations.ts)',
+};
+/** Module directories listed in a package's `exports` map (`./ChatBox`, `./headless`...). */
+const exportedModules = (name) =>
+  Object.keys(JSON.parse(readFileSync(join(pkgDir(name), 'package.json'), 'utf8')).exports)
+    .map((key) => key.replace(/^\.\//, ''))
+    .filter((mod) => /^[A-Za-z0-9_]+$/.test(mod) && existsSync(join(pkgDir(name), mod)));
 // AdapterDateFnsV2 targets date-fns v2, which conflicts with the pinned date-fns v4 default.
 const DATE_ADAPTERS = ['AdapterDateFns', 'AdapterDayjs', 'AdapterLuxon', 'AdapterMoment'];
 
@@ -124,6 +136,18 @@ function plan() {
   }
   for (const mod of indexModules('@mui/x-tree-view'))
     included.push({ package: '@mui/x-tree-view', module: mod });
+  // MUI X Chat re-exports its components from files, not module indexes, so its module list comes
+  // from the package `exports` map.
+  for (const mod of exportedModules('@mui/x-chat')) {
+    if (CHAT_EXCLUDED_REASON[mod])
+      excluded.push({ package: '@mui/x-chat', module: mod, reason: CHAT_EXCLUDED_REASON[mod] });
+    else if (mod === 'headless')
+      // The headless runtime (provider, hooks, adapter and message types). Its entity types
+      // `ChatMessage` and `ChatConversation` share names with components, so the root barrel cannot
+      // carry them: the module is also a subpath, named after the package.
+      included.push({ package: '@mui/x-chat', module: mod, subpathName: 'ChatHeadless' });
+    else included.push({ package: '@mui/x-chat', module: mod });
+  }
 }
 
 // Hand-written public modules (Icon, LocalizationProvider, DataGrid, RichTreeView, range pickers...).
@@ -149,17 +173,18 @@ function out(file, content) {
 function generatePassthroughs(custom) {
   const modules = [];
   for (const entry of included) {
-    const { package: pkg, module: mod } = entry;
+    const { package: pkg, module: mod, subpathName } = entry;
     const id =
       /^[a-z]/.test(mod) && !isSubpathModule(mod)
         ? `${pkg.replace('@mui/', '').replace(/-/g, '')}_${mod}`
         : mod;
-    if (custom.includes(mod)) {
-      entry.overriddenBy = `src/${mod}`;
+    if (custom.includes(subpathName ?? mod)) {
+      entry.overriddenBy = `src/${subpathName ?? mod}`;
       continue;
     }
     const dir = `internal/passthrough/${id}`;
-    const target = isSubpathModule(mod) ? mod : dir;
+    const isSubpath = Boolean(subpathName) || isSubpathModule(mod);
+    const target = subpathName ?? (isSubpathModule(mod) ? mod : dir);
     const lines = [MARKER, `// Passthrough of ${pkg}/${mod} (v${pkgVersion(pkg)}). Do not edit.`];
     if (hasDefault(pkg, mod)) lines.push(`export { default } from '${pkg}/${mod}';`);
     else if (exportsNamesake(pkg, mod)) {
@@ -168,7 +193,7 @@ function generatePassthroughs(custom) {
     }
     lines.push(`export * from '${pkg}/${mod}';`, '');
     out(join(src, target, 'index.ts'), lines.join('\n'));
-    modules.push({ ...entry, id: target, subpath: isSubpathModule(mod) });
+    modules.push({ ...entry, id: target, subpath: isSubpath });
   }
   return modules;
 }
@@ -390,13 +415,15 @@ const inventory = {
       '@mui/x-data-grid',
       '@mui/x-date-pickers',
       '@mui/x-tree-view',
+      '@mui/x-chat',
     ].map((p) => [p, pkgVersion(p)]),
   ),
   customModules: custom,
   subpaths,
-  included: included.map(({ package: p, module, overriddenBy }) => ({
+  included: included.map(({ package: p, module, subpathName, overriddenBy }) => ({
     package: p,
     module,
+    ...(subpathName ? { subpath: subpathName } : {}),
     ...(overriddenBy ? { overriddenBy } : {}),
   })),
   excluded,

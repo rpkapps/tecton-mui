@@ -1,0 +1,29 @@
+## Purpose
+
+`ChatMessageSkeleton` is a placeholder row with shimmering lines. Show a few while messages load, so
+the layout does not jump when they arrive. `ChatBox` does not use it on its own: you place it in your
+own layout or loading state.
+
+## Playground
+
+<Demo name="SkeletonPlayground" playground />
+
+## Lines
+
+`lines` sets the number of shimmer lines in a row (3 by default). Mix rows of different lengths so
+the placeholder reads as a conversation.
+
+<Demo name="SkeletonLines" />
+
+## While history loads
+
+Inside a `ChatProvider`, `useChat().historyStatus` is `'loading'` while `adapter.listMessages` runs.
+Show skeleton rows until it changes, then the `ChatMessageList`. This backend takes two seconds;
+press Reload to load the history again.
+
+<Demo name="LoadingHistory" />
+
+## Accessibility
+
+The skeleton has no text. Mark the region that is loading with `aria-busy="true"` and an
+`aria-label`, as the example does, so screen reader users know that content is coming.

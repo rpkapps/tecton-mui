@@ -1,0 +1,34 @@
+## Purpose
+
+`ChatConfirmation` asks the user to approve an action before it happens: a warning icon, the
+question, and confirm and cancel buttons. Use it when an assistant is about to do something that
+cannot be undone, such as stopping equipment or deleting data.
+
+## Playground
+
+<Demo name="ConfirmationPlayground" playground />
+
+## Basic confirmation
+
+`message` is the question. `confirmLabel` and `cancelLabel` name the buttons after what they do
+("Shut in", "Keep producing") rather than "OK" and "Cancel". `onConfirm` and `onCancel` receive the
+click.
+
+<Demo name="BasicConfirmation" />
+
+## In a message
+
+An assistant can ask inside its answer. Send a custom data part (here `data-confirm`) and render it
+with `partRenderers`. The renderer is a component inside the chat, so it can call `useChat()` and send
+the user's answer as their next message.
+
+<Demo name="ConfirmationInMessage" />
+
+## Accessibility
+
+- The two buttons are regular buttons with Tecton's focus ring. Cancel comes first, so
+  <kbd>Tab</kbd> reaches the safe choice before the action.
+- Write a `message` that names the action and its effect: it is the only context a screen reader
+  user hears before the buttons.
+- Approving a tool call that the model requests (`approval-requested`) uses the chat's own Approve and
+  Deny buttons, not this component.

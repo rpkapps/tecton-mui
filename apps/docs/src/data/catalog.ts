@@ -14,7 +14,8 @@ export type CategoryId =
   | 'lab'
   | 'data-grid'
   | 'date-time-pickers'
-  | 'tree-view';
+  | 'tree-view'
+  | 'chat';
 
 export interface Category {
   id: CategoryId;
@@ -78,6 +79,12 @@ export const categories: Category[] = [
     title: 'Tree View',
     description: 'Hierarchical lists: SimpleTreeView and the unified RichTreeView.',
   },
+  {
+    id: 'chat',
+    title: 'Chat',
+    description:
+      'Conversational UI from MUI X Chat: ChatBox and its parts. The upstream API is alpha.',
+  },
 ];
 
 const group = (id: CategoryId, names: string) =>
@@ -121,6 +128,10 @@ export const componentCategory: Record<string, CategoryId> = {
   ...group(
     'tree-view',
     'SimpleTreeView RichTreeView TreeItem TreeItemDragAndDropOverlay TreeItemIcon TreeItemLabelInput TreeItemLoader TreeItemProvider',
+  ),
+  ...group(
+    'chat',
+    'ChatBox ChatCodeBlock ChatComposer ChatConfirmation ChatConversation ChatConversationList ChatMessage ChatMessageError ChatMessageList ChatMessageSkeleton ChatMessageSources ChatSuggestions',
   ),
   DataGrid: 'data-grid',
 };
@@ -821,6 +832,83 @@ export const authoredPages: AuthoredPage[] = [
       TreeItemDragAndDropOverlay: 'custom-drop-indicator',
     },
     summary: 'A data-driven tree for large hierarchies, with selection, editing and reordering.',
+  },
+  // Chat
+  {
+    slug: 'chat',
+    title: 'Chat',
+    category: 'chat',
+    components: ['ChatBox', 'ChatMessageList', 'ChatSuggestions'],
+    anchors: {
+      ChatMessageList: 'building-your-own-layout',
+      ChatSuggestions: 'suggestions-and-empty-state',
+    },
+    summary: 'A complete chat surface: message thread, composer, conversations and suggestions.',
+  },
+  {
+    slug: 'chat-composer',
+    title: 'Chat Composer',
+    category: 'chat',
+    components: ['ChatComposer'],
+    summary: 'The text area, attachments and send button, alone or inside a chat.',
+  },
+  {
+    slug: 'chat-conversations',
+    title: 'Chat Conversations',
+    category: 'chat',
+    components: ['ChatConversationList', 'ChatConversation'],
+    anchors: { ChatConversation: 'header-actions' },
+    summary: 'The list of conversations, unread counts and the header of the open conversation.',
+  },
+  {
+    slug: 'chat-ai-agents',
+    title: 'AI and Agents',
+    category: 'chat',
+    components: [],
+    summary:
+      'Streaming answers, reasoning, tool calls, tool approval and steps of an AI agent in a chat.',
+  },
+  {
+    slug: 'chat-message',
+    title: 'Chat Message',
+    category: 'chat',
+    components: ['ChatMessage'],
+    summary: 'One message in the thread: text, reasoning, tool calls, files, actions and status.',
+  },
+  {
+    slug: 'chat-message-error',
+    title: 'Chat Message Error',
+    category: 'chat',
+    components: ['ChatMessageError'],
+    summary: 'The error and Retry button under a message that could not be sent.',
+  },
+  {
+    slug: 'chat-message-skeleton',
+    title: 'Chat Message Skeleton',
+    category: 'chat',
+    components: ['ChatMessageSkeleton'],
+    summary: 'Placeholder rows while messages load.',
+  },
+  {
+    slug: 'chat-message-sources',
+    title: 'Chat Message Sources',
+    category: 'chat',
+    components: ['ChatMessageSources'],
+    summary: 'A numbered list of the sources an answer is based on.',
+  },
+  {
+    slug: 'chat-code-block',
+    title: 'Chat Code Block',
+    category: 'chat',
+    components: ['ChatCodeBlock'],
+    summary: 'Code with a language label and a copy button, as messages render it.',
+  },
+  {
+    slug: 'chat-confirmation',
+    title: 'Chat Confirmation',
+    category: 'chat',
+    components: ['ChatConfirmation'],
+    summary: 'A question with confirm and cancel buttons, for actions that need consent.',
   },
 ];
 

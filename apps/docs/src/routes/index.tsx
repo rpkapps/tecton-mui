@@ -35,6 +35,7 @@ const CATEGORY_ICON: Record<CategoryId, IconName> = {
   'data-grid': 'view-column',
   'date-time-pickers': 'calendar',
   'tree-view': 'folder-open',
+  chat: 'chat',
 };
 
 const pillars: { icon: IconName; title: string; text: string }[] = [

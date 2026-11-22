@@ -4,6 +4,8 @@ import { alpha, type Theme, type ThemeOptions } from '@mui/material/styles';
 import { focusRingShadow, slotIcon } from './generated/mui/components/shared.js';
 import { cssVar } from './generated/core/index.js';
 import { gridIconSlots, iconCompatOverrides, tablePaginationFirstLast } from './compatIcons.js';
+import { chatCompatOverrides } from './compatChat.js';
+import { chatMarkdownStyleOverrides } from './compatChatMarkdown.js';
 import { withInputFocusVisible } from './focusVisible.js';
 
 // Tecton sets `outline: none` on focused Data Grid cells and column headers and draws nothing
@@ -51,6 +53,17 @@ export const muiCompatOverrides: ThemeOptions = {
   components: {
     // Tecton icons for every MUI icon slot Tecton leaves on Material icons (compatIcons.ts).
     ...iconCompatOverrides,
+    // MUI X Chat: Tecton icons, focus rings, monospace font, avatar fill and readable timestamps
+    // (compatChat.ts).
+    ...chatCompatOverrides,
+    // Markdown in messages: tables, quotes, lists and headings (compatChatMarkdown.ts).
+    MuiChatMessage: {
+      ...chatCompatOverrides.MuiChatMessage,
+      styleOverrides: {
+        ...chatCompatOverrides.MuiChatMessage?.styleOverrides,
+        ...chatMarkdownStyleOverrides,
+      },
+    },
     MuiDataGrid: {
       // Tecton sets Tecton icons for the column header and column menu slots only, so the toolbar,
       // filter panel and density controls showed MUI's filled Material icons next to Tecton's

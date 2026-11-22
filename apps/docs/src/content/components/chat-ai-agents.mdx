@@ -1,0 +1,109 @@
+## Purpose
+
+The chat components are built for AI assistants and agents. An agent run streams into the chat as
+it happens: the model's reasoning, each tool it calls with its input and result, requests for your
+approval, the steps of the run, the answer and its sources. Everything arrives through the
+[adapter](/components/chat#connecting-a-backend): `sendMessage` returns a stream of chunks, and the
+chat turns them into message parts.
+
+| Feature           | Chunks the adapter streams                                         | Shown as                                 |
+| ----------------- | ------------------------------------------------------------------ | ---------------------------------------- |
+| Streaming answer  | `text-start`, `text-delta`, `text-end`                             | Markdown text that grows as it arrives   |
+| Reasoning         | `reasoning-start`, `reasoning-delta`, `reasoning-end`              | A collapsible "Reasoning" section        |
+| Tool calling      | `tool-input-start`, `tool-input-delta`, `tool-input-available`     | A tool row with its input                |
+| Tool results      | `tool-output-available`, `tool-output-error`, `tool-output-denied` | Done, failed or denied, with the output  |
+| Tool approval     | `tool-approval-request`                                            | Approve and Deny buttons on the tool row |
+| Steps             | `start-step`, `finish-step`                                        | A separator between the rounds of a run  |
+| Sources and files | `source-url`, `source-document`, `file`                            | Links, cited documents, file chips       |
+
+The chat does not call a model itself: your backend runs the model and the tools and streams the
+result. With the Vercel AI SDK on the server, `createAiSdkAdapter` from `@tecton-mui/ui/ChatHeadless`
+reads its UI message stream directly.
+
+## Playground
+
+Choose what the agent streams and run it. "Show code" gives the adapter that streams this run, chunk
+by chunk.
+
+<Demo name="AgentPlayground" playground />
+
+## Stopping an answer
+
+`useChat().stopStreaming()` aborts the `AbortSignal` that `sendMessage` received; the adapter then
+sends an `abort` chunk and closes the stream, and the partial answer stays in the thread. Children of
+`ChatBox` render inside the chat and can use its hooks: here a bar with a **Stop** button appears
+while the answer streams.
+
+<Demo name="StopGenerating" />
+
+## Custom tool cards
+
+`partRenderers.tool` replaces the default tool row. The renderer receives the `tool` part, whose
+`toolInvocation` has the tool name, its `state` (`input-streaming`, `input-available`,
+`output-available`, `output-error`, …), `input`, `output` and `errorText`, so a card can show the tool
+running and then its result.
+
+<Demo name="ToolCards" />
+
+## Tool approval
+
+For tools with side effects, the backend sends `tool-approval-request` instead of running the tool.
+The tool row shows **Approve** and **Deny**; the answer goes to `adapter.addToolApprovalResponse`
+with the tool call's `id` and `approved`. The backend then runs the tool (or not) and continues the
+run. Here it sends the finished answer back through `adapter.subscribe` as a `message-updated`
+event.
+
+<Demo name="ToolApproval" />
+
+## Reasoning display
+
+The reasoning part has `root`, `summary` and `content` slots, set through
+`slotProps.messageContent.partProps.reasoning`. Each slot receives an `ownerState` with `streaming`,
+so the summary can say the model is still thinking. To hide reasoning, leave `reasoning-*` chunks
+out on the server or render `reasoning` parts as nothing with `partRenderers`.
+
+<Demo name="ReasoningStyles" />
+
+## Callbacks
+
+`onToolCall` reports every tool call as it changes state, `onData` every `data-*` chunk (structured
+data for your page, such as a chart series), `onFinish` the end of every answer (with `isAbort`,
+`isError` and `finishReason`), and `onError` every error. Use them for logging, analytics, or to
+update the page next to the chat. Turn on "Fail next" to see `onError`.
+
+<Demo name="CallbacksLog" />
+
+## Vercel AI SDK
+
+With the AI SDK on the server, `createAiSdkAdapter({ stream })` connects the chat to it: `stream`
+receives the message, the thread and the abort signal, and returns the route's `response.body`.
+The adapter reads the server-sent events of `toUIMessageStreamResponse()`. This example produces
+those bytes in the browser instead of calling a server.
+
+<Demo name="AiSdkStream" />
+
+## Tools that act in your app
+
+Some tools belong to the page, not the server: open a record, move a map, fill a form. `onToolCall`
+receives every tool call while it streams. Act when its `state` is `input-available`, which means
+its input is complete. Here the agent highlights wells on a list next to the chat.
+
+<Demo name="AppTools" />
+
+## Accessibility
+
+- When an answer starts and finishes streaming, the chat announces it to screen readers
+  (`localeText.responseStreamingStartedAnnouncement` and `…CompletedAnnouncement`). The text does
+  not repeat every word as it streams.
+- Reasoning and tool rows are native disclosure widgets (`details` and `summary`): keyboard users
+  open them with <kbd>Enter</kbd> or <kbd>Space</kbd>, and screen readers announce whether they are
+  open.
+- Approve and Deny are regular buttons. Name the tool and its effect in the text before them, as
+  the examples do, so the choice is clear without seeing the input.
+
+## Limitations
+
+- The chat shows what the adapter streams; it does not run models or tools. Tool execution,
+  approval checks and retries belong to your backend.
+- A step boundary is a thin divider (the theme draws it; upstream leaves it invisible). To label
+  steps ("Step 2: checking permits"), render `step-start` parts yourself with `partRenderers`.

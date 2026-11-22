@@ -8,11 +8,12 @@ dedicated PR, never as a side effect of feature work.
 Recorded in `tooling/compatibility/export-inventory.json` (`versions`) and in
 `packages/ui/package.json`:
 
-| Package                                                                | Version       |
-| ---------------------------------------------------------------------- | ------------- |
-| `@mui/material`, `@mui/system`, `@mui/utils`, `@mui/stylis-plugin-rtl` | 9.5.0         |
-| `@mui/lab`                                                             | 9.0.0-beta.10 |
-| `@mui/x-data-grid`, `@mui/x-date-pickers`, `@mui/x-tree-view`          | 9.18.0        |
+| Package                                                                | Version        |
+| ---------------------------------------------------------------------- | -------------- |
+| `@mui/material`, `@mui/system`, `@mui/utils`, `@mui/stylis-plugin-rtl` | 9.5.0          |
+| `@mui/lab`                                                             | 9.0.0-beta.10  |
+| `@mui/x-data-grid`, `@mui/x-date-pickers`, `@mui/x-tree-view`          | 9.18.0         |
+| `@mui/x-chat` (alpha; pins `@mui/x-chat-headless` to the same version) | 9.0.0-alpha.22 |
 
 The versions do not have to match across families. Pick each one for compatible peer ranges and
 passing tests.

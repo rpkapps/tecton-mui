@@ -194,6 +194,30 @@ function normalizeIcons(iconsCss) {
   return [...byName.values()].sort((a, b) => a.name.localeCompare(b.name));
 }
 
+/**
+ * The mask image of every monochrome icon (`tecton-<name>-outline|filled`), as icons.css declares it
+ * in `--tecton-icon-url`, one named export per icon (`iconCopyOutline`). The theme uses them to draw
+ * Tecton glyphs where an upstream component renders its own inline SVG and offers no icon slot;
+ * named exports keep only the icons the theme references in a bundle.
+ */
+function iconUrlModule(iconsCss, h) {
+  const declarations = [
+    ...iconsCss.matchAll(
+      /^\.tecton-([a-z0-9-]+-(?:outline|filled))\s*\{\s*--tecton-icon-url:\s*(url\("[^"]+"\))\s*;\s*\}/gm,
+    ),
+  ];
+  assert(declarations.length > 0, 'no monochrome icon URLs found in icons.css');
+  const exportName = (cls) =>
+    'icon' + cls.replace(/(^|-)([a-z0-9])/g, (_, _dash, c) => c.toUpperCase());
+  return (
+    `${h}// Mask images of the monochrome Tecton icons (icons.css \`--tecton-icon-url\`).\n` +
+    declarations
+      .map(([, cls, url]) => `export const ${exportName(cls)} = ${JSON.stringify(url)};`)
+      .join('\n') +
+    '\n'
+  );
+}
+
 function validate({ tokensCss, tokens, icons, mui, iconsCss }) {
   assert(/:root,\s*\[data-theme="light"\]/.test(tokensCss), 'light/:root token block missing');
   assert(/\[data-theme="dark"\]/.test(tokensCss), 'dark token block missing');
@@ -246,6 +270,7 @@ export function normalize(raw) {
         .map((i) => `  '${i.name}': [${i.variants.map((v) => `'${v}'`).join(', ')}],`)
         .join('\n') +
       `\n};\n`,
+    'iconUrls.ts': iconUrlModule(raw.iconsCss, h),
     'meta.ts':
       `${h}export const TECTON_VERSION = '${raw.version}';\nexport const TECTON_SOURCE = '${raw.origin}';\n` +
       `export const TECTON_MODES = ['light', 'dark'] as const;\nexport const TECTON_TOKEN_COUNT = ${tokens.length};\n`,

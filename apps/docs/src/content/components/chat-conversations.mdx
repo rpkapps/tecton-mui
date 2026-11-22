@@ -1,0 +1,49 @@
+## Purpose
+
+A chat with several threads has a conversation list beside the open thread, and a header above the
+thread with its title, subtitle and actions. In a `ChatBox`, turn the list on with
+`features={{ conversationList: true }}`; on its own, `ChatConversationList` and `ChatConversation`
+work inside a `ChatProvider`. The [Chat page](/components/chat#conversations) shows loading
+conversations and their history from the adapter.
+
+## Playground
+
+<Demo name="ConversationListPlayground" playground />
+
+## List items
+
+Each item shows the avatar, the `title`, a preview line (the `subtitle` by default), the time of
+`lastMessageAt` and a badge for `unreadCount`. `variant="compact"` makes the rows denser. Replace the
+parts with `slots` on the list (in a `ChatBox`: `slotProps.conversationList.slots`): `itemAvatar`,
+`title`, `preview`, `timestamp`, `unreadBadge`, `itemActions`, or the whole `item`. Put data of your
+own in the conversation's `metadata`. Here the preview shows each well's status.
+
+<Demo name="CustomListItems" />
+
+## Header actions
+
+The header shows the open conversation's `title` and `subtitle`. `slots.conversationHeaderActions`
+fills the actions area on its trailing side; the slot renders inside the chat, so `useChat()` gives
+the open conversation. Here the actions pin and mute conversations, which the application owns as
+controlled `conversations`.
+
+<Demo name="HeaderActions" />
+
+## Unread counts and read receipts
+
+`unreadCount` draws the badge, and `features.unreadMarker` marks the first unread message in the
+thread. When the user opens a conversation, clear its count in your state and report it with
+`adapter.markRead`, so the backend can update read receipts for everyone else. The chat does not call
+`markRead` on its own.
+
+<Demo name="UnreadAndReadReceipts" />
+
+## Accessibility
+
+- The list is a `listbox` named "Conversations", with one `option` per conversation;
+  `aria-selected` marks the open one. Arrow keys move through it and <kbd>Enter</kbd> or
+  <kbd>Space</kbd> opens a conversation.
+- The header is a `header` element with the conversation title as text. Give icon buttons in the
+  actions area an `aria-label`, and `aria-pressed` when they toggle.
+- Below 600px the list becomes a dialog opened from a menu button in the header; focus moves into
+  it and back.

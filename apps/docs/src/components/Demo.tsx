@@ -51,6 +51,8 @@ export interface DemoProps {
   title?: string;
   showCode?: boolean;
   align?: 'center' | 'start' | 'stretch';
+  /** The demo is a `<Playground>` with its own frame, toolbar and generated code. */
+  playground?: boolean;
 }
 
 const JUSTIFY = { center: 'center', start: 'flex-start', stretch: 'stretch' } as const;
@@ -65,6 +67,7 @@ export function Demo({
   title,
   showCode = false,
   align = 'center',
+  playground = false,
 }: DemoProps) {
   const demos = React.useContext(DemosContext);
   const loaded = name != null ? demos[name] : undefined;
@@ -74,6 +77,9 @@ export function Demo({
   const [open, setOpen] = React.useState(showCode);
   const [instance, setInstance] = React.useState(0);
   const codeId = React.useId();
+  if (playground && loaded) {
+    return <loaded.Component />;
+  }
   const code = loaded?.code ?? codeProp ?? '';
   const html = loaded?.html ?? htmlProp;
   const Component = loaded?.Component;

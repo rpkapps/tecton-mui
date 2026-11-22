@@ -39,6 +39,7 @@ import { ActionBarScenario } from './ActionBarScenario.js';
 import { NumberFieldScenario } from './NumberFieldScenario.js';
 import { InputFocusScenario } from './InputFocusScenario.js';
 import { ButtonFocusScenario } from './ButtonFocusScenario.js';
+import { ChatScenario } from './ChatScenario.js';
 
 const rows = Array.from({ length: 8 }, (_, i) => ({
   id: i + 1,
@@ -215,6 +216,8 @@ export function App({ scenario, rtl }: { scenario: string; rtl: boolean }) {
           <InputFocusScenario />
         ) : scenario === 'button-focus' ? (
           <ButtonFocusScenario />
+        ) : scenario === 'chat' ? (
+          <ChatScenario />
         ) : scenario.startsWith('sb:') ? (
           <StorybookScenario id={scenario.slice(3)} />
         ) : null}

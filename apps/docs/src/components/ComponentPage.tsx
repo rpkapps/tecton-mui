@@ -21,6 +21,7 @@ const PACKAGE_LABEL: Record<string, string> = {
   '@mui/x-date-pickers': 'MUI X Community',
   '@mui/x-tree-view': 'MUI X Community',
   '@mui/x-data-grid': 'MUI X Community',
+  '@mui/x-chat': 'MUI X Community',
   '@tecton-mui/ui': 'Tecton MUI',
 };
 
@@ -76,6 +77,9 @@ export function ComponentPage({
           ))}
           {page.category === 'lab' && (
             <Chip size="small" color="warning" variant="outlined" label="Upstream Lab API" />
+          )}
+          {page.category === 'chat' && (
+            <Chip size="small" color="warning" variant="outlined" label="Upstream alpha API" />
           )}
           {page.status === 'integration-pending' && (
             <Chip size="small" color="info" label="Integration in progress" />

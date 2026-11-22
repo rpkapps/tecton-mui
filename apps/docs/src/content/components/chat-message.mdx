@@ -1,0 +1,119 @@
+## Purpose
+
+`ChatMessage` renders one message of the thread: the avatar, the bubble with the message parts, the
+time and delivery status, an error under the bubble, and action buttons. `ChatBox` and
+`ChatMessageList` render one per message, so you rarely use it directly; you shape it through the
+message data and through `ChatBox` `slots` and `slotProps`. Use it yourself inside a `ChatProvider`
+when you build your own list (`<ChatMessage messageId={id} />`).
+
+## Playground
+
+<Demo name="MessagePlayground" playground />
+
+## Message parts
+
+A message is a list of `parts`, rendered in order:
+
+- `text`: Markdown (see [Text and Markdown](#text-and-markdown) below).
+- `reasoning`: the model's reasoning, collapsed under a "Reasoning" toggle.
+- `tool`: a tool call with its input and result, or its error. Click a row to expand it.
+- `file`: a file, as a chip (see [Images and files](#images-and-files)).
+- `source-url` and `source-document`: the sources of an answer (see
+  [Chat Message Sources](/components/chat-message-sources)).
+- `data-*`: your own data, drawn by a renderer you give in `partRenderers` (see
+  [Custom message parts](#custom-message-parts)).
+
+<Demo name="MessageParts" />
+
+## Text and Markdown
+
+A `text` part is Markdown (GitHub flavour): headings, bold, italic, strikethrough, lists, task lists,
+tables, quotes, links, inline code and fenced code blocks, which become a
+[Chat Code Block](/components/chat-code-block) with a copy button. Model output is untrusted, so raw
+HTML is shown as text and never rendered, links open in a new tab, and unsafe link targets
+(`javascript:`, `data:`) are dropped. `partProps.text.renderText` replaces the Markdown renderer,
+for example to show the text as written or to use your own renderer.
+
+<Demo name="MarkdownPlayground" playground />
+
+While an answer streams, deltas often end in the middle of the syntax: `**bo`, half a table row, a
+link without its URL. The chat completes that syntax for display until the rest arrives, so bold
+text and tables do not flicker between raw and formatted. Send the suggestion to watch it.
+
+<Demo name="StreamingMarkdown" />
+
+## Custom message parts
+
+A part whose `type` starts with `data-` carries data of your own: a work order, a chart, a form.
+The backend sends it as a chunk (`{ type: 'data-work-order', data }`) and the chat adds it to the
+answer in that position; `partRenderers['data-work-order']` draws it. Each chunk adds a new part,
+so send the data once it is complete. Here an existing answer already has a work order, and sending
+the suggestion streams a new one.
+
+Through `@tecton-mui/ui` the `data` of a part is typed `unknown`: TypeScript cannot extend the
+upstream `ChatDataPartMap` registry through a re-export. Check the data's shape in the renderer, as
+`isWorkOrder` does; it comes from your server, so this also protects against unexpected payloads.
+
+<Demo name="CustomParts" />
+
+## Message actions
+
+`slotProps.messageActions` adds buttons under a message. Pass a function to choose them per message,
+for example only for the assistant's answers. Each action has an `id`, a `label` (the accessible name
+and tooltip), an optional `icon` and an `onClick` that receives the message. The actions appear when
+the pointer is over the message or when the message has keyboard focus.
+
+<Demo name="MessageActions" />
+
+## Status and read receipts
+
+Your own messages show their `status` after the time: one check for `sent`, a circled check for
+`read`. A message with `editedAt` is marked as edited. Update the status from your backend, for
+example through `adapter.subscribe` or controlled `messages`.
+
+<Demo name="StatusAndReceipts" />
+
+## Avatars
+
+The avatar shows the author's picture (`avatarUrl` on the message `author` or in `members`), or else
+the initials of their `displayName` in Tecton's colour for that name. Consecutive messages of one
+author show the avatar once. `slots={{ messageAvatar: null }}` removes avatars and the space they
+take.
+
+<Demo name="Avatars" />
+
+## Grouping and date format
+
+Consecutive messages of one author form a group: one name and avatar for the group. By default
+every consecutive message joins the group; `slotProps.messageGroup.groupKey` decides instead.
+`createTimeWindowGroupKey(ms)` starts a new group when the gap between messages is longer than `ms`.
+`slotProps.dateDivider.formatDate` writes the day line in your own format, and `shouldShowDivider`
+decides where lines go.
+
+<Demo name="GroupingAndDates" />
+
+## Images and files
+
+By default a `file` part is a chip with its `filename`, and an image gets a small thumbnail in the
+chip. To show images as pictures, render `file` parts yourself with `partRenderers.file`, as the
+switch below does. File URLs must be `http(s)`, a path on your site or a same-origin `blob:` URL;
+other URLs (`data:`, `javascript:`) are dropped for safety. Attachments the user sends become `file`
+parts of their message the same way.
+
+<Demo name="ImagesAndFiles" />
+
+## Date dividers and unread marker
+
+`features.dateDivider` separates messages from different days. `features.unreadMarker` puts a "New
+messages" line above the first unread message, counted from the conversation's `unreadCount`.
+
+<Demo name="DateDividers" />
+
+## Accessibility
+
+- Each message is an `article` named after its author ("Message from Sam Weber"). Arrow keys,
+  <kbd>Home</kbd>/<kbd>End</kbd> and <kbd>Page Up</kbd>/<kbd>Page Down</kbd> move between messages;
+  <kbd>Enter</kbd> moves into a message's buttons and links.
+- The avatar is decorative and hidden from assistive technology: the author is already in the
+  message's name.
+- Give every action a `label`, even when it has an icon. It becomes the button's accessible name.

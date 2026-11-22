@@ -1,0 +1,44 @@
+## Purpose
+
+`ChatComposer` is where the user writes: an auto-growing text area, the attachment list, helper text
+and a toolbar with the attach and send buttons. `ChatBox` includes one; use `ChatComposer` yourself
+inside a `ChatProvider` when you build your own layout, and `useChatComposer()` to read or drive the
+draft from any component in the chat.
+
+## Playground
+
+<Demo name="ComposerPlayground" playground />
+
+## Building a composer from its parts
+
+Without children, `ChatComposer` renders its default parts. Pass children to choose them:
+`ChatComposerAttachmentList`, `ChatComposerTextArea`, `ChatComposerHelperText` and a
+`ChatComposerToolbar` with `ChatComposerAttachButton` and `ChatComposerSendButton`. Give the buttons
+a Tecton `Icon` and an `aria-label`. `variant="compact"` puts everything on one row, and
+`features={{ attachments: false }}` turns attachments off.
+
+The text area grows with its content up to `maxRows`. Pressing <kbd>Enter</kbd> sends, and
+pressing <kbd>Shift</kbd>+<kbd>Enter</kbd> adds a line break. A running input method (IME)
+composition is never sent by accident.
+
+## Driving the draft with a hook
+
+`useChatComposer()` returns the draft `value`, `setValue`, the `attachments` with `addAttachment`
+and `removeAttachment`, `clear`, `submit` and `isSubmitting`. Here, buttons insert report templates,
+a counter checks the length, and a custom button sends.
+
+<Demo name="ComposerHook" />
+
+## Disabled composer
+
+`disabled` (on `ChatComposer`, or `slotProps.composerRoot.disabled` in a `ChatBox`) blocks typing
+and sending, for example in a read-only channel. Say why in the placeholder or next to the chat.
+
+<Demo name="DisabledComposer" />
+
+## Accessibility
+
+- The text area is labelled "Message" (`localeText.composerInputAriaLabel`), and the composer is a
+  landmark named "Message composer" (`localeText.composerLandmarkLabel`).
+- The send button is disabled until there is text or a file, and while an answer streams.
+- Icon-only buttons need an `aria-label`; the default ones have one.

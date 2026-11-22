@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 160" width="320" height="160">
+  <rect width="320" height="160" fill="#f6f4f7"/>
+  <line x1="20" y1="60" x2="300" y2="60" stroke="#c62828" stroke-dasharray="6 4"/>
+  <text x="24" y="52" font-family="sans-serif" font-size="12" fill="#c62828">limit 320 bar</text>
+  <polyline fill="none" stroke="#644a78" stroke-width="3" points="20,120 60,110 100,96 140,80 180,64 220,52 260,48 300,44"/>
+  <text x="24" y="148" font-family="sans-serif" font-size="12" fill="#604e6e">Alpha-7 pressure, last 24 h</text>
+</svg>
