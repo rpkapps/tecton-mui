@@ -20,6 +20,7 @@ import {
   joinIds,
   selectIconStyles,
   textFieldRootStyles,
+  unitAdornmentStyles,
   useFieldIds,
   type NumberFieldBaseProps,
   type NumberFieldCommonSlotProps,
@@ -65,32 +66,39 @@ const NumberFieldRoot = styled(FormControl, { name: 'TectonNumberField', slot: '
   ({ theme, variant }) => textFieldRootStyles(theme, { variant }) ?? {},
 );
 
-// The stepper sits flush against the right edge, inside the outline or the fill.
+// The stepper sits flush against the right edge, inside the outline or the fill. A unit adornment
+// before it keeps the usual gap to the stepper's divider.
+const numberFieldInputStyles = {
+  paddingRight: 0,
+  ...unitAdornmentStyles,
+  [`& .MuiInputAdornment-positionEnd:not(.${numberFieldClasses.stepper})`]: {
+    marginInlineEnd: cssVar('space-100'),
+  },
+};
+
 const OutlinedNumberFieldInput = styled(OutlinedInput, {
   name: 'TectonNumberField',
   slot: 'Input',
-})({ paddingRight: 0 });
+})(numberFieldInputStyles);
 
-const FilledNumberFieldInput = styled(FilledInput, { name: 'TectonNumberField', slot: 'Input' })({
-  paddingRight: 0,
-});
+const FilledNumberFieldInput = styled(FilledInput, { name: 'TectonNumberField', slot: 'Input' })(
+  numberFieldInputStyles,
+);
 
 const inputComponents = {
   outlined: OutlinedNumberFieldInput,
   filled: FilledNumberFieldInput,
 } as const;
 
-const Stepper = styled(InputAdornment, { name: 'TectonNumberField', slot: 'Stepper' })(
-  ({ theme }) => ({
-    flexDirection: 'column',
-    alignSelf: 'stretch',
-    height: 'auto',
-    maxHeight: 'none',
-    marginLeft: 0,
-    borderLeft: `1px solid ${theme.palette.divider}`,
-    '&.MuiInputAdornment-positionEnd': { marginLeft: 0 },
-  }),
-);
+// The arrows sit at the end of the input with no divider before them.
+const Stepper = styled(InputAdornment, { name: 'TectonNumberField', slot: 'Stepper' })({
+  flexDirection: 'column',
+  alignSelf: 'stretch',
+  height: 'auto',
+  maxHeight: 'none',
+  marginLeft: 0,
+  '&.MuiInputAdornment-positionEnd': { marginLeft: 0 },
+});
 
 const StepperButton = styled(IconButton, { name: 'TectonNumberField', slot: 'StepperButton' })(
   ({ theme }) => ({
@@ -206,42 +214,45 @@ export const NumberField = React.forwardRef<HTMLDivElement, NumberFieldProps>(
                 },
               }}
               endAdornment={
-                <Stepper
-                  position="end"
-                  {...stepper}
-                  className={clsx(numberFieldClasses.stepper, stepper?.className)}
-                >
-                  <BaseNumberField.Increment
-                    render={
-                      <StepperButton
-                        size={size}
-                        aria-label="Increase"
-                        {...incrementButton}
-                        className={clsx(
-                          numberFieldClasses.incrementButton,
-                          incrementButton?.className,
-                        )}
-                      />
-                    }
+                <React.Fragment>
+                  {input?.endAdornment}
+                  <Stepper
+                    position="end"
+                    {...stepper}
+                    className={clsx(numberFieldClasses.stepper, stepper?.className)}
                   >
-                    <Icon name="chevron-up-small" />
-                  </BaseNumberField.Increment>
-                  <BaseNumberField.Decrement
-                    render={
-                      <StepperButton
-                        size={size}
-                        aria-label="Decrease"
-                        {...decrementButton}
-                        className={clsx(
-                          numberFieldClasses.decrementButton,
-                          decrementButton?.className,
-                        )}
-                      />
-                    }
-                  >
-                    <Icon name="chevron-down-small" />
-                  </BaseNumberField.Decrement>
-                </Stepper>
+                    <BaseNumberField.Increment
+                      render={
+                        <StepperButton
+                          size={size}
+                          aria-label="Increase"
+                          {...incrementButton}
+                          className={clsx(
+                            numberFieldClasses.incrementButton,
+                            incrementButton?.className,
+                          )}
+                        />
+                      }
+                    >
+                      <Icon name="chevron-up-small" />
+                    </BaseNumberField.Increment>
+                    <BaseNumberField.Decrement
+                      render={
+                        <StepperButton
+                          size={size}
+                          aria-label="Decrease"
+                          {...decrementButton}
+                          className={clsx(
+                            numberFieldClasses.decrementButton,
+                            decrementButton?.className,
+                          )}
+                        />
+                      }
+                    >
+                      <Icon name="chevron-down-small" />
+                    </BaseNumberField.Decrement>
+                  </Stepper>
+                </React.Fragment>
               }
             />
           )}

@@ -15,8 +15,9 @@ Material UI components styled with the **Tecton** design system, for internal Re
   reordering, lazy loading and virtualization. These are written from scratch on public MUI X
   Community APIs; no commercial MUI X code is used.
 - **Extras MUI does not ship:** `NumberField`, `NumberSpinner`, `Menubar` (the mui.com recipes,
-  packaged as components), the Tecton `ActionBar` tool palette and `ColorSwatchControl` color
-  input, and a typed Tecton `Icon`.
+  packaged as components), `NumberSlider` and `NumberRangeSlider` (number inputs with a drag bar),
+  the Tecton `ActionBar` tool palette and `ColorSwatchControl` color input, and a typed Tecton
+  `Icon`.
 
 ## See it
 

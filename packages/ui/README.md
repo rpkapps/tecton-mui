@@ -11,6 +11,8 @@ customization APIs, preconfigured with the **Tecton** design system.
   implemented independently on public MUI X Community APIs. No commercial MUI X code is used.
 - `NumberField`, `NumberSpinner` and `Menubar`, which Material UI 9.5.0 offers only as copy-paste
   recipes, packaged as components: built on Base UI (`@base-ui/react`, MIT) and styled by the theme.
+- `NumberSlider` and `NumberRangeSlider`: a number input (or a range of two) next to a drag bar,
+  built on the same Base UI number field.
 - `ActionBar`, the Tecton vertical tool palette, composed from Material components.
 - `ColorSwatchControl`, the Tecton color input: a swatch and hex value that open the browser's
   color picker.
@@ -326,9 +328,29 @@ Both take the Base UI `NumberField.Root` props (`value`, `defaultValue`, `onValu
 `onValueCommitted`, `min`, `max`, `step`, `smallStep`, `largeStep`, `format`, `locale`,
 `snapOnStep`, `allowWheelScrub`, `name`, …) plus the Material field props `label`, `helperText`,
 `error`, `required`, `disabled`, `readOnly`, `size`, `fullWidth`, `placeholder`, `inputRef`, `sx`
-and `slotProps`, and `variant` (`outlined`, the default, or `filled`). The value is a `number` or
-`null`. Pass `locale` when server and browser locales can differ, so that server-rendered text
+and `slotProps`, and `variant` (`outlined`, the default, or `filled`). A unit goes in
+`slotProps.input.endAdornment` (an `InputAdornment`). The value is a `number` or `null`. Pass `locale` when server and browser locales can differ, so that server-rendered text
 matches.
+
+`NumberSlider` adds a bar beside a filled input: it shows the value between `min` (default `0`) and
+`max` (default `100`), and pressing or dragging it sets the value. `NumberRangeSlider` does the same
+for a `[start, end]` range with two thumbs and both numbers in one input:
+
+```tsx
+import InputAdornment from '@tecton-mui/ui/InputAdornment';
+import NumberRangeSlider from '@tecton-mui/ui/NumberRangeSlider';
+import NumberSlider from '@tecton-mui/ui/NumberSlider';
+
+const hz = { input: { endAdornment: <InputAdornment position="end">Hz</InputAdornment> } };
+
+<NumberSlider label="Step" defaultValue={5} min={1} max={16} slotProps={hz} />;
+<NumberRangeSlider label="Frequency" defaultValue={[10, 50]} max={80} slotProps={hz} />;
+```
+
+`NumberSlider` takes the same props as `NumberField` except `variant` (filled only), plus
+`slotProps.rail` for the bar. `NumberRangeSlider` takes the value and stepping props as a range
+(`value`, `defaultValue`, `onValueChange` and `onValueCommitted` use `[number, number]`) and
+`getAriaLabel` to name its two inputs.
 
 ## Menubar
 

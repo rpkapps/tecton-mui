@@ -1,5 +1,6 @@
 import Stack from '@tecton-mui/ui/Stack';
 import NumberField from '@tecton-mui/ui/NumberField';
+import NumberSlider from '@tecton-mui/ui/NumberSlider';
 import NumberSpinner from '@tecton-mui/ui/NumberSpinner';
 
 const row = { flexWrap: 'wrap', alignItems: 'flex-start' } as const;
@@ -34,6 +35,16 @@ export default function NumberFieldStates() {
           />
         </Stack>
       ))}
+      <Stack direction="row" spacing={2} useFlexGap sx={row}>
+        <NumberSlider label="Disabled" defaultValue={35} disabled />
+        <NumberSlider label="Read only" defaultValue={35} readOnly />
+        <NumberSlider
+          label="Fill level"
+          defaultValue={96}
+          error
+          helperText="Above the 90% limit."
+        />
+      </Stack>
     </Stack>
   );
 }

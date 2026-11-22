@@ -1,12 +1,13 @@
 ## Purpose
 
-`NumberField` and `NumberSpinner` collect a number. Unlike a `TextField` with `type="number"`, they
+`NumberField`, `NumberSpinner`, `NumberSlider` and `NumberRangeSlider` collect a number (or, for
+`NumberRangeSlider`, a range of two). Unlike a `TextField` with `type="number"`, they
 keep a real numeric value (`number | null`), format it for the user's locale, step it with buttons and
 the keyboard, and clamp it to `min` and `max`. Use them for counts, measurements, rates and amounts.
 For a value where the position on a scale matters more than the exact number, use a
 [Slider](/components/slider).
 
-Both components ship in `@tecton-mui/ui`. They build on the number field of Base UI
+All of them ship in `@tecton-mui/ui`. They build on the number field of Base UI
 (`@base-ui/react`, MIT) for value handling and on Material form components for the visuals, so the
 Tecton theme styles them like the other fields. You do not need to copy any recipe code.
 
@@ -33,9 +34,38 @@ sideways to change the value. Set `disableScrub` to turn that off.
 
 <Demo name="SpinnerNumberField" />
 
+## Number slider and range slider
+
+`NumberSlider` places a bar next to a filled number input. The bar shows where the value sits between
+`min` (default `0`) and `max` (default `100`): it is tinted up to the value and marked by a line at the
+value. Press or drag the bar sideways to set the value, which snaps to `step`. Type in the input, or
+use the arrow keys, for an exact value. Use it for settings in a known range, such as frequencies,
+durations, levels or opacity, where both the position and the exact number matter.
+
+`NumberRangeSlider` does the same for a range. Its value is `[start, end]`; the bar has a line at each
+end and is tinted between them, and the input shows both numbers around a dash. Pressing the bar moves
+the nearer end, and an end stops at the other one, so `start` never exceeds `end`. Each number can be
+typed or stepped on its own.
+
+<Demo name="SliderNumberField" />
+
+- **Units.** Put a unit after the value with an `InputAdornment` in `slotProps.input.endAdornment`. It
+  uses the smaller, quieter text of an adornment, as above.
+- **Style.** Both come in the filled style only. The bar uses the colours of the `Slider`.
+
+### Widths
+
+The bar and the input share the width evenly. Without `fullWidth` the field is 260px wide; with
+`fullWidth` (or a width set through `sx`) it fills its container. Each part is a flex item, so set its
+share with `flexBasis` in `slotProps.rail.sx` and `slotProps.input.sx`, for example `'75%'` and
+`'25%'` for a wide bar, or give the input a fixed width with `flex: '0 0 96px'`; the bar then takes
+the rest. The input never gets narrower than its longest value.
+
+<Demo name="NumberSliderLayout" />
+
 ## Sizes
 
-Both components come in `medium` (default) and `small`, matching the heights of the other Tecton
+All of them come in `medium` (default) and `small`, matching the heights of the other Tecton
 fields.
 
 <Demo name="NumberFieldSizes" />
@@ -61,6 +91,17 @@ and the browser can use different locales, pass `locale` so that server-rendered
 
 <Demo name="FormattedNumberFields" />
 
+### Unit labels
+
+To show a unit next to the number without making it part of the value, put an `InputAdornment` in
+`slotProps.input.endAdornment`. Every number field accepts it: `NumberField` places it before the
+stepper buttons, `NumberSpinner` centres it with the value between its buttons, and the sliders place
+it after the value. The unit uses the smaller text and the adornment colour of the input. Unlike
+`format={{ style: 'unit' }}`, it is not typed, parsed or translated with the value, so use it for
+short symbols such as "Hz", "ms" or "%" that read the same in every language.
+
+<Demo name="NumberFieldUnits" />
+
 ## Disabled, read-only and error
 
 `disabled` blocks all interaction. `readOnly` keeps the field focusable and its text selectable but
@@ -70,24 +111,29 @@ ignores changes. `error` marks the field invalid; describe the problem in `helpe
 
 ## Controlled value
 
-Pass `value` and `onValueChange` to control the field. The value is `null` when the field is empty.
+Pass `value` and `onValueChange` to control the field. The value is `null` when the field is empty
+(a `NumberRangeSlider` value is always two numbers: an emptied input shows its previous value again).
 `onValueChange` fires on every change, including each keystroke that parses to a number;
 `onValueCommitted` fires once the change is complete (on blur after typing, when a button is released,
-or per key press), which is a good moment to save or validate.
+or per key press, and when a drag on a slider bar ends), which is a good moment to save or validate.
+Changes made with a slider bar report the reason `scrub`.
 
 <Demo name="ControlledNumberField" />
 
 ## Customization
 
 - `slotProps.input` goes to the `OutlinedInput`, or to the `FilledInput` when `variant="filled"`
-  (for example `startAdornment`), `slotProps.htmlInput`
+  (for example `startAdornment` or a unit in `endAdornment`), `slotProps.htmlInput`
   to the native `<input>`, and `slotProps.inputLabel` and `slotProps.formHelperText` to the label and
   helper text.
 - `slotProps.incrementButton` and `slotProps.decrementButton` reach the stepper buttons. Use them to
   translate the accessible names, which default to "Increase" and "Decrease".
 - `NumberField` also has `slotProps.stepper` for the adornment that holds the buttons.
-- Style the parts with `sx`, `className` or the `TectonNumberField-*` and `TectonNumberSpinner-*`
-  classes (`numberFieldClasses`, `numberSpinnerClasses`).
+- The sliders take `slotProps.rail` (`className`, `style`, `sx`) for the bar. `NumberRangeSlider` has `slotProps.startInput` and
+  `slotProps.endInput` for its two native inputs instead of `slotProps.htmlInput`.
+- Style the parts with `sx`, `className` or the `TectonNumberField-*`, `TectonNumberSpinner-*`,
+  `TectonNumberSlider-*` and `TectonNumberRangeSlider-*` classes (`numberFieldClasses`,
+  `numberSpinnerClasses`, `numberSliderClasses`, `numberRangeSliderClasses`).
 - `name` and `form` submit the value through a hidden native number input, so the fields work in plain
   HTML forms.
 
@@ -101,11 +147,16 @@ or per key press), which is a good moment to save or validate.
   pointer and screen-reader users can still activate them.
 - The input uses a numeric `inputmode`, so touch devices show a number keyboard.
 - Keyboard focus shows the Tecton focus ring around the whole field. On a `NumberSpinner` it
-  surrounds both buttons and the value.
+  surrounds both buttons and the value; on the sliders it surrounds the input.
+- A slider bar is a pointer shortcut: it is hidden from assistive technology and not in the tab
+  order, because its input offers the same value with the keyboard.
+- The two inputs of a `NumberRangeSlider` are named by the label followed by "minimum" and "maximum".
+  Pass `getAriaLabel` (`(index) => string`) to localize those names.
 
 ## Limitations
 
 - The components are not part of Material UI 9.5.0. Their props follow Base UI's number field plus the
   Material field props listed above; the `standard` variant and `multiline` are not supported.
-- While scrubbing, the custom cursor uses the Pointer Lock API, which browsers may announce with a
+- `NumberSlider` and `NumberRangeSlider` come in the filled style only.
+- While scrubbing a `NumberSpinner` label, the custom cursor uses the Pointer Lock API, which browsers may announce with a
   notification. Safari shows the regular cursor instead.

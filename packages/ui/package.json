@@ -708,6 +708,16 @@
       "types": "./dist/NumberField/index.d.ts",
       "default": "./dist/NumberField/index.js"
     },
+    "./NumberRangeSlider": {
+      "@tecton-mui/source": "./src/NumberRangeSlider/index.ts",
+      "types": "./dist/NumberRangeSlider/index.d.ts",
+      "default": "./dist/NumberRangeSlider/index.js"
+    },
+    "./NumberSlider": {
+      "@tecton-mui/source": "./src/NumberSlider/index.ts",
+      "types": "./dist/NumberSlider/index.d.ts",
+      "default": "./dist/NumberSlider/index.js"
+    },
     "./NumberSpinner": {
       "@tecton-mui/source": "./src/NumberSpinner/index.ts",
       "types": "./dist/NumberSpinner/index.d.ts",

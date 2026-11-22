@@ -9,6 +9,7 @@ import type { FilledInputProps } from '@mui/material/FilledInput';
 import type { FormHelperTextProps } from '@mui/material/FormHelperText';
 import type { InputLabelProps } from '@mui/material/InputLabel';
 import type { OutlinedInputProps } from '@mui/material/OutlinedInput';
+import { cssVar } from '../../styles/tecton/index.js';
 
 type BaseRootProps = BaseNumberField.Root.Props;
 
@@ -42,7 +43,7 @@ export interface NumberFieldBaseProps extends Omit<
   sx?: SxProps<Theme>;
 }
 
-/** Input props that the number field controls itself (value, handlers, element and stepper). */
+/** Input props that the number field controls itself (value, handlers and element). */
 type ControlledInputProps =
   | 'value'
   | 'defaultValue'
@@ -56,10 +57,13 @@ type ControlledInputProps =
   | 'rows'
   | 'minRows'
   | 'maxRows'
-  | 'type'
-  | 'endAdornment';
+  | 'type';
 
-/** Props for the Material input (`OutlinedInput`). The value and its handlers belong to Base UI. */
+/**
+ * Props for the Material input (`OutlinedInput`). The value and its handlers belong to Base UI.
+ * `endAdornment` (usually an `InputAdornment` with a unit) sits after the value, before any stepper
+ * buttons.
+ */
 export type NumberFieldInputSlotProps = Partial<Omit<OutlinedInputProps, ControlledInputProps>>;
 
 /** Props for the `FilledInput` of a `variant="filled"` field. */
@@ -135,6 +139,19 @@ export function selectIconStyles(theme: Theme): CSSObject | undefined {
   }
   return icon && typeof icon === 'object' ? (icon as CSSObject) : undefined;
 }
+
+/**
+ * A unit in an end or start adornment (`<InputAdornment position="end">Hz</InputAdornment>`) is
+ * quieter than the value: the small text style in the input's adornment colour.
+ */
+export const unitAdornmentStyles: CSSObject = {
+  '& .MuiInputAdornment-root .MuiTypography-root': {
+    color: 'inherit',
+    fontSize: cssVar('font-size-small'),
+    fontWeight: cssVar('font-weight-small'),
+    lineHeight: cssVar('line-height-small'),
+  },
+};
 
 /** Joins `aria-describedby` ids, skipping empty values. */
 export function joinIds(...ids: (string | undefined | false)[]): string | undefined {
