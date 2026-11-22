@@ -63,6 +63,8 @@ import RichTreeView from '@tecton-mui/ui/RichTreeView';
 import Icon from '@tecton-mui/ui/Icon';
 import NumberField from '@tecton-mui/ui/NumberField';
 import LocalizationProvider from '@tecton-mui/ui/LocalizationProvider';
+import ChatBox from '@tecton-mui/ui/ChatBox';
+import { createEchoAdapter } from '@tecton-mui/ui/ChatHeadless';
 import { ThemeProvider, TectonModeScript } from '@tecton-mui/ui/styles';
 if (root.Button !== Button) throw new Error('root Button differs from subpath Button');
 // MUI Core names win at the root over same-named MUI X re-exports (e.g. Data Grid's Toolbar).
@@ -76,9 +78,10 @@ const html = renderToString(h(ThemeProvider, null,
   h(NumberField, { label: 'Depth', defaultValue: 1200, locale: 'en-US' }),
   h(LocalizationProvider, null, h(DateRangePicker, { label: 'Range' })),
   h(RichTreeView, { items: [{ id: 'a', label: 'A' }] }),
+  h(ChatBox, { adapter: createEchoAdapter(), initialMessages: [{ id: 'm', role: 'user', parts: [{ type: 'text', text: 'Hello chat' }] }], sx: { height: 300 } }),
   h('div', { style: { height: 300 } }, h(DataGrid, { rows: [{ id: 1, a: 'x' }], columns: [{ field: 'a' }] }))));
 // The MIT Community grid renders client-side only (useIsSSR), so it must merely not throw here.
-for (const marker of ['Save', 'tecton-add-outline', 'MuiRichTreeView', 'Range', 'value="1,200"']) if (!html.includes(marker)) throw new Error('SSR output missing ' + marker);
+for (const marker of ['Save', 'tecton-add-outline', 'MuiRichTreeView', 'Range', 'value="1,200"', 'Hello chat']) if (!html.includes(marker)) throw new Error('SSR output missing ' + marker);
 console.log(Object.keys(root).length);
 `,
 );
@@ -90,7 +93,7 @@ try {
     .toString()
     .trim();
   pass(
-    `root exports ${count} names; Button/NumberField/DataGrid/DateRangePicker/RichTreeView render on the server`,
+    `root exports ${count} names; Button/NumberField/DataGrid/DateRangePicker/RichTreeView/ChatBox render on the server`,
   );
 } catch (error) {
   fail(`SSR import check failed:\n${error.stderr?.toString() ?? error}`);
@@ -119,6 +122,8 @@ const forbidden = {
   'Base UI': /NumberFieldRootContext|useNumberFieldRootContext|@base-ui\//,
   'date-fns': /startOfWeek|differenceInCalendarDays/,
   'Tecton token CSS': /--tecton-color-text-primary:/,
+  // The theme carries Chat corrections but must not import MUI X Chat itself.
+  'MUI X Chat': /ChatComposerSendButton|createEchoAdapter|useChatStore/,
   'docs tooling': /@tanstack|pagefind|@mdx-js/,
 };
 for (const [name, source] of Object.entries(entries)) {

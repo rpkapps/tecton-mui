@@ -1,0 +1,39 @@
+## Purpose
+
+`ChatCodeBlock` shows code with a header: the language on one side and a copy button on the other.
+Messages render every fenced code block in their Markdown with it, so the same component appears in
+answers; you can also use it on its own.
+
+## Playground
+
+<Demo name="CodeBlockPlayground" playground />
+
+## Basic code block
+
+Pass the code as `children` (a string) and its `language`. The code keeps its line breaks and scrolls
+sideways when a line is too long. The code uses Tecton's monospace font.
+
+<Demo name="BasicCodeBlock" />
+
+## Syntax highlighting
+
+`highlighter` receives the code and the language and returns React nodes. Plug in the highlighter
+your application already uses (Shiki, Prism, highlight.js); without one, the code is shown as plain
+text.
+
+<Demo name="Highlighter" />
+
+## Code in messages
+
+A fenced code block in a message (` ```python `) becomes a `ChatCodeBlock` with that language. To
+highlight every code block in your chats, set `highlighter` once in the theme:
+`components.MuiChatCodeBlock.defaultProps.highlighter`.
+
+<Demo name="CodeInMessages" />
+
+## Accessibility
+
+- The copy button is named "Copy" and changes to "Copied!" after a click.
+- Inside a message the copy button is reached with <kbd>Enter</kbd> on the message, then
+  <kbd>Tab</kbd>, so arrow-key navigation between messages stays quick.
+- Highlighting colours must keep 4.5:1 contrast on the code background in both modes.

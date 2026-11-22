@@ -1,0 +1,208 @@
+## Purpose
+
+`ChatBox` is a complete chat surface: a scrolling message thread, a composer, an optional list of
+conversations and prompt suggestions. Use it for assistant panels, support threads and team
+conversations inside an application. It comes from MUI X Chat (`@mui/x-chat`, MIT) and is exported
+unchanged; the Tecton theme styles it.
+
+> MUI X Chat is an **alpha** upstream package (`9.0.0-alpha.22`). Its API will change before a
+> stable release, and those changes reach this library when the pinned version is upgraded. Check
+> the release notes before you upgrade.
+
+The components live in their own subpaths (`@tecton-mui/ui/ChatBox`, `@tecton-mui/ui/ChatComposer`
+and so on). The runtime that does not render anything (the provider, hooks, adapter and message
+types) is `@tecton-mui/ui/ChatHeadless`, the counterpart of `@mui/x-chat/headless`. Most of its
+names are also root exports. Its `ChatMessage` and `ChatConversation` **types** share their names
+with components, so import those types from `@tecton-mui/ui/ChatHeadless`.
+
+The parts of a chat have their own pages:
+[Chat Message](/components/chat-message) (message parts, actions, status, avatars, grouping),
+[Chat Composer](/components/chat-composer),
+[Chat Conversations](/components/chat-conversations) (list, header, unread counts),
+[Chat Message Error](/components/chat-message-error),
+[Chat Message Skeleton](/components/chat-message-skeleton),
+[Chat Message Sources](/components/chat-message-sources),
+[Chat Code Block](/components/chat-code-block) and
+[Chat Confirmation](/components/chat-confirmation). AI assistants and agents (reasoning, tool
+calls, tool approval, steps, the Vercel AI SDK) are on [AI and Agents](/components/chat-ai-agents).
+
+## Playground
+
+Try the props and features of `ChatBox`. The code under the playground follows your changes.
+
+<Demo name="ChatBoxPlayground" playground />
+
+## Basic usage
+
+`ChatBox` needs an `adapter`: the object that sends the user's message to your backend and returns
+the reply. `createEchoAdapter()` repeats the user's text back and is meant for prototypes and tests.
+The chat fills its container, so give it a height.
+
+- `currentUser` is the person typing. Their messages sit on the trailing side of the thread.
+- `members` lists everyone in the chat, with `displayName` and an optional `avatarUrl`.
+- `initialMessages` seeds the thread. Message text is Markdown: lists, emphasis, links and fenced
+  code blocks (with a copy button) are rendered.
+
+Create the adapter once, for example with `React.useState(() => createEchoAdapter())`. A new adapter
+on every render restarts the chat runtime.
+
+<Demo name="BasicChat" />
+
+## Connecting a backend
+
+An adapter implements `sendMessage`. It receives the new message, the thread so far and an
+`AbortSignal`, and returns a `ReadableStream` of chunks: `start`, then `text-start`, any number of
+`text-delta` chunks and `text-end`, then `finish`. The reply appears while it streams, and the send
+button stays disabled until it ends. `stopStreaming()` from `useChat()` aborts the signal: then send
+an `abort` chunk and close the stream.
+
+The other adapter methods are optional: `listConversations` and `listMessages` load history,
+`subscribe` pushes realtime events, `setTyping` and `markRead` report presence and read state, and
+`regenerate` asks for a new answer. `createAiSdkAdapter` reads the UI message stream of a Vercel AI
+SDK endpoint, whose chunks are a near-superset of these.
+
+<Demo name="StreamingAdapter" />
+
+## Suggestions and empty state
+
+`suggestions` shows prompt chips while the thread is empty. A suggestion is a string, or a
+`{ value, label }` pair when the chip text should differ from the prompt. A click fills the composer;
+with `suggestionsAutoSubmit` it sends the prompt immediately, as in the example above.
+
+<Demo name="Suggestions" />
+
+## Conversations
+
+`features={{ conversationList: true }}` adds a list of conversations next to the thread. Pass the
+conversations with `initialConversations` (or load them with `adapter.listConversations`) and pick
+the open one with `initialActiveConversationId`. When the user opens a conversation that has no
+messages yet, `adapter.listMessages` is called with its `conversationId`.
+
+The layout follows the width of the chat, not the window. Below 600px the list becomes an overlay
+panel, and below 450px the list and the thread are shown one at a time. `layoutMode` forces one of
+the three layouts, and `layoutModeBreakpoints` changes the widths.
+
+<Demo name="Conversations" />
+
+## Real-time updates
+
+Messages from other people, typing and read state arrive through `adapter.subscribe`. The chat
+calls it on mount with an `onEvent` callback; push `message-added`, `message-updated`,
+`message-removed`, `typing`, `presence`, `read` and `conversation-*` events into it, and return a
+function that ends the subscription. `ChatTypingIndicator` (from `@tecton-mui/ui/ChatIndicators`)
+shows who is typing in the open conversation; place it as a child of `ChatBox`.
+
+<Demo name="RealtimeUpdates" />
+
+The other direction works too: with `features={{ typingSignal: true }}` the chat calls
+`adapter.setTyping` when the user starts writing and when the draft is emptied or sent, so your
+backend can tell the other participants.
+
+<Demo name="TypingSignal" />
+
+## Loading older messages
+
+When `adapter.listMessages` returns `hasMore: true` with a `cursor`, scrolling to the top of the
+thread loads the next page: the chat calls `listMessages` again with that `cursor` and keeps the
+scroll position. `useChat()` reports `isLoadingHistory` and `hasMoreHistory` for your own loading
+indicator.
+
+<Demo name="HistoryPaging" />
+
+## Attachments
+
+The paperclip button, drag and drop and paste add files to the next message; they reach
+`adapter.sendMessage` as `attachments`. `features.attachments` takes the rules: `acceptedMimeTypes`,
+`maxFileSize` (bytes) and `maxFileCount`. Files that break a rule are not added, and
+`onAttachmentReject` receives each one with the reason, so you can tell the user why.
+`features={{ attachments: false }}` turns attachments off.
+
+<Demo name="Attachments" />
+
+## Variant and density
+
+`variant="compact"` is the messenger-style layout: no avatars or bubbles, with the author and time
+above each group of messages. `density` (`compact`, `standard`, `comfortable`) sets the vertical
+spacing between messages.
+
+<Demo name="VariantAndDensity" />
+
+## Building your own layout
+
+`ChatBox` composes the parts below inside its own `ChatProvider`. To place the parts yourself, wrap
+them in a `ChatProvider` with the adapter and use the components you need: `ChatMessageList`,
+[`ChatComposer`](/components/chat-composer), `ChatConversation` (a thread with its header),
+[`ChatConversationList`](/components/chat-conversations) and
+`ChatSuggestions`. The hooks from `@tecton-mui/ui/ChatHeadless` work in any component inside the
+provider:
+
+- `useChat()` returns the messages, the conversations, the streaming state and actions such as
+  `sendMessage`, `stopStreaming` and `setActiveConversation`.
+- `useChatComposer()`, `useChatStatus()`, `useConversations()` and `useMessage(id)` read smaller
+  parts of the state. Prefer them in components that need only that part.
+
+<Demo name="CustomLayout" />
+
+For long threads, build the list from `useMessageIds()` and one memoized row per id that reads its
+message with `useMessage(id)`. A new or streaming message then re-renders its own row only; the
+counters show it. `useChat()` returns the whole state, so a component that uses it re-renders on
+every change.
+
+<Demo name="FineGrainedHooks" />
+
+## Controlled state
+
+The `initial*` props set the starting state only. To own the state, pass `messages` with
+`onMessagesChange`, `conversations` with `onConversationsChange`, `activeConversationId` with
+`onActiveConversationChange`, or `composerValue` with `onComposerValueChange`.
+
+<Demo name="ControlledState" />
+
+## Localization
+
+`localeText` replaces the chat's texts: placeholders, button labels, landmark names and
+announcements. Pass only the texts you translate; the rest keep their English defaults.
+
+<Demo name="Localization" />
+
+## Theming
+
+Theme keys follow MUI: `MuiChatBox`, `MuiChatMessage`, `MuiChatComposer`,
+`MuiChatConversationList`, `MuiChatCodeBlock` and the other `MuiChat*` names take `defaultProps`,
+`styleOverrides` and `variants`, and they are typed in `createTheme` from `@tecton-mui/ui/styles`.
+The `chat*Classes` objects hold the class names.
+
+Tecton has no chat design yet. The theme applies these corrections so that the chat follows Tecton:
+
+- Tecton icons everywhere in the chat: send, attach, copy, read receipts, files, links, tool calls,
+  reasoning, scroll to bottom, the conversation menu and the empty state. Tecton has no send,
+  double-check or file icon, so send uses the up arrow, "read" a circled check and files the
+  paperclip.
+- Tecton's keyboard focus ring on every button, message and conversation.
+- Tecton's monospace font for code.
+- Tecton avatars: the picture, or the author's initials in Tecton's colour for that name. Upstream
+  showed an empty circle for everyone without a picture.
+- Readable timestamps on every bubble, and Tecton's filled container colour for other people's
+  messages. Upstream colours chosen for Material's palette were below 4.5:1 on Tecton's.
+
+## Accessibility
+
+- The thread is a `log` region named "Message log". Each message is an `article` named after its
+  author. <kbd>Up</kbd>/<kbd>Down</kbd>, <kbd>Home</kbd>/<kbd>End</kbd> and
+  <kbd>Page Up</kbd>/<kbd>Page Down</kbd> move between messages.
+- The composer text area is labelled "Message". <kbd>Enter</kbd> sends and
+  <kbd>Shift</kbd>+<kbd>Enter</kbd> adds a line break.
+- The conversation list is a `listbox` inside a navigation landmark, both named "Conversations".
+  The list's name comes from the theme in English: pass
+  `slotProps={{ conversationList: { 'aria-label': … } }}` with your translation.
+- Change the other labels with `localeText`. Only English (`en-US`) texts ship with the upstream
+  package.
+- Checked with axe in light and dark mode and in right-to-left layout.
+
+## Limitations
+
+- The upstream API is alpha and will change.
+- The chat draws its icons itself, without icon slots. The theme repaints each one with a Tecton
+  icon, so an icon you pass as content (for example in `extraActions`) is shown as you give it.
+- `ChatBox` shows an empty header bar when no conversation is active. Hide it with
+  `features={{ conversationHeader: false }}`, as the single-thread examples do.

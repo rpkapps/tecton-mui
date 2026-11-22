@@ -12,6 +12,9 @@ is included; the advanced Data Grid, picker and Tree View features are written i
 | `@mui/x-data-grid`                                         | MIT, Copyright (c) 2020 Material-UI SAS                                              | Community Data Grid foundation                           |
 | `@mui/x-date-pickers`                                      | MIT, Copyright (c) 2020 Material-UI SAS                                              | Community pickers, foundation for range pickers          |
 | `@mui/x-tree-view`                                         | MIT, Copyright (c) 2020 Material-UI SAS                                              | Community Tree View foundation                           |
+| `@mui/x-chat`, `@mui/x-chat-headless`                      | MIT, Copyright (c) 2020 Material-UI SAS (license declared in `package.json`)         | Chat components (alpha), passthrough re-exports          |
+| `markdown-to-jsx`                                          | MIT, Copyright (c) 2015-present Evan Jacobs                                          | Markdown rendering in chat messages (via `@mui/x-chat`)  |
+| `remend`                                                   | Apache-2.0, Copyright 2023 Vercel, Inc.                                              | Completes partial Markdown while a chat reply streams    |
 | `@mui/stylis-plugin-rtl`, `stylis`                         | MIT                                                                                  | RTL style processing                                     |
 | `@emotion/react`, `@emotion/styled`, `@emotion/cache`      | MIT, Copyright (c) Emotion team and other contributors                               | Styling engine                                           |
 | `date-fns`                                                 | MIT, Copyright (c) 2021 Sasha Koss and Lesha Koss                                    | Default date adapter library                             |
@@ -55,3 +58,10 @@ distribute, sublicense, and/or sell copies of the Software, and to permit person
 Software is furnished to do so, subject to the following conditions: The above copyright notice and
 this permission notice shall be included in all copies or substantial portions of the Software.
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED.
+
+`remend` is licensed under the Apache License, Version 2.0 (the "License"); you may not use it
+except in compliance with the License. You may obtain a copy of the License at
+http://www.apache.org/licenses/LICENSE-2.0. The package ships its license file and no NOTICE file.
+Unless required by applicable law or agreed to in writing, software distributed under the License is
+distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied.

@@ -3,6 +3,9 @@
 // map, so they are re-declared here from the variant predicates in the generated theme.
 // Color/variant overrides that upstream declares inside createMuiTheme.ts are not repeated.
 import type {} from '@mui/material/styles';
+// MUI X Chat does not augment the theme from its component types (the other MUI X packages do), so
+// `MuiChat*` theme keys would be untyped. Type-only: nothing is loaded at runtime.
+import type {} from '@mui/x-chat/themeAugmentation';
 
 declare module '@mui/material/IconButton' {
   interface IconButtonOwnProps {

@@ -39,6 +39,7 @@
     "@mui/stylis-plugin-rtl": "9.5.0",
     "@mui/system": "9.5.0",
     "@mui/utils": "9.5.0",
+    "@mui/x-chat": "9.0.0-alpha.22",
     "@mui/x-data-grid": "9.18.0",
     "@mui/x-date-pickers": "9.18.0",
     "@mui/x-tree-view": "9.18.0",
@@ -221,6 +222,76 @@
       "@tecton-mui/source": "./src/CardMedia/index.ts",
       "types": "./dist/CardMedia/index.d.ts",
       "default": "./dist/CardMedia/index.js"
+    },
+    "./ChatBox": {
+      "@tecton-mui/source": "./src/ChatBox/index.ts",
+      "types": "./dist/ChatBox/index.d.ts",
+      "default": "./dist/ChatBox/index.js"
+    },
+    "./ChatCodeBlock": {
+      "@tecton-mui/source": "./src/ChatCodeBlock/index.ts",
+      "types": "./dist/ChatCodeBlock/index.d.ts",
+      "default": "./dist/ChatCodeBlock/index.js"
+    },
+    "./ChatComposer": {
+      "@tecton-mui/source": "./src/ChatComposer/index.ts",
+      "types": "./dist/ChatComposer/index.d.ts",
+      "default": "./dist/ChatComposer/index.js"
+    },
+    "./ChatConfirmation": {
+      "@tecton-mui/source": "./src/ChatConfirmation/index.ts",
+      "types": "./dist/ChatConfirmation/index.d.ts",
+      "default": "./dist/ChatConfirmation/index.js"
+    },
+    "./ChatConversation": {
+      "@tecton-mui/source": "./src/ChatConversation/index.ts",
+      "types": "./dist/ChatConversation/index.d.ts",
+      "default": "./dist/ChatConversation/index.js"
+    },
+    "./ChatConversationList": {
+      "@tecton-mui/source": "./src/ChatConversationList/index.ts",
+      "types": "./dist/ChatConversationList/index.d.ts",
+      "default": "./dist/ChatConversationList/index.js"
+    },
+    "./ChatHeadless": {
+      "@tecton-mui/source": "./src/ChatHeadless/index.ts",
+      "types": "./dist/ChatHeadless/index.d.ts",
+      "default": "./dist/ChatHeadless/index.js"
+    },
+    "./ChatIndicators": {
+      "@tecton-mui/source": "./src/ChatIndicators/index.ts",
+      "types": "./dist/ChatIndicators/index.d.ts",
+      "default": "./dist/ChatIndicators/index.js"
+    },
+    "./ChatMessage": {
+      "@tecton-mui/source": "./src/ChatMessage/index.ts",
+      "types": "./dist/ChatMessage/index.d.ts",
+      "default": "./dist/ChatMessage/index.js"
+    },
+    "./ChatMessageError": {
+      "@tecton-mui/source": "./src/ChatMessageError/index.ts",
+      "types": "./dist/ChatMessageError/index.d.ts",
+      "default": "./dist/ChatMessageError/index.js"
+    },
+    "./ChatMessageList": {
+      "@tecton-mui/source": "./src/ChatMessageList/index.ts",
+      "types": "./dist/ChatMessageList/index.d.ts",
+      "default": "./dist/ChatMessageList/index.js"
+    },
+    "./ChatMessageSkeleton": {
+      "@tecton-mui/source": "./src/ChatMessageSkeleton/index.ts",
+      "types": "./dist/ChatMessageSkeleton/index.d.ts",
+      "default": "./dist/ChatMessageSkeleton/index.js"
+    },
+    "./ChatMessageSources": {
+      "@tecton-mui/source": "./src/ChatMessageSources/index.ts",
+      "types": "./dist/ChatMessageSources/index.d.ts",
+      "default": "./dist/ChatMessageSources/index.js"
+    },
+    "./ChatSuggestions": {
+      "@tecton-mui/source": "./src/ChatSuggestions/index.ts",
+      "types": "./dist/ChatSuggestions/index.d.ts",
+      "default": "./dist/ChatSuggestions/index.js"
     },
     "./Checkbox": {
       "@tecton-mui/source": "./src/Checkbox/index.ts",

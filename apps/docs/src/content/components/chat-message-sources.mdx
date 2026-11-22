@@ -1,0 +1,29 @@
+## Purpose
+
+`ChatMessageSources` lists the documents an answer is based on, as a numbered list of links with a
+label above it. Each entry is a `ChatMessageSource` (`@tecton-mui/ui/ChatMessageSources` exports
+both). Use it under an answer in your own message layout or part renderer.
+
+## Playground
+
+<Demo name="SourcesPlayground" playground />
+
+## Basic list
+
+Give each `ChatMessageSource` an `href`, a `title` (the link text; the URL is shown without one) and
+an `index` for its number badge. `label` changes the heading ("Sources" by default).
+
+<Demo name="SourceList" />
+
+## Sources in messages
+
+In a `ChatBox`, sources are message parts: a `source-url` part is shown as a link and a
+`source-document` part as a cited document. An adapter adds them to the answer with `source-url` and
+`source-document` stream chunks.
+
+<Demo name="SourcesInMessages" />
+
+## Accessibility
+
+- The list is an ordered list (`ol`) of links, so screen readers announce how many sources there are.
+- Use titles that describe the source. A bare URL is hard to listen to.

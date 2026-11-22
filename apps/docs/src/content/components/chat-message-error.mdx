@@ -1,0 +1,32 @@
+## Purpose
+
+`ChatMessageError` appears under a message that could not be sent: it shows the error and a
+**Retry** button that sends the message again. `ChatBox` renders it for you when
+`adapter.sendMessage` throws or its stream fails; you do not place it yourself.
+
+## Playground
+
+<Demo name="ErrorPlayground" playground />
+
+## Retrying a failed message
+
+When `sendMessage` throws, the message keeps its place in the thread, gets the status `error` and
+shows the error text. Retry calls `sendMessage` again with the same message. Here the backend drops
+the first attempt of every message.
+
+<Demo name="RetryFailedSend" />
+
+## Reporting errors
+
+`onError` receives every error with a `code` (`SEND_ERROR`, `STREAM_ERROR`, `HISTORY_ERROR`,
+`REALTIME_ERROR`, `REGENERATE_ERROR`), a `source` and the `message`, so you can log it or show it
+elsewhere. `useChat().error` holds the latest one. To show errors only your way, hide the error under
+the message with `slots={{ messageError: null }}`.
+
+<Demo name="ErrorCallback" />
+
+## Accessibility
+
+- The error is announced: it has `role="alert"`.
+- The Retry button is a regular button in the message, reachable with the keyboard. Its label comes
+  from `localeText.retryButtonLabel`.

@@ -6,7 +6,8 @@
     "@mui/system": "9.5.0",
     "@mui/x-data-grid": "9.18.0",
     "@mui/x-date-pickers": "9.18.0",
-    "@mui/x-tree-view": "9.18.0"
+    "@mui/x-tree-view": "9.18.0",
+    "@mui/x-chat": "9.0.0-alpha.22"
   },
   "customModules": [
     "ActionBar",
@@ -67,6 +68,20 @@
     "CardContent",
     "CardHeader",
     "CardMedia",
+    "ChatBox",
+    "ChatCodeBlock",
+    "ChatComposer",
+    "ChatConfirmation",
+    "ChatConversation",
+    "ChatConversationList",
+    "ChatHeadless",
+    "ChatIndicators",
+    "ChatMessage",
+    "ChatMessageError",
+    "ChatMessageList",
+    "ChatMessageSkeleton",
+    "ChatMessageSources",
+    "ChatSuggestions",
     "Checkbox",
     "Chip",
     "CircularProgress",
@@ -1074,6 +1089,63 @@
     {
       "package": "@mui/x-tree-view",
       "module": "hooks"
+    },
+    {
+      "package": "@mui/x-chat",
+      "module": "ChatBox"
+    },
+    {
+      "package": "@mui/x-chat",
+      "module": "ChatCodeBlock"
+    },
+    {
+      "package": "@mui/x-chat",
+      "module": "ChatComposer"
+    },
+    {
+      "package": "@mui/x-chat",
+      "module": "ChatConfirmation"
+    },
+    {
+      "package": "@mui/x-chat",
+      "module": "ChatConversation"
+    },
+    {
+      "package": "@mui/x-chat",
+      "module": "ChatConversationList"
+    },
+    {
+      "package": "@mui/x-chat",
+      "module": "ChatIndicators"
+    },
+    {
+      "package": "@mui/x-chat",
+      "module": "ChatMessage"
+    },
+    {
+      "package": "@mui/x-chat",
+      "module": "ChatMessageError"
+    },
+    {
+      "package": "@mui/x-chat",
+      "module": "ChatMessageList"
+    },
+    {
+      "package": "@mui/x-chat",
+      "module": "ChatMessageSkeleton"
+    },
+    {
+      "package": "@mui/x-chat",
+      "module": "ChatMessageSources"
+    },
+    {
+      "package": "@mui/x-chat",
+      "module": "ChatSuggestions"
+    },
+    {
+      "package": "@mui/x-chat",
+      "module": "headless",
+      "subpath": "ChatHeadless"
     }
   ],
   "excluded": [
@@ -1226,6 +1298,26 @@
       "package": "@mui/lab",
       "module": "useAutocomplete",
       "reason": "duplicate of @mui/material useAutocomplete"
+    },
+    {
+      "package": "@mui/x-chat",
+      "module": "locales",
+      "reason": "only `chatEnUS`, the built-in default locale text"
+    },
+    {
+      "package": "@mui/x-chat",
+      "module": "core",
+      "reason": "subset of `headless` (exposed as ChatHeadless)"
+    },
+    {
+      "package": "@mui/x-chat",
+      "module": "themeAugmentation",
+      "reason": "type-only module; @tecton-mui/ui/styles loads it (styles/tecton/augmentations.ts)"
+    },
+    {
+      "package": "@mui/x-chat",
+      "module": "types",
+      "reason": "type-only subset of `headless` (exposed as ChatHeadless)"
     }
   ],
   "rootCollisions": [
@@ -2018,6 +2110,31 @@
       "name": "PropsFromSlot",
       "kept": "DataGrid",
       "dropped": "internal/passthrough/xtreeview_models"
+    },
+    {
+      "name": "ChatMessageError",
+      "kept": "ChatMessage",
+      "dropped": "ChatMessageError"
+    },
+    {
+      "name": "ChatMessageError",
+      "kept": "ChatMessage",
+      "dropped": "ChatMessageError"
+    },
+    {
+      "name": "ChatMessageErrorProps",
+      "kept": "ChatMessage",
+      "dropped": "ChatMessageError"
+    },
+    {
+      "name": "ChatConversation",
+      "kept": "ChatConversation",
+      "dropped": "ChatHeadless"
+    },
+    {
+      "name": "ChatMessage",
+      "kept": "ChatMessage",
+      "dropped": "ChatHeadless"
     }
   ],
   "declarationOnlyValues": [
