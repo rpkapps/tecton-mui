@@ -90,17 +90,15 @@ const inputComponents = {
   filled: FilledNumberFieldInput,
 } as const;
 
-const Stepper = styled(InputAdornment, { name: 'TectonNumberField', slot: 'Stepper' })(
-  ({ theme }) => ({
-    flexDirection: 'column',
-    alignSelf: 'stretch',
-    height: 'auto',
-    maxHeight: 'none',
-    marginLeft: 0,
-    borderLeft: `1px solid ${theme.palette.divider}`,
-    '&.MuiInputAdornment-positionEnd': { marginLeft: 0 },
-  }),
-);
+// The arrows sit at the end of the input with no divider before them.
+const Stepper = styled(InputAdornment, { name: 'TectonNumberField', slot: 'Stepper' })({
+  flexDirection: 'column',
+  alignSelf: 'stretch',
+  height: 'auto',
+  maxHeight: 'none',
+  marginLeft: 0,
+  '&.MuiInputAdornment-positionEnd': { marginLeft: 0 },
+});
 
 const StepperButton = styled(IconButton, { name: 'TectonNumberField', slot: 'StepperButton' })(
   ({ theme }) => ({

@@ -1,5 +1,5 @@
 'use client';
-// Number input with decrement/increment buttons on both sides of the value. Composes Base UI
+// Number input with decrement/increment buttons at both ends of the value. Composes Base UI
 // `NumberField` (MIT) with Material form components; adapted from the MIT "Number Spinner" recipe
 // of mui/material-ui v9.5.0 (see THIRD_PARTY_NOTICES.md).
 import * as React from 'react';
@@ -17,6 +17,7 @@ import { INPUT_FOCUS_VISIBLE_SELECTOR, cssVar, focusRingShadow } from '../styles
 import {
   SSRInitialFilled,
   joinIds,
+  selectIconStyles,
   textFieldRootStyles,
   unitAdornmentStyles,
   useFieldIds,
@@ -79,21 +80,25 @@ const Group = styled('div', { name: 'TectonNumberSpinner', slot: 'Group' })({
   [`&:has(.MuiInputBase-root${INPUT_FOCUS_VISIBLE_SELECTOR})`]: { boxShadow: focusRingShadow },
 });
 
+// The buttons sit inside the input, at its two ends: one outline (or fill) wraps the buttons and
+// the value, with no dividers between them. The value, and a unit after it, is centred between the
+// buttons.
 const spinnerInputStyles = {
   flex: 1,
-  borderRadius: 0,
-  '& .MuiInputBase-input': { textAlign: 'center' },
-  // With a unit, the value and the unit are centred together.
-  '&.MuiInputBase-adornedEnd': {
-    justifyContent: 'center',
-    '& .MuiInputBase-input': { width: 'auto', flex: '0 1 auto', paddingRight: 0 },
+  paddingInline: 0,
+  '& .MuiInputBase-input': {
+    width: 'auto',
+    flex: '0 1 auto',
+    minWidth: 0,
+    paddingInline: 0,
+    textAlign: 'center',
   },
   ...unitAdornmentStyles,
   [`&&${INPUT_FOCUS_VISIBLE_SELECTOR}`]: { boxShadow: 'none' },
 } as const;
 
 // On keyboard focus Tecton turns an outlined input's border to its active colour. Here the ring
-// surrounds the whole group, so the value keeps the border it shares with the buttons (red in error).
+// surrounds the whole control, so the outline keeps its colour (red in error).
 const OutlinedSpinnerInput = styled(OutlinedInput, {
   name: 'TectonNumberSpinner',
   slot: 'Input',
@@ -108,72 +113,49 @@ const FilledSpinnerInput = styled(FilledInput, { name: 'TectonNumberSpinner', sl
   spinnerInputStyles,
 );
 
-const spinnerButtonStyles = {
-  minWidth: 0,
-  flexShrink: 0,
-  aspectRatio: '1 / 1',
-  paddingInline: 0,
-} as const;
+const inputComponents = { outlined: OutlinedSpinnerInput, filled: FilledSpinnerInput } as const;
 
-// Outlined buttons; the input's outline is the shared border between the buttons and the value.
-const OutlinedSpinnerButton = styled(Button, { name: 'TectonNumberSpinner', slot: 'Button' })(
+// Square text buttons at the ends of the input. The minus and plus take the Select chevron colour
+// of the field's variant and state, like the arrows of `NumberField`.
+const SpinnerButton = styled(Button, { name: 'TectonNumberSpinner', slot: 'Button' })(
   ({ theme }) => ({
-    ...spinnerButtonStyles,
-    borderColor: theme.palette.divider,
-    // Read-only fields expose the buttons as aria-disabled (still focusable by assistive tech).
-    '&[aria-disabled="true"]': {
+    // Square: as wide as the input is high. An explicit width (not `aspect-ratio`) lets the field
+    // size itself to the buttons and the value.
+    width: cssVar('space-400'),
+    '.MuiInputBase-sizeSmall &': { width: `calc(${cssVar('space-400')} - ${cssVar('space-50')})` },
+    minWidth: 0,
+    minHeight: 0,
+    height: 'auto',
+    flexShrink: 0,
+    alignSelf: 'stretch',
+    padding: 0,
+    borderRadius: 0,
+    ...selectIconStyles(theme),
+    // In a filled field the hover shows in the icon colour only: the field's own hover fill is
+    // behind the buttons, and a lighter square on top would split the bar.
+    '.MuiFilledInput-root &:hover, .MuiFilledInput-root &:active': {
+      backgroundColor: 'transparent',
+    },
+    // Read-only fields expose the buttons as aria-disabled (still focusable by assistive tech). The
+    // selector out-ranks the chevron colours keyed off the input root.
+    '.MuiInputBase-root &&[aria-disabled="true"]': {
       color: theme.palette.text.disabled,
       cursor: 'default',
       backgroundColor: 'transparent',
     },
-    '&.TectonNumberSpinner-decrement': {
-      borderStartEndRadius: 0,
-      borderEndEndRadius: 0,
-      borderInlineEndWidth: 0,
+    // The free space goes between the buttons and the value, which keeps the value centred.
+    [`&.${numberSpinnerClasses.decrementButton}`]: {
+      marginInlineEnd: 'auto',
+      borderStartStartRadius: 'inherit',
+      borderEndStartRadius: 'inherit',
     },
-    '&.TectonNumberSpinner-increment': {
-      borderStartStartRadius: 0,
-      borderEndStartRadius: 0,
-      borderInlineStartWidth: 0,
+    [`&.${numberSpinnerClasses.incrementButton}`]: {
+      marginInlineStart: 'auto',
+      borderStartEndRadius: 'inherit',
+      borderEndEndRadius: 'inherit',
     },
   }),
 );
-
-// Filled buttons share the filled input background, so the buttons and the value form one bar.
-// Like the adornment icons of a filled input, hover and press change only the icon colour: Tecton's
-// filled hover background is lighter than the fill, so a hovered end segment would split the bar.
-const FilledSpinnerButton = styled(Button, { name: 'TectonNumberSpinner', slot: 'Button' })(
-  ({ theme }) => ({
-    ...spinnerButtonStyles,
-    backgroundColor: cssVar('color-input-filled-bg'),
-    color: cssVar('color-input-filled-adornment'),
-    '&:hover, &:active': {
-      backgroundColor: cssVar('color-input-filled-bg'),
-      color: cssVar('color-input-filled-adornment-hover'),
-    },
-    '&.Mui-disabled': {
-      backgroundColor: cssVar('color-disabled-filled-bg'),
-      color: cssVar('color-disabled-filled-text'),
-    },
-    // Read-only fields expose the buttons as aria-disabled (still focusable by assistive tech).
-    '&[aria-disabled="true"]': {
-      color: theme.palette.text.disabled,
-      cursor: 'default',
-      backgroundColor: cssVar('color-input-filled-bg'),
-    },
-    '&.TectonNumberSpinner-decrement': { borderStartEndRadius: 0, borderEndEndRadius: 0 },
-    '&.TectonNumberSpinner-increment': { borderStartStartRadius: 0, borderEndStartRadius: 0 },
-  }),
-);
-
-const variantComponents = {
-  outlined: {
-    Input: OutlinedSpinnerInput,
-    Button: OutlinedSpinnerButton,
-    buttonVariant: 'outlined',
-  },
-  filled: { Input: FilledSpinnerInput, Button: FilledSpinnerButton, buttonVariant: 'text' },
-} as const;
 
 /**
  * A numeric input between decrement and increment buttons, for small counts and quantities. Shares
@@ -207,9 +189,8 @@ export const NumberSpinner = React.forwardRef<HTMLDivElement, NumberSpinnerProps
       htmlInput?.['aria-describedby'],
     );
     const minLength = rootProps.min != null ? String(rootProps.min).length : 0;
-    const parts = variantComponents[variant];
-    const SpinnerInput = parts.Input as typeof OutlinedSpinnerInput;
-    const SpinnerButton = parts.Button;
+    const SpinnerInput = inputComponents[variant] as typeof OutlinedSpinnerInput;
+    const iconSize = size === 'small' ? 'small' : 'medium';
 
     const labelElement =
       label != null && label !== '' ? (
@@ -252,19 +233,6 @@ export const NumberSpinner = React.forwardRef<HTMLDivElement, NumberSpinnerProps
           labelElement
         )}
         <Group className={numberSpinnerClasses.group}>
-          <BaseNumberField.Decrement
-            render={
-              <SpinnerButton
-                variant={parts.buttonVariant}
-                size={size}
-                aria-label="Decrease"
-                {...decrementButton}
-                className={clsx(numberSpinnerClasses.decrementButton, decrementButton?.className)}
-              />
-            }
-          >
-            <Icon name="remove" size={size === 'small' ? 'small' : 'medium'} />
-          </BaseNumberField.Decrement>
           <BaseNumberField.Input
             {...htmlInput}
             ref={inputRef}
@@ -275,6 +243,46 @@ export const NumberSpinner = React.forwardRef<HTMLDivElement, NumberSpinnerProps
                 {...input}
                 value={state.inputValue}
                 inputRef={inputProps.ref}
+                startAdornment={
+                  <React.Fragment>
+                    <BaseNumberField.Decrement
+                      render={
+                        <SpinnerButton
+                          size={size}
+                          aria-label="Decrease"
+                          {...decrementButton}
+                          className={clsx(
+                            numberSpinnerClasses.decrementButton,
+                            decrementButton?.className,
+                          )}
+                        />
+                      }
+                    >
+                      <Icon name="remove" size={iconSize} />
+                    </BaseNumberField.Decrement>
+                    {input?.startAdornment}
+                  </React.Fragment>
+                }
+                endAdornment={
+                  <React.Fragment>
+                    {input?.endAdornment}
+                    <BaseNumberField.Increment
+                      render={
+                        <SpinnerButton
+                          size={size}
+                          aria-label="Increase"
+                          {...incrementButton}
+                          className={clsx(
+                            numberSpinnerClasses.incrementButton,
+                            incrementButton?.className,
+                          )}
+                        />
+                      }
+                    >
+                      <Icon name="add" size={iconSize} />
+                    </BaseNumberField.Increment>
+                  </React.Fragment>
+                }
                 slotProps={{
                   input: {
                     ...inputProps,
@@ -286,19 +294,6 @@ export const NumberSpinner = React.forwardRef<HTMLDivElement, NumberSpinnerProps
               />
             )}
           />
-          <BaseNumberField.Increment
-            render={
-              <SpinnerButton
-                variant={parts.buttonVariant}
-                size={size}
-                aria-label="Increase"
-                {...incrementButton}
-                className={clsx(numberSpinnerClasses.incrementButton, incrementButton?.className)}
-              />
-            }
-          >
-            <Icon name="add" size={size === 'small' ? 'small' : 'medium'} />
-          </BaseNumberField.Increment>
         </Group>
         {helperText != null ? (
           <FormHelperText id={helperTextId} {...formHelperText}>

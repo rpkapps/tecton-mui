@@ -18,6 +18,21 @@ const inputRoot = (page: Page, label: string) =>
 const outline = (root: Locator) => root.locator('.MuiOutlinedInput-notchedOutline');
 
 test.describe('NumberField and NumberSpinner', () => {
+  test('no dividers between the value and the buttons', async ({ page }) => {
+    await page.goto('/?scenario=number-field');
+    // NumberField: the arrows follow the value with no line before them.
+    const stepper = inputRoot(page, 'Outlined error').locator('.TectonNumberField-stepper');
+    await expect(stepper).toHaveCSS('border-left-width', '0px');
+    // NumberSpinner: one outline around the buttons and the value.
+    const spinner = inputRoot(page, 'Outlined spinner');
+    await expect(spinner.locator('.MuiOutlinedInput-notchedOutline')).toHaveCount(1);
+    await expect(spinner.getByRole('button')).toHaveCount(2);
+    for (const name of ['Increase', 'Decrease']) {
+      await expect(spinner.getByRole('button', { name })).toHaveCSS('border-left-width', '0px');
+      await expect(spinner.getByRole('button', { name })).toHaveCSS('border-right-width', '0px');
+    }
+  });
+
   test('outlined error fields keep the red outline while focused with the pointer', async ({
     page,
   }) => {
@@ -64,12 +79,17 @@ test.describe('NumberField and NumberSpinner', () => {
     await page.goto('/?scenario=number-field');
     const spinner = page.locator('.TectonNumberSpinner-root').filter({ hasText: 'Filled spinner' });
     const increase = spinner.getByRole('button', { name: 'Increase' });
-    const fill = await spinner
-      .locator('.MuiFilledInput-root')
-      .evaluate((el) => getComputedStyle(el).backgroundColor);
-    await expect(increase).toHaveCSS('background-color', fill);
+    const field = spinner.locator('.MuiFilledInput-root');
+    const transparent = 'rgba(0, 0, 0, 0)';
+    // The buttons sit inside the fill and paint no background of their own, hovered or not.
+    await expect(field.getByRole('button', { name: 'Increase' })).toHaveCount(1);
+    await expect(increase).toHaveCSS('background-color', transparent);
     await increase.hover();
-    await expect(increase).toHaveCSS('background-color', fill);
+    await expect(increase).toHaveCSS('background-color', transparent);
+    await expect(field).toHaveCSS(
+      'background-color',
+      await tokenColor(page, 'color-input-filled-bg-hover'),
+    );
     await increase.click();
     await expect(page.getByLabel('Filled spinner', { exact: true })).toHaveValue('5');
   });

@@ -11,3 +11,7 @@ formatting and keyboard stepping are those of `NumberField`.
 `NumberField` and `NumberSpinner` accept `slotProps.input.endAdornment`, for example an
 `InputAdornment` with a unit. `NumberField` shows it before the stepper buttons and `NumberSpinner`
 centres it with the value. A unit in the adornment of any number field uses the small text style.
+
+`NumberField` no longer draws a divider before its arrows. `NumberSpinner` places its minus and plus
+buttons inside the input, so one outline (or fill) wraps the buttons and the value with no dividers
+between them; the icons take the Select chevron colour, like the `NumberField` arrows.

@@ -15,17 +15,23 @@ describe('NumberSpinner', () => {
     expect(RootNumberSpinner).toBe(NumberSpinner);
   });
 
-  it('renders the value between decrement and increment buttons', () => {
+  it('renders the value between decrement and increment buttons inside one input', () => {
     render(<NumberSpinner label="Crew" defaultValue={4} />);
     const group = document.querySelector(`.${numberSpinnerClasses.group}`)!;
-    const order = [...group.children].map((el) =>
-      el.matches('button') ? el.getAttribute('aria-label') : 'input',
-    );
+    // One outlined input holds the buttons and the value: no outlines between them.
+    const inputRoot = input().closest('.MuiOutlinedInput-root')!;
+    expect(group.children).toHaveLength(1);
+    expect(group.firstElementChild).toBe(inputRoot);
+    const order = [...inputRoot.children]
+      .filter((el) => el.matches('button, input'))
+      .map((el) => (el.matches('button') ? el.getAttribute('aria-label') : 'input'));
     expect(order).toEqual(['Decrease', 'input', 'Increase']);
+    expect(inputRoot.querySelectorAll('.MuiOutlinedInput-notchedOutline')).toHaveLength(1);
     expect(screen.getByLabelText('Crew')).toHaveValue('4');
     expect(decrease().querySelector('.tecton-remove-outline')).not.toBeNull();
     expect(increase().querySelector('.tecton-add-outline')).not.toBeNull();
-    expect(increase()).toHaveClass('MuiButton-outlined');
+    expect(increase()).toHaveClass('MuiButton-text');
+    expect(increase()).not.toHaveClass('MuiButton-outlined');
     // The native size grows with the value (at least the width of `min`).
     expect(input()).toHaveAttribute('size', '2');
   });
@@ -40,9 +46,10 @@ describe('NumberSpinner', () => {
     expect(root).toHaveClass('MuiInputBase-sizeSmall');
     expect(root).not.toHaveClass('MuiFilledInput-underline');
     expect(input().closest('.MuiOutlinedInput-root')).toBeNull();
-    // The buttons are text buttons on the filled background, not outlined buttons.
+    // The buttons are text buttons inside the fill.
+    expect(root).toContainElement(increase());
+    expect(root).toContainElement(decrease());
     expect(increase()).toHaveClass('MuiButton-text', 'MuiButton-sizeSmall');
-    expect(decrease()).not.toHaveClass('MuiButton-outlined');
     fireEvent.click(increase());
     expect(input()).toHaveValue('5');
   });
@@ -149,7 +156,9 @@ describe('NumberSpinner', () => {
     const inputRoot = input().closest('.MuiInputBase-root')!;
     expect(inputRoot).toHaveClass('MuiInputBase-adornedEnd');
     expect(inputRoot).toContainElement(screen.getByText('Hz'));
-    expect(inputRoot.nextElementSibling).toBe(increase());
+    expect(screen.getByText('Hz').closest('.MuiInputAdornment-root')!.nextElementSibling).toBe(
+      increase(),
+    );
     fireEvent.click(increase());
     expect(input()).toHaveValue('6');
   });
