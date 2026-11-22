@@ -759,8 +759,8 @@
         "TitlebarImageList": [
           {
             "find": "                sx={{ color: 'rgba(255, 255, 255, 0.54)' }}",
-            "replace": "                color=\"inherit\"",
-            "reason": "The info button takes the title bar text color instead of a hard-coded translucent white."
+            "replace": "                sx={{ color: 'common.white' }}",
+            "reason": "The info button uses the title bar's text color (`common.white`, like the ImageListItemBar title) instead of a hard-coded translucent white; `color=\"inherit\"` left the Tecton icon button's dark icon color."
           }
         ]
       }
