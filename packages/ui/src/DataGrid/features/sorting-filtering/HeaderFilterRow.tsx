@@ -3,14 +3,21 @@
 // under the column headers). One input per filterable column, with an operator menu and a clear
 // button. Each cell subscribes only to its own filter item, so typing re-renders one cell.
 import * as React from 'react';
+import Checkbox from '@mui/material/Checkbox';
 import IconButton from '@mui/material/IconButton';
 import InputBase from '@mui/material/InputBase';
+import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import NativeSelect from '@mui/material/NativeSelect';
+import Select, { type SelectChangeEvent } from '@mui/material/Select';
 import Tooltip from '@mui/material/Tooltip';
-import { useGridApiContext, type GridColDef, type GridFilterItem } from '@mui/x-data-grid';
+import {
+  useGridApiContext,
+  type GridColDef,
+  type GridFilterItem,
+  type GridFilterOperator,
+} from '@mui/x-data-grid';
 import Icon from '../../../Icon/Icon.js';
 import { cssVar } from '../../../styles/tecton/index.js';
 import { useStoreSelector } from '../../core/store.js';
@@ -28,7 +35,7 @@ const DEFAULT_OPERATOR: Record<string, string> = {
   singleSelect: 'is',
 };
 
-/** Short operator glyphs shown on the operator button. */
+/** Short operator glyphs shown on the operator button and next to each operator in its menu. */
 const OPERATOR_GLYPH: Record<string, string> = {
   contains: '≈',
   doesNotContain: '≉',
@@ -53,6 +60,8 @@ const OPERATOR_GLYPH: Record<string, string> = {
   '<=': '≤',
 };
 
+const ANY_OF = 'isAnyOf';
+
 // Vendor-prefixed selectors, as MUI's InputBase uses: Emotion's prefixer crashes on `::placeholder`
 // when the RTL stylis plugin is active.
 const PLACEHOLDER = { color: cssVar('color-input-filled-text-placeholder'), opacity: 1 };
@@ -63,7 +72,9 @@ const PLACEHOLDER_SX = {
 
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
-const FILTER_CONTROL = 'input, select, button';
+const FILTER_CONTROL = 'input, [role="combobox"], button';
+// The value control of a cell: its text input or select (not the select's hidden native input).
+const VALUE_CONTROL = 'input:not([disabled]):not([aria-hidden="true"]), [role="combobox"]';
 
 /** Moves keyboard focus to the header filter of `field`. Returns false when it has none. */
 export function focusHeaderFilter(root: Element, field: string): boolean {
@@ -71,8 +82,7 @@ export function focusHeaderFilter(root: Element, field: string): boolean {
     `.TectonDataGrid-headerFilterCell[data-field="${field.replace(/["\\]/g, '\\$&')}"]`,
   );
   const control =
-    cell?.querySelector<HTMLElement>('input:not([disabled]), select') ??
-    cell?.querySelector<HTMLElement>(FILTER_CONTROL);
+    cell?.querySelector<HTMLElement>(VALUE_CONTROL) ?? cell?.querySelector<HTMLElement>('button');
   if (!control) return false;
   control.focus();
   control.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
@@ -154,31 +164,48 @@ function HeaderFilterInput({ col }: { col: Col }) {
   const item = useStoreSelector(derived, selectItem);
   const type = col.type ?? 'string';
   const operators = col.filterOperators ?? [];
-  const operator = item?.operator ?? DEFAULT_OPERATOR[type] ?? operators[0]?.value ?? 'contains';
+  const isOperator = (value: string | null | undefined): value is string =>
+    !!value && operators.some((op) => op.value === value);
+  const defaultOperator = isOperator(DEFAULT_OPERATOR[type])
+    ? DEFAULT_OPERATOR[type]
+    : (operators[0]?.value ?? 'contains');
+  // The operator picked here. It applies once there is a value, and stays when the value is
+  // cleared; the filter model only holds conditions that filter.
+  const [chosenOperator, setChosenOperator] = React.useState<string | null>(null);
+  const operator =
+    item?.operator ?? (isOperator(chosenOperator) ? chosenOperator : defaultOperator);
   const operatorDef = operators.find((op) => op.value === operator);
   const needsValue = operatorDef?.requiresFilterValue !== false;
-  const committed =
-    item?.value == null
+  const toText = (value: unknown): string =>
+    value == null
       ? ''
-      : item.value instanceof Date
-        ? toDateInput(item.value, type === 'dateTime')
-        : String(item.value);
+      : Array.isArray(value)
+        ? value.map(toText).join(', ')
+        : value instanceof Date
+          ? toDateInput(value, type === 'dateTime')
+          : String(value);
+  const committed = toText(item?.value);
 
   // Local draft so typing is instant; commits are debounced.
   const [draft, setDraft] = React.useState(committed);
   const [lastCommitted, setLastCommitted] = React.useState(committed);
   if (lastCommitted !== committed) {
     setLastCommitted(committed);
-    setDraft(committed);
+    // Keep the text as typed when it stands for the committed value ("1, 2," for [1, 2]).
+    if (toText(parseValue(draft, type, operator)) !== committed) setDraft(committed);
   }
   const timer = React.useRef<ReturnType<typeof setTimeout>>(undefined);
   React.useEffect(() => () => clearTimeout(timer.current), []);
 
-  const commit = (nextOperator: string, raw: string) => {
-    const value = parseValue(raw, type);
+  const upsert = (nextOperator: string, value: unknown) => {
+    setChosenOperator(nextOperator);
     const opDef = operators.find((op) => op.value === nextOperator);
     const keep = value !== undefined || opDef?.requiresFilterValue === false;
     actions.upsertHeaderFilter(field, nextOperator, keep ? (value ?? null) : undefined);
+  };
+  const commit = (nextOperator: string, raw: string) => {
+    clearTimeout(timer.current);
+    upsert(nextOperator, parseValue(raw, type, nextOperator));
   };
   const onChange = (raw: string) => {
     setDraft(raw);
@@ -187,6 +214,7 @@ function HeaderFilterInput({ col }: { col: Col }) {
   };
 
   const [menuAnchor, setMenuAnchor] = React.useState<HTMLElement | null>(null);
+  const [selectOpen, setSelectOpen] = React.useState(false);
   const label = col.headerName ?? field;
   const t = (key: string) => {
     try {
@@ -195,12 +223,23 @@ function HeaderFilterInput({ col }: { col: Col }) {
       return key;
     }
   };
+  const operatorLabel = (op: GridFilterOperator | undefined, value: string) => {
+    if (op?.headerLabel) return op.headerLabel;
+    const headerKey = `headerFilterOperator${capitalize(value)}`;
+    const headerText = t(headerKey);
+    if (headerText !== headerKey) return headerText;
+    return capitalize(op?.label ?? t(`filterOperator${capitalize(value)}`));
+  };
+  const currentOperatorLabel = operatorLabel(operatorDef, operator);
   const stop = (e: React.SyntheticEvent) => e.stopPropagation();
   // Arrow keys move between the header filter row, the column headers and the rows, as in the
   // rest of the grid: Up to this column's header, Down to its first row, Left/Right to the
   // neighbouring filter once the caret is at the edge of the text.
   const onControlKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
     event.stopPropagation();
+    // The operator menu and the value list are portaled out of the cell, but React still bubbles
+    // their key events through here: their arrow keys belong to the list.
+    if (!event.currentTarget.contains(event.target as Node)) return;
     if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
     const api = apiRef.current;
     if (!api) return;
@@ -238,50 +277,128 @@ function HeaderFilterInput({ col }: { col: Col }) {
     }
   };
 
+  const isSelect = type === 'boolean' || type === 'singleSelect';
+  const multiple = operator === ANY_OF;
+  const options = isSelect ? selectOptions(col, type, t) : [];
+  const keyOf = (value: unknown) => {
+    const option = options.find((o) => o.value === value || o.key === String(value));
+    return option ? option.key : String(value);
+  };
+  const selectedKeys =
+    item?.value == null || item.value === ''
+      ? []
+      : (Array.isArray(item.value) ? item.value : [item.value]).map(keyOf);
+  const commitKeys = (nextOperator: string, keys: string[]) => {
+    const values = keys.map((key) => options.find((o) => o.key === key)?.value ?? key);
+    upsert(
+      nextOperator,
+      nextOperator === ANY_OF ? (values.length ? values : undefined) : values[0],
+    );
+  };
+  const changeOperator = (nextOperator: string) => {
+    if (isSelect) commitKeys(nextOperator, selectedKeys);
+    else commit(nextOperator, draft);
+  };
+
   let input: React.ReactNode;
-  if (type === 'boolean' || type === 'singleSelect') {
-    const options =
-      type === 'boolean'
-        ? [
-            { value: 'true', label: t('filterValueTrue') },
-            { value: 'false', label: t('filterValueFalse') },
-          ]
-        : normalizeOptions((col as { valueOptions?: unknown }).valueOptions);
+  if (isSelect) {
+    const labelOf = (key: string) => options.find((o) => o.key === key)?.label ?? key;
     input = (
-      <NativeSelect
-        value={draft}
-        disableUnderline
-        onChange={(e) => {
-          setDraft(e.target.value);
-          commit(operator, e.target.value);
+      <Select<string | string[]>
+        multiple={multiple}
+        displayEmpty
+        disabled={!needsValue}
+        value={multiple ? selectedKeys : (selectedKeys[0] ?? '')}
+        open={selectOpen}
+        onOpen={() => setSelectOpen(true)}
+        onClose={() => setSelectOpen(false)}
+        onChange={(event: SelectChangeEvent<string | string[]>) => {
+          const value = event.target.value;
+          commitKeys(operator, Array.isArray(value) ? value : value === '' ? [] : [value]);
         }}
+        renderValue={(value) => {
+          const keys = Array.isArray(value) ? value : value === '' ? [] : [value];
+          if (keys.length === 0)
+            return (
+              <span className="TectonDataGrid-headerFilterPlaceholder">
+                {capitalize(t('filterValueAny'))}
+              </span>
+            );
+          return keys.map(labelOf).join(', ');
+        }}
+        input={
+          <InputBase
+            className="TectonDataGrid-headerFilterInput"
+            sx={{ flex: 1, minWidth: 0, fontSize: 'inherit' }}
+          />
+        }
         inputProps={{ 'aria-label': `Filter ${label}` }}
-        className="TectonDataGrid-headerFilterInput"
-        sx={{ flex: 1, minWidth: 0, fontSize: 'inherit' }}
+        // Arrow Up/Down keep moving through the grid (see onControlKeyDown); Enter, Space or
+        // Alt+Arrow open the list, Escape clears the value.
+        SelectDisplayProps={
+          {
+            onKeyDown: (event: React.KeyboardEvent<HTMLDivElement>) => {
+              const opens =
+                event.key === 'Enter' ||
+                event.key === ' ' ||
+                (event.altKey && (event.key === 'ArrowDown' || event.key === 'ArrowUp'));
+              if (opens) {
+                event.preventDefault();
+                event.stopPropagation();
+                setSelectOpen(true);
+              } else if (event.key === 'Escape' && selectedKeys.length) {
+                event.stopPropagation();
+                commitKeys(operator, []);
+              }
+            },
+          } as React.HTMLAttributes<HTMLDivElement>
+        }
       >
-        <option value="">{t('filterValueAny')}</option>
+        {multiple ? null : (
+          <MenuItem value="">
+            <ListItemText>{capitalize(t('filterValueAny'))}</ListItemText>
+          </MenuItem>
+        )}
         {options.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
+          <MenuItem key={o.key} value={o.key}>
+            {multiple ? (
+              // The option itself carries aria-selected; the box is only its picture.
+              <Checkbox
+                size="small"
+                tabIndex={-1}
+                checked={selectedKeys.includes(o.key)}
+                slotProps={{ input: { 'aria-hidden': true } as never }}
+              />
+            ) : null}
+            <ListItemText>{o.label}</ListItemText>
+          </MenuItem>
         ))}
-      </NativeSelect>
+      </Select>
     );
   } else {
+    const textOnly = multiple || !needsValue;
     input = (
       <InputBase
         value={needsValue ? draft : ''}
         disabled={!needsValue}
         type={
-          type === 'number'
-            ? 'number'
-            : type === 'date'
-              ? 'date'
-              : type === 'dateTime'
-                ? 'datetime-local'
-                : 'text'
+          textOnly
+            ? 'text'
+            : type === 'number'
+              ? 'number'
+              : type === 'date'
+                ? 'date'
+                : type === 'dateTime'
+                  ? 'datetime-local'
+                  : 'text'
         }
-        placeholder={needsValue ? `${t('filterPanelInputPlaceholder')}…`.replace('……', '…') : ''}
+        placeholder={
+          !needsValue
+            ? ''
+            : multiple
+              ? 'Values, comma-separated'
+              : `${t('filterPanelInputPlaceholder')}…`.replace('……', '…')
+        }
         inputProps={{ 'aria-label': `Filter ${label}` }}
         slotProps={{ input: { sx: PLACEHOLDER_SX } as never }}
         onChange={(e) => onChange(e.target.value)}
@@ -290,10 +407,7 @@ function HeaderFilterInput({ col }: { col: Col }) {
             setDraft('');
             commit(operator, '');
           }
-          if (e.key === 'Enter') {
-            clearTimeout(timer.current);
-            commit(operator, draft);
-          }
+          if (e.key === 'Enter') commit(operator, draft);
         }}
         className="TectonDataGrid-headerFilterInput"
         sx={{ flex: 1, minWidth: 0, fontSize: 'inherit' }}
@@ -301,6 +415,7 @@ function HeaderFilterInput({ col }: { col: Col }) {
     );
   }
 
+  const hasValue = isSelect ? selectedKeys.length > 0 : draft !== '';
   return (
     <div
       className="TectonDataGrid-headerFilterControl"
@@ -310,47 +425,53 @@ function HeaderFilterInput({ col }: { col: Col }) {
     >
       {operators.length > 1 ? (
         <>
-          <Tooltip title={t(`filterOperator${capitalize(operator)}`)}>
+          <Tooltip title={currentOperatorLabel}>
             <IconButton
               size="small"
               className="TectonDataGrid-headerFilterOperator"
-              aria-label={`${label} filter operator: ${t(`filterOperator${capitalize(operator)}`)}`}
+              aria-label={`${label} filter operator: ${currentOperatorLabel}`}
               aria-haspopup="menu"
+              aria-expanded={menuAnchor ? 'true' : undefined}
               onClick={(e) => setMenuAnchor(e.currentTarget)}
             >
               <span aria-hidden>{OPERATOR_GLYPH[operator] ?? '≈'}</span>
             </IconButton>
           </Tooltip>
-          <Menu anchorEl={menuAnchor} open={!!menuAnchor} onClose={() => setMenuAnchor(null)}>
+          <Menu
+            anchorEl={menuAnchor}
+            open={!!menuAnchor}
+            onClose={() => setMenuAnchor(null)}
+            slotProps={{ list: { 'aria-label': `${label} filter operator` } }}
+          >
             {operators.map((op) => (
               <MenuItem
                 key={op.value}
                 selected={op.value === operator}
                 onClick={() => {
                   setMenuAnchor(null);
-                  commit(op.value, draft);
+                  changeOperator(op.value);
                 }}
               >
-                <span className="TectonDataGrid-operatorGlyph" aria-hidden>
+                <ListItemIcon className="TectonDataGrid-operatorGlyph" aria-hidden>
                   {OPERATOR_GLYPH[op.value] ?? ''}
-                </span>
-                <ListItemText>
-                  {op.label ?? t(`filterOperator${capitalize(op.value)}`)}
-                </ListItemText>
+                </ListItemIcon>
+                <ListItemText>{operatorLabel(op, op.value)}</ListItemText>
               </MenuItem>
             ))}
           </Menu>
         </>
       ) : null}
       {input}
-      {item && (draft !== '' || !needsValue) ? (
+      {item && (hasValue || !needsValue) ? (
         <IconButton
           size="small"
           aria-label={`Clear ${label} filter`}
           className="TectonDataGrid-headerFilterClear"
           onClick={() => {
+            clearTimeout(timer.current);
             setDraft('');
-            actions.upsertHeaderFilter(field, DEFAULT_OPERATOR[type] ?? operator, undefined);
+            setChosenOperator(null);
+            actions.upsertHeaderFilter(field, defaultOperator, undefined);
           }}
         >
           <Icon name="close-small" />
@@ -360,16 +481,45 @@ function HeaderFilterInput({ col }: { col: Col }) {
   );
 }
 
-function normalizeOptions(options: unknown): Array<{ value: string; label: string }> {
-  if (!Array.isArray(options)) return [];
-  return options.map((o) =>
-    typeof o === 'object' && o !== null
-      ? {
-          value: String((o as { value: unknown }).value),
-          label: String((o as { label?: unknown }).label ?? (o as { value: unknown }).value),
-        }
-      : { value: String(o), label: String(o) },
-  );
+interface SelectOption {
+  /** String form used by the Select. */
+  key: string;
+  /** The value written to the filter model (the option's own value, so `is` compares it as is). */
+  value: unknown;
+  label: string;
+}
+
+function selectOptions(col: Col, type: string, t: (key: string) => string): SelectOption[] {
+  if (type === 'boolean')
+    return [
+      { key: 'true', value: 'true', label: capitalize(t('filterValueTrue')) },
+      { key: 'false', value: 'false', label: capitalize(t('filterValueFalse')) },
+    ];
+  const def = col as Col & {
+    valueOptions?: unknown;
+    getOptionValue?: (option: unknown) => unknown;
+    getOptionLabel?: (option: unknown) => string;
+  };
+  const raw =
+    typeof def.valueOptions === 'function'
+      ? (def.valueOptions as (params: { field: string }) => unknown)({ field: col.field })
+      : def.valueOptions;
+  if (!Array.isArray(raw)) return [];
+  const isObject = (o: unknown): o is { value?: unknown; label?: unknown } =>
+    typeof o === 'object' && o !== null;
+  return raw.map((option) => {
+    const value = def.getOptionValue
+      ? def.getOptionValue(option)
+      : isObject(option)
+        ? option.value
+        : option;
+    const label = def.getOptionLabel
+      ? def.getOptionLabel(option)
+      : isObject(option)
+        ? (option.label ?? option.value)
+        : option;
+    return { key: String(value), value, label: String(label) };
+  });
 }
 
 /**
@@ -383,19 +533,22 @@ export function toDateInput(d: Date, withTime = false): string {
   return withTime ? `${date}T${pad(d.getHours())}:${pad(d.getMinutes())}` : date;
 }
 
-function parseValue(raw: string, type: string): unknown {
-  if (raw === '') return undefined;
-  switch (type) {
-    case 'number': {
-      const n = Number(raw);
-      return Number.isNaN(n) ? undefined : n;
-    }
-    case 'date':
-    case 'dateTime':
-      return raw;
-    default:
-      return raw;
+/** Text input -> filter value. `isAnyOf` takes comma-separated values. */
+function parseValue(raw: string, type: string, operator: string): unknown {
+  if (operator === ANY_OF) {
+    const parts = raw
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const values = type === 'number' ? parts.map(Number).filter((n) => !Number.isNaN(n)) : parts;
+    return values.length ? values : undefined;
   }
+  if (raw === '') return undefined;
+  if (type === 'number') {
+    const n = Number(raw);
+    return Number.isNaN(n) ? undefined : n;
+  }
+  return raw;
 }
 
 /** Header filter items have the reserved id prefix. */

@@ -356,6 +356,9 @@ function DataGridInner<R extends GridValidRowModel>(
     for (const col of columnsProp) map[col.field] = resolveColumn(col);
     return map;
   }, [columnsProp]);
+  /** Whether a column may be reordered (system columns and `disableReorder` columns may not). */
+  const canMoveColumn = (field: string) =>
+    !field.startsWith('__') && !!lookup[field] && !lookup[field]?.disableReorder;
 
   // ---------------------------------------------------------------- server data
   const ds = useDataSource<R>({
@@ -733,11 +736,7 @@ function DataGridInner<R extends GridValidRowModel>(
           return { left, right };
         }),
       moveColumn: (field, delta) => {
-        const order = columnOrderRef.current;
-        const index = order.indexOf(field);
-        const target = order[index + delta];
-        if (index < 0 || target === undefined) return;
-        reorderColumns(field, target, delta > 0);
+        moveColumnBy(field, delta);
       },
       toggleRowGrouping: (field) =>
         setRowGroupingModel((m) =>
@@ -764,6 +763,17 @@ function DataGridInner<R extends GridValidRowModel>(
   const columnOrderRef = useLatest(columnOrder);
 
   const reorderColumns = useEventCallback((field: string, targetField: string, after: boolean) => {
+    // Pinned sections keep the order of their pinned list, not the column order.
+    for (const side of ['left', 'right'] as const) {
+      const list = pinnedColumns[side] ?? [];
+      if (!list.includes(field)) continue;
+      if (list.includes(targetField))
+        setPinnedColumns((p) => ({
+          ...p,
+          [side]: moveField(p[side] ?? [], field, targetField, after),
+        }));
+      return;
+    }
     const before = columnOrderRef.current;
     const next = moveField(before, field, targetField, after);
     setColumnOrderState(next);
@@ -772,6 +782,19 @@ function DataGridInner<R extends GridValidRowModel>(
       oldIndex: before.indexOf(field),
       targetIndex: next.indexOf(field),
     });
+  });
+  /** Moves a column one place among the visible columns of its section (column menu, Alt+Arrow). */
+  const moveColumnBy = useEventCallback((field: string, delta: number): boolean => {
+    if (disableColumnReorder || !canMoveColumn(field)) return false;
+    const sectionOf = columnSection(pinnedNormalized);
+    const section = sectionOf(field);
+    const fields = (apiRef.current?.getVisibleColumns() ?? [])
+      .map((c) => c.field)
+      .filter((f) => sectionOf(f) === section);
+    const target = fields[fields.indexOf(field) + delta];
+    if (!fields.includes(field) || target === undefined || !canMoveColumn(target)) return false;
+    reorderColumns(field, target, delta > 0);
+    return true;
   });
 
   const moveRowTo = useEventCallback((id: GridRowId, targetId: GridRowId, after: boolean) => {
@@ -966,14 +989,8 @@ function DataGridInner<R extends GridValidRowModel>(
   const suppressHeaderClick = useColumnReorder({
     enabled: !disableColumnReorder,
     rootRef,
-    canMove: (field) =>
-      !field.startsWith('__') && !lookup[field]?.disableReorder && !!lookup[field],
-    sectionOf: (field) =>
-      pinnedNormalized.left.includes(field)
-        ? 'left'
-        : pinnedNormalized.right.includes(field)
-          ? 'right'
-          : 'center',
+    canMove: canMoveColumn,
+    sectionOf: columnSection(pinnedNormalized),
     // All visible columns, not only the headers column virtualization has rendered.
     columnLayout: () =>
       apiRef.current
@@ -1028,6 +1045,7 @@ function DataGridInner<R extends GridValidRowModel>(
     pageRows: () => pageRowsRef.current,
     isDetailRow,
     getRowId: getRowId as (row: object) => GridRowId,
+    moveColumn: moveColumnBy,
   });
   const visibleRowIds = () => pageRowsRef.current.filter((r) => !getSynthetic(r)).map(getRowId);
   const visibleFields = () =>
@@ -1733,6 +1751,9 @@ const BASE_SX = {
     '&:hover': { backgroundColor: cssVar('color-input-filled-bg-hover') },
     '&:focus-within': { boxShadow: `inset 0 0 0 1px ${cssVar('color-focus-ring')}` },
   },
+  '& .TectonDataGrid-headerFilterPlaceholder': {
+    color: cssVar('color-input-filled-text-placeholder'),
+  },
   '& .TectonDataGrid-headerFilterOperator, & .TectonDataGrid-headerFilterClear': {
     width: cssVar('space-300'),
     height: cssVar('space-300'),
@@ -1750,13 +1771,20 @@ const BASE_SX = {
   '& .MuiDataGrid-columnHeader:has(.TectonDataGrid-sortedMarker) .MuiDataGrid-sortButton': {
     opacity: 1,
   },
-  // Multi-sort priority: a small count on the arrow's top end corner. The theme Badge offsets
-  // (-10px / -11px) are drawn for 32px icon buttons and would lift the number above the header
-  // text of the small sort button.
-  '& .MuiDataGrid-iconButtonContainer .MuiBadge-root': { display: 'inline-flex' },
+  // Multi-sort priority: a small filled count on the arrow's top end corner (Community renders it
+  // as a `default` badge, which Tecton leaves unfilled). The fill is the primary badge's
+  // (action-bold), which stands off the header in both modes; the count is inverse text, since the
+  // badge contrast text is dark in both modes and unreadable on the light-mode fill. The theme
+  // Badge offsets (-10px / -11px) are drawn for 32px icon buttons and would lift the number above
+  // the header text of the small sort button. The margin keeps the count's overhang off the title
+  // of end-aligned (number) headers.
+  '& .MuiDataGrid-iconButtonContainer .MuiBadge-root': {
+    display: 'inline-flex',
+    marginRight: cssVar('space-75'),
+  },
   '& .MuiDataGrid-iconButtonContainer .MuiBadge-badge': {
-    top: 0,
-    right: 0,
+    top: -2,
+    right: -4,
     transform: 'none',
     height: 14,
     minWidth: 14,
@@ -1764,8 +1792,8 @@ const BASE_SX = {
     fontSize: cssVar('font-size-tiny'),
     lineHeight: '14px',
     fontWeight: cssVar('font-weight-medium-strong'),
-    color: cssVar('color-action-tertiary-text-active'),
-    backgroundColor: cssVar('color-table-header-bg'),
+    color: cssVar('color-text-inverse'),
+    backgroundColor: cssVar('color-action-bold'),
     pointerEvents: 'none',
   },
   // Tecton rows are opaque (zebra/hover/selected); pinned cells follow the row instead of a flat color.
@@ -1796,6 +1824,11 @@ const BASE_SX = {
     color: cssVar('color-text-disabled'),
   },
 };
+
+/** Pinned section of a field: columns move only within their section. */
+const columnSection =
+  (pinned: { left: readonly string[]; right: readonly string[] }) => (field: string) =>
+    pinned.left.includes(field) ? 'left' : pinned.right.includes(field) ? 'right' : 'center';
 
 function parseByType(text: string, type: GridColDef['type']): unknown {
   const value = text.trim();

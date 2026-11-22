@@ -143,8 +143,10 @@ for (const mode of ['light', 'dark'] as const) {
       await expect(
         root.locator('[data-field="producing"] [role="img"][aria-label]').first(),
       ).toHaveAttribute('aria-label', /^(yes|no)$/);
-      // The boolean header filter is a NativeSelect: Tecton chevron, not the Material triangle.
-      const select = root.locator('.TectonDataGrid-headerFilterRow .MuiNativeSelect-icon');
+      // The boolean header filter is a Tecton Select (no native <select>): Tecton chevron, not
+      // the Material triangle.
+      await expect(root.locator('.TectonDataGrid-headerFilterRow select')).toHaveCount(0);
+      const select = root.locator('.TectonDataGrid-headerFilterRow .MuiSelect-icon');
       await expect(select).toHaveCount(1);
       expect(await select.evaluate((e) => e.tagName)).toBe('SPAN');
     });
