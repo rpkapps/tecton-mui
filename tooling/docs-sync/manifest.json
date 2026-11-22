@@ -74,13 +74,53 @@
             "reason": "Docs icons are Tecton <span> elements, not <svg>: show the check on the focused option."
           }
         ]
+      },
+      "demoColors": {
+        "GitHubLabel": {
+          "#7057ff": "keep",
+          "#008672": "keep",
+          "#b60205": "keep",
+          "#d93f0b": "keep",
+          "#0e8a16": "keep",
+          "#fbca04": "keep",
+          "#fec1c1": "keep",
+          "#215cea": "keep",
+          "#cfd3d7": "keep",
+          "#fef2c0": "keep",
+          "#eeeeee": "keep",
+          "#d73a4a": "keep",
+          "#d4c5f9": "keep",
+          "#006b75": "keep",
+          "#84b6eb": "keep",
+          "#3e4b9e": "keep",
+          "#d876e3": "keep"
+        }
       }
     },
     {
       "package": "@mui/material",
       "source": "docs/data/material/components/buttons/buttons.md",
       "status": "included",
-      "target": "buttons"
+      "target": "buttons",
+      "demoEdits": {
+        "CustomizedButtons": [
+          {
+            "find": "import { styled } from '@tecton-mui/ui/styles';\n",
+            "replace": "import { cssVar, styled } from '@tecton-mui/ui/styles';\n",
+            "reason": "Tecton colors come from tokens (cssVar)."
+          },
+          {
+            "find": "import { purple } from '@tecton-mui/ui/colors';\n",
+            "replace": "",
+            "reason": "The Material color palette is not part of the Tecton design."
+          },
+          {
+            "find": "  color: theme.palette.getContrastText(purple[500]),\n  backgroundColor: purple[500],\n  '&:hover': {\n    backgroundColor: purple[700],\n  },",
+            "replace": "  color: cssVar('color-action-primary-text'),\n  backgroundColor: cssVar('color-action-primary-bg'),\n  '&:hover': {\n    backgroundColor: cssVar('color-action-primary-bg-hover'),\n  },",
+            "reason": "The custom-colored button uses the Tecton primary action tokens instead of Material purple (getContrastText cannot read a CSS variable)."
+          }
+        ]
+      }
     },
     {
       "package": "@mui/material",
@@ -426,6 +466,11 @@
             "find": "        <Paper elevation={0} sx={{ maxWidth: 256 }}>",
             "replace": "        <Paper elevation={0} sx={{ maxWidth: 256 }} data-theme=\"dark\">",
             "reason": "Tecton styles read CSS variables scoped by data-theme; a nested ThemeProvider with another palette mode also needs data-theme on its section, or Tecton surfaces keep the page's mode."
+          },
+          {
+            "find": "            mode: 'dark',\n            primary: { main: 'rgb(102, 157, 246)' },\n            background: { paper: 'rgb(5, 30, 52)' },\n",
+            "replace": "            mode: 'dark',\n",
+            "reason": "The dark navigation uses the Tecton dark palette instead of a custom blue palette (MUI derives palette colors and cannot take CSS variables there)."
           }
         ]
       }
@@ -541,6 +586,13 @@
             "replace": "            size={24}\n            sx={{\n              color: 'success.main',",
             "reason": "The success state uses the Tecton success palette instead of Material green."
           }
+        ],
+        "CustomizedProgressBars": [
+          {
+            "find": "            <stop offset=\"0%\" stopColor=\"#e01cd5\" />\n            <stop offset=\"100%\" stopColor=\"#1CB5E0\" />",
+            "replace": "            <stop offset=\"0%\" style={{ stopColor: cssVar('color-accent-pink-fill') }} />\n            <stop offset=\"100%\" style={{ stopColor: cssVar('color-accent-azure-fill') }} />",
+            "reason": "The gradient uses Tecton accent tokens; SVG presentation attributes do not resolve CSS variables, so the colors move to style."
+          }
         ]
       }
     },
@@ -616,7 +668,21 @@
       "package": "@mui/material",
       "source": "docs/data/material/components/breadcrumbs/breadcrumbs.md",
       "status": "included",
-      "target": "breadcrumbs"
+      "target": "breadcrumbs",
+      "demoEdits": {
+        "CustomizedBreadcrumbs": [
+          {
+            "find": "import { emphasize, styled } from '@tecton-mui/ui/styles';\n",
+            "replace": "import { cssVar, styled } from '@tecton-mui/ui/styles';\n",
+            "reason": "Tecton colors come from tokens (cssVar); emphasize() cannot read a CSS variable."
+          },
+          {
+            "find": "    backgroundColor: theme.palette.grey[100],\n    height: theme.spacing(3),\n    color: (theme.vars || theme).palette.text.primary,\n    fontWeight: theme.typography.fontWeightRegular,\n    '&:hover, &:focus': {\n      backgroundColor: emphasize(theme.palette.grey[100], 0.06),\n      ...theme.applyStyles('dark', {\n        backgroundColor: emphasize(theme.palette.grey[800], 0.06),\n      }),\n    },\n    '&:active': {\n      boxShadow: theme.shadows[1],\n      backgroundColor: emphasize(theme.palette.grey[100], 0.12),\n      ...theme.applyStyles('dark', {\n        backgroundColor: emphasize(theme.palette.grey[800], 0.12),\n      }),\n    },\n    ...theme.applyStyles('dark', {\n      backgroundColor: theme.palette.grey[800],\n    }),",
+            "replace": "    backgroundColor: cssVar('color-action-secondary-bg'),\n    height: theme.spacing(3),\n    color: (theme.vars || theme).palette.text.primary,\n    fontWeight: theme.typography.fontWeightRegular,\n    '&:hover, &:focus': {\n      backgroundColor: cssVar('color-action-secondary-bg-hover'),\n    },\n    '&:active': {\n      boxShadow: theme.shadows[1],\n      backgroundColor: cssVar('color-action-secondary-bg-press'),\n    },",
+            "reason": "The chip breadcrumbs use the Tecton secondary action tokens (which switch with the mode) instead of the Material grey scale."
+          }
+        ]
+      }
     },
     {
       "package": "@mui/material",
@@ -763,6 +829,13 @@
             "reason": "The info button uses the title bar's text color (`common.white`, like the ImageListItemBar title) instead of a hard-coded translucent white; `color=\"inherit\"` left the Tecton icon button's dark icon color."
           }
         ]
+      },
+      "demoColors": {
+        "CustomImageList": {
+          "rgba(0,0,0,0.7)": "keep",
+          "rgba(0,0,0,0.3)": "keep",
+          "rgba(0,0,0,0)": "keep"
+        }
       }
     },
     {

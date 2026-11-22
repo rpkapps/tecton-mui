@@ -6,14 +6,14 @@ import useAutocomplete, {
 } from '@tecton-mui/ui/useAutocomplete';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
-import { styled } from '@tecton-mui/ui/styles';
+import { cssVar, styled } from '@tecton-mui/ui/styles';
 import { autocompleteClasses } from '@tecton-mui/ui/Autocomplete';
 
 const Root = styled('div')(({ theme }) => ({
-  color: 'rgba(0,0,0,0.85)',
+  color: cssVar('color-text-primary'),
   fontSize: '14px',
   ...theme.applyStyles('dark', {
-    color: 'rgba(255,255,255,0.65)',
+    color: cssVar('color-text-primary'),
   }),
 }));
 
@@ -25,32 +25,32 @@ const Label = styled('label')`
 
 const InputWrapper = styled('div')(({ theme }) => ({
   width: '300px',
-  border: '1px solid #d9d9d9',
-  backgroundColor: '#fff',
+  border: '1px solid var(--tecton-color-divider-subtle)',
+  backgroundColor: cssVar('color-bg-paper'),
   borderRadius: '4px',
   padding: '1px',
   display: 'flex',
   flexWrap: 'wrap',
   ...theme.applyStyles('dark', {
-    borderColor: '#434343',
-    backgroundColor: '#141414',
+    borderColor: cssVar('color-divider'),
+    backgroundColor: cssVar('color-bg-paper'),
   }),
   '&:hover': {
-    borderColor: '#40a9ff',
+    borderColor: cssVar('color-action-outlined-border-focus'),
     ...theme.applyStyles('dark', {
-      borderColor: '#177ddc',
+      borderColor: cssVar('color-action-outlined-border-focus'),
     }),
   },
   '&.focused': {
-    borderColor: '#40a9ff',
-    boxShadow: '0 0 0 2px rgb(24 144 255 / 0.2)',
+    borderColor: cssVar('color-action-outlined-border-focus'),
+    boxShadow: '0 0 0 2px color-mix(in srgb, var(--tecton-color-focus-ring) 20%, transparent)',
     ...theme.applyStyles('dark', {
-      borderColor: '#177ddc',
+      borderColor: cssVar('color-action-outlined-border-focus'),
     }),
   },
   '& input': {
-    backgroundColor: '#fff',
-    color: 'rgba(0,0,0,.85)',
+    backgroundColor: cssVar('color-bg-paper'),
+    color: cssVar('color-text-primary'),
     height: '30px',
     boxSizing: 'border-box',
     padding: '4px 6px',
@@ -61,8 +61,8 @@ const InputWrapper = styled('div')(({ theme }) => ({
     margin: 0,
     outline: 0,
     ...theme.applyStyles('dark', {
-      color: 'rgba(255,255,255,0.65)',
-      backgroundColor: '#141414',
+      color: cssVar('color-text-primary'),
+      backgroundColor: cssVar('color-bg-paper'),
     }),
   },
 }));
@@ -87,23 +87,23 @@ const StyledItem = styled(Item)<ItemProps>(({ theme }) => ({
   height: '24px',
   margin: '2px',
   lineHeight: '22px',
-  backgroundColor: '#fafafa',
-  border: `1px solid #e8e8e8`,
+  backgroundColor: cssVar('color-bg-paper'),
+  border: `1px solid var(--tecton-color-divider-subtle)`,
   borderRadius: '2px',
   boxSizing: 'content-box',
   padding: '0 4px 0 10px',
   outline: 0,
   overflow: 'hidden',
   ...theme.applyStyles('dark', {
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    borderColor: '#303030',
+    backgroundColor: cssVar('color-content-bg-hover'),
+    borderColor: cssVar('color-divider-subtle'),
   }),
   '&:focus': {
-    borderColor: '#40a9ff',
-    backgroundColor: '#e6f7ff',
+    borderColor: cssVar('color-action-outlined-border-focus'),
+    backgroundColor: cssVar('color-action-secondary-bg'),
     ...theme.applyStyles('dark', {
-      backgroundColor: '#003b57',
-      borderColor: '#177ddc',
+      backgroundColor: cssVar('color-action-secondary-bg'),
+      borderColor: cssVar('color-action-outlined-border-focus'),
     }),
   },
   '& span:not(.TectonIcon-root)': {
@@ -124,14 +124,14 @@ const Listbox = styled('ul')(({ theme }) => ({
   padding: 0,
   position: 'absolute',
   listStyle: 'none',
-  backgroundColor: '#fff',
+  backgroundColor: cssVar('color-bg-paper'),
   overflow: 'auto',
   maxHeight: '250px',
   borderRadius: '4px',
   boxShadow: '0 2px 8px rgb(0 0 0 / 0.15)',
   zIndex: 1,
   ...theme.applyStyles('dark', {
-    backgroundColor: '#141414',
+    backgroundColor: cssVar('color-bg-paper'),
   }),
   '& li': {
     padding: '5px 12px',
@@ -144,20 +144,20 @@ const Listbox = styled('ul')(({ theme }) => ({
     },
   },
   "& li[aria-selected='true']": {
-    backgroundColor: '#fafafa',
+    backgroundColor: cssVar('color-bg-paper'),
     fontWeight: 600,
     ...theme.applyStyles('dark', {
-      backgroundColor: '#2b2b2b',
+      backgroundColor: cssVar('color-bg-paper'),
     }),
     '& svg, & .TectonIcon-root': {
-      color: '#1890ff',
+      color: cssVar('color-action-outlined-text'),
     },
   },
   [`& li.${autocompleteClasses.focused}`]: {
-    backgroundColor: '#e6f7ff',
+    backgroundColor: cssVar('color-action-secondary-bg'),
     cursor: 'pointer',
     ...theme.applyStyles('dark', {
-      backgroundColor: '#003b57',
+      backgroundColor: cssVar('color-action-secondary-bg'),
     }),
     '& svg, & .TectonIcon-root': {
       color: 'currentColor',
