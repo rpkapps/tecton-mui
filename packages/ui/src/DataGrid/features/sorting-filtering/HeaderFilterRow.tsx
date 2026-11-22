@@ -12,19 +12,14 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Select, { type SelectChangeEvent } from '@mui/material/Select';
 import Tooltip from '@mui/material/Tooltip';
-import {
-  useGridApiContext,
-  type GridColDef,
-  type GridFilterItem,
-  type GridFilterOperator,
-} from '@mui/x-data-grid';
+import { useGridApiContext, type GridColDef, type GridFilterOperator } from '@mui/x-data-grid';
 import Icon from '../../../Icon/Icon.js';
 import { cssVar } from '../../../styles/tecton/index.js';
 import { useStoreSelector } from '../../core/store.js';
 import { useGridAdvanced, type DerivedState } from '../../core/context.js';
+import { isActiveFilterItem } from './filtering.js';
 
 export const HEADER_FILTER_DEBOUNCE_MS = 300;
-export const HEADER_FILTER_ID_PREFIX = 'header-filter-';
 
 const DEFAULT_OPERATOR: Record<string, string> = {
   string: 'contains',
@@ -156,10 +151,11 @@ function HeaderFilterInput({ col }: { col: Col }) {
   const { derived, actions } = useGridAdvanced();
   const apiRef = useGridApiContext();
   const field = col.field;
-  const id = `${HEADER_FILTER_ID_PREFIX}${field}`;
+  // The header filter shows and edits the column's first condition, wherever it was made (here, in
+  // the filter panel or through the API), so the row and the panel stay in step.
   const selectItem = React.useCallback(
-    (s: DerivedState) => s.filterModel.items.find((i) => i.id === id),
-    [id],
+    (s: DerivedState) => s.filterModel.items.find((i) => i.field === field),
+    [field],
   );
   const item = useStoreSelector(derived, selectItem);
   const type = col.type ?? 'string';
@@ -170,7 +166,7 @@ function HeaderFilterInput({ col }: { col: Col }) {
     ? DEFAULT_OPERATOR[type]
     : (operators[0]?.value ?? 'contains');
   // The operator picked here. It applies once there is a value, and stays when the value is
-  // cleared; the filter model only holds conditions that filter.
+  // cleared; the header adds no condition to the model until it filters.
   const [chosenOperator, setChosenOperator] = React.useState<string | null>(null);
   const operator =
     item?.operator ?? (isOperator(chosenOperator) ? chosenOperator : defaultOperator);
@@ -200,8 +196,14 @@ function HeaderFilterInput({ col }: { col: Col }) {
   const upsert = (nextOperator: string, value: unknown) => {
     setChosenOperator(nextOperator);
     const opDef = operators.find((op) => op.value === nextOperator);
-    const keep = value !== undefined || opDef?.requiresFilterValue === false;
-    actions.upsertHeaderFilter(field, nextOperator, keep ? (value ?? null) : undefined);
+    const filters = value !== undefined || opDef?.requiresFilterValue === false;
+    actions.updateHeaderFilter(field, (current) => {
+      if (filters) return { ...current, field, operator: nextOperator, value: value ?? null };
+      // No value: a condition that was filtering goes; one still being set up (added in the filter
+      // panel, no value yet) stays and takes the new operator.
+      if (!current) return null;
+      return isActiveFilterItem(current, col) ? null : { ...current, operator: nextOperator };
+    });
   };
   const commit = (nextOperator: string, raw: string) => {
     clearTimeout(timer.current);
@@ -471,7 +473,7 @@ function HeaderFilterInput({ col }: { col: Col }) {
             clearTimeout(timer.current);
             setDraft('');
             setChosenOperator(null);
-            actions.upsertHeaderFilter(field, defaultOperator, undefined);
+            actions.updateHeaderFilter(field, () => null);
           }}
         >
           <Icon name="close-small" />
@@ -550,7 +552,3 @@ function parseValue(raw: string, type: string, operator: string): unknown {
   }
   return raw;
 }
-
-/** Header filter items have the reserved id prefix. */
-export const isHeaderFilterItem = (item: GridFilterItem) =>
-  String(item.id ?? '').startsWith(HEADER_FILTER_ID_PREFIX);

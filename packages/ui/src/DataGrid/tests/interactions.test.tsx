@@ -134,6 +134,24 @@ describe('DataGrid filter panel', () => {
     await waitFor(() => expect(cellsOf('name')).toEqual(['Ada', 'Bob', 'Cy']));
   });
 
+  it('without conditions shows only its actions and keeps the focus on Add filter', async () => {
+    let api!: ReturnType<typeof useGridApiRef>;
+    render(<Harness onApi={(a) => (api = a)} disableMultipleColumnsFiltering />);
+    await act(async () => api.current!.showFilterPanel());
+    const removeAll = await screen.findByRole('button', { name: 'Remove all' });
+    removeAll.focus();
+    fireEvent.click(removeAll);
+    const panel = document.querySelector('.TectonDataGrid-filterPanel')!;
+    await waitFor(() => expect(panel.querySelector('.MuiDataGrid-filterForm')).toBeNull());
+    // No empty list above the actions.
+    expect(panel.children).toHaveLength(1);
+    // With one condition allowed, "Add filter" still adds the first one.
+    const add = screen.getByRole('button', { name: 'Add filter' });
+    await waitFor(() => expect(add).toHaveFocus());
+    fireEvent.click(add);
+    expect(await screen.findAllByRole('textbox', { name: /value/i })).toHaveLength(1);
+  });
+
   it('merges filters started from the Community column menu', async () => {
     let api!: ReturnType<typeof useGridApiRef>;
     const onFilterModelChange = vi.fn();
@@ -311,6 +329,63 @@ describe('DataGrid header filters', () => {
     { field: 'dept', headerName: 'Dept', type: 'singleSelect', valueOptions: ['Eng', 'Ops'] },
     { field: 'salary', headerName: 'Salary', type: 'number' },
   ];
+
+  it('shares conditions with the filter panel', async () => {
+    let api!: ReturnType<typeof useGridApiRef>;
+    render(<Harness onApi={(a) => (api = a)} headerFilters />);
+    const nameFilter = () => screen.getByRole('textbox', { name: 'Filter Name' });
+    fireEvent.change(nameFilter(), { target: { value: 'a' } });
+    await waitFor(() => expect(cellsOf('name')).toEqual(['Ada']));
+    // The header's condition is in the panel, and opening the panel adds no second one.
+    await act(async () => api.current!.showFilterPanel());
+    const values = await screen.findAllByRole('textbox', { name: /value/i });
+    expect(values).toHaveLength(1);
+    expect(values[0]).toHaveValue('a');
+    // Editing it in the panel updates the header filter.
+    fireEvent.change(values[0], { target: { value: 'b' } });
+    await waitFor(() => expect(nameFilter()).toHaveValue('b'));
+    expect(cellsOf('name')).toEqual(['Bob']);
+    // "Remove all" clears the header filters too.
+    fireEvent.click(screen.getByRole('button', { name: 'Remove all' }));
+    await waitFor(() => expect(cellsOf('name')).toEqual(['Ada', 'Bob', 'Cy']));
+    expect(nameFilter()).toHaveValue('');
+  });
+
+  it('shows a condition set up in the panel and keeps it when only the operator changes', async () => {
+    let api!: ReturnType<typeof useGridApiRef>;
+    const onFilterModelChange = vi.fn();
+    render(
+      <Harness
+        onApi={(a) => (api = a)}
+        headerFilters
+        onFilterModelChange={onFilterModelChange}
+        initialState={{
+          filter: {
+            filterModel: { items: [{ id: 'p', field: 'salary', operator: '>', value: 150 }] },
+          },
+        }}
+      />,
+    );
+    // A condition made elsewhere shows in its column's header filter.
+    expect(screen.getByRole('spinbutton', { name: 'Filter Salary' })).toHaveValue(150);
+    expect(
+      screen.getByRole('button', { name: 'Salary filter operator: Greater than' }),
+    ).toBeInTheDocument();
+    // "Add filter" in the panel adds a condition with no value yet for Name. Picking another
+    // operator in the Name header updates that condition instead of dropping it.
+    await act(async () => api.current!.showFilterPanel());
+    fireEvent.click(await screen.findByRole('button', { name: 'Add filter' }));
+    expect(onFilterModelChange.mock.lastCall![0].items[1]).toMatchObject({
+      field: 'name',
+      operator: 'contains',
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Name filter operator: Contains' }));
+    fireEvent.click(await screen.findByRole('menuitem', { name: 'Equals' }));
+    expect(onFilterModelChange.mock.lastCall![0].items).toEqual([
+      expect.objectContaining({ field: 'salary', operator: '>', value: 150 }),
+      expect.objectContaining({ field: 'name', operator: 'equals' }),
+    ]);
+  });
 
   it('names operators in words and keeps one picked before there is a value', async () => {
     render(<Harness headerFilters />);

@@ -10,6 +10,7 @@ import {
   useGridApiRef,
   type GridColDef,
   type GridColumnVisibilityModel,
+  type GridFilterItem,
   type GridFilterModel,
   type GridPaginationModel,
   type GridRowId,
@@ -720,11 +721,16 @@ function DataGridInner<R extends GridValidRowModel>(
       setPageSize: (size) => setPaginationModel(() => ({ page: 0, pageSize: size })),
       setSortModel: (m) => setSortModel(m),
       setFilterModel: (m) => setFilterModel(m),
-      upsertHeaderFilter: (field, operator, value) =>
+      updateHeaderFilter: (field, update) =>
         setFilterModel((m) => {
-          const id = `header-filter-${field}`;
-          const items = m.items.filter((i) => i.id !== id);
-          if (value !== undefined) items.push({ id, field, operator, value });
+          const index = m.items.findIndex((i) => i.field === field);
+          const current = index < 0 ? undefined : m.items[index];
+          const next = update(current);
+          if (next === null && !current) return m;
+          const items = [...m.items];
+          if (next === null) items.splice(index, 1);
+          else if (current) items[index] = next;
+          else items.push({ ...next, id: next.id ?? newHeaderFilterId(field, m.items) });
           return { ...m, items };
         }),
       pinColumn: (field, side) =>
@@ -1824,6 +1830,14 @@ const BASE_SX = {
     color: cssVar('color-text-disabled'),
   },
 };
+
+/** A filter item id for a condition made in a header filter, unique within the model. */
+function newHeaderFilterId(field: string, items: readonly GridFilterItem[]): string {
+  const used = new Set(items.map((i) => String(i.id)));
+  let id = `header-filter-${field}`;
+  for (let n = 2; used.has(id); n++) id = `header-filter-${field}-${n}`;
+  return id;
+}
 
 /** Pinned section of a field: columns move only within their section. */
 const columnSection =
