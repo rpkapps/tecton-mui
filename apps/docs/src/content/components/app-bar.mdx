@@ -22,8 +22,27 @@ own. When the active tab is closed, select the tab before it, as the examples do
 
 A Tecton icon (`logo`, suffix included, for example `map-filled`) or an image (`logoSrc`) shows next
 to `appName` (default `APP`). `logo` wins over `logoSrc`; with neither, a placeholder square shows.
+`productColor` (`app1` to `app4`) colors the logo and the app name with one of the
+[product colors](/foundations/colors#product-branding); without it they use the tertiary text color.
 
 <Demo name="BrandingAppBar" />
+
+To restyle the branding further, target its regions, the same markers as on the `<wc-app-bar>`
+drop-in: `branding` (the cell), `branding-lockup` (the logo and the name), `branding-logo` and
+`branding-name`. For example, a lockup on a pill:
+
+```tsx
+import { cssVar } from '@tecton-mui/ui/styles';
+
+<AppBar
+  appName="Field Planner"
+  logo="map-filled"
+  productColor="app2"
+  sx={{
+    '& [data-region="branding-lockup"]': { bgcolor: cssVar('color-surface-elevation-2-bg') },
+  }}
+/>;
+```
 
 ## Tabs
 

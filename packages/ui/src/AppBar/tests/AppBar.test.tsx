@@ -174,7 +174,7 @@ describe('AppBar: Tecton app bar layout', () => {
     expect(container.querySelector('[data-region="branding"]')).toBeNull();
     expect(screen.queryByRole('tab', { name: 'Home' })).toBeNull();
     expect(screen.getAllByRole('tab')).toHaveLength(2);
-    expect(screen.getByRole('banner')).toHaveAttribute('tier', 'secondary');
+    expect(screen.getByRole('banner')).not.toHaveAttribute('tier');
   });
 
   it('applies the per-tab options: tags, closeable and disabled', () => {
@@ -396,6 +396,78 @@ describe('AppBar: keyboard', () => {
     fireEvent.click(screen.getByRole('button', { name: 'close tab' }));
     expect(outside).toHaveFocus();
     outside.remove();
+  });
+});
+
+/** A Tecton token as the browser resolves it, for comparison with computed styles. */
+function tokenColor(token: string) {
+  const probe = document.createElement('div');
+  probe.style.color = `var(--tecton-${token})`;
+  document.body.append(probe);
+  const color = getComputedStyle(probe).color;
+  probe.remove();
+  return color;
+}
+
+describe('AppBar: tier and productColor', () => {
+  it('style the bar through the theme without reaching the DOM', () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+    try {
+      const { container } = wrap(
+        <>
+          <AppBar productColor="app2" />
+          <AppBar tier="secondary" tabs={TABS} activeTab="tab-1" />
+          <AppBar component="nav" tier="secondary" productColor="app3" />
+        </>,
+      );
+      const bars = Array.from(container.querySelectorAll('[data-region="app-bar"]'));
+      expect(bars.map((bar) => bar.tagName)).toEqual(['HEADER', 'HEADER', 'NAV']);
+      for (const bar of bars) {
+        for (const name of ['tier', 'productcolor', 'productColor', 'rootcomponent']) {
+          expect(bar).not.toHaveAttribute(name);
+        }
+      }
+      expect(error).not.toHaveBeenCalled();
+      // The MuiAppBar theme variants still match them.
+      const toolbarHeight = (bar: Element) =>
+        getComputedStyle(bar.querySelector('.MuiToolbar-root')!).height;
+      expect(toolbarHeight(bars[1]!)).toBe('40px');
+      expect(toolbarHeight(bars[0]!)).not.toBe('40px');
+    } finally {
+      error.mockRestore();
+    }
+  });
+
+  it('colours the logo and the app name with the product colour', () => {
+    const { container } = wrap(
+      <>
+        <AppBar appName="Field Planner" logo="map-filled" productColor="app2" />
+        <AppBar appName="Asset Viewer" logo="map-filled" />
+      </>,
+    );
+    const [branded, plain] = Array.from(
+      container.querySelectorAll('[data-region="branding-lockup"]'),
+    );
+    for (const lockup of [branded!, plain!]) {
+      // The documented markers for restyling the branding.
+      for (const part of ['branding-container', 'branding-logo', 'branding-name']) {
+        expect(lockup.querySelector(`[data-region="${part}"]`)).not.toBeNull();
+      }
+      expect(lockup).toHaveClass('tecton-appbar-product');
+    }
+    const colours = (lockup: Element) => [
+      getComputedStyle(lockup.querySelector('.tecton-appbar-icon')!).color,
+      getComputedStyle(within(lockup as HTMLElement).getByText(/Field Planner|Asset Viewer/)).color,
+    ];
+    expect(colours(branded!)).toEqual([
+      tokenColor('color-branding-app2'),
+      tokenColor('color-branding-app2'),
+    ]);
+    // Without productColor: the tertiary text colour, as before.
+    expect(colours(plain!)).toEqual([
+      tokenColor('color-action-tertiary-text'),
+      tokenColor('color-action-tertiary-text'),
+    ]);
   });
 });
 
