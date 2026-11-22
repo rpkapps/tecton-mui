@@ -13,7 +13,7 @@ import FormHelperText from '@mui/material/FormHelperText';
 import InputLabel from '@mui/material/InputLabel';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Icon from '../Icon/Icon.js';
-import { cssVar } from '../styles/tecton/index.js';
+import { INPUT_FOCUS_VISIBLE_SELECTOR, cssVar, focusRingShadow } from '../styles/tecton/index.js';
 import {
   SSRInitialFilled,
   joinIds,
@@ -70,21 +70,32 @@ const ScrubCursor = styled(Icon, { name: 'TectonNumberSpinner', slot: 'ScrubCurs
   transform: 'rotate(45deg)',
 });
 
+// Keyboard focus rings the whole control (both buttons and the value), not the value alone.
 const Group = styled('div', { name: 'TectonNumberSpinner', slot: 'Group' })({
   display: 'flex',
   width: '100%',
+  borderRadius: cssVar('radius-50'),
+  [`&:has(.MuiInputBase-root${INPUT_FOCUS_VISIBLE_SELECTOR})`]: { boxShadow: focusRingShadow },
 });
 
 const spinnerInputStyles = {
   flex: 1,
   borderRadius: 0,
   '& .MuiInputBase-input': { textAlign: 'center' },
+  [`&&${INPUT_FOCUS_VISIBLE_SELECTOR}`]: { boxShadow: 'none' },
 } as const;
 
+// On keyboard focus Tecton turns an outlined input's border to its active colour. Here the ring
+// surrounds the whole group, so the value keeps the border it shares with the buttons (red in error).
 const OutlinedSpinnerInput = styled(OutlinedInput, {
   name: 'TectonNumberSpinner',
   slot: 'Input',
-})(spinnerInputStyles);
+})({
+  ...spinnerInputStyles,
+  [`&&${INPUT_FOCUS_VISIBLE_SELECTOR}:not(.Mui-error) .MuiOutlinedInput-notchedOutline`]: {
+    borderColor: cssVar('color-input-outlined-border'),
+  },
+});
 
 const FilledSpinnerInput = styled(FilledInput, { name: 'TectonNumberSpinner', slot: 'Input' })(
   spinnerInputStyles,

@@ -162,6 +162,12 @@ test.describe('Tree View focus', () => {
     await page.keyboard.press('ArrowUp');
     await expect(item).toBeFocused();
     expect(await ring()).not.toBe('none');
+    // The ring sits above the next row (the first child of an expanded item) instead of under it.
+    expect(
+      await item.evaluate(
+        (el) => getComputedStyle(el.querySelector(':scope > .MuiTreeItem-content')!).zIndex,
+      ),
+    ).toBe('1');
   });
 });
 

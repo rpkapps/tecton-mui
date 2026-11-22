@@ -24,6 +24,8 @@ field. Use `slotProps.input` for adornments and `slotProps.htmlInput` for attrib
   field an `id` if you need a stable relationship for tests.
 - `required` adds the native `required` attribute and a visual marker.
 - Use `type` and `inputMode` to get the right mobile keyboard (`email`, `tel`, `numeric`).
+- A field reached with the keyboard shows the Tecton focus ring; a field clicked with the mouse does
+  not. The `ThemeProvider` tracks how the focus arrived, so this needs no props.
 
 ## Limitations
 

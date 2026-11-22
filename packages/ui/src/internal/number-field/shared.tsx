@@ -120,6 +120,22 @@ export function textFieldRootStyles(
   return root && typeof root === 'object' ? (root as CSSObject) : undefined;
 }
 
+/**
+ * Closed-chevron styles of `Select` from the active theme (`components.MuiSelect.styleOverrides
+ * .icon`). They key the colour off the input root (`.MuiOutlinedInput-root.Mui-error &`, ...), so the
+ * stepper buttons of a number field get the Select chevron colour in every variant and state.
+ */
+export function selectIconStyles(theme: Theme): CSSObject | undefined {
+  const icon = theme.components?.MuiSelect?.styleOverrides?.icon as unknown;
+  if (typeof icon === 'function') {
+    return (icon as (props: { theme: Theme; ownerState: Record<string, unknown> }) => CSSObject)({
+      theme,
+      ownerState: {},
+    });
+  }
+  return icon && typeof icon === 'object' ? (icon as CSSObject) : undefined;
+}
+
 /** Joins `aria-describedby` ids, skipping empty values. */
 export function joinIds(...ids: (string | undefined | false)[]): string | undefined {
   const joined = ids.filter(Boolean).join(' ');

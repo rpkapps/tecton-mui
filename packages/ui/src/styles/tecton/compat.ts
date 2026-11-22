@@ -1,9 +1,10 @@
 // Runtime compatibility corrections between the pinned Tecton theme and the pinned MUI release.
 // Each entry documents the upstream assumption it corrects; remove entries once Tecton catches up.
-import type { Theme, ThemeOptions } from '@mui/material/styles';
+import { alpha, type Theme, type ThemeOptions } from '@mui/material/styles';
 import { focusRingShadow, slotIcon } from './generated/mui/components/shared.js';
 import { cssVar } from './generated/core/index.js';
 import { gridIconSlots, iconCompatOverrides, tablePaginationFirstLast } from './compatIcons.js';
+import { withInputFocusVisible } from './focusVisible.js';
 
 // Tecton sets `outline: none` on focused Data Grid cells and column headers and draws nothing
 // instead, so keyboard focus is invisible while navigating with the arrow keys (WCAG 2.4.7).
@@ -37,6 +38,16 @@ const searchAdornmentIcon = {
 };
 
 export const muiCompatOverrides: ThemeOptions = {
+  // MUI 9.5 draws one keyboard focus ring for ButtonBase and ~25 components from
+  // `theme.focusVisible`, insets it where an ancestor would clip it (Tab, ListItemButton, MenuItem)
+  // and lifts a focused grouped button above its siblings. Tecton 0.11.2 (built against MUI 9.4)
+  // does not set it, so many controls had no ring, a clipped one, or a grey MUI fill. Tecton's ring
+  // as an outline: 2px focus-ring colour after a 1px gap, the same 3px as `focusRingShadow`.
+  focusVisible: {
+    outlineColor: cssVar('color-focus-ring'),
+    outlineWidth: cssVar('border-width-200'),
+    outlineOffset: '1px',
+  },
   components: {
     // Tecton icons for every MUI icon slot Tecton leaves on Material icons (compatIcons.ts).
     ...iconCompatOverrides,
@@ -273,14 +284,28 @@ export const muiCompatOverrides: ThemeOptions = {
         },
       },
     },
+    MuiToggleButtonGroup: {
+      styleOverrides: {
+        root: {
+          // Tecton's group clips its children (`overflow: hidden`, for the rounded group border),
+          // so the outset `theme.focusVisible` ring of a grouped button showed only where it
+          // touched the next button. Draw it inside the button.
+          '& .MuiToggleButtonGroup-grouped.Mui-focusVisible': {
+            outlineOffset: `calc(-1 * ${cssVar('border-width-200')})`,
+          },
+        },
+      },
+    },
     MuiTreeItem: {
       styleOverrides: {
         content: {
           // Tecton 0.11.2 draws the tree item focus ring on `.Mui-focusVisible` and hides
           // `[data-focused]`. MUI X 9 no longer sets `Mui-focusVisible` on tree items (focus moves
           // to the `treeitem` element and is marked with `data-focused`), so keyboard focus was
-          // invisible (WCAG 2.4.7). Draw Tecton's ring when the item has keyboard focus.
-          '.MuiTreeItem-root:focus-visible > &&': { boxShadow: focusRingShadow },
+          // invisible (WCAG 2.4.7). Draw Tecton's ring when the item has keyboard focus. Every
+          // row is `position: relative`, so the next row (a child, when expanded) painted over the
+          // bottom of the ring; the focused row is lifted above its neighbours.
+          '.MuiTreeItem-root:focus-visible > &&': { boxShadow: focusRingShadow, zIndex: 1 },
         },
       },
     },
@@ -380,6 +405,63 @@ export function applyThemeCompat(theme: Theme): Theme {
       ...clock.styleOverrides,
       clock: { backgroundColor: cssVar('color-component-input-filled-background') },
     };
+  }
+  // `theme.focusVisible` insets the ring on Tab and ListItemButton (an `overflow: hidden` tab strip
+  // or scrolling list clipped Tecton's outset box-shadow ring to one edge). Tecton's own ring rule
+  // would draw a second ring outside it, so drop its box-shadow there.
+  if (theme.focusVisible) {
+    for (const name of ['MuiTab', 'MuiListItemButton']) {
+      const entry = components[name];
+      const overrides = entry?.styleOverrides as Record<string, unknown> | undefined;
+      const root = overrides?.root as Record<string, unknown> | undefined;
+      const focus = root?.['&.Mui-focusVisible'] as Record<string, unknown> | undefined;
+      if (entry && root && focus && 'boxShadow' in focus) {
+        const { boxShadow: _ring, ...rest } = focus;
+        // New objects, key order kept: the generated overrides may be shared between themes.
+        components[name] = {
+          ...entry,
+          styleOverrides: { ...overrides, root: { ...root, '&.Mui-focusVisible': rest } },
+        };
+      }
+    }
+  }
+  // With `theme.focusVisible`, MUI swaps the menu item focus fill for its ring. Tecton menus mark
+  // focus with that fill (its Storybook draws the "hovered" option with `Mui-focusVisible`), so
+  // menus keep it. Digital clock items (MenuItems too) keep the ring: on the selected time slot the
+  // fill change is invisible.
+  const menuItem = components.MuiMenuItem;
+  const menuItemOverrides = menuItem?.styleOverrides as Record<string, unknown> | undefined;
+  const menuItemRoot = menuItemOverrides?.root;
+  if (theme.focusVisible && menuItem && menuItemRoot && typeof menuItemRoot === 'object') {
+    const menuFocus =
+      '&.Mui-focusVisible:not(.MuiDigitalClock-item, .MuiMultiSectionDigitalClockSection-item)';
+    const { action, primary } = theme.palette;
+    components.MuiMenuItem = {
+      ...menuItem,
+      styleOverrides: {
+        ...menuItemOverrides,
+        root: {
+          ...menuItemRoot,
+          [menuFocus]: { outline: 'none', backgroundColor: action.focus },
+          [`&.Mui-selected${menuFocus.slice(1)}`]: {
+            backgroundColor: alpha(primary.main, action.selectedOpacity + action.focusOpacity),
+          },
+        },
+      },
+    };
+  }
+  // Tecton draws the input focus ring on `.Tecton-focusVisible`, which only its Storybook adds (by
+  // hand, with `useKeyboardFocusVisible`), so plain TextField/Select/NumberField never showed it.
+  // The rules also match the attribute that the ThemeProvider's tracker sets on keyboard focus
+  // (focusVisible.ts). Rewritten in place, so the cascade order is Tecton's.
+  for (const name of Object.keys(components)) {
+    const entry = components[name];
+    if (
+      entry?.styleOverrides &&
+      JSON.stringify(entry.styleOverrides).includes('Tecton-focusVisible')
+    ) {
+      components[name] = { ...entry, styleOverrides: withInputFocusVisible(entry.styleOverrides) };
+    }
   }
   // The selected PickerDay state is intentionally NOT aliased: Tecton's `.MuiPickerDay-selected`
   // rule never matches MUI X 9 either, so the official Tecton Storybook shows MUI's own selected day

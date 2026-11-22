@@ -16,6 +16,8 @@ export type {
 } from './generated/icons.js';
 export { useKeyboardFocusVisible } from './generated/mui/useKeyboardFocusVisible.js';
 export type { KeyboardFocusVisible } from './generated/mui/useKeyboardFocusVisible.js';
+export { focusRingShadow } from './generated/mui/components/shared.js';
+export { INPUT_FOCUS_VISIBLE_SELECTOR } from './focusVisible.js';
 import type { ThemeMode } from './generated/core/index.js';
 
 /** Builds a Tecton-based MUI theme. `options` follow MUI ThemeOptions and win over Tecton defaults. */

@@ -225,9 +225,33 @@ Written by `emit` and listed with checksums in
   - **Outlined input error outline on focus:** Tecton resets the outline of a pointer-focused input
     with `.Mui-focused:not(.Tecton-focusVisible) .MuiOutlinedInput-notchedOutline`, which is more
     specific than its `.Mui-error` outline rule, so an invalid TextField, Select or number field
-    lost its red outline while focused with the mouse (keyboard focus kept it). The correction
-    keeps `color-status-error-outline-border-strong` in every focus state;
+    lost its red outline while focused with the mouse. The correction keeps
+    `color-status-error-outline-border-strong` in every focus state;
     `tests/e2e/number-field.spec.ts` checks the computed color.
+  - **Button focus ring (`theme.focusVisible`):** MUI 9.5 draws one keyboard focus ring for
+    `ButtonBase` and about 25 components from `theme.focusVisible`, insets it where an ancestor
+    clips (Tab, ListItemButton, MenuItem) and lifts a focused grouped button above its siblings.
+    Tecton 0.11.2 (built against MUI 9.4) does not set it, so ToggleButton, contained ButtonGroup,
+    Pagination, BottomNavigationAction, StepButton, TableSortLabel and others had no ring, a clipped
+    one or a grey MUI fill, and MUI 9's `outline: auto` covered Tecton's Link ring. The correction
+    sets Tecton's ring as `focusVisible` (2px `color-focus-ring` outline after a 1px gap, the 3px of
+    `focusRingShadow`), draws it inside grouped toggle buttons (Tecton's group has `overflow:
+hidden`) and drops Tecton's own box-shadow ring on Tab and ListItemButton, where it doubled
+    MUI's inset ring. Menu items keep MUI's focus fill instead of the ring (Tecton menus mark focus
+    that way; its Storybook draws the hovered option with `Mui-focusVisible`), except digital clock
+    items, whose selected slot shows no fill change. `createTheme({ focusVisible: false })` restores
+    Tecton's rings. `tests/e2e/button-focus-ring.spec.ts` checks the ring, the inset and the
+    stacking.
+  - **Input focus ring:** Tecton draws the input focus ring (Filled and Outlined ring, TextOnly
+    underline, Select variants) on `.Tecton-focusVisible`, a class its Storybook stories add by hand
+    with `useKeyboardFocusVisible`. A theme cannot add a class, so plain `TextField`, `Select` and
+    number fields never showed it. Native `:focus-visible` is no substitute: it also matches a text
+    input focused with the mouse. The `ThemeProvider` installs one page-wide tracker
+    (`tecton/focusVisible.ts`) that sets `data-tecton-focus-visible` on the `.MuiInputBase-root`
+    that receives keyboard focus, and `applyThemeCompat` rewrites every `.Tecton-focusVisible`
+    selector in place to `:is(.Tecton-focusVisible, [data-tecton-focus-visible])` (same order and
+    specificity). The class still works. `tests/e2e/input-focus-ring.spec.ts` covers Tab, pointer
+    and typing.
   - **RichTreeView defaults:** Tecton themes only `MuiSimpleTreeView`. The correction makes
     `MuiRichTreeView` share the same theme entry.
 - `tecton/augmentations.ts` re-declares the Tecton prop augmentations (`activated`, `shape`,
