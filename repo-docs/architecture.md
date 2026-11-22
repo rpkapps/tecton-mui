@@ -107,9 +107,9 @@ their `Desktop*`, `Mobile*` and `Static*` variants), `DateRangeCalendar`,
 `MultiInputDateRangeField`, the `SingleInput*RangeField` fields, `NumberField`/`NumberSpinner`
 and `NumberSlider`/`NumberRangeSlider` (Base UI number field with Material form components; shared
 code, including the sliders' drag bar, in `internal/number-field/`),
-`Menubar` (Base UI menubar and menu; one module exporting the `Menubar*` parts) and `ActionBar`
+`Menubar` (Base UI menubar and menu; one module exporting the `Menubar*` parts), `ActionBar`
 (the Tecton tool palette composed from Material components; one module exporting the `ActionBar*`
-parts).
+parts) and `ColorSwatchControl` (the Tecton color input on a native `<input type="color">`).
 
 `pnpm inventory:check` fails if any generated output is stale.
 

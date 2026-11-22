@@ -14,6 +14,8 @@ customization APIs, preconfigured with the **Tecton** design system.
 - `NumberSlider` and `NumberRangeSlider`: a number input (or a range of two) next to a drag bar,
   built on the same Base UI number field.
 - `ActionBar`, the Tecton vertical tool palette, composed from Material components.
+- `ColorSwatchControl`, the Tecton color input: a swatch and hex value that open the browser's
+  color picker.
 - Tecton fonts, icons and tokens, with a typed `Icon` (no `@mui/icons-material` needed). Light and
   dark mode shared by every React root on the page, RTL and SSR helpers.
 - ESM only, TypeScript declarations for every public path, tree-shakeable imports.
@@ -416,6 +418,27 @@ Buttons with a `value` are tools (one is current); buttons without one are plain
 menu holds a set of tools and opens on long press, right-click or the arrow key toward its menu.
 `ActionBarSelect` adds a compact `Select` (two can share a row in an
 `<ActionBarGroup orientation="horizontal">`); `alignment="right"` docks the bar on the right.
+
+## ColorSwatchControl
+
+A color input styled as a filled input (Tecton "Color Swatch"): a swatch of the color beside its
+uppercase hex value. It is a native `<input type="color">`, so a click, <kbd>Enter</kbd> or
+<kbd>Space</kbd> opens the browser's color picker, and keyboard focus shows the pink Tecton focus
+ring.
+
+```tsx
+import ColorSwatchControl from '@tecton-mui/ui/ColorSwatchControl';
+
+<ColorSwatchControl
+  aria-label="Horizon fill"
+  value={fill}
+  onChange={(event, value) => setFill(value)} // '#218585', live while the picker is open
+  onChangeCommitted={(event, value) => save(value)} // once, when the user settles on a color
+/>;
+```
+
+`size="small"` (28px) or `"medium"` (32px) matches the filled inputs; `inherited` marks a color the
+item inherits instead of setting it; `name` submits the color with a form.
 
 ## Advanced components
 

@@ -1,0 +1,97 @@
+## Purpose
+
+A color swatch shows one color and lets people change it. It sits in property panels and legends:
+the fill of a horizon, the color of a curve, a layer or a marker. The swatch shows the color beside
+its hex value; clicking it opens the browser's color picker.
+
+Material UI has no color input. `@tecton-mui/ui` builds the swatch on the native
+`<input type="color">` and styles it as a Tecton filled input, so it lines up with filled text
+fields and selects. The component is `ColorSwatchControl`, the name the Tecton Storybook's
+"Color Swatch" page uses in its code.
+
+## Basic color swatch
+
+`value` and `onChange` make the swatch controlled; `defaultValue` (default `#000000`) makes it
+uncontrolled. `onChange` receives the event and the new color as uppercase `#RRGGBB`. Values are
+normalized the same way: `#a1c` shows as `#AA11CC`.
+
+<Demo name="BasicColorSwatch" />
+
+Give the swatch a name: `id` with a `<label htmlFor>`, `aria-labelledby` or `aria-label`. All three
+go to the native input.
+
+## Sizes
+
+`size="small"` (28px) and `size="medium"` (32px, the default) match the heights of the small and
+medium filled inputs.
+
+<Demo name="ColorSwatchSizes" />
+
+## States
+
+`inherited` shows that the item has no color of its own and uses one it inherits, for example from
+its parent layer or a default: the swatch draws a smaller square of that color. Picking a color
+still calls `onChange`; set `inherited` to `false` once the item has its own color. `disabled`
+turns the swatch off.
+
+Keyboard focus draws the pink Tecton focus ring around the swatch, as on buttons and fields. Focus
+the swatches below with <kbd>Tab</kbd> to see it.
+
+<Demo name="ColorSwatchStates" />
+
+## Live and committed changes
+
+While the picker is open, most browsers call `onChange` for every color the pointer passes over,
+so the swatch and anything it colors update live. `onChangeCommitted` is called once, with the
+color the user settles on, usually when the picker closes. Use it for work that should happen once
+per change, such as saving or adding an undo step.
+
+<Demo name="CommittedColorSwatch" />
+
+## Customization
+
+- `name` submits the color with its form (as lowercase `#rrggbb`, the native input's value).
+  `slotProps.input` passes other attributes, such as `form` or `data-*`, to the native input, and
+  `inputRef` returns it.
+- Style the parts with `sx`, `className` or the `TectonColorSwatchControl-*` classes
+  (`colorSwatchControlClasses`): `root`, `sizeSmall`, `sizeMedium`, `inherited`, `swatch`, `label`
+  and `input`. A disabled swatch has `Mui-disabled`.
+- `normalizeColorSwatchControlValue` is the normalization the swatch applies, for your own values.
+
+## Accessibility
+
+- The native color input is the control. It covers the whole swatch, so a click anywhere opens the
+  picker, and it receives the keyboard focus. <kbd>Enter</kbd> or <kbd>Space</kbd> opens the
+  picker.
+- The visible hex value describes the input (`aria-describedby`), so screen readers announce the
+  current color with the swatch's name. A description you pass in `aria-describedby` is kept.
+- Keyboard focus shows the Tecton focus ring. Focus from a pointer click does not.
+- The swatch and the hex value are not the only cue for the color's meaning: label what the color is
+  for.
+
+## Design tokens
+
+| Part         | Tokens                                                                                       |
+| ------------ | -------------------------------------------------------------------------------------------- |
+| Surface      | `color-input-filled-bg` at rest, on hover and on focus; `radius-50`                          |
+| Height       | `space-400` (medium), `space-400` minus `space-50` (small)                                   |
+| Padding, gap | `space-100` inline, `space-50` between the swatch and the value                              |
+| Swatch       | `icon-size-150` (medium), `icon-size-100` (small), `radius-25`                               |
+| Value        | `color-input-filled-text-value`, `font-size-*`, `font-weight-*`, `line-height-*` of the size |
+| Focus ring   | `border-width-200` `color-focus-ring` outline, 1px from the surface                          |
+| Disabled     | `color-disabled-filled-bg`, `color-disabled-filled-text`                                     |
+
+## Limitations
+
+- The picker is the browser's own. Its look and features (eyedropper, palettes, alpha) depend on the
+  browser and the operating system, and it cannot be styled.
+- The swatch holds an opaque sRGB color in hex. Other CSS colors (`red`, `rgb()`) are shown as
+  given, but the picker opens on black for them.
+- The value follows the MUI inputs, not the Tecton Storybook snippet: `value` is a hex string, not
+  `{ hex }`, and `onChange` receives `(event, value)`, not `{ hex }`. Code copied from the snippet
+  needs `value={color.hex}` and `onChange={(event, hex) => setColor({ hex })}`.
+- The Tecton Storybook story of this component draws a saffron focus ring. The swatch uses the pink
+  Tecton focus ring of every other control instead.
+- Unlike a filled text field, the swatch keeps its fill on hover and focus, as in the Tecton story.
+  The filled input's lighter hover and focus fills match the page surface in light mode, where the
+  swatch would seem to disappear.
