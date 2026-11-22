@@ -33,6 +33,10 @@ import InputSlider from '../demos/slider/InputSlider';
 import InputSliderSource from '../demos/slider/InputSlider.tsx?raw';
 import ColorSlider from '../demos/slider/ColorSlider';
 import ColorSliderSource from '../demos/slider/ColorSlider.tsx?raw';
+import CustomizedSlider from '../demos/slider/CustomizedSlider';
+import CustomizedSliderSource from '../demos/slider/CustomizedSlider.tsx?raw';
+import MusicPlayerSlider from '../demos/slider/MusicPlayerSlider';
+import MusicPlayerSliderSource from '../demos/slider/MusicPlayerSlider.tsx?raw';
 import VerticalSlider from '../demos/slider/VerticalSlider';
 import VerticalSliderSource from '../demos/slider/VerticalSlider.tsx?raw';
 import CustomMarks from '../demos/slider/CustomMarks';
@@ -68,6 +72,15 @@ const demos = {
   }),
   InputSlider: defineDemo('InputSlider', InputSlider, { code: InputSliderSource }),
   ColorSlider: defineDemo('ColorSlider', ColorSlider, { code: ColorSliderSource }),
+  CustomizedSlider: defineDemo('CustomizedSlider', CustomizedSlider, {
+    code: CustomizedSliderSource,
+  }),
+  MusicPlayerSlider: defineDemo(
+    'MusicPlayerSlider',
+    MusicPlayerSlider,
+    { code: MusicPlayerSliderSource },
+    { bg: 'inline' },
+  ),
   VerticalSlider: defineDemo('VerticalSlider', VerticalSlider, { code: VerticalSliderSource }),
   CustomMarks: defineDemo('CustomMarks', CustomMarks, { code: CustomMarksSource }),
   TrackFalseSlider: defineDemo('TrackFalseSlider', TrackFalseSlider, {
@@ -194,6 +207,28 @@ export default function MuiDocs() {
         {'Color'}
       </Heading>
       <Demo name="ColorSlider" />
+      <Heading level={3} id="customization">
+        {'Customization'}
+      </Heading>
+      <Callout severity="info">
+        {
+          'These examples restyle the component beyond the Tecton defaults to show the customization APIs (sx, styled and theme overrides). Product UIs should keep the Tecton theme styling.'
+        }
+      </Callout>
+      <M.p>
+        {
+          'Here are some examples of customizing the component.\nYou can learn more about this in the '
+        }
+        <M.a href={'https://mui.com/material-ui/customization/how-to-customize/'}>
+          {'overrides documentation page'}
+        </M.a>
+        {'.'}
+      </M.p>
+      <Demo name="CustomizedSlider" />
+      <Heading level={4} id="music-player">
+        {'Music player'}
+      </Heading>
+      <Demo name="MusicPlayerSlider" />
       <Heading level={3} id="vertical-sliders">
         {'Vertical sliders'}
       </Heading>

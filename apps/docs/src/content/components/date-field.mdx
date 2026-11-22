@@ -51,9 +51,14 @@ The slot works the same way on the pickers.
 
 <Demo name="CustomTextFieldSlot" />
 
+### Styling sections
+
 Inside the input, `PickersSectionList` (exported as `Unstable_PickersSectionList`) renders one
-element per section (`role="spinbutton"`) with the separators between them. Keep their Tecton
-styling.
+element per section (`role="spinbutton"`) with the separators between them. Target them with
+`pickersSectionListClasses` and `pickersInputBaseClasses` to style the sections without replacing
+any component.
+
+<Demo name="SectionStyling" />
 
 ## Localization
 

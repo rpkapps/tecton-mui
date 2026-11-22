@@ -3,6 +3,7 @@
  * Do not edit: change the manifest or the sync and run `pnpm docs:sync`. */
 import {
   Attribution,
+  Callout,
   CodeBlock,
   Demo,
   ExcludedDemo,
@@ -17,6 +18,10 @@ import DenseTable from '../demos/table/DenseTable';
 import DenseTableSource from '../demos/table/DenseTable.tsx?raw';
 import EnhancedTable from '../demos/table/EnhancedTable';
 import EnhancedTableSource from '../demos/table/EnhancedTable.tsx?raw';
+import CustomizedTables from '../demos/table/CustomizedTables';
+import CustomizedTablesSource from '../demos/table/CustomizedTables.tsx?raw';
+import CustomPaginationActionsTable from '../demos/table/CustomPaginationActionsTable';
+import CustomPaginationActionsTableSource from '../demos/table/CustomPaginationActionsTable.tsx?raw';
 import StickyHeadTable from '../demos/table/StickyHeadTable';
 import StickyHeadTableSource from '../demos/table/StickyHeadTable.tsx?raw';
 import ColumnGroupingTable from '../demos/table/ColumnGroupingTable';
@@ -35,6 +40,18 @@ const demos = {
     'EnhancedTable',
     EnhancedTable,
     { code: EnhancedTableSource },
+    { bg: true },
+  ),
+  CustomizedTables: defineDemo(
+    'CustomizedTables',
+    CustomizedTables,
+    { code: CustomizedTablesSource },
+    { bg: true },
+  ),
+  CustomPaginationActionsTable: defineDemo(
+    'CustomPaginationActionsTable',
+    CustomPaginationActionsTable,
+    { code: CustomPaginationActionsTableSource },
     { bg: true },
   ),
   StickyHeadTable: defineDemo(
@@ -153,7 +170,9 @@ export default function MuiDocs() {
           {': A component that provides controls for paginating table data. See the '}
           <M.a href={'/components/table#sorting-selecting'}>{"'Sorting & selecting' example"}</M.a>
           {' and '}
-          <M.a href={'/components/table'}>{"'Custom Table Pagination Action' example"}</M.a>
+          <M.a href={'/components/table#custom-pagination-actions'}>
+            {"'Custom Table Pagination Action' example"}
+          </M.a>
           {'.'}
         </M.li>
         <M.li>
@@ -215,10 +234,126 @@ export default function MuiDocs() {
         {
           'The Table has been given a fixed width to demonstrate horizontal scrolling. In order to prevent the pagination controls from scrolling, the TablePagination component is used outside of the Table. (The '
         }
-        <M.a href={'/components/table'}>{"'Custom Table Pagination Action' example"}</M.a>
+        <M.a href={'/components/table#custom-pagination-actions'}>
+          {"'Custom Table Pagination Action' example"}
+        </M.a>
         {' below shows the pagination within the TableFooter.)'}
       </M.p>
       <Demo name="EnhancedTable" />
+      <Heading level={3} id="customization">
+        {'Customization'}
+      </Heading>
+      <Callout severity="info">
+        {
+          'These examples restyle the component beyond the Tecton defaults to show the customization APIs (sx, styled and theme overrides). Product UIs should keep the Tecton theme styling.'
+        }
+      </Callout>
+      <M.p>
+        {'Here is an example of customizing the component.\nYou can learn more about this in the '}
+        <M.a href={'https://mui.com/material-ui/customization/how-to-customize/'}>
+          {'overrides documentation page'}
+        </M.a>
+        {'.'}
+      </M.p>
+      <Demo name="CustomizedTables" />
+      <Heading level={4} id="custom-pagination-options">
+        {'Custom pagination options'}
+      </Heading>
+      <M.p>
+        {'It\'s possible to customize the options shown in the "Rows per page" select using the '}
+        <M.code>{'rowsPerPageOptions'}</M.code>
+        {' prop.\nYou should either provide an array of:'}
+      </M.p>
+      <M.ul>
+        <M.li>
+          <M.p>
+            <strong>{'numbers'}</strong>
+            {", each number will be used for the option's label and value."}
+          </M.p>
+          <CodeBlock code={'<TablePagination rowsPerPageOptions={[10, 50]} />'} language={'jsx'} />
+        </M.li>
+        <M.li>
+          <M.p>
+            <strong>{'objects'}</strong>
+            {', the '}
+            <M.code>{'value'}</M.code>
+            {' and '}
+            <M.code>{'label'}</M.code>
+            {
+              " keys will be used respectively for the value and label of the option (useful for language strings such as 'All')."
+            }
+          </M.p>
+          <CodeBlock
+            code={"<TablePagination rowsPerPageOptions={[10, 50, { value: -1, label: 'All' }]} />"}
+            language={'jsx'}
+          />
+        </M.li>
+      </M.ul>
+      <Heading level={4} id="custom-pagination-actions">
+        {'Custom pagination actions'}
+      </Heading>
+      <M.p>
+        {'The '}
+        <M.code>{'ActionsComponent'}</M.code>
+        {' prop of the '}
+        <M.code>{'TablePagination'}</M.code>
+        {
+          ' component allows the implementation of custom actions.\nA replacement action component is responsible for its own tooltips and focus management, unless it composes the built-in '
+        }
+        <M.code>{'TablePaginationActions'}</M.code>
+        {' component.'}
+      </M.p>
+      <Demo name="CustomPaginationActionsTable" />
+      <Heading level={4} id="customizing-individual-action-buttons">
+        {'Customizing individual action buttons'}
+      </Heading>
+      <M.p>
+        {'To customize individual buttons while keeping the built-in '}
+        <M.code>{'TablePaginationActions'}</M.code>
+        {', use '}
+        <M.code>{'slots.actions'}</M.code>
+        {' and '}
+        <M.code>{'slotProps.actions'}</M.code>
+        {' on '}
+        <M.code>{'TablePagination'}</M.code>
+        {'.\nThe default buttons include tooltips.\nWhen replacing '}
+        <M.code>{'firstButton'}</M.code>
+        {', '}
+        <M.code>{'previousButton'}</M.code>
+        {', '}
+        <M.code>{'nextButton'}</M.code>
+        {', or '}
+        <M.code>{'lastButton'}</M.code>
+        {' through '}
+        <M.code>{'slots.actions'}</M.code>
+        {', the custom component receives a '}
+        <M.code>{'title'}</M.code>
+        {' prop and is responsible for rendering its own tooltip.'}
+      </M.p>
+      <M.p>
+        {'When an update to pagination props or action slot props disables the focused action, '}
+        <M.code>{'TablePaginationActions'}</M.code>
+        {
+          ' moves focus to the next enabled action in DOM order, or searches backward if none follows.\nActions with '
+        }
+        <M.code>{'tabIndex={-1}'}</M.code>
+        {
+          ' are skipped.\nFocus stays where it is if no action is available or your application has already moved focus elsewhere.'
+        }
+      </M.p>
+      <M.p>
+        {'Custom button slots participate in focus restoration by forwarding the supplied '}
+        <M.code>{'data-mui-pagination-action'}</M.code>
+        {' prop to their focusable element.\nForward the '}
+        <M.code>{'disabled'}</M.code>
+        {' prop to native buttons, or use '}
+        <M.code>{'aria-disabled'}</M.code>
+        {
+          " for other elements.\nYou don't need to forward a ref.\nCustom slots that omit the data attribute continue to work, but don't participate in focus restoration.\nIf a custom slot disables itself through its own state without re-rendering "
+        }
+        <M.code>{'TablePaginationActions'}</M.code>
+        {', it must handle focus restoration itself.'}
+      </M.p>
       <Heading level={3} id="sticky-header">
         {'Sticky header'}
       </Heading>

@@ -44,6 +44,12 @@ import Inputs from '../demos/text-fields/Inputs';
 import InputsSource from '../demos/text-fields/Inputs.tsx?raw';
 import ColorTextFields from '../demos/text-fields/ColorTextFields';
 import ColorTextFieldsSource from '../demos/text-fields/ColorTextFields.tsx?raw';
+import CustomizedInputsStyled from '../demos/text-fields/CustomizedInputsStyled';
+import CustomizedInputsStyledSource from '../demos/text-fields/CustomizedInputsStyled.tsx?raw';
+import CustomizedInputsStyleOverrides from '../demos/text-fields/CustomizedInputsStyleOverrides';
+import CustomizedInputsStyleOverridesSource from '../demos/text-fields/CustomizedInputsStyleOverrides.tsx?raw';
+import CustomizedInputBase from '../demos/text-fields/CustomizedInputBase';
+import CustomizedInputBaseSource from '../demos/text-fields/CustomizedInputBase.tsx?raw';
 import UseFormControl from '../demos/text-fields/UseFormControl';
 import UseFormControlSource from '../demos/text-fields/UseFormControl.tsx?raw';
 import HelperTextMisaligned from '../demos/text-fields/HelperTextMisaligned';
@@ -86,6 +92,20 @@ const demos = {
   }),
   Inputs: defineDemo('Inputs', Inputs, { code: InputsSource }),
   ColorTextFields: defineDemo('ColorTextFields', ColorTextFields, { code: ColorTextFieldsSource }),
+  CustomizedInputsStyled: defineDemo('CustomizedInputsStyled', CustomizedInputsStyled, {
+    code: CustomizedInputsStyledSource,
+  }),
+  CustomizedInputsStyleOverrides: defineDemo(
+    'CustomizedInputsStyleOverrides',
+    CustomizedInputsStyleOverrides,
+    { code: CustomizedInputsStyleOverridesSource },
+  ),
+  CustomizedInputBase: defineDemo(
+    'CustomizedInputBase',
+    CustomizedInputBase,
+    { code: CustomizedInputBaseSource },
+    { bg: true },
+  ),
   UseFormControl: defineDemo('UseFormControl', UseFormControl, { code: UseFormControlSource }),
   HelperTextMisaligned: defineDemo('HelperTextMisaligned', HelperTextMisaligned, {
     code: HelperTextMisalignedSource,
@@ -382,6 +402,59 @@ export default function MuiDocs() {
         {' prop changes the highlight color of the text field when focused.'}
       </M.p>
       <Demo name="ColorTextFields" />
+      <Heading level={3} id="customization">
+        {'Customization'}
+      </Heading>
+      <Callout severity="info">
+        {
+          'These examples restyle the component beyond the Tecton defaults to show the customization APIs (sx, styled and theme overrides). Product UIs should keep the Tecton theme styling.'
+        }
+      </Callout>
+      <M.p>
+        {
+          'Here are some examples of customizing the component.\nYou can learn more about this in the '
+        }
+        <M.a href={'https://mui.com/material-ui/customization/how-to-customize/'}>
+          {'overrides documentation page'}
+        </M.a>
+        {'.'}
+      </M.p>
+      <Heading level={4} id="using-the-styled-api">
+        {'Using the styled API'}
+      </Heading>
+      <Demo name="CustomizedInputsStyled" />
+      <Heading level={4} id="using-the-theme-style-overrides-api">
+        {'Using the theme style overrides API'}
+      </Heading>
+      <M.p>
+        {'Use the '}
+        <M.code>{'styleOverrides'}</M.code>
+        {' key to change any style injected by Material UI into the DOM.\nSee the '}
+        <M.a
+          href={'https://mui.com/material-ui/customization/theme-components/#theme-style-overrides'}
+        >
+          {'theme style overrides'}
+        </M.a>
+        {' documentation for further details.'}
+      </M.p>
+      <Demo name="CustomizedInputsStyleOverrides" />
+      <M.p>
+        {
+          'Customization does not stop at CSS.\nYou can use composition to build custom components and give your app a unique feel.\nBelow is an example using the '
+        }
+        <M.a href={'/api/input-base'}>
+          <M.code>{'InputBase'}</M.code>
+        </M.a>
+        {' component, inspired by Google Maps.'}
+      </M.p>
+      <Demo name="CustomizedInputBase" />
+      <M.p>
+        {'🎨 If you are looking for inspiration, you can check '}
+        <M.a href={'https://mui-treasury.com/primitive/text-field'}>
+          {"MUI Treasury's customization examples"}
+        </M.a>
+        {'.'}
+      </M.p>
       <Heading level={3} id="useformcontrol">
         <M.code>{'useFormControl'}</M.code>
       </Heading>
@@ -629,7 +702,7 @@ export default function MuiDocs() {
       </Callout>
       <M.p>
         {'If you need a text field with number validation, you can use '}
-        <M.a href={'/components/number-field'}>{'Number Field'}</M.a>
+        <M.a href={'https://mui.com/material-ui/react-number-field/'}>{'Number Field'}</M.a>
         {' instead.'}
       </M.p>
       <Heading level={4} id="helper-text">

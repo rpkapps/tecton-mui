@@ -22,6 +22,8 @@ import AutohideSnackbar from '../demos/snackbars/AutohideSnackbar';
 import AutohideSnackbarSource from '../demos/snackbars/AutohideSnackbar.tsx?raw';
 import TransitionsSnackbar from '../demos/snackbars/TransitionsSnackbar';
 import TransitionsSnackbarSource from '../demos/snackbars/TransitionsSnackbar.tsx?raw';
+import CustomizedSnackbars from '../demos/snackbars/CustomizedSnackbars';
+import CustomizedSnackbarsSource from '../demos/snackbars/CustomizedSnackbars.tsx?raw';
 import DialogSnackbar from '../demos/snackbars/DialogSnackbar';
 import DialogSnackbarSource from '../demos/snackbars/DialogSnackbar.tsx?raw';
 import ConsecutiveSnackbars from '../demos/snackbars/ConsecutiveSnackbars';
@@ -40,6 +42,9 @@ const demos = {
   }),
   TransitionsSnackbar: defineDemo('TransitionsSnackbar', TransitionsSnackbar, {
     code: TransitionsSnackbarSource,
+  }),
+  CustomizedSnackbars: defineDemo('CustomizedSnackbars', CustomizedSnackbars, {
+    code: CustomizedSnackbarsSource,
   }),
   DialogSnackbar: defineDemo('DialogSnackbar', DialogSnackbar, { code: DialogSnackbarSource }),
   ConsecutiveSnackbars: defineDemo('ConsecutiveSnackbars', ConsecutiveSnackbars, {
@@ -73,7 +78,7 @@ export default function MuiDocs() {
         {
           " in that Snackbars have a fixed position and a high z-index, so they're intended to break out of the document flow; Alerts, on the other hand, are usually part of the flow—except when they're "
         }
-        <M.a href={'/components/snackbar'}>{'used as children of a Snackbar'}</M.a>
+        <M.a href={'/components/snackbar#use-with-alerts'}>{'used as children of a Snackbar'}</M.a>
         {'.'}
       </M.p>
       <M.p>
@@ -143,6 +148,51 @@ export default function MuiDocs() {
         {'.'}
       </M.p>
       <Demo name="TransitionsSnackbar" />
+      <Heading level={3} id="customization">
+        {'Customization'}
+      </Heading>
+      <Callout severity="info">
+        {
+          'These examples restyle the component beyond the Tecton defaults to show the customization APIs (sx, styled and theme overrides). Product UIs should keep the Tecton theme styling.'
+        }
+      </Callout>
+      <Heading level={4} id="preventing-default-click-away-event">
+        {'Preventing default click away event'}
+      </Heading>
+      <M.p>
+        {"If you would like to prevent the default onClickAway behavior, you can set the event's "}
+        <M.code>{'defaultMuiPrevented'}</M.code>
+        {' property to '}
+        <M.code>{'true'}</M.code>
+        {':'}
+      </M.p>
+      <CodeBlock
+        code={
+          "<Snackbar\n  slotProps={{\n    clickAwayListener: {\n      onClickAway: (event) => {\n        // Prevent's default 'onClickAway' behavior.\n        event.defaultMuiPrevented = true;\n      },\n    },\n  }}\n/>"
+        }
+        language={'jsx'}
+      />
+      <Heading level={4} id="use-with-alerts">
+        {'Use with Alerts'}
+      </Heading>
+      <M.p>
+        {'Use an Alert inside a Snackbar for messages that communicate a certain severity.'}
+      </M.p>
+      <Demo name="CustomizedSnackbars" />
+      <Heading level={4} id="use-with-floating-action-buttons">
+        {'Use with Floating Action Buttons'}
+      </Heading>
+      <M.p>
+        {"If you're using a "}
+        <M.a href={'/components/fab'}>{'Floating Action Button'}</M.a>
+        {
+          ' on mobile, Material Design recommends positioning snackbars directly above it, as shown in the demo below:'
+        }
+      </M.p>
+      <ExcludedDemo
+        name="FabIntegrationSnackbar"
+        reason="Composes MUI's AppBar with a Toolbar and its own content; @tecton-mui/ui's AppBar is the Tecton App Bar, which has no such composition."
+      />
       <Heading level={3} id="common-examples">
         {'Common examples'}
       </Heading>

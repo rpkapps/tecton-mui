@@ -746,10 +746,7 @@ export const authoredPages: AuthoredPage[] = [
       'PickersTextField',
       'PickersSectionList',
     ],
-    anchors: {
-      PickersTextField: 'customizing-the-input',
-      PickersSectionList: 'customizing-the-input',
-    },
+    anchors: { PickersTextField: 'customizing-the-input', PickersSectionList: 'styling-sections' },
     summary: 'Keyboard-first date and time inputs without a popup.',
   },
   {

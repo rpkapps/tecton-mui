@@ -57,7 +57,9 @@ export default function MuiDocs() {
         {
           'You should provide a media query to the first argument of the hook.\nThe media query string can be any valid CSS media query, for example '
         }
-        <M.code>{"'(min-width:600px)'"}</M.code>
+        <M.a href={'https://mui.com/material-ui/customization/dark-mode/#system-preference'}>
+          <M.code>{"'(prefers-color-scheme: dark)'"}</M.code>
+        </M.a>
         {'.'}
       </M.p>
       <Demo name="SimpleMediaQuery" showCode />

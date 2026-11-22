@@ -43,6 +43,8 @@ import LoadingButtons from '../demos/buttons/LoadingButtons';
 import LoadingButtonsSource from '../demos/buttons/LoadingButtons.tsx?raw';
 import LoadingButtonsTransition from '../demos/buttons/LoadingButtonsTransition';
 import LoadingButtonsTransitionSource from '../demos/buttons/LoadingButtonsTransition.tsx?raw';
+import CustomizedButtons from '../demos/buttons/CustomizedButtons';
+import CustomizedButtonsSource from '../demos/buttons/CustomizedButtons.tsx?raw';
 import ButtonBaseDemo from '../demos/buttons/ButtonBaseDemo';
 import ButtonBaseDemoSource from '../demos/buttons/ButtonBaseDemo.tsx?raw';
 import BasicButtonGroup from '../demos/button-group/BasicButtonGroup';
@@ -90,6 +92,9 @@ const demos = {
   LoadingButtons: defineDemo('LoadingButtons', LoadingButtons, { code: LoadingButtonsSource }),
   LoadingButtonsTransition: defineDemo('LoadingButtonsTransition', LoadingButtonsTransition, {
     code: LoadingButtonsTransitionSource,
+  }),
+  CustomizedButtons: defineDemo('CustomizedButtons', CustomizedButtons, {
+    code: CustomizedButtonsSource,
   }),
   ButtonBaseDemo: defineDemo('ButtonBaseDemo', ButtonBaseDemo, { code: ButtonBaseDemoSource }),
   BasicButtonGroup: defineDemo('BasicButtonGroup', BasicButtonGroup, {
@@ -205,6 +210,15 @@ export default function MuiDocs() {
         {'Color'}
       </Heading>
       <Demo name="ColorButtons" />
+      <M.p>
+        {
+          "In addition to using the default button colors, you can add custom ones, or disable any you don't need. See the "
+        }
+        <M.a href={'https://mui.com/material-ui/customization/palette/#custom-colors'}>
+          {'Adding new colors'}
+        </M.a>
+        {' examples for more info.'}
+      </M.p>
       <Heading level={3} id="sizes">
         {'Sizes'}
       </Heading>
@@ -345,6 +359,31 @@ export default function MuiDocs() {
         }
         language={'jsx'}
       />
+      <Heading level={3} id="customization">
+        {'Customization'}
+      </Heading>
+      <Callout severity="info">
+        {
+          'These examples restyle the component beyond the Tecton defaults to show the customization APIs (sx, styled and theme overrides). Product UIs should keep the Tecton theme styling.'
+        }
+      </Callout>
+      <M.p>
+        {
+          'Here are some examples of customizing the component.\nYou can learn more about this in the '
+        }
+        <M.a href={'https://mui.com/material-ui/customization/how-to-customize/'}>
+          {'overrides documentation page'}
+        </M.a>
+        {'.'}
+      </M.p>
+      <Demo name="CustomizedButtons" />
+      <M.p>
+        {'🎨 If you are looking for inspiration, you can check '}
+        <M.a href={'https://mui-treasury.com/primitive/button'}>
+          {"MUI Treasury's customization examples"}
+        </M.a>
+        {'.'}
+      </M.p>
       <Heading level={3} id="complex-button">
         {'Complex button'}
       </Heading>
