@@ -13,7 +13,6 @@ import Dialog from '@tecton-mui/ui/Dialog';
 import PersonIcon from '@mui/icons-material/Person';
 import AddIcon from '@mui/icons-material/Add';
 import Typography from '@tecton-mui/ui/Typography';
-import { blue } from '@tecton-mui/ui/colors';
 
 const emails = ['username@gmail.com', 'user02@gmail.com'];
 
@@ -42,7 +41,7 @@ function SimpleDialog(props: SimpleDialogProps) {
           <ListItem disablePadding key={email}>
             <ListItemButton onClick={() => handleListItemClick(email)}>
               <ListItemAvatar>
-                <Avatar sx={{ bgcolor: blue[100], color: blue[600] }}>
+                <Avatar>
                   <PersonIcon />
                 </Avatar>
               </ListItemAvatar>

@@ -1,7 +1,8 @@
 // Adapts an upstream MUI demo (TypeScript source) to the portal: rewrites imports to the public
 // `@tecton-mui/ui` entry points and decides whether the demo can be included. The demo logic itself
-// is never changed; the only content rewrite is MUI-site-relative asset URLs (`/static/...`), which
-// are made absolute so they keep loading from mui.com.
+// is never changed. The content rewrites are MUI-site-relative asset URLs (`/static/...`), which are
+// made absolute so they keep loading from mui.com, and the hard-coded placeholder colors of layout
+// demos, which are removed so the Tecton surface shows.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -259,5 +260,14 @@ export function transformDemo(source, { ts, surface, fileName }) {
     .replace(/(['"`])\/([\w./-]+\.(?:jpe?g|png|gif|svg|webp|mp4))\1/g, '$1https://mui.com/$2$1');
   if (code !== before)
     notes.push('MUI-site-relative asset URLs made absolute (https://mui.com/...)');
+  // Layout demos (Grid, Stack, Masonry, …) render placeholder `Item`s on a Paper with hard-coded
+  // `#fff` and a dark `#1A2027` through MUI's `applyStyles('dark')`. Tecton's Paper already has the
+  // surface color for both modes, so both values are removed.
+  const itemDark =
+    /\n[ \t]*\.\.\.theme\.applyStyles\('dark', \{\n[ \t]*backgroundColor: '#1A2027',\n[ \t]*\}\),/g;
+  if (itemDark.test(code)) {
+    code = code.replace(itemDark, '').replace(/\n[ \t]*backgroundColor: '#fff',/g, '');
+    notes.push('placeholder colors removed (#fff / #1A2027): the Tecton Paper surface shows');
+  }
   return { status: 'included', code, deps, icons, notes };
 }

@@ -38,7 +38,6 @@ export default function ServerModal() {
             position: 'relative',
             width: 400,
             bgcolor: 'background.paper',
-            border: '2px solid #000',
             boxShadow: theme.shadows[5],
             p: 4,
           })}

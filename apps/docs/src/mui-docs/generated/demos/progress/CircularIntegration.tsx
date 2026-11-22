@@ -3,7 +3,6 @@
 import * as React from 'react';
 import Box from '@tecton-mui/ui/Box';
 import CircularProgress from '@tecton-mui/ui/CircularProgress';
-import { green } from '@tecton-mui/ui/colors';
 import Button from '@tecton-mui/ui/Button';
 import Fab from '@tecton-mui/ui/Fab';
 import CheckIcon from '@mui/icons-material/Check';
@@ -16,9 +15,9 @@ export default function CircularIntegration() {
 
   const buttonSx = {
     ...(success && {
-      bgcolor: green[500],
+      bgcolor: 'success.main',
       '&:hover': {
-        bgcolor: green[700],
+        bgcolor: 'success.dark',
       },
     }),
   };
@@ -56,7 +55,7 @@ export default function CircularIntegration() {
             aria-label="Loading…"
             size={68}
             sx={{
-              color: green[500],
+              color: 'success.main',
               position: 'absolute',
               top: -6,
               left: -6,
@@ -79,7 +78,7 @@ export default function CircularIntegration() {
             aria-label="Loading…"
             size={24}
             sx={{
-              color: green[500],
+              color: 'success.main',
               position: 'absolute',
               top: '50%',
               left: '50%',

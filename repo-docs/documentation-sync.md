@@ -115,6 +115,11 @@ The demo logic is not changed. The mechanical rules are:
   (`icon-map.json`; unmapped names render a neutral fallback, listed in the lock). It accepts the
   SvgIcon props demos pass (`fontSize`, `color`, `htmlColor`, `titleAccess`, `sx`).
 - MUI-site-relative asset URLs (`/static/...`, `/broken-image.jpg`) become `https://mui.com/...`.
+- Layout demos' placeholder `Item`s lose their hard-coded `#fff` / `#1A2027` (`applyStyles('dark')`)
+  background, so the Tecton `Paper` surface shows in both modes. Hard-coded and Material palette colors
+  in the other demos are replaced through the manifest's `demoEdits` with Tecton palette keys or
+  `cssVar()` tokens. Examples whose point is restyling (the "Customization" sections and the like)
+  keep their own colors.
 - A demo is **excluded** (with the reason in the lock, and a short note on the page) when it imports
   a module `@tecton-mui/ui` does not export (deprecated Lab stubs, `@mui/material/Icon`), MUI X,
   MUI docs-site helpers or third-party packages the portal does not depend on (`react-window`,

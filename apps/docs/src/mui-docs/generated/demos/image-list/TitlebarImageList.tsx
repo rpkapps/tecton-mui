@@ -26,7 +26,7 @@ export default function TitlebarImageList() {
             subtitle={item.author}
             actionIcon={
               <IconButton
-                sx={{ color: 'rgba(255, 255, 255, 0.54)' }}
+                sx={{ color: 'common.white' }}
                 aria-label={`info about ${item.title}`}
               >
                 <InfoIcon />

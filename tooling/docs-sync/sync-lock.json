@@ -13,7 +13,7 @@
     "pagesConsidered": 63,
     "pagesSynced": 57,
     "portalSlugs": 63,
-    "demosIncluded": 471,
+    "demosIncluded": 470,
     "demosExcluded": 44,
     "icons": 146,
     "iconFallbacks": 12
@@ -1026,7 +1026,7 @@
     },
     {
       "source": "docs/data/material/components/avatars/avatars.md",
-      "status": "included",
+      "status": "modified",
       "target": "avatars",
       "slugs": [
         "avatar"
@@ -1041,10 +1041,6 @@
         },
         {
           "name": "LetterAvatars",
-          "status": "included"
-        },
-        {
-          "name": "BackgroundLetterAvatars",
           "status": "included"
         },
         {
@@ -2474,11 +2470,17 @@
       "demos": [
         {
           "name": "BasicGrid",
-          "status": "included"
+          "status": "included",
+          "notes": [
+            "placeholder colors removed (#fff / #1A2027): the Tecton Paper surface shows"
+          ]
         },
         {
           "name": "FullWidthGrid",
-          "status": "included"
+          "status": "included",
+          "notes": [
+            "placeholder colors removed (#fff / #1A2027): the Tecton Paper surface shows"
+          ]
         },
         {
           "name": "SpacingGrid",
@@ -2487,11 +2489,17 @@
         },
         {
           "name": "RowAndColumnSpacing",
-          "status": "included"
+          "status": "included",
+          "notes": [
+            "placeholder colors removed (#fff / #1A2027): the Tecton Paper surface shows"
+          ]
         },
         {
           "name": "ResponsiveGrid",
-          "status": "included"
+          "status": "included",
+          "notes": [
+            "placeholder colors removed (#fff / #1A2027): the Tecton Paper surface shows"
+          ]
         },
         {
           "name": "InteractiveGrid",
@@ -2500,27 +2508,45 @@
         },
         {
           "name": "AutoGrid",
-          "status": "included"
+          "status": "included",
+          "notes": [
+            "placeholder colors removed (#fff / #1A2027): the Tecton Paper surface shows"
+          ]
         },
         {
           "name": "VariableWidthGrid",
-          "status": "included"
+          "status": "included",
+          "notes": [
+            "placeholder colors removed (#fff / #1A2027): the Tecton Paper surface shows"
+          ]
         },
         {
           "name": "NestedGrid",
-          "status": "included"
+          "status": "included",
+          "notes": [
+            "placeholder colors removed (#fff / #1A2027): the Tecton Paper surface shows"
+          ]
         },
         {
           "name": "NestedGridColumns",
-          "status": "included"
+          "status": "included",
+          "notes": [
+            "placeholder colors removed (#fff / #1A2027): the Tecton Paper surface shows"
+          ]
         },
         {
           "name": "ColumnsGrid",
-          "status": "included"
+          "status": "included",
+          "notes": [
+            "placeholder colors removed (#fff / #1A2027): the Tecton Paper surface shows"
+          ]
         },
         {
           "name": "OffsetGrid",
-          "status": "included"
+          "status": "included",
+          "notes": [
+            "placeholder colors removed (#fff / #1A2027): the Tecton Paper surface shows"
+          ]
         },
         {
           "name": "CenteredElementGrid",
@@ -2539,7 +2565,10 @@
         },
         {
           "name": "ColumnLayoutInsideGrid",
-          "status": "included"
+          "status": "included",
+          "notes": [
+            "placeholder colors removed (#fff / #1A2027): the Tecton Paper surface shows"
+          ]
         }
       ]
     },
@@ -2553,23 +2582,38 @@
       "demos": [
         {
           "name": "BasicStack",
-          "status": "included"
+          "status": "included",
+          "notes": [
+            "placeholder colors removed (#fff / #1A2027): the Tecton Paper surface shows"
+          ]
         },
         {
           "name": "DirectionStack",
-          "status": "included"
+          "status": "included",
+          "notes": [
+            "placeholder colors removed (#fff / #1A2027): the Tecton Paper surface shows"
+          ]
         },
         {
           "name": "DividerStack",
-          "status": "included"
+          "status": "included",
+          "notes": [
+            "placeholder colors removed (#fff / #1A2027): the Tecton Paper surface shows"
+          ]
         },
         {
           "name": "ResponsiveStack",
-          "status": "included"
+          "status": "included",
+          "notes": [
+            "placeholder colors removed (#fff / #1A2027): the Tecton Paper surface shows"
+          ]
         },
         {
           "name": "FlexboxGapStack",
-          "status": "included"
+          "status": "included",
+          "notes": [
+            "placeholder colors removed (#fff / #1A2027): the Tecton Paper surface shows"
+          ]
         },
         {
           "name": "InteractiveStack",
@@ -2578,7 +2622,10 @@
         },
         {
           "name": "ZeroWidthStack",
-          "status": "included"
+          "status": "included",
+          "notes": [
+            "placeholder colors removed (#fff / #1A2027): the Tecton Paper surface shows"
+          ]
         }
       ]
     },
@@ -2902,39 +2949,66 @@
       "demos": [
         {
           "name": "BasicMasonry",
-          "status": "included"
+          "status": "included",
+          "notes": [
+            "placeholder colors removed (#fff / #1A2027): the Tecton Paper surface shows"
+          ]
         },
         {
           "name": "ImageMasonry",
-          "status": "included"
+          "status": "included",
+          "notes": [
+            "placeholder colors removed (#fff / #1A2027): the Tecton Paper surface shows"
+          ]
         },
         {
           "name": "MasonryWithVariableHeightItems",
-          "status": "included"
+          "status": "included",
+          "notes": [
+            "placeholder colors removed (#fff / #1A2027): the Tecton Paper surface shows"
+          ]
         },
         {
           "name": "FixedColumns",
-          "status": "included"
+          "status": "included",
+          "notes": [
+            "placeholder colors removed (#fff / #1A2027): the Tecton Paper surface shows"
+          ]
         },
         {
           "name": "ResponsiveColumns",
-          "status": "included"
+          "status": "included",
+          "notes": [
+            "placeholder colors removed (#fff / #1A2027): the Tecton Paper surface shows"
+          ]
         },
         {
           "name": "FixedSpacing",
-          "status": "included"
+          "status": "included",
+          "notes": [
+            "placeholder colors removed (#fff / #1A2027): the Tecton Paper surface shows"
+          ]
         },
         {
           "name": "ResponsiveSpacing",
-          "status": "included"
+          "status": "included",
+          "notes": [
+            "placeholder colors removed (#fff / #1A2027): the Tecton Paper surface shows"
+          ]
         },
         {
           "name": "Sequential",
-          "status": "included"
+          "status": "included",
+          "notes": [
+            "placeholder colors removed (#fff / #1A2027): the Tecton Paper surface shows"
+          ]
         },
         {
           "name": "SSRMasonry",
-          "status": "included"
+          "status": "included",
+          "notes": [
+            "placeholder colors removed (#fff / #1A2027): the Tecton Paper surface shows"
+          ]
         }
       ]
     },
@@ -3634,20 +3708,19 @@
     "apps/docs/src/mui-docs/generated/demos/autocomplete/Tags.tsx": "5828a628123e780749f4965806b2cd7f9b7bdd8a2d83c23196fc6096a2b33fc1",
     "apps/docs/src/mui-docs/generated/demos/autocomplete/top100Films.ts": "7c7d3a48ae7cd904548ef57d7fed6ee9692f45b966bf9c556a910165ac4aa206",
     "apps/docs/src/mui-docs/generated/demos/autocomplete/UseAutocomplete.tsx": "f8406f7af7e9d5c7f3f1b1f53d1c99e596a1cd30bf8ff44c9ba3f9c5424cf589",
-    "apps/docs/src/mui-docs/generated/demos/avatars/BackgroundLetterAvatars.tsx": "e67839b77b2b01a2b59fd95e9e661664fe02500d3e427c68a8634526c64c94db",
-    "apps/docs/src/mui-docs/generated/demos/avatars/BadgeAvatars.tsx": "9d3a6fe262a4facdf7802d00c477bcfdce3863f28d99904698f4338ddd0c679d",
+    "apps/docs/src/mui-docs/generated/demos/avatars/BadgeAvatars.tsx": "a5c0299c21a7195fad7ed0fbf1e80eec4e0a1571832d4fe06be90aa666a8bc17",
     "apps/docs/src/mui-docs/generated/demos/avatars/CustomSurplusAvatars.tsx": "900eed245278ae13fa4bcff3ffd68f5827dc8db38bc364baeebcb3ea68433cf9",
-    "apps/docs/src/mui-docs/generated/demos/avatars/FallbackAvatars.tsx": "1422b643bdf01d1eda58dec7bb33c9bf9af0820d8f1a9cad86986c1815963eb7",
+    "apps/docs/src/mui-docs/generated/demos/avatars/FallbackAvatars.tsx": "a85bde5cda607ae38d227e5e35482f61e9bb99d084cee7a3473ff612c9f6a2b2",
     "apps/docs/src/mui-docs/generated/demos/avatars/GroupAvatars.tsx": "acf85258d4a096e2b12868ce8487d28f3c994a68785dc2d1a53bd264ece25c66",
-    "apps/docs/src/mui-docs/generated/demos/avatars/IconAvatars.tsx": "3c1700743c831d873d2b5aa4c53c6d52123f0254e3b6025b727c09fd2a11940b",
+    "apps/docs/src/mui-docs/generated/demos/avatars/IconAvatars.tsx": "018fe732db68e8d36b591ceb1fe53f5c18cee6bc3d66eb4ca5594a31255a741d",
     "apps/docs/src/mui-docs/generated/demos/avatars/ImageAvatars.tsx": "c099afb4d4507c4063ea51d48028514611db41ae229efea92880c96f8e36dbae",
-    "apps/docs/src/mui-docs/generated/demos/avatars/LetterAvatars.tsx": "488c5864d386b3031be273819f7c07fd3a1423cdd343fffda28217a0d3ab0bfd",
+    "apps/docs/src/mui-docs/generated/demos/avatars/LetterAvatars.tsx": "93ebccd19a068c752dd918bacd266cc8b97c873ee06ea760506298670e5cc0b5",
     "apps/docs/src/mui-docs/generated/demos/avatars/SizeAvatars.tsx": "1049f44da6c256d166206ddd4f92a8005b39ebfac6d59e1b52c04ec9dc57f947",
     "apps/docs/src/mui-docs/generated/demos/avatars/Spacing.tsx": "c2a9e428032f421231c528936b0787e8403bc83d72abe0dc0f739a81c6310f0c",
     "apps/docs/src/mui-docs/generated/demos/avatars/TotalAvatars.tsx": "e8e9445ab2bfdb6cfc9774de84c9d714945d2039ab08d07dc2e8ec4bef9f0ceb",
     "apps/docs/src/mui-docs/generated/demos/avatars/UploadAvatars.tsx": "5d22bbb00dea21ef02afb313e015041411120f34878856fa43acacdf9fde6cca",
-    "apps/docs/src/mui-docs/generated/demos/avatars/VariantAvatars.tsx": "19bf5fdd812c5229114f3d85760700eabb8db58a39e77efad5dcb50d544b6378",
-    "apps/docs/src/mui-docs/generated/demos/backdrop/SimpleBackdrop.tsx": "3f5ebb5872136a49d2a0c64d1e50ef563ac676298dc54e543f220bc889cb734f",
+    "apps/docs/src/mui-docs/generated/demos/avatars/VariantAvatars.tsx": "d17da0dd5fca6df55e95c1a27432934a5185d72ba3e07845fad553e13ea4a96a",
+    "apps/docs/src/mui-docs/generated/demos/backdrop/SimpleBackdrop.tsx": "b68eb0a9785f7d1cb913240015a9c70a4273651658290758aacd76b2058b517b",
     "apps/docs/src/mui-docs/generated/demos/badges/BadgeIntro.tsx": "867ba16003f2c41c0692a316552fce2b31e73aa48d11cafb558b20a6c4fcd3c1",
     "apps/docs/src/mui-docs/generated/demos/badges/BadgeListItem.tsx": "960c63b56b3b6964a8806b1d5eb5c2ad9b467748bfb4bdeb5f2b536b12ff12aa",
     "apps/docs/src/mui-docs/generated/demos/badges/BadgeMax.tsx": "7e4d3459e89c0b1db4e7ffebeadaa2bd4835d6419af253d8e9f6291bb6553743",
@@ -3701,12 +3774,12 @@
     "apps/docs/src/mui-docs/generated/demos/cards/MediaControlCard.tsx": "080934b96193dcac021303bad115979e514b7ce927da771ced033bc28a701b5c",
     "apps/docs/src/mui-docs/generated/demos/cards/MultiActionAreaCard.tsx": "74afe543a8b92fa88462c9e4f6660bc5afcb762bd858d49ab001d666caea1c34",
     "apps/docs/src/mui-docs/generated/demos/cards/OutlinedCard.tsx": "a45daf68dedb2e08bd4ab8a0f87b497ec4d96d858a34719f2c2522d35235780c",
-    "apps/docs/src/mui-docs/generated/demos/cards/RecipeReviewCard.tsx": "7f032b3ef80608b1d080b5b0828d44a1de43d9319a96b1e1f9524cb9357f0be5",
+    "apps/docs/src/mui-docs/generated/demos/cards/RecipeReviewCard.tsx": "931b5dea04bcdd70413def989fa884f8951cfe814160ce8e6b0101fbdcb147e0",
     "apps/docs/src/mui-docs/generated/demos/cards/SelectActionCard.tsx": "9f37c89818dcb05a231438640e7a84dba65d9ae26bdb1ad856a5899c9edb6b6a",
     "apps/docs/src/mui-docs/generated/demos/checkboxes/Checkboxes.tsx": "cd068ea883203986a96f95f72740641b9ff870df8b0a4348132fbef6a8720c83",
     "apps/docs/src/mui-docs/generated/demos/checkboxes/CheckboxesGroup.tsx": "0897f052ca53f9df8aae22442b3773f224eee71e72578894bc991b36735cf577",
     "apps/docs/src/mui-docs/generated/demos/checkboxes/CheckboxLabels.tsx": "59eaa9368f5e98832cec604bb2e8748f16b8bd175d3787082d79598505717bae",
-    "apps/docs/src/mui-docs/generated/demos/checkboxes/ColorCheckboxes.tsx": "8b1426362d955d3de6db19dee0419e9b27e7fe3207dfbc575cba90775e95a023",
+    "apps/docs/src/mui-docs/generated/demos/checkboxes/ColorCheckboxes.tsx": "d9601d5565072cd1e352849196663c4793027629515d7741a3293f15d990510c",
     "apps/docs/src/mui-docs/generated/demos/checkboxes/ControlledCheckbox.tsx": "fa30b833ac8e56974422e7bad080082b1b8b824e91879090c60c0e613044a170",
     "apps/docs/src/mui-docs/generated/demos/checkboxes/CustomizedCheckbox.tsx": "ad206d4adaa314e2397e77846864d740931ba091c022377bded4810af446d603",
     "apps/docs/src/mui-docs/generated/demos/checkboxes/FormControlLabelPosition.tsx": "6eda829eb80c87d8342d9e96f0604fccc2af6ea2816a4b623b5b9a2054c9490d",
@@ -3728,8 +3801,8 @@
     "apps/docs/src/mui-docs/generated/demos/click-away-listener/ClickAway.tsx": "cac415dfaebcf2ae79b64a35153aa4979708e69f49d180f86f12b60dfea29836",
     "apps/docs/src/mui-docs/generated/demos/click-away-listener/LeadingClickAway.tsx": "fc88fc63db3c8c96c2c0bd32f1ff919b5b55f24178989de6f73b527ebd02665e",
     "apps/docs/src/mui-docs/generated/demos/click-away-listener/PortalClickAway.tsx": "81d04bc237aa4cb875034aad3a9af13fc69ba5d5af45c14d3f382b1cf9a27252",
-    "apps/docs/src/mui-docs/generated/demos/container/FixedContainer.tsx": "c17d297931c6d6ca0e8521fd699428fc1e5f5d81c9740c377c2e10ad5942839b",
-    "apps/docs/src/mui-docs/generated/demos/container/SimpleContainer.tsx": "5842cdd5d0f8b58049d2ec703586a30e57d6574babc7a629066cfbcf12d25bb9",
+    "apps/docs/src/mui-docs/generated/demos/container/FixedContainer.tsx": "46cf03965c926550594ccfbf7af12bc2055b0bd6dc6e9fdb70686688a4ae1d7a",
+    "apps/docs/src/mui-docs/generated/demos/container/SimpleContainer.tsx": "2e5bdf287a4c400ef79012ae2fb748edabcd3bdda44552a77eabb4741a958262",
     "apps/docs/src/mui-docs/generated/demos/dialogs/AlertDialog.tsx": "57d55e67e97d64e8eb9d8e5fef7f46860730e1ca66ec289f9fc0296faef68485",
     "apps/docs/src/mui-docs/generated/demos/dialogs/AlertDialogSlide.tsx": "f519efc51e76b8ca6845a490e47e8701054ad0f6768e6973d8410e1329f189a6",
     "apps/docs/src/mui-docs/generated/demos/dialogs/ConfirmationDialog.tsx": "843a25b99724b3dbda70d1d72c315d8cff5edef05b9a5e6ab02b6029b3f2cde4",
@@ -3738,7 +3811,7 @@
     "apps/docs/src/mui-docs/generated/demos/dialogs/MaxWidthDialog.tsx": "939c829f89cb3a511925a3f3ebee3a016642d7a984862f9b6bae676e5d5f7cce",
     "apps/docs/src/mui-docs/generated/demos/dialogs/ResponsiveDialog.tsx": "9c686c3eed111de6c70b770a855213ff2bd9130fd538d43e9bc006c908c222b2",
     "apps/docs/src/mui-docs/generated/demos/dialogs/ScrollDialog.tsx": "cb517ad757a1f45cc5b9e54745b8ad6b2236605981dde5fe2b149c2432c99680",
-    "apps/docs/src/mui-docs/generated/demos/dialogs/SimpleDialogDemo.tsx": "b7f65806bc30ab19092b3473a52a16e842c78da95adf6aa79a167bf087dba381",
+    "apps/docs/src/mui-docs/generated/demos/dialogs/SimpleDialogDemo.tsx": "c474562e1a9bafa122e3d2eaf706c4daf18268bfc3a7cd680a2f7b6762e81680",
     "apps/docs/src/mui-docs/generated/demos/dividers/DividerText.tsx": "ef191a9b1f2393841a1c6a3dea948fb5489de520c41606c07d16c8b6ebe9d765",
     "apps/docs/src/mui-docs/generated/demos/dividers/DividerVariants.tsx": "5a1f85c80edc374601f24b40237672e6070297af74761251dfe2ed7fb1532cbf",
     "apps/docs/src/mui-docs/generated/demos/dividers/FlexDivider.tsx": "8755ff157ac4bfb60ff36a290cce119524929cb51164846ceecce9869c23d784",
@@ -3752,23 +3825,23 @@
     "apps/docs/src/mui-docs/generated/demos/floating-action-button/FloatingActionButtonExtendedSize.tsx": "ee536715adfe117204596cdc2d78eb759f7ea3f56acf3d607dfa7fd1a30174ab",
     "apps/docs/src/mui-docs/generated/demos/floating-action-button/FloatingActionButtons.tsx": "d83e57fef8b2c30da681277ad6265a8dabca471c19023d9d68f363cb0a0e4ec7",
     "apps/docs/src/mui-docs/generated/demos/floating-action-button/FloatingActionButtonSize.tsx": "b3aabece49f34539d70b38d0cf3beccbe4437ab7c4ecd9fbb82e9a17d991234f",
-    "apps/docs/src/mui-docs/generated/demos/grid/AutoGrid.tsx": "0df75a353efa415004a43753c034804016ff670d4ee435df46d4e3ba41f166f9",
-    "apps/docs/src/mui-docs/generated/demos/grid/BasicGrid.tsx": "4a9cb6d952373ebfcd4262656942696a256c51e5d9d441f229f9a8bef90fbc50",
+    "apps/docs/src/mui-docs/generated/demos/grid/AutoGrid.tsx": "e83e41437684e9805c12a5db7380517b510aa910e27db7e682bb11b1437024f6",
+    "apps/docs/src/mui-docs/generated/demos/grid/BasicGrid.tsx": "5c701372bbd692685b65109ca2c7db764d48008f4ab6649633815aea74d39d44",
     "apps/docs/src/mui-docs/generated/demos/grid/CenteredElementGrid.tsx": "28ae26f614294a93b4a41ab660b9ec3b06e9e786c2cd37b378d098856d83def8",
-    "apps/docs/src/mui-docs/generated/demos/grid/ColumnLayoutInsideGrid.tsx": "85fddfdf7bd61e4c71ee872540f7ce7ed1d29d15d259b8156119e18e58c8eb3c",
-    "apps/docs/src/mui-docs/generated/demos/grid/ColumnsGrid.tsx": "48a00da12ea16c08d8aaa77ef37c6bf0d7028f51a7efc6633311cbe1b1dcb4cf",
+    "apps/docs/src/mui-docs/generated/demos/grid/ColumnLayoutInsideGrid.tsx": "a731a77a73cd94e6065c77a73633fcbd335c44ecd467b5c2f0cf4fa6a0a61f34",
+    "apps/docs/src/mui-docs/generated/demos/grid/ColumnsGrid.tsx": "02d7cd080a2c56a1b1a04c1224eed1293aa47083ac7f38cb41fddfee496e4a2c",
     "apps/docs/src/mui-docs/generated/demos/grid/FullBorderedGrid.tsx": "1206712fce2fa988ec09935a58dd9ba3841a74c1063a1134565ff4297101c333",
-    "apps/docs/src/mui-docs/generated/demos/grid/FullWidthGrid.tsx": "1a9757f14787fbdf25b4516c4d44e873c543f20a8ef79259f624ad80ae6d500f",
+    "apps/docs/src/mui-docs/generated/demos/grid/FullWidthGrid.tsx": "2cde08009a7d1402f4074537ca058fb40a0b96c32666347b3082c5d66fea2963",
     "apps/docs/src/mui-docs/generated/demos/grid/HalfBorderedGrid.tsx": "9003bc6d9ad4d6db066167be6f0776a6b637e73b5f3636dfd2b536b224949801",
-    "apps/docs/src/mui-docs/generated/demos/grid/NestedGrid.tsx": "7a5e46e9f3f61754d06fa4637b14f7cfa12a6646129bfd2cf8495343f6f9c9f9",
-    "apps/docs/src/mui-docs/generated/demos/grid/NestedGridColumns.tsx": "0cc05982523398060617c764b1a94970d1621267cf276171c7be0342ee3d78b6",
-    "apps/docs/src/mui-docs/generated/demos/grid/OffsetGrid.tsx": "45f2a3a03c8c29f18c54745754c47abc089c4b114c58660afc22cb4465672a48",
-    "apps/docs/src/mui-docs/generated/demos/grid/ResponsiveGrid.tsx": "15a7fbae262270d3aeebba94c287cd684f84a227f563cf10d3fbbe6b3892c330",
-    "apps/docs/src/mui-docs/generated/demos/grid/RowAndColumnSpacing.tsx": "c04f2981acc82bdf10bd6a827e00d021c2205e5e6606c5f8844d5f1fc7820614",
-    "apps/docs/src/mui-docs/generated/demos/grid/VariableWidthGrid.tsx": "0d3926aae4cfe3e6d12c13aae45146a59760e6ab01365fe38d330382f117d328",
+    "apps/docs/src/mui-docs/generated/demos/grid/NestedGrid.tsx": "063dc2fb71b62c4609a090fb69ac63d91c5e277556170233f20aca57b8487ba7",
+    "apps/docs/src/mui-docs/generated/demos/grid/NestedGridColumns.tsx": "407e88f7488570f81b7204410339c0460c837c01e378ddcdd044b14e275e7db7",
+    "apps/docs/src/mui-docs/generated/demos/grid/OffsetGrid.tsx": "809a59d3e11d1bced44848d4768ccf8bd0a4c55f7be94d62036797b5d49f98d7",
+    "apps/docs/src/mui-docs/generated/demos/grid/ResponsiveGrid.tsx": "6c5da2e56537cd815c56d6304ce4d109d00a2c690851260004d8b8cc23f6ab2b",
+    "apps/docs/src/mui-docs/generated/demos/grid/RowAndColumnSpacing.tsx": "87ac365969595671c69df502350ba739cf879ade99ef4e6dc9193e5e50d62523",
+    "apps/docs/src/mui-docs/generated/demos/grid/VariableWidthGrid.tsx": "14525dd80658993fba30c2346ec111d6cf2f4deac02b76a3e7743bcde252fb67",
     "apps/docs/src/mui-docs/generated/demos/icons/CreateSvgIcon.tsx": "f67dcf81d04de1d5efef1e10e8335c8128e535312e735665f6d3ef2434f5ef32",
     "apps/docs/src/mui-docs/generated/demos/icons/SvgIconChildren.tsx": "c6866161f0309493fa5ffb2109ab1301401f2a74819f7563222d8d081f329a37",
-    "apps/docs/src/mui-docs/generated/demos/icons/SvgIconsColor.tsx": "13a43b42523c7108a181645284dea13c25485d433941a480305c59c32feeddb9",
+    "apps/docs/src/mui-docs/generated/demos/icons/SvgIconsColor.tsx": "91b4b9e950048979a798593fe63be737320a592eb5ec42ab6c3dc42a38611b19",
     "apps/docs/src/mui-docs/generated/demos/icons/SvgIconsSize.tsx": "ea4def7c29c38e7401a57caf1147c2dae61398f56d3ea267b3daed46c4c2508f",
     "apps/docs/src/mui-docs/generated/demos/icons/SvgMaterialIcons.tsx": "1ae6e54656ad334a7abc61723e88cd47f465087d91cc06553a464a57a0bd9b9c",
     "apps/docs/src/mui-docs/generated/demos/image-list/CustomImageList.tsx": "c0e5a318c07f25d826a62718bf82122f90553b66da2d7fed15faa8cdd0e4abe2",
@@ -3777,7 +3850,7 @@
     "apps/docs/src/mui-docs/generated/demos/image-list/StandardImageList.tsx": "6ce484fa52e046a1d22535539302ccce3eb3998ac58c9fcb7f03ea91d7e193de",
     "apps/docs/src/mui-docs/generated/demos/image-list/TitlebarBelowImageList.tsx": "1816559d5f6edb18c86f2a496336976018769df3dcc6d33c0a504eba457ea861",
     "apps/docs/src/mui-docs/generated/demos/image-list/TitlebarBelowMasonryImageList.tsx": "dd331f2a4eeeeaa0b669c8f4ec066097aedd1072d90a5d2eb1fdfde66d5ac22b",
-    "apps/docs/src/mui-docs/generated/demos/image-list/TitlebarImageList.tsx": "afc5c96323828f1676284ba351fbf4f104ce1b9647686164068243b0199d4784",
+    "apps/docs/src/mui-docs/generated/demos/image-list/TitlebarImageList.tsx": "0444a5e227e001f376bc686a2ba86d28d9a82ee5bb0af9eace2e8588b0a43a00",
     "apps/docs/src/mui-docs/generated/demos/image-list/WovenImageList.tsx": "74b1864a431079b6ed3428e4d046f7e9abad2513d65f43d8f7133c7b1a54178a",
     "apps/docs/src/mui-docs/generated/demos/links/ButtonLink.tsx": "b0ec334915d94d3590ed86f0fd9451d6ddd48130c37a9b693de8311c5ccfa4bf",
     "apps/docs/src/mui-docs/generated/demos/links/Links.tsx": "4a39a11d834240d3517f9ef64d822566489296e99b939e8848e1d45601777152",
@@ -3795,15 +3868,15 @@
     "apps/docs/src/mui-docs/generated/demos/lists/PinnedSubheaderList.tsx": "8d61b15b1ed3245ed9155c4b7cccce9eda32b0cb8028d8423c8a14db8d46a649",
     "apps/docs/src/mui-docs/generated/demos/lists/SelectedListItem.tsx": "f24f5b03e8eed6bd2da9eacb027c0ddbc8a6588ca2f9a94fc9e21258bd7136a4",
     "apps/docs/src/mui-docs/generated/demos/lists/SwitchListSecondary.tsx": "725146b20170055c278217a3ef17ea3718699e95de39cde3e61955415a58f34a",
-    "apps/docs/src/mui-docs/generated/demos/masonry/BasicMasonry.tsx": "6f070dc44f6b45ac48fc601c0d413fd7edc963368b686832229db7fabd009ecf",
-    "apps/docs/src/mui-docs/generated/demos/masonry/FixedColumns.tsx": "13de664cbca4f89022181e6929dc05b0cc845d0673581b74d0e91d9a886c5a19",
-    "apps/docs/src/mui-docs/generated/demos/masonry/FixedSpacing.tsx": "a5cb6f8dbf0512d8146ee0c6ad2551baad8004a9e1431e6be36be14fb6dc93f2",
-    "apps/docs/src/mui-docs/generated/demos/masonry/ImageMasonry.tsx": "08170a715f1745c504e8564ee066af4cc5509521b1116cc2ed76f20c1d280944",
-    "apps/docs/src/mui-docs/generated/demos/masonry/MasonryWithVariableHeightItems.tsx": "af968562c95c51820802c56fa453a114e36972edb85ee62355af751486dd4959",
-    "apps/docs/src/mui-docs/generated/demos/masonry/ResponsiveColumns.tsx": "e77abb1590a551cc3432cb6519af2b861a238925238fd60851a617aabef8ff41",
-    "apps/docs/src/mui-docs/generated/demos/masonry/ResponsiveSpacing.tsx": "7282688b596d6ad67e135f960904042dfeefef3df9fc5d5b0c95c279281b74fc",
-    "apps/docs/src/mui-docs/generated/demos/masonry/Sequential.tsx": "eb7ee23fc20adb0f5b185a4ffa447b637d3099b88298fc1cabee11d85200970e",
-    "apps/docs/src/mui-docs/generated/demos/masonry/SSRMasonry.tsx": "a515355578c435be6a9b4491e354d4f02735d7c88b6ac3405a7f801882020e08",
+    "apps/docs/src/mui-docs/generated/demos/masonry/BasicMasonry.tsx": "1d8f66d5f4b998ad5f2d6e10ea44120f2b51c658932e169dfe8a909d6899e8b9",
+    "apps/docs/src/mui-docs/generated/demos/masonry/FixedColumns.tsx": "8a51784b9c8fa25cb7394d93338fdccb71b76d08da0de15c2af20b0df900de6d",
+    "apps/docs/src/mui-docs/generated/demos/masonry/FixedSpacing.tsx": "ff1f3b39719ee8da2afb50830edfbc1e3e7e926653895b43cd86b2c429f98c44",
+    "apps/docs/src/mui-docs/generated/demos/masonry/ImageMasonry.tsx": "ac7f52a42769842e60fc4e19217d00b76be6e084579b33f4ad7b39d28b83746e",
+    "apps/docs/src/mui-docs/generated/demos/masonry/MasonryWithVariableHeightItems.tsx": "a433424912ceb81a2cd10b64fe63f2364796fa5b5ddfd9a59444fb4ece10849f",
+    "apps/docs/src/mui-docs/generated/demos/masonry/ResponsiveColumns.tsx": "f75d73aa2796577f117a06d249ef4fb6eaa79733363eaafd0dfcf9f5a67b4ddd",
+    "apps/docs/src/mui-docs/generated/demos/masonry/ResponsiveSpacing.tsx": "7ca2c397306152fc024d6ab2990e34663b4be42630a5780d897a33216ff1bfd1",
+    "apps/docs/src/mui-docs/generated/demos/masonry/Sequential.tsx": "ad35a9a5ff8f7f96a7028a2b897ab570ba1affeb8f14918a3c46e071bc713224",
+    "apps/docs/src/mui-docs/generated/demos/masonry/SSRMasonry.tsx": "82a3e9a7c4ba059bc64a09712cf5e8eaa9d049af6f644349f906a9f5c023248a",
     "apps/docs/src/mui-docs/generated/demos/menus/AccountMenu.tsx": "4b38b45148cd1006db4a3ea7c048d95c829062556c9ca3ac54b108de7634685a",
     "apps/docs/src/mui-docs/generated/demos/menus/BasicMenu.tsx": "f90b00cc1aae17c02fd1c40752923df6aa50b611f2e2562672c78a36ccfc8552",
     "apps/docs/src/mui-docs/generated/demos/menus/CheckboxMenu.tsx": "7fe9630ada3d49279c4904ffe17ae98466cc872bcfddde5caa782b2de9fdef64",
@@ -3819,11 +3892,11 @@
     "apps/docs/src/mui-docs/generated/demos/menus/RadioMenu.tsx": "4b73b5e1029e564fdca1b63d13d4eb34ba2efddc099470cf146d13b464a678de",
     "apps/docs/src/mui-docs/generated/demos/menus/SimpleListMenu.tsx": "fca395ffe93d3ef8cc92460a13488cb496b8990402e2a0aa40e4652a0fc70fe1",
     "apps/docs/src/mui-docs/generated/demos/menus/TypographyMenu.tsx": "a47b1b5daf236594b52ce3944cf2957f0633ccf5efe15201205204620085ea8d",
-    "apps/docs/src/mui-docs/generated/demos/modal/BasicModal.tsx": "71160c1f0d43700f8f45be7a1bd674651ccd39a09b190bcc3e2294c65c164f08",
-    "apps/docs/src/mui-docs/generated/demos/modal/KeepMountedModal.tsx": "370c10233dbdcd36279fba3f70e5f4a926e06624c9a333b22d03c74b17a5c733",
-    "apps/docs/src/mui-docs/generated/demos/modal/NestedModal.tsx": "a1caf299edd32086b2003db74ccbc0c633a5bf4868265ba51451b6dfd73d6466",
-    "apps/docs/src/mui-docs/generated/demos/modal/ServerModal.tsx": "67889b6250fcf7e4ddca56d1a38463f446f1990fb41ec5880afdf62762c6f5a3",
-    "apps/docs/src/mui-docs/generated/demos/modal/TransitionsModal.tsx": "77c78ca552603190931b328f308842a5a1f978d2ca486f36d7011f09b549355d",
+    "apps/docs/src/mui-docs/generated/demos/modal/BasicModal.tsx": "fff1bf1d97c1ef22bc623b5240b4af81f309554e7d48237bb4acafff3b2358ae",
+    "apps/docs/src/mui-docs/generated/demos/modal/KeepMountedModal.tsx": "2cc6d862d9c835aea55ac5ff93d7985a46d4f0063daa1bb56b385464f3100173",
+    "apps/docs/src/mui-docs/generated/demos/modal/NestedModal.tsx": "e4fa9aa0a37f8a0ed93944eb377efcadbaa3b56141a6f6a3b71510e8b710fa63",
+    "apps/docs/src/mui-docs/generated/demos/modal/ServerModal.tsx": "7a60141c90147fae1f24c0628a406cca1e8abf63a8cb1e0e6dc20d26be5f561f",
+    "apps/docs/src/mui-docs/generated/demos/modal/TransitionsModal.tsx": "77e528abafa8e624eeff392e03015581ba50ed341973f92786fb45dc963e1e07",
     "apps/docs/src/mui-docs/generated/demos/no-ssr/FrameDeferring.tsx": "6f4e3504c3738ce0684af1fbfbfd8ace75160e2630cf0c73aaa2f2c9ea955af5",
     "apps/docs/src/mui-docs/generated/demos/no-ssr/SimpleNoSsr.tsx": "24e2f8142976cccdaceb4f444e802754afaf7fb07c1407367c04ed20be006961",
     "apps/docs/src/mui-docs/generated/demos/pagination/BasicPagination.tsx": "120c8ea6b1a5b8a3a86f62ab4ef681c79289d698c482a7da53f8af9a470a43d2",
@@ -3853,7 +3926,7 @@
     "apps/docs/src/mui-docs/generated/demos/progress/CircularDeterminate.tsx": "4584a43e9da27a71adce2140bbeed48d87b912ef2a2605a88def48aa2543676d",
     "apps/docs/src/mui-docs/generated/demos/progress/CircularEnableTrack.tsx": "16aa21c423563fca31e39c56023e75478cc56e659884bc11ab9d7e50d4e2e4de",
     "apps/docs/src/mui-docs/generated/demos/progress/CircularIndeterminate.tsx": "620ef4e06ec0070720f1a454a2e0194c8425c775eabab45eddd6667b49aac17d",
-    "apps/docs/src/mui-docs/generated/demos/progress/CircularIntegration.tsx": "8499b0aaebf5b485482910636e436c611874326677547942460f8023dcc7e924",
+    "apps/docs/src/mui-docs/generated/demos/progress/CircularIntegration.tsx": "ad450b49160c8307ac89280ef565fdf145aa65060b0ebd1ec062b1ea3f808a4d",
     "apps/docs/src/mui-docs/generated/demos/progress/CircularSize.tsx": "85bf4bd26a82103b41772199226cdb7d9fd8597afffa93d7e407aebd86a48dc4",
     "apps/docs/src/mui-docs/generated/demos/progress/CircularUnderLoad.tsx": "d5d00ed41cface54e178066143107b49942bc0e0f816f46d5ddab50440e5c323",
     "apps/docs/src/mui-docs/generated/demos/progress/CircularWithValueLabel.tsx": "ee8a1011f85b115de9255e2efe977ebb42213674930fc7b911cf37257d099731",
@@ -3866,7 +3939,7 @@
     "apps/docs/src/mui-docs/generated/demos/progress/LinearQuery.tsx": "ccfb3ceda09c1de6fd5e2beea17bb35b0a75b31d6048f3211f092a59ce4983fe",
     "apps/docs/src/mui-docs/generated/demos/progress/LinearWithAriaValueText.tsx": "60533c0b58640f9cd74b2dcd296110519a21419976dda34fc1d064ddffb6c0b0",
     "apps/docs/src/mui-docs/generated/demos/progress/LinearWithValueLabel.tsx": "e2f3d3bea6302a33ab3c815ac4fafb00c42ee700232c0206a43274a66b5078b1",
-    "apps/docs/src/mui-docs/generated/demos/radio-buttons/ColorRadioButtons.tsx": "0c40738a9c84e6ec4fdc0b0dd6a4724b88eec727c78ff4c8f69fce26f0f8f066",
+    "apps/docs/src/mui-docs/generated/demos/radio-buttons/ColorRadioButtons.tsx": "8eac2dc7cb61849f4365e7a1470789f61b961f38fe39d99a79f32dad5d2e5a91",
     "apps/docs/src/mui-docs/generated/demos/radio-buttons/ControlledRadioButtonsGroup.tsx": "bd33e7ca6524fa915d379e49e8eb3d4f4d7e6bd7773c8ba042c738b5202f302f",
     "apps/docs/src/mui-docs/generated/demos/radio-buttons/CustomizedRadios.tsx": "391301f87bf17a5ed9aba23c7e585aa58426b0de0f6de695adae26d7e7241eb1",
     "apps/docs/src/mui-docs/generated/demos/radio-buttons/ErrorRadios.tsx": "3f780721be0479548cea8e394653a97391af6c03a2da83abb148167a23352d7b",
@@ -3937,12 +4010,12 @@
     "apps/docs/src/mui-docs/generated/demos/speed-dial/OpenIconSpeedDial.tsx": "23bf0a00abbc67c21a3cb1cbfbee6d828db45935643fec70eb90f6a728e931d2",
     "apps/docs/src/mui-docs/generated/demos/speed-dial/PlaygroundSpeedDial.tsx": "77a29d292ab1a08ad5bbb9c43bd149c4c56cee1b0175ed7bd3681122b5999e1e",
     "apps/docs/src/mui-docs/generated/demos/speed-dial/SpeedDialTooltipOpen.tsx": "8c3147b1e29898f4000fa3d4556b73184e1e3042e44dc796e22722dee734ac47",
-    "apps/docs/src/mui-docs/generated/demos/stack/BasicStack.tsx": "005f927aef374c8650b5fd4efd8e6e61e6884f4c5fce459298aecb571df00ea6",
-    "apps/docs/src/mui-docs/generated/demos/stack/DirectionStack.tsx": "673116760fce411b7b5fd6c7060126f6700ff6555ee5a8c4097769b7b8872533",
-    "apps/docs/src/mui-docs/generated/demos/stack/DividerStack.tsx": "9c47cb1ab7a477e38bb7050dcada788088a016c36f524fb244f842cd94a9b44a",
-    "apps/docs/src/mui-docs/generated/demos/stack/FlexboxGapStack.tsx": "47a476d7e1badbdcf4dab1a369f46817cae771666ef055efd9135062e37e13f6",
-    "apps/docs/src/mui-docs/generated/demos/stack/ResponsiveStack.tsx": "35c2f7eb13edefaeeb531df35c0343970f7cee73739000e58575729d3baacd0f",
-    "apps/docs/src/mui-docs/generated/demos/stack/ZeroWidthStack.tsx": "512423f03fed47cc28bf04314353d43bf6fe2d3680ccb30bb4797ae584fc0f09",
+    "apps/docs/src/mui-docs/generated/demos/stack/BasicStack.tsx": "1e6623f8d35ab89359ff737acb0a532f56a208e4ee93c7bfb4fe462a9b302897",
+    "apps/docs/src/mui-docs/generated/demos/stack/DirectionStack.tsx": "6ac0dc02af893a6147e6bdc661baaf66c18cb4a36f3cdd13ef5ae7915fdbae8d",
+    "apps/docs/src/mui-docs/generated/demos/stack/DividerStack.tsx": "d61b7c4239bdfb0384fda65610574ff8c30e5bc5222afe18be81a3afb2d33f14",
+    "apps/docs/src/mui-docs/generated/demos/stack/FlexboxGapStack.tsx": "ca2a5d207ebaf1dd8ca87f5de96e911f207589239ab3c6b6377e5192c29d3890",
+    "apps/docs/src/mui-docs/generated/demos/stack/ResponsiveStack.tsx": "4e044bc7874100f45b8ac125f5e8656e56badd362b9416bd676a0608f3314aaa",
+    "apps/docs/src/mui-docs/generated/demos/stack/ZeroWidthStack.tsx": "cb5f2e0c89e422279f8f4372ecf330ba4727de6e3978aef31c082ac5aab95b7c",
     "apps/docs/src/mui-docs/generated/demos/steppers/CustomizedSteppers.tsx": "4f12b5419040718144d80c68c531ba5af4234fefa96045a0d1ff7ece63849078",
     "apps/docs/src/mui-docs/generated/demos/steppers/DotsMobileStepper.tsx": "74054b2f06fc01d0437add0dacc673caa74c1d2ff109a2a7a6230ba4342cbdb1",
     "apps/docs/src/mui-docs/generated/demos/steppers/HorizontalLinearAlternativeLabelStepper.tsx": "53ba9270136f240e465c3e1c9595102170cf2f23ea60d54c6f628d1ead4a2f5a",
@@ -3953,7 +4026,7 @@
     "apps/docs/src/mui-docs/generated/demos/steppers/TextMobileStepper.tsx": "35afcf5e3da74a1b4f61d8f55defe8d467f7c3ea7cc3a14f54ca34979ccb39ef",
     "apps/docs/src/mui-docs/generated/demos/steppers/VerticalLinearAlternativeLabelStepper.tsx": "e5cf417eb3b113850a652f706e86f9b1ed995064a0d43aeae939d3b20cfbdbe2",
     "apps/docs/src/mui-docs/generated/demos/switches/BasicSwitches.tsx": "2c06d2222bdbd4e0d907ad3854e3d2ab8ae8941b12b186f89cfa213c82b971ee",
-    "apps/docs/src/mui-docs/generated/demos/switches/ColorSwitches.tsx": "81ede332e689638e20f85e47343c771245de04d998e138bf285816db389a44eb",
+    "apps/docs/src/mui-docs/generated/demos/switches/ColorSwitches.tsx": "9c307803f943ca2ecad6909fa092e77201fa6be8241acc06433c805b1b26253e",
     "apps/docs/src/mui-docs/generated/demos/switches/ControlledSwitches.tsx": "eb01614537fcdb68002460b87ca244a6a7719d41fadbb2736d342ad81d1aec5c",
     "apps/docs/src/mui-docs/generated/demos/switches/CustomizedSwitches.tsx": "09c1c7bb3646073939ccc6cfc1c258b59f00859e62f4cab50b67e1dace46ed79",
     "apps/docs/src/mui-docs/generated/demos/switches/FormControlLabelPosition.tsx": "e326f591e89bac7e45b2ace2f363c59eb9ce7be2cb500c9d3c64aa19fdadf796",
@@ -4004,7 +4077,7 @@
     "apps/docs/src/mui-docs/generated/demos/text-fields/Inputs.tsx": "c47185d772189c41d07587d7ba5cfad95530b0acb5065e924af70d2837d0a5f3",
     "apps/docs/src/mui-docs/generated/demos/text-fields/InputSuffixShrink.tsx": "8d72e8a634b6ffd92b977a30e738552c8cca54944152b874f9514fb15d491be7",
     "apps/docs/src/mui-docs/generated/demos/text-fields/InputWithIcon.tsx": "9594b5749a06d4210e85f0a354dc1912c0dd70635523bfcf30958c037eb31817",
-    "apps/docs/src/mui-docs/generated/demos/text-fields/LayoutTextFields.tsx": "d0057d04ed24cf1e6474dad72e31aab970cd0add31209ef5a3c06a2fa4b1c69e",
+    "apps/docs/src/mui-docs/generated/demos/text-fields/LayoutTextFields.tsx": "b74236d4dcb1ef58e3edadfedb232aacec076edcf26cc2a35cda9444a31be586",
     "apps/docs/src/mui-docs/generated/demos/text-fields/MultilineTextFields.tsx": "6d243565300431cb2ff53d451e1bea1019ff5579e766b817afc685cd89207256",
     "apps/docs/src/mui-docs/generated/demos/text-fields/SelectTextFields.tsx": "6163ceeafa2a073acb6a761971b51dd66ac348dd4614f0ce4196ea7bb98999c9",
     "apps/docs/src/mui-docs/generated/demos/text-fields/StateTextFields.tsx": "2d77ebdddb4d9fa87cf20fd3d1575c938ba396bff23e3bdd98722f9d57406022",
@@ -4213,7 +4286,7 @@
     "apps/docs/src/mui-docs/generated/pages/accordion.tsx": "360d2bb247c010f9b0310e92ae4bb8f960ac6a18b85fe6b78f4b05c5e0c3d686",
     "apps/docs/src/mui-docs/generated/pages/alert.tsx": "3713a97bcfc17e973e3d9bee796c8a1ddea669a7748b509dd9af1063e22e671b",
     "apps/docs/src/mui-docs/generated/pages/autocomplete.tsx": "8d65932107499aef659893ccecea7f2111c3f5e0b8750e4de1b23bcdfb46e50e",
-    "apps/docs/src/mui-docs/generated/pages/avatar.tsx": "116bf9d1035d633b5290a8ac3c24d3668d68263f956bd0e973e7d6cee533121c",
+    "apps/docs/src/mui-docs/generated/pages/avatar.tsx": "ea4d908e4a882bab033107ba47a267dbcf1e54847f8755ee2069a73f3ee97b4d",
     "apps/docs/src/mui-docs/generated/pages/backdrop.tsx": "38673d83971cb1a4267b503e1e745ddb3f9f24e264285d3b1fd2f11b4e976367",
     "apps/docs/src/mui-docs/generated/pages/badge.tsx": "b2f057f0430e0a867640c5a313bf3ed5b3692f22ac0c78254d39d5e2e5211945",
     "apps/docs/src/mui-docs/generated/pages/bottom-navigation.tsx": "634bfc4e9ca23802203b6f0065cd1ba84aa8bfd20aedb2e694b85625ee9e3d6d",
