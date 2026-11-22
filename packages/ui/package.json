@@ -318,6 +318,11 @@
       "types": "./dist/Collapse/index.d.ts",
       "default": "./dist/Collapse/index.js"
     },
+    "./ColorSwatchControl": {
+      "@tecton-mui/source": "./src/ColorSwatchControl/index.ts",
+      "types": "./dist/ColorSwatchControl/index.d.ts",
+      "default": "./dist/ColorSwatchControl/index.js"
+    },
     "./Container": {
       "@tecton-mui/source": "./src/Container/index.ts",
       "types": "./dist/Container/index.d.ts",

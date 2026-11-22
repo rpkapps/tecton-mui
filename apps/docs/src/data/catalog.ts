@@ -94,7 +94,7 @@ const group = (id: CategoryId, names: string) =>
 export const componentCategory: Record<string, CategoryId> = {
   ...group(
     'inputs',
-    'ActionBar Autocomplete Button ButtonBase ButtonGroup Checkbox Fab FilledInput FormControl FormControlLabel FormGroup FormHelperText FormLabel IconButton Input InputAdornment InputBase InputLabel NativeSelect NumberField NumberSpinner OutlinedInput Radio RadioGroup Rating Select Slider Switch TextField TextareaAutosize ToggleButton ToggleButtonGroup',
+    'ActionBar Autocomplete Button ButtonBase ButtonGroup Checkbox ColorSwatchControl Fab FilledInput FormControl FormControlLabel FormGroup FormHelperText FormLabel IconButton Input InputAdornment InputBase InputLabel NativeSelect NumberField NumberSpinner OutlinedInput Radio RadioGroup Rating Select Slider Switch TextField TextareaAutosize ToggleButton ToggleButtonGroup',
   ),
   ...group(
     'data-display',
@@ -218,6 +218,13 @@ export const authoredPages: AuthoredPage[] = [
     category: 'inputs',
     components: ['NumberField', 'NumberSpinner'],
     summary: 'Numeric entry with stepper buttons, keyboard stepping, limits and locale formatting.',
+  },
+  {
+    slug: 'color-swatch',
+    title: 'Color Swatch',
+    category: 'inputs',
+    components: ['ColorSwatchControl'],
+    summary: 'Shows a color beside its hex value and opens the color picker to change it.',
   },
   {
     slug: 'select',
