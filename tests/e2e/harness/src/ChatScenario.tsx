@@ -152,6 +152,10 @@ export function ChatScenario() {
   const [narrowAdapter] = React.useState(() => createEchoAdapter({ delayMs: 50 }));
   const [plainAdapter] = React.useState(() => createEchoAdapter({ delayMs: 50 }));
   const [colorAdapter] = React.useState(() => createEchoAdapter({ delayMs: 50 }));
+  // Slow enough to see the dots shown before the answer starts.
+  const [assistantAdapter] = React.useState(() =>
+    createEchoAdapter({ delayMs: 1500, respond: (text) => `Echo: ${text}` }),
+  );
   return (
     <Box
       sx={{
@@ -279,6 +283,20 @@ export function ChatScenario() {
           variant="compact"
           features={{ conversationHeader: false }}
           sx={{ height: 360 }}
+        />
+      </Paper>
+      <Paper variant="outlined" sx={{ p: 2 }} data-testid="chat-assistant">
+        <Typography variant="h5" gutterBottom>
+          Assistant variant
+        </Typography>
+        <ChatBox
+          adapter={assistantAdapter}
+          members={members}
+          currentUser={you}
+          initialMessages={[...thread, ...colorThread.map(({ conversationId: _c, ...m }) => m)]}
+          variant="assistant"
+          features={{ conversationHeader: false }}
+          sx={{ height: 480 }}
         />
       </Paper>
     </Box>

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Box from '@tecton-mui/ui/Box';
-import ChatBox from '@tecton-mui/ui/ChatBox';
+import ChatBox, { type ChatBoxVariant } from '@tecton-mui/ui/ChatBox';
 import type { ChatAdapter, ChatMessageChunk, ChatUser } from '@tecton-mui/ui/ChatHeadless';
 import {
   Playground,
@@ -99,6 +99,7 @@ function AgentChat({ values }: { values: PlaygroundValues }) {
         suggestions={['Can we start the rig move?']}
         suggestionsAutoSubmit
         features={{ conversationHeader: false }}
+        variant={values.variant as ChatBoxVariant}
         sx={{ height: '100%' }}
       />
     </Box>
@@ -106,6 +107,13 @@ function AgentChat({ values }: { values: PlaygroundValues }) {
 }
 
 const controls: PlaygroundControl[] = [
+  {
+    name: 'variant',
+    kind: 'enum',
+    options: ['default', 'assistant'],
+    defaultValue: 'default',
+    help: 'assistant: full-width answers, as in AI assistants.',
+  },
   { name: 'reasoning', kind: 'boolean', defaultValue: true, help: 'reasoning-* chunks.' },
   {
     name: 'tools',
