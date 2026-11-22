@@ -22,6 +22,22 @@ const CHANNEL_THRESHOLD = 24;
 /** Default share of differing pixels a story may have. */
 const DEFAULT_TOLERANCE = 0.0005;
 
+// Grayscale text antialiasing on both sides. Chromium draws LCD (subpixel) text only into opaque
+// composited layers, so the same text can differ by how the page is layered alone. Example: our
+// Menu paper fits its list (compat.ts drops Tecton's 1px overflow, which showed a scrollbar on every
+// menu), so the menu text is painted on the transparent popover layer, while the Storybook's paper
+// overflows and becomes an opaque scrolling layer. Same glyphs and colors, but LCD against grayscale
+// antialiasing made `molecules-select--open` differ by about 0.2 %. The suite compares styles, not
+// layer trees.
+test.use({
+  launchOptions: {
+    ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE
+      ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE }
+      : {}),
+    args: ['--disable-lcd-text'],
+  },
+});
+
 interface ParityCase {
   /** Storybook story id. */
   id: string;
