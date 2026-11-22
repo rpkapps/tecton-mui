@@ -3,6 +3,7 @@
 // own keyboard navigation does not know about:
 // - the header filter row sits between the column headers and the first row;
 // - detail panel rows are not navigation stops (as in the MUI grid): Up/Down step over them.
+// It also moves a focused column header with Alt+Left/Right (column reordering from the keyboard).
 // Runs in the capture phase on the grid root so it takes over these keys before Community moves
 // the focus (Community's handler cannot be cancelled through `defaultMuiPrevented`).
 import * as React from 'react';
@@ -17,6 +18,8 @@ export interface KeyboardNavigationOptions {
   pageRows: () => readonly object[];
   isDetailRow: (row: object) => boolean;
   getRowId: (row: object) => GridRowId;
+  /** Moves a column one place within its section; false when it cannot move. */
+  moveColumn?: (field: string, delta: number) => boolean;
 }
 
 const isPlain = (e: KeyboardEvent) => !e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey;
@@ -30,6 +33,16 @@ export function useKeyboardNavigation(options: KeyboardNavigationOptions): void 
     const root = options.rootRef.current;
     if (!root) return undefined;
     const onKeyDown = (event: KeyboardEvent) => {
+      if (
+        (event.key === 'ArrowLeft' || event.key === 'ArrowRight') &&
+        event.altKey &&
+        !event.ctrlKey &&
+        !event.metaKey &&
+        !event.shiftKey
+      ) {
+        moveHeader(event);
+        return;
+      }
       if ((event.key !== 'ArrowDown' && event.key !== 'ArrowUp') || !isPlain(event)) return;
       const opts = optionsRef.current;
       const api = opts.apiRef.current;
@@ -74,7 +87,38 @@ export function useKeyboardNavigation(options: KeyboardNavigationOptions): void 
       api.scrollToIndexes({ rowIndex: next, colIndex });
       api.setCellFocus(opts.getRowId(rows[next]!), field);
     };
+    // Alt+Left/Right on a column header moves the column within its pinned section.
+    let refocus = 0;
+    const moveHeader = (event: KeyboardEvent) => {
+      const { moveColumn, apiRef } = optionsRef.current;
+      const header = (event.target as HTMLElement).closest<HTMLElement>(
+        '.MuiDataGrid-columnHeader[data-field]',
+      );
+      if (!moveColumn || !header || !root.contains(header)) return;
+      // Alt+Left/Right is also the browser's Back/Forward: never leave the page from a header.
+      event.preventDefault();
+      event.stopPropagation();
+      const field = header.dataset.field!;
+      const rtl = getComputedStyle(header).direction === 'rtl';
+      if (!moveColumn(field, (event.key === 'ArrowLeft') !== rtl ? -1 : 1)) return;
+      // The header re-renders in its new place once the grid takes the new columns; keep the
+      // keyboard on it.
+      cancelAnimationFrame(refocus);
+      refocus = requestAnimationFrame(() => {
+        refocus = requestAnimationFrame(() => {
+          const api = apiRef.current;
+          if (api) api.scrollToIndexes({ colIndex: api.getColumnIndex(field) });
+          const moved = root.querySelector<HTMLElement>(
+            `.MuiDataGrid-columnHeader[data-field="${field.replace(/["\\]/g, '\\$&')}"]`,
+          );
+          if (moved && moved !== document.activeElement) moved.focus({ preventScroll: true });
+        });
+      });
+    };
     root.addEventListener('keydown', onKeyDown, true);
-    return () => root.removeEventListener('keydown', onKeyDown, true);
+    return () => {
+      cancelAnimationFrame(refocus);
+      root.removeEventListener('keydown', onKeyDown, true);
+    };
   }, [options.rootRef]);
 }

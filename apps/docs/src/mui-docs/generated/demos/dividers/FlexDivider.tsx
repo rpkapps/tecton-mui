@@ -16,7 +16,7 @@ export default function FlexDivider() {
         borderRadius: 2,
         bgcolor: 'background.paper',
         color: 'text.secondary',
-        '& svg': {
+        '& svg, & .TectonIcon-root': {
           m: 1,
         },
       }}

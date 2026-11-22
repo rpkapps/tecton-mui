@@ -2,4 +2,4 @@
  * stand-in for @mui/icons-material/FastRewindRounded. Do not edit. */
 import { createMuiIcon } from '../../runtime/MuiIcon';
 
-export default createMuiIcon('chevron-left', 'filled', 'FastRewindRounded');
+export default createMuiIcon('arrow-left', 'filled', 'FastRewindRounded');

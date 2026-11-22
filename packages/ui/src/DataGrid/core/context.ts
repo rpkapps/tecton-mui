@@ -1,5 +1,11 @@
 import * as React from 'react';
-import type { GridColDef, GridFilterModel, GridRowId, GridSortModel } from '@mui/x-data-grid';
+import type {
+  GridColDef,
+  GridFilterItem,
+  GridFilterModel,
+  GridRowId,
+  GridSortModel,
+} from '@mui/x-data-grid';
 import type {
   GridAggregationFunction,
   GridGroupNodeInfo,
@@ -44,7 +50,14 @@ export interface GridActions {
   setPageSize: (pageSize: number) => void;
   setSortModel: (model: GridSortModel) => void;
   setFilterModel: (model: GridFilterModel) => void;
-  upsertHeaderFilter: (field: string, operator: string, value: unknown) => void;
+  /**
+   * Replaces the first filter item of `field` (the one its header filter shows) with what `update`
+   * returns for it: an item to add or update, or `null` to remove it.
+   */
+  updateHeaderFilter: (
+    field: string,
+    update: (current: GridFilterItem | undefined) => GridFilterItem | null,
+  ) => void;
   pinColumn: (field: string, side: 'left' | 'right' | null) => void;
   moveColumn: (field: string, delta: number) => void;
   toggleRowGrouping: (field: string) => void;

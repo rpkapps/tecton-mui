@@ -33,7 +33,48 @@
       "package": "@mui/material",
       "source": "docs/data/material/components/autocomplete/autocomplete.md",
       "status": "included",
-      "target": "autocomplete"
+      "target": "autocomplete",
+      "demoEdits": {
+        "GitHubLabel": [
+          {
+            "find": "  '& span': {\n    width: '100%',\n  },\n  '& svg': {\n    width: 16,\n    height: 16,\n  },",
+            "replace": "  '& span:not(.TectonIcon-root)': {\n    width: '100%',\n  },\n  '& svg, & .TectonIcon-root': {\n    width: 16,\n    height: 16,\n  },",
+            "reason": "Docs icons are Tecton <span class=\"TectonIcon-root\"> elements, not <svg>: the label rule stretched the gear to the full button width and the 16px icon rule never applied."
+          }
+        ],
+        "CustomizedHook": [
+          {
+            "find": "  '& span': {\n    overflow: 'hidden',",
+            "replace": "  '& span:not(.TectonIcon-root)': {\n    overflow: 'hidden',",
+            "reason": "Docs icons are Tecton <span> elements: keep the tag's text rule off the delete icon."
+          },
+          {
+            "find": "  '& svg': {\n    fontSize: '12px',",
+            "replace": "  '& svg, & .TectonIcon-root': {\n    fontSize: '12px',",
+            "reason": "Docs icons are Tecton <span> elements, not <svg>: apply the tag's 12px delete icon size to them."
+          },
+          {
+            "find": "    '& span': {\n      flexGrow: 1,",
+            "replace": "    '& span:not(.TectonIcon-root)': {\n      flexGrow: 1,",
+            "reason": "Docs icons are Tecton <span> elements: keep the option label rule from stretching the check icon."
+          },
+          {
+            "find": "    '& svg': {\n      color: 'transparent',",
+            "replace": "    '& svg, & .TectonIcon-root': {\n      color: 'transparent',",
+            "reason": "Docs icons are Tecton <span> elements, not <svg>: hide the check on unselected options as the demo intends."
+          },
+          {
+            "find": "    '& svg': {\n      color: '#1890ff',",
+            "replace": "    '& svg, & .TectonIcon-root': {\n      color: '#1890ff',",
+            "reason": "Docs icons are Tecton <span> elements, not <svg>: colour the check on selected options."
+          },
+          {
+            "find": "    '& svg': {\n      color: 'currentColor',",
+            "replace": "    '& svg, & .TectonIcon-root': {\n      color: 'currentColor',",
+            "reason": "Docs icons are Tecton <span> elements, not <svg>: show the check on the focused option."
+          }
+        ]
+      }
     },
     {
       "package": "@mui/material",
@@ -51,7 +92,16 @@
       "package": "@mui/material",
       "source": "docs/data/material/components/checkboxes/checkboxes.md",
       "status": "included",
-      "target": "checkboxes"
+      "target": "checkboxes",
+      "demoEdits": {
+        "SizeCheckboxes": [
+          {
+            "find": "sx={{ '& .MuiSvgIcon-root': { fontSize: 28 } }}",
+            "replace": "sx={{ '& .MuiSvgIcon-root, & [class*=\"tecton-\"]': { fontSize: 28 } }}",
+            "reason": "Tecton's checkbox icon is a <span class=\"tecton-checkbox-…\">, not an SvgIcon: without this the custom 28px size stayed at the medium 20px."
+          }
+        ]
+      }
     },
     {
       "package": "@mui/material",
@@ -72,7 +122,16 @@
       "package": "@mui/material",
       "source": "docs/data/material/components/radio-buttons/radio-buttons.md",
       "status": "included",
-      "target": "radio-buttons"
+      "target": "radio-buttons",
+      "demoEdits": {
+        "SizeRadioButtons": [
+          {
+            "find": "          '& .MuiSvgIcon-root': {\n            fontSize: 28,",
+            "replace": "          '& .MuiSvgIcon-root, & [class*=\"tecton-\"]': {\n            fontSize: 28,",
+            "reason": "Tecton's radio icon is a <span class=\"tecton-radio-button-…\">, not an SvgIcon: without this the custom 28px size stayed at the medium 20px."
+          }
+        ]
+      }
     },
     {
       "package": "@mui/material",
@@ -152,7 +211,30 @@
       "package": "@mui/material",
       "source": "docs/data/material/components/dividers/dividers.md",
       "status": "included",
-      "target": "dividers"
+      "target": "dividers",
+      "demoEdits": {
+        "VerticalDividers": [
+          {
+            "find": "        '& svg': {\n          m: 1,",
+            "replace": "        '& svg, & .TectonIcon-root': {\n          m: 1,",
+            "reason": "Docs icons are Tecton <span> elements, not <svg>: without the margin the icons touched each other and the border, and the middle divider shrank to a tick."
+          }
+        ],
+        "VerticalDividerMiddle": [
+          {
+            "find": "        '& svg': {\n          m: 1,",
+            "replace": "        '& svg, & .TectonIcon-root': {\n          m: 1,",
+            "reason": "Docs icons are Tecton <span> elements, not <svg>: without the margin the icons touched each other and the border."
+          }
+        ],
+        "FlexDivider": [
+          {
+            "find": "        '& svg': {\n          m: 1,",
+            "replace": "        '& svg, & .TectonIcon-root': {\n          m: 1,",
+            "reason": "Docs icons are Tecton <span> elements, not <svg>: without the margin the icons touched each other and the border."
+          }
+        ]
+      }
     },
     {
       "package": "@mui/material",
@@ -345,7 +427,16 @@
       "package": "@mui/material",
       "source": "docs/data/material/components/menus/menus.md",
       "status": "included",
-      "target": "menus"
+      "target": "menus",
+      "demoEdits": {
+        "CustomizedMenus": [
+          {
+            "find": "      '& .MuiSvgIcon-root': {\n        fontSize: 18,",
+            "replace": "      '& .MuiSvgIcon-root, & .TectonIcon-root': {\n        fontSize: 18,",
+            "reason": "Docs icons are Tecton <span class=\"TectonIcon-root\"> elements, not SvgIcons: without this the menu icons rendered at 20px with no gap before their labels."
+          }
+        ]
+      }
     },
     {
       "package": "@mui/material",

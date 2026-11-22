@@ -70,13 +70,18 @@ operator, value); **Add filter** adds another, and the first operator chooses wh
 can be controlled, saved and restored. `disableMultipleColumnsFiltering` limits the panel to one
 condition.
 
+Header filters and the panel edit the same conditions: a value typed in a header filter appears in
+the panel, and a header filter shows the first panel condition of its column. **Remove all** clears
+the header filters too.
+
 <Demo name="FilterPanel" />
 
 ## Column pinning and reordering
 
 Pinned columns stay visible while scrolling horizontally. Pin with `pinnedColumns` /
 `initialState.pinnedColumns` or from the column menu. Drag headers to reorder columns within their
-section; the column menu offers the same moves for keyboard users.
+section. From the keyboard, focus a header and press <kbd>Alt</kbd>+<kbd>Arrow Left</kbd>/<kbd>Arrow
+Right</kbd>, or use the column menu's Move items.
 
 <Demo name="PinningReordering" />
 

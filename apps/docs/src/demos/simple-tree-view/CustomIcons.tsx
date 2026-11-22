@@ -11,7 +11,7 @@ function CollapseIcon() {
   return <Icon name="folder-open" size="small" />;
 }
 function LeafIcon() {
-  return <Icon name="log-curve" size="small" />;
+  return <Icon name="trend" size="small" />;
 }
 const slots = { expandIcon: ExpandIcon, collapseIcon: CollapseIcon, endIcon: LeafIcon };
 

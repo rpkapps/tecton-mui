@@ -39,8 +39,32 @@ function tectonIcon(glyph: string): Slot {
   return Comp;
 }
 
+/** A Tecton glyph slot at a fixed Tecton icon size (`icon-size-150` = 20px, `icon-size-200` = 24px). */
+function sizedTectonIcon(glyph: string, size: 'icon-size-150' | 'icon-size-200'): Slot {
+  const Base = tectonIcon(glyph);
+  const Comp: Slot = (props) =>
+    React.createElement(Base, {
+      ...props,
+      style: { fontSize: `var(--tecton-${size})`, ...(props.style as object | undefined) },
+    });
+  Comp.displayName = 'TectonSlotIcon';
+  return Comp;
+}
+
+// Left edge of each chevron of a « / » pair, in em. The regular chevron's ink spans 0.338–0.625em
+// of its box (mirrored for right); 0.3em between the two strokes reads as one double chevron, and
+// the offsets centre the pair in the 1em box. The `-small` chevrons were 0.36em tall against the
+// single previous / next chevrons' 0.49em, so the first / last buttons looked a size smaller.
+const DOUBLE_CHEVRON_LEFTS = { left: ['-0.13em', '0.17em'], right: ['-0.17em', '0.13em'] } as const;
+
 /** Two Tecton chevrons (« / »): first / last page. Tecton has no first/last page glyph. */
 function doubleChevron(direction: 'left' | 'right'): Slot {
+  // Absolutely placed, so the pair is the same in RTL, where MUI swaps the first / last slots.
+  const chevron = (left: string) =>
+    React.createElement('span', {
+      className: `tecton-chevron-${direction}-outline`,
+      style: { position: 'absolute', top: 0, left },
+    });
   const Comp: Slot = (props) =>
     React.createElement(
       'span',
@@ -48,17 +72,15 @@ function doubleChevron(direction: 'left' | 'right'): Slot {
         ...spanProps(props),
         'aria-hidden': true,
         style: {
-          display: 'inline-flex',
+          display: 'inline-block',
+          position: 'relative',
           width: '1em',
           height: '1em',
+          flexShrink: 0,
           ...(props.style as object | undefined),
         },
       },
-      React.createElement('span', {
-        className: `tecton-chevron-${direction}-small-outline`,
-        style: { marginInlineEnd: '-0.5em' },
-      }),
-      React.createElement('span', { className: `tecton-chevron-${direction}-small-outline` }),
+      ...DOUBLE_CHEVRON_LEFTS[direction].map(chevron),
     );
   Comp.displayName = 'TectonSlotIcon';
   return Comp;
@@ -130,6 +152,10 @@ function TectonStepIcon(props: StepIconProps) {
       // MUI's StepIcon: 24px, primary when completed, error.main on error.
       fontSize: '1.5rem',
       color: error ? theme.palette.error.main : theme.palette.primary.main,
+      // MUI's completed check is a full 24px disc, like the numbered circles beside it. Tecton's
+      // check-circle glyph fills 5/6 of its box (a 20px disc), so draw it 6/5 larger in the same
+      // 24px box. The warning triangle already spans its box.
+      ...(error ? null : { maskSize: '120%', WebkitMaskSize: '120%' }),
     },
   });
 }
@@ -176,8 +202,10 @@ export const iconCompatOverrides: NonNullable<ThemeOptions['components']> = {
   },
   MuiDateTimePickerTabs: {
     defaultProps: {
-      dateIcon: React.createElement(CALENDAR),
-      timeIcon: React.createElement(CLOCK),
+      // 20px, the size of the field's own open-picker icon. Without a size the glyphs took the
+      // tab's 14px text size and looked a tier smaller than every other picker icon.
+      dateIcon: React.createElement(sizedTectonIcon('tecton-calendar-outline', 'icon-size-150')),
+      timeIcon: React.createElement(sizedTectonIcon('tecton-history-outline', 'icon-size-150')),
     },
   },
   MuiPaginationItem: {
@@ -192,7 +220,12 @@ export const iconCompatOverrides: NonNullable<ThemeOptions['components']> = {
   },
   MuiTabs: {
     defaultProps: {
-      slots: { startScrollButtonIcon: CHEVRON_LEFT, endScrollButtonIcon: CHEVRON_RIGHT },
+      // MUI draws the scroll arrows as `fontSize="small"` (20px) SvgIcons, a prop the Tecton span
+      // drops; without a size they took the tab's 14px text size.
+      slots: {
+        startScrollButtonIcon: sizedTectonIcon('tecton-chevron-left-outline', 'icon-size-150'),
+        endScrollButtonIcon: sizedTectonIcon('tecton-chevron-right-outline', 'icon-size-150'),
+      },
     },
   },
   MuiBreadcrumbs: { defaultProps: { slots: { CollapsedIcon: MoreHorizIcon } } },
