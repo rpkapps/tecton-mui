@@ -29,7 +29,6 @@ export default function FieldInputVariants() {
             key={variant}
             label={`At (${variant})`}
             variant={variant}
-            size="small"
             defaultValue={sampled}
           />
         ))}

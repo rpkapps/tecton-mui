@@ -66,7 +66,7 @@ export function App() {
     <ThemeProvider>
       <CssBaseline />
       <Stack direction="row" spacing={2}>
-        <TextField label="Well name" size="small" />
+        <TextField label="Well name" />
         <Button variant="contained">Save</Button>
       </Stack>
     </ThemeProvider>
@@ -120,7 +120,6 @@ function Showcase() {
           <TextField
             label="Field"
             select
-            size="small"
             fullWidth
             value={field}
             onChange={(e) => setField(e.target.value)}
@@ -129,7 +128,7 @@ function Showcase() {
             <MenuItem value="sleipner">Sleipner</MenuItem>
             <MenuItem value="johan-sverdrup">Johan Sverdrup</MenuItem>
           </TextField>
-          <TextField label="Target depth" size="small" fullWidth defaultValue="3 520 m MD" />
+          <TextField label="Target depth" fullWidth defaultValue="3 520 m MD" />
         </Stack>
         <ToggleButtonGroup
           exclusive

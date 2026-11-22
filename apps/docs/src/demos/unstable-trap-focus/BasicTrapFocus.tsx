@@ -29,7 +29,7 @@ export default function BasicTrapFocus() {
               <Typography id="trap-focus-title" variant="subtitle1" component="h3">
                 Rename well
               </Typography>
-              <TextField label="Well name" size="small" defaultValue="WELL-17" />
+              <TextField label="Well name" defaultValue="WELL-17" />
               <Stack direction="row" spacing={1} sx={{ justifyContent: 'flex-end' }}>
                 <Button onClick={() => setOpen(false)}>Cancel</Button>
                 <Button variant="contained" onClick={() => setOpen(false)}>
