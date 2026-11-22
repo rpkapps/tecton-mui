@@ -2,4 +2,4 @@
  * stand-in for @mui/icons-material/ArrowDropDown. Do not edit. */
 import { createMuiIcon } from '../../runtime/MuiIcon';
 
-export default createMuiIcon('chevron-down-small', 'filled', 'ArrowDropDown');
+export default createMuiIcon('chevron-down', 'filled', 'ArrowDropDown');

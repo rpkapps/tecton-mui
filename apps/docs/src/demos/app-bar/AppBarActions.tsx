@@ -21,10 +21,10 @@ export default function AppBarActions() {
       {/* `children` fill the actions region at the right end of the bar. */}
       <Stack direction="row" spacing={2} sx={{ alignItems: 'center', height: '100%' }}>
         <Stack direction="row" spacing={1}>
-          <IconButton size="small" color="tertiary" aria-label="Search">
+          <IconButton color="tertiary" aria-label="Search">
             <Icon name="search" />
           </IconButton>
-          <IconButton size="small" color="tertiary" aria-label="Notifications">
+          <IconButton color="tertiary" aria-label="Notifications">
             <Icon name="notifications" />
           </IconButton>
         </Stack>
@@ -52,13 +52,13 @@ export default function AppBarActions() {
       >
         <MenuItem onClick={() => setAnchor(null)}>
           <ListItemIcon>
-            <Icon name="person" />
+            <Icon name="person" size="small" />
           </ListItemIcon>
           Profile
         </MenuItem>
         <MenuItem onClick={() => setAnchor(null)}>
           <ListItemIcon>
-            <Icon name="settings" />
+            <Icon name="settings" size="small" />
           </ListItemIcon>
           Settings
         </MenuItem>

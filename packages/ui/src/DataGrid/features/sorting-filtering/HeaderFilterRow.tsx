@@ -61,6 +61,10 @@ const ANY_OF = 'isAnyOf';
 // when the RTL stylis plugin is active.
 const PLACEHOLDER = { color: cssVar('color-input-filled-text-placeholder'), opacity: 1 };
 const PLACEHOLDER_SX = {
+  // A narrow column ends a text placeholder with an ellipsis instead of cutting it mid-letter.
+  // Not on number / date inputs: Chrome keeps room there for the hidden spinner, so the ellipsis
+  // would cut placeholders that fit.
+  '&[type="text"]': { textOverflow: 'ellipsis' },
   '&::-webkit-input-placeholder': PLACEHOLDER,
   '&::-moz-placeholder': PLACEHOLDER,
 };

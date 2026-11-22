@@ -23,7 +23,7 @@ export default function SecondaryActionWrapper() {
           // for it.
           <ListItem key={item.id} sx={{ pr: 10 }}>
             <ListItemIcon>
-              <Icon name={item.icon} />
+              <Icon name={item.icon} size="medium" />
             </ListItemIcon>
             <ListItemText id={`secondary-action-${item.id}`} primary={item.label} />
             <ListItemSecondaryAction>
