@@ -94,6 +94,54 @@ test.describe('NumberSlider and NumberRangeSlider', () => {
     await expect(end).toHaveValue('72');
   });
 
+  test('dragging between the range thumbs moves both values', async ({ page }) => {
+    await page.goto('/?scenario=number-slider');
+    const root = field(page, 'Frequency');
+    const start = page.getByRole('textbox', { name: 'Frequency minimum' });
+    const end = page.getByRole('textbox', { name: 'Frequency maximum' });
+    // 10–50 of 80: grab at 30 (37.5%) and drag by 20 (25%).
+    await dragRail(page, root, 0.375, 0.625);
+    await expect(start).toHaveValue('30');
+    await expect(end).toHaveValue('70');
+    // Dragged past the end of the bar, the range stops at max and keeps its width.
+    await dragRail(page, root, 0.625, 1);
+    await expect(start).toHaveValue('40');
+    await expect(end).toHaveValue('80');
+  });
+
+  test('the cursor shows whether a thumb or the whole range moves', async ({ page }) => {
+    await page.goto('/?scenario=number-slider');
+    const root = field(page, 'Frequency');
+    const bar = rail(root);
+    const track = root.locator('[class*="-track"]');
+    const cursorAt = (fraction: number) =>
+      bar.evaluate((el, f) => {
+        const rect = el.getBoundingClientRect();
+        const x = rect.left + 2 + f * (rect.width - 4);
+        const hit = document.elementFromPoint(x, rect.top + rect.height / 2)!;
+        return getComputedStyle(hit).cursor;
+      }, fraction);
+    await expect(bar).toHaveCSS('cursor', 'ew-resize');
+    await expect(track).toHaveCSS('cursor', 'grab');
+    expect(await cursorAt(0.375)).toBe('grab'); // between the thumbs
+    expect(await cursorAt(0.125)).toBe('ew-resize'); // on the start thumb
+    expect(await cursorAt(0.9)).toBe('ew-resize'); // outside the range
+    // While the range is dragged, the whole bar shows a closed hand.
+    const box = (await bar.boundingBox())!;
+    await page.mouse.move(box.x + 2 + 0.375 * (box.width - 4), box.y + box.height / 2);
+    await page.mouse.down();
+    await expect(bar).toHaveAttribute('data-dragging', 'range');
+    await expect(bar).toHaveCSS('cursor', 'grabbing');
+    await expect(track).toHaveCSS('cursor', 'grabbing');
+    await page.mouse.up();
+    await expect(bar).not.toHaveAttribute('data-dragging');
+    // A single-value slider has no range to grab.
+    await expect(rail(field(page, 'Opacity')).locator('[class*="-track"]')).toHaveCSS(
+      'cursor',
+      'ew-resize',
+    );
+  });
+
   test('the keyboard reaches both range values but never the bars', async ({ page }) => {
     await page.goto('/?scenario=number-slider');
     const start = page.getByRole('textbox', { name: 'Frequency minimum' });

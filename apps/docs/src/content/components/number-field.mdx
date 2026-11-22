@@ -44,8 +44,11 @@ durations, levels or opacity, where both the position and the exact number matte
 
 `NumberRangeSlider` does the same for a range. Its value is `[start, end]`; the bar has a line at each
 end and is tinted between them, and the input shows both numbers around a dash. Pressing the bar moves
-the nearer end, and an end stops at the other one, so `start` never exceeds `end`. Each number can be
-typed or stepped on its own.
+the nearer end, and an end stops at the other one, so `start` never exceeds `end`. Drag the tinted part
+between the two ends to slide the whole range: both values move by the same amount, the width stays,
+and the range stops at `min` and `max`. The cursor tells the two apart: a sideways arrow over the ends
+and the rest of the bar, and a hand over the part between the ends. Each number can be typed or stepped
+on its own.
 
 <Demo name="SliderNumberField" />
 
