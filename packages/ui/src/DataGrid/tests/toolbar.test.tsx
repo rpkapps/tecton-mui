@@ -79,6 +79,32 @@ describe('DataGrid toolbar', () => {
     }
   });
 
+  describe('quick filter size', () => {
+    const field = () => screen.getByRole('searchbox').closest('.MuiInputBase-root')!;
+
+    it('is md by default, the height of the toolbar buttons', () => {
+      render(<Grid showToolbar />);
+      expect(field()).not.toHaveClass('MuiInputBase-sizeSmall');
+    });
+
+    it('takes a size from quickFilterProps', () => {
+      render(
+        <Grid
+          showToolbar
+          slotProps={{
+            toolbar: { quickFilterProps: { slotProps: { root: { size: 'small' } } } } as never,
+          }}
+        />,
+      );
+      expect(field()).toHaveClass('MuiInputBase-sizeSmall');
+    });
+
+    it("takes a size from the grid's baseTextField slot props", () => {
+      render(<Grid showToolbar slotProps={{ baseTextField: { size: 'small' } }} />);
+      expect(field()).toHaveClass('MuiInputBase-sizeSmall');
+    });
+  });
+
   it('passes the active filter count to a custom FilterPanelTrigger', () => {
     function CustomToolbar() {
       return (

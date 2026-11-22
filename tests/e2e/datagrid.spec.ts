@@ -482,20 +482,21 @@ test.describe('DataGrid advanced features', () => {
     // The first condition targets the first column (ID, "=").
     await panel.locator('.MuiDataGrid-filterFormValueInput input').first().fill('5');
     await expect(footer).toContainText('1–1 of 1');
-    // A second condition: its And/Or selector and delete button line up with its inputs.
+    // A second condition: its And/Or selector and delete button line up with its md (32px) inputs.
     await panel.getByRole('button', { name: 'Add filter' }).click();
-    const tops = await panel
+    const boxes = await panel
       .locator('.MuiDataGrid-filterForm')
       .nth(1)
       .evaluate((form) =>
-        Array.from(form.children).map((child) =>
-          Math.round(
-            (child.querySelector('.MuiInputBase-root, button') ?? child).getBoundingClientRect()
-              .top,
-          ),
-        ),
+        Array.from(form.children).map((child) => {
+          const box = (
+            child.querySelector('.MuiInputBase-root, button') ?? child
+          ).getBoundingClientRect();
+          return { middle: Math.round(box.top + box.height / 2), height: Math.round(box.height) };
+        }),
       );
-    expect(new Set(tops).size).toBe(1);
+    expect(new Set(boxes.map((b) => b.middle)).size).toBe(1);
+    expect(boxes.slice(1).map((b) => b.height)).toEqual([32, 32, 32, 32]);
     await page.keyboard.press('Escape');
     await expect(filters.locator('.MuiBadge-badge')).not.toHaveClass(/MuiBadge-invisible/);
     // Toolbar icons are Tecton icons, not Material SVGs.

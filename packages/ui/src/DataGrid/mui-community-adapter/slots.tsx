@@ -97,6 +97,22 @@ export function FilterIconSlot(props: FilterIconProps) {
 
 let newFilterId = 0;
 
+// The filter form gives each value input `slotProps.root.size: 'small'`, applied after the grid's
+// slot props, so the md size of the Tecton drop-in filter menu is set per condition here. An
+// operator's own `InputComponentProps.slotProps` (a size included) is kept.
+const MD_VALUE_INPUT = { InputComponentProps: { slotProps: { root: { size: 'medium' } } } };
+function mdValueInput(columns: readonly GridColDef[], item: GridFilterItem) {
+  const operator = columns
+    .find((c) => c.field === item.field)
+    ?.filterOperators?.find((o) => o.value === item.operator);
+  const own = operator?.InputComponentProps?.slotProps as
+    { root?: Record<string, unknown> } | undefined;
+  if (!own) return MD_VALUE_INPUT;
+  return {
+    InputComponentProps: { slotProps: { ...own, root: { size: 'medium', ...own.root } } },
+  };
+}
+
 // The Tecton theme makes TextField `filled` by default, and the Community grid takes its panel
 // inputs' variant from that default. The Tecton drop-in filter and column menus use outlined
 // inputs, so the panels (filter panel, columns panel) default to `outlined`. The nested theme is
@@ -235,8 +251,12 @@ export function MultiFilterPanel() {
               minWidth: 190,
             },
             '& .MuiDataGrid-filterForm .MuiInputLabel-root:empty::before': { content: '"\\200B"' },
+            // The button is centred on the md (32px) inputs beside it.
             '& .MuiDataGrid-filterFormDeleteIcon': {
               marginTop: `calc(${cssVar('line-height-small')} + ${cssVar('space-50')})`,
+              height: cssVar('space-400'),
+              display: 'flex',
+              alignItems: 'center',
             },
           }}
         >
@@ -248,6 +268,7 @@ export function MultiFilterPanel() {
               showMultiFilterOperators={index > 0}
               disableMultiFilterOperator={index !== 1}
               focusElementRef={index === items.length - 1 ? lastRef : undefined}
+              valueInputProps={mdValueInput(columns, item)}
               applyFilterChanges={(changed: GridFilterItem) =>
                 setItems(items.map((i) => (i.id === changed.id ? changed : i)))
               }
@@ -271,15 +292,15 @@ export function MultiFilterPanel() {
       >
         {/* With one condition allowed, "Add filter" still adds the first. */}
         {features.multiFilter || empty ? (
-          <Button ref={addRef} size="small" startIcon={<Icon name="add" />} onClick={addFilter}>
+          <Button ref={addRef} startIcon={<Icon name="add" />} onClick={addFilter}>
             Add filter
           </Button>
         ) : (
           <span />
         )}
+        {/* The Tecton drop-in filter menu's Remove All uses the filled trash bin. */}
         <Button
-          size="small"
-          startIcon={<Icon name="delete" />}
+          startIcon={<Icon name="delete" variant="filled" />}
           onClick={() => setItems([])}
           disabled={items.length === 0}
         >

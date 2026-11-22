@@ -74,6 +74,11 @@ Header filters and the panel edit the same conditions: a value typed in a header
 the panel, and a header filter shows the first panel condition of its column. **Remove all** clears
 the header filters too.
 
+The panel's fields and buttons, the columns panel search and the toolbar quick filter are md (32px),
+as in the Tecton drop-in filter and column menus, at every `density`: density sets the height of the
+table rows, not of the controls around them. A `size` in `slotProps.baseTextField` or
+`slotProps.baseSelect` changes it.
+
 <Demo name="FilterPanel" />
 
 ## Column pinning and reordering
