@@ -1,26 +1,27 @@
 import * as React from 'react';
-import AppBar, { type AppBarTab } from '@tecton-mui/ui/AppBar';
-
-const FIXED_TABS = [{ id: 'home', icon: 'home', label: 'Home' }];
-const TABS: AppBarTab[] = [
-  // `tags` adds small chips after the label.
-  { id: 'well-a12', label: 'Well A-12', icon: 'project', tags: ['draft'] },
-  // `closeable: false` keeps the tab open: no close button.
-  { id: 'overview', label: 'Overview', icon: 'grid-view', closeable: false },
-  // `disabled` greys the tab out and blocks selection.
-  { id: 'archive', label: 'Archive', icon: 'cube', disabled: true },
-];
+import AppBar, { AppBarBrand, AppBarTab, AppBarTabs } from '@tecton-mui/ui/AppBar';
+import Icon from '@tecton-mui/ui/Icon';
 
 export default function TabOptionsAppBar() {
-  const [activeTab, setActiveTab] = React.useState('well-a12');
+  const [tab, setTab] = React.useState('well-a12');
   return (
-    <AppBar
-      appName="APP"
-      fixedTabs={FIXED_TABS}
-      tabs={TABS}
-      activeTab={activeTab}
-      disableTabAdd
-      onTabSelect={setActiveTab}
-    />
+    <AppBar>
+      <AppBarBrand>APP</AppBarBrand>
+      <AppBarTabs value={tab} onChange={(_event, value) => setTab(String(value))}>
+        <AppBarTab value="home" icon={<Icon name="home" />} aria-label="Home" />
+        {/* `tags` adds small chips after the label; `onClose` gives the tab a close button. */}
+        <AppBarTab
+          value="well-a12"
+          icon={<Icon name="project" />}
+          label="Well A-12"
+          tags={['draft']}
+          onClose={() => {}}
+        />
+        {/* Without `onClose`, the tab stays open. */}
+        <AppBarTab value="overview" icon={<Icon name="grid-view" />} label="Overview" />
+        {/* `disabled` greys the tab out and blocks selection. */}
+        <AppBarTab value="archive" icon={<Icon name="cube" />} label="Archive" disabled />
+      </AppBarTabs>
+    </AppBar>
   );
 }

@@ -1,21 +1,25 @@
 import * as React from 'react';
-import AppBar from '@tecton-mui/ui/AppBar';
-
-const TABS = [
-  { id: 'details', label: 'Details' },
-  { id: 'history', label: 'History', closeable: false },
-  { id: 'permissions', label: 'Permissions', closeable: false },
-];
+import AppBar, { AppBarTab, AppBarTabs } from '@tecton-mui/ui/AppBar';
 
 export default function SecondaryTectonAppBar() {
-  const [activeTab, setActiveTab] = React.useState('details');
+  const [showDetails, setShowDetails] = React.useState(true);
+  const [tab, setTab] = React.useState('details');
   return (
-    <AppBar
-      tier="secondary"
-      tabs={TABS}
-      activeTab={activeTab}
-      disableTabAdd
-      onTabSelect={setActiveTab}
-    />
+    <AppBar tier="secondary" aria-label="Sections">
+      <AppBarTabs value={tab} onChange={(_event, value) => setTab(String(value))}>
+        {showDetails && (
+          <AppBarTab
+            value="details"
+            label="Details"
+            onClose={() => {
+              setShowDetails(false);
+              setTab('history');
+            }}
+          />
+        )}
+        <AppBarTab value="history" label="History" />
+        <AppBarTab value="permissions" label="Permissions" />
+      </AppBarTabs>
+    </AppBar>
   );
 }

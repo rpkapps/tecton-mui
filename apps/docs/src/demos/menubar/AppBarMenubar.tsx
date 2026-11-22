@@ -1,4 +1,4 @@
-import AppBar from '@tecton-mui/ui/AppBar';
+import AppBar, { AppBarActions, AppBarBrand } from '@tecton-mui/ui/AppBar';
 import Icon from '@tecton-mui/ui/Icon';
 import Menubar, {
   MenubarItem,
@@ -18,25 +18,28 @@ const menus = [
 
 export default function AppBarMenubar() {
   return (
-    <AppBar appName="Survey workspace" logo="layers-filled" disableTabAdd>
-      <Menubar aria-label="Survey workspace">
-        {menus.map((menu) => (
-          <MenubarMenu key={menu.label}>
-            <MenubarTrigger>{menu.label}</MenubarTrigger>
-            <MenubarPortal>
-              <MenubarPositioner>
-                <MenubarPopup>
-                  {menu.items.map((item) => (
-                    <MenubarItem key={item}>{item}</MenubarItem>
-                  ))}
-                  <MenubarSeparator />
-                  <MenubarItem icon={<Icon name="settings" />}>{menu.label} settings</MenubarItem>
-                </MenubarPopup>
-              </MenubarPositioner>
-            </MenubarPortal>
-          </MenubarMenu>
-        ))}
-      </Menubar>
+    <AppBar>
+      <AppBarBrand logo={<Icon name="layers" variant="filled" />}>Survey workspace</AppBarBrand>
+      <AppBarActions>
+        <Menubar aria-label="Survey workspace">
+          {menus.map((menu) => (
+            <MenubarMenu key={menu.label}>
+              <MenubarTrigger>{menu.label}</MenubarTrigger>
+              <MenubarPortal>
+                <MenubarPositioner>
+                  <MenubarPopup>
+                    {menu.items.map((item) => (
+                      <MenubarItem key={item}>{item}</MenubarItem>
+                    ))}
+                    <MenubarSeparator />
+                    <MenubarItem icon={<Icon name="settings" />}>{menu.label} settings</MenubarItem>
+                  </MenubarPopup>
+                </MenubarPositioner>
+              </MenubarPortal>
+            </MenubarMenu>
+          ))}
+        </Menubar>
+      </AppBarActions>
     </AppBar>
   );
 }

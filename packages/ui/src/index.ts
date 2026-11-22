@@ -295,8 +295,8 @@ export { default as Masonry, getMasonryUtilityClass, masonryClasses } from './Ma
 export type { MasonryClassKey, MasonryClasses, MasonryOwnProps, MasonryProps, MasonryTypeMap } from './Masonry/index.js';
 export { default as ActionBar, ActionBarButton, ActionBarGroup, ActionBarSelect, ActionBarTool, ActionBarToolMenu, actionBarClasses } from './ActionBar/index.js';
 export type { ActionBarButtonProps, ActionBarElevation, ActionBarGroupProps, ActionBarProps, ActionBarSelectProps, ActionBarToolMenuProps, ActionBarToolProps, ActionBarValue } from './ActionBar/index.js';
-export { default as AppBar, appBarClasses, getAppBarUtilityClass } from './AppBar/index.js';
-export type { AppBarClassKey, AppBarClasses, AppBarFixedTab, AppBarIconName, AppBarNavigationProps, AppBarOwnProps, AppBarProps, AppBarPropsColorOverrides, AppBarTab, AppBarTypeMap } from './AppBar/index.js';
+export { default as AppBar, AppBarActions, AppBarBrand, AppBarTab, AppBarTabs, appBarClasses, getAppBarUtilityClass } from './AppBar/index.js';
+export type { AppBarActionsProps, AppBarBrandProps, AppBarClassKey, AppBarClasses, AppBarComponent, AppBarOwnProps, AppBarProps, AppBarPropsColorOverrides, AppBarTabProps, AppBarTabsProps, AppBarTier, AppBarTypeMap } from './AppBar/index.js';
 export { default as ChatBox, chatBoxClasses, getChatBoxUtilityClass, useChatBoxUtilityClasses } from './ChatBox/index.js';
 export type { ChatBoxClassKey, ChatBoxClasses, ChatBoxLayoutMode, ChatBoxLayoutModeBreakpoints, ChatBoxProps, ChatBoxSlotProps, ChatBoxSlots, ChatBoxVariant } from './ChatBox/index.js';
 export { default as ColorSwatchControl, colorSwatchControlClasses, normalizeColorSwatchControlValue } from './ColorSwatchControl/index.js';

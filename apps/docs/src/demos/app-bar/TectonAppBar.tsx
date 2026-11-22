@@ -1,51 +1,64 @@
 import * as React from 'react';
-import AppBar, { type AppBarTab } from '@tecton-mui/ui/AppBar';
+import AppBar, { AppBarActions, AppBarBrand, AppBarTab, AppBarTabs } from '@tecton-mui/ui/AppBar';
 import IconButton from '@tecton-mui/ui/IconButton';
-import Stack from '@tecton-mui/ui/Stack';
 import Icon from '@tecton-mui/ui/Icon';
 
-const FIXED_TABS = [{ id: 'home', icon: 'home', label: 'Home' }];
+interface Well {
+  id: string;
+  name: string;
+  tags?: string[];
+}
 
 export default function TectonAppBar() {
-  const [tabs, setTabs] = React.useState<AppBarTab[]>([
-    { id: 'well-a12', label: 'Well A-12', icon: 'project' },
-    { id: 'well-b04', label: 'Well B-04', icon: 'project', tags: ['review'] },
+  const [wells, setWells] = React.useState<Well[]>([
+    { id: 'well-a12', name: 'Well A-12' },
+    { id: 'well-b04', name: 'Well B-04', tags: ['review'] },
   ]);
-  const [activeTab, setActiveTab] = React.useState('well-a12');
+  const [tab, setTab] = React.useState('well-a12');
   const added = React.useRef(0);
 
   const handleClose = (id: string) => {
-    const index = tabs.findIndex((tab) => tab.id === id);
-    const next = tabs.filter((tab) => tab.id !== id);
-    setTabs(next);
-    if (activeTab === id) setActiveTab(next[Math.max(0, index - 1)]?.id ?? 'home');
+    const index = wells.findIndex((well) => well.id === id);
+    const next = wells.filter((well) => well.id !== id);
+    setWells(next);
+    if (tab === id) setTab(next[Math.max(0, index - 1)]?.id ?? 'home');
   };
   const handleAdd = () => {
     added.current += 1;
     const id = `new-${added.current}`;
-    setTabs([...tabs, { id, label: `New well ${added.current}`, icon: 'project' }]);
-    setActiveTab(id);
+    setWells([...wells, { id, name: `New well ${added.current}` }]);
+    setTab(id);
   };
 
   return (
-    <AppBar
-      appName="Field Planner"
-      fixedTabs={FIXED_TABS}
-      tabs={tabs}
-      activeTab={activeTab}
-      maxTabs={6}
-      onTabSelect={setActiveTab}
-      onTabClose={handleClose}
-      onTabAdd={handleAdd}
-    >
-      <Stack direction="row" spacing={1} sx={{ alignItems: 'center', height: '100%' }}>
+    <AppBar>
+      <AppBarBrand>Field Planner</AppBarBrand>
+      <AppBarTabs
+        value={tab}
+        onChange={(_event, value) => setTab(String(value))}
+        // No more tabs once six wells are open.
+        onAdd={wells.length < 6 ? handleAdd : undefined}
+      >
+        <AppBarTab value="home" icon={<Icon name="home" />} aria-label="Home" />
+        {wells.map((well) => (
+          <AppBarTab
+            key={well.id}
+            value={well.id}
+            icon={<Icon name="project" />}
+            label={well.name}
+            tags={well.tags}
+            onClose={() => handleClose(well.id)}
+          />
+        ))}
+      </AppBarTabs>
+      <AppBarActions>
         <IconButton aria-label="Notifications">
           <Icon name="notifications" />
         </IconButton>
         <IconButton aria-label="Account">
           <Icon name="person" />
         </IconButton>
-      </Stack>
+      </AppBarActions>
     </AppBar>
   );
 }

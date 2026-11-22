@@ -34,10 +34,11 @@ need to match across MUI packages.
   `variant="pills"` on `Tabs`; `variant="elevated"` on `Paper` and `Card`; `tier` on
   `AppBar`; the `data` variant on `Typography`. The API tables mark them with their
   descriptions.
-- **App bar.** `AppBar` is the Tecton App Bar (the React version of the `<wc-app-bar>` drop-in):
-  it always draws the Tecton layout (branding, tabs, add button) and its `children` fill the actions
-  region at the right end. MUI's composition (`AppBar` with a `Toolbar` and your own content) is not
-  available. The MUI root props (`position`, `sx`, `component`, `ref`) still apply.
+- **App bar.** `AppBar` is the Tecton App Bar: it draws the Tecton row itself, so there is no
+  `Toolbar` to add, and it is composed from `AppBarBrand`, `AppBarTabs` / `AppBarTab` (MUI `Tabs`
+  and `Tab` props plus close and add) and `AppBarActions`. The MUI root props (`position`, `sx`,
+  `component`, `ref`) still apply; `color`, `enableColorOnDark`, `elevation`, `square` and
+  `variant` do not, since the theme sets the bar's colors and surface.
 - **Icons.** `@mui/material/Icon` (Material Icons font ligatures) is replaced by the Tecton `Icon`.
 - **LocalizationProvider.** Defaults to `date-fns` with `en-US` instead of requiring `dateAdapter`.
 - **One Data Grid and one Rich Tree View.** There are no separate Pro or Premium components or license

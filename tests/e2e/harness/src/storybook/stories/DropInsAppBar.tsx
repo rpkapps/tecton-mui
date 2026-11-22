@@ -1,12 +1,19 @@
 // Reproduction of the Tecton drop-in Storybook (apps/storybook 1.1.0) "Drop-ins/App Bar" stories,
-// rendered with the React `AppBar` of @tecton-mui/ui instead of the `<wc-app-bar>` web component.
-// The host page (event log, toasts, state updates) follows the story code; only the element changes:
-// attributes become props, the `actions` slot becomes the children, and the
-// `wc-app-bar-tab-*` events become `onTabSelect` / `onTabClose` / `onTabAdd`.
-// See tests/e2e/storybook-parity.spec.ts.
+// rendered with the React `AppBar` parts of @tecton-mui/ui instead of the `<wc-app-bar>` web
+// component. The host page (event log, toasts, state updates) follows the story code; only the
+// element changes: the attributes become parts and props (`app-name`/`logo`/`logo-src` an
+// `AppBarBrand`, the tab lists `AppBarTab`s, `max-tabs`/`disable-tab-add` whether `onAdd` is set),
+// the `actions` slot becomes `AppBarActions`, and the `wc-app-bar-tab-*` events become `onChange`,
+// `onClose` and `onAdd`. The drop-in's other defaults (the "APP" name, no branding or fixed tabs in
+// the secondary tier) are written out here, as a page using the parts would; `AppBarBrand` draws
+// the placeholder logo itself. See tests/e2e/storybook-parity.spec.ts.
 import * as React from 'react';
 import {
   AppBar,
+  AppBarActions,
+  AppBarBrand,
+  AppBarTab,
+  AppBarTabs,
   Box,
   Button,
   FormControlLabel,
@@ -16,24 +23,41 @@ import {
   Stack,
   Switch,
   Typography,
-  type AppBarFixedTab,
-  type AppBarTab,
 } from '@tecton-mui/ui';
+import Icon, { type IconName } from '@tecton-mui/ui/Icon';
 
 const LOGO_SRC =
   "data:image/svg+xml,%3csvg%20width='20'%20height='20'%20viewBox='0%200%2020%2020'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3crect%20x='3'%20y='3'%20width='14'%20height='14'%20rx='2'%20fill='%23C2867A'/%3e%3c/svg%3e";
 const ACTION_SELECTOR = 'button, a[href], [role="button"]';
 const toastMessage = (name: string) => `Action "${name}" was clicked.`;
-const HOME: AppBarFixedTab[] = [{ id: 'home', icon: 'home', label: 'Home' }];
-const TWO_TABS: AppBarTab[] = [
+
+/** A tab as the drop-in's `tabs` / `fixedTabs` properties describe it. */
+interface TabItem {
+  id: string;
+  label?: string;
+  icon?: string;
+  closeable?: boolean;
+  disabled?: boolean;
+  tags?: string[];
+}
+
+const HOME: TabItem[] = [{ id: 'home', icon: 'home', label: 'Home' }];
+const TWO_TABS: TabItem[] = [
   { id: 'tab-1', label: 'Tab 1', icon: 'project' },
   { id: 'tab-2', label: 'Tab 2', icon: 'project' },
 ];
-const NO_FIXED_TABS: AppBarFixedTab[] = [];
+const NO_FIXED_TABS: TabItem[] = [];
+
+/** The drop-in's `logo` (an icon name with its suffix, for example `apps-filled`) as an `Icon`. */
+function iconLogo(logo: string) {
+  const match = /^(.*)-(filled|outline)$/.exec(logo);
+  const name = (match ? match[1] : logo) as IconName;
+  return <Icon name={name} variant={(match?.[2] as 'filled' | 'outline') ?? 'outline'} />;
+}
 
 interface HostProps {
-  fixedTabs?: AppBarFixedTab[];
-  tabs: AppBarTab[];
+  fixedTabs?: TabItem[];
+  tabs: TabItem[];
   activeTab?: string;
   actions?: React.ReactNode;
   caption?: string;
@@ -58,6 +82,7 @@ function Host({
   const [lastEvent, setLastEvent] = React.useState('');
   const [toast, setToast] = React.useState<{ id: number; message: string } | null>(null);
   const added = React.useRef(0);
+  const primary = attributes.tier !== 'secondary';
 
   const onTabSelect = (id: string) => {
     setState((s) => ({ ...s, active: id }));
@@ -83,6 +108,14 @@ function Host({
     }));
     setLastEvent('wc-app-bar-tab-add {}');
   };
+  const { maxTabs, disableTabAdd } = attributes;
+  const canAdd = !disableTabAdd && (maxTabs == null || state.tabs.length < maxTabs);
+  // Neither: `AppBarBrand` shows its placeholder.
+  const logo = attributes.logo ? (
+    iconLogo(attributes.logo)
+  ) : attributes.logoSrc ? (
+    <img src={attributes.logoSrc} alt={attributes.appName ?? 'APP'} />
+  ) : undefined;
 
   return (
     <>
@@ -92,33 +125,51 @@ function Host({
             {caption}
           </Typography>
         )}
-        <AppBar
-          appName={attributes.appName}
-          logo={attributes.logo}
-          logoSrc={attributes.logoSrc}
-          tier={attributes.tier}
-          maxTabs={attributes.maxTabs}
-          disableTabAdd={attributes.disableTabAdd}
-          activeTab={state.active}
-          fixedTabs={fixedTabs}
-          tabs={state.tabs}
-          onTabSelect={onTabSelect}
-          onTabClose={onTabClose}
-          onTabAdd={onTabAdd}
-        >
-          {actions && (
-            <div
-              slot="actions"
-              onClick={(event) => {
-                const target = (event.target as Element).closest(ACTION_SELECTOR);
-                if (!target || !event.currentTarget.contains(target)) return;
-                const name = target.getAttribute('aria-label') ?? target.textContent?.trim();
-                if (name) setToast((t) => ({ id: (t?.id ?? 0) + 1, message: toastMessage(name) }));
-              }}
-            >
-              {actions}
-            </div>
-          )}
+        <AppBar tier={attributes.tier}>
+          {primary && <AppBarBrand logo={logo}>{attributes.appName ?? 'APP'}</AppBarBrand>}
+          <AppBarTabs
+            value={state.active ?? false}
+            onChange={(_event, id) => onTabSelect(String(id))}
+            onAdd={canAdd ? onTabAdd : undefined}
+          >
+            {primary &&
+              fixedTabs.map((tab) => (
+                <AppBarTab
+                  key={tab.id}
+                  value={tab.id}
+                  aria-label={tab.label ?? tab.id}
+                  icon={<Icon name={tab.icon as IconName} />}
+                  disabled={tab.disabled}
+                />
+              ))}
+            {state.tabs.map((tab) => (
+              <AppBarTab
+                key={tab.id}
+                value={tab.id}
+                label={tab.label}
+                icon={tab.icon ? <Icon name={tab.icon as IconName} /> : undefined}
+                tags={tab.tags}
+                disabled={tab.disabled}
+                onClose={tab.closeable === false ? undefined : () => onTabClose(tab.id)}
+              />
+            ))}
+          </AppBarTabs>
+          <AppBarActions>
+            {actions && (
+              <div
+                slot="actions"
+                onClick={(event) => {
+                  const target = (event.target as Element).closest(ACTION_SELECTOR);
+                  if (!target || !event.currentTarget.contains(target)) return;
+                  const name = target.getAttribute('aria-label') ?? target.textContent?.trim();
+                  if (name)
+                    setToast((t) => ({ id: (t?.id ?? 0) + 1, message: toastMessage(name) }));
+                }}
+              >
+                {actions}
+              </div>
+            )}
+          </AppBarActions>
         </AppBar>
         <Typography variant="caption" color="text.secondary" data-testid="event-log">
           {lastEvent ? `Last event: ${lastEvent}` : 'Interact with the bar to see its events.'}
@@ -195,24 +246,39 @@ function SlotsDiagram() {
   }, []);
   return (
     <Box ref={ref}>
-      <AppBar appName="APP" activeTab="tab-1" fixedTabs={HOME} tabs={TWO_TABS}>
-        <div slot="actions" style={{ height: '100%' }}>
-          <Box
-            sx={{
-              boxSizing: 'border-box',
-              display: 'flex',
-              alignItems: 'center',
-              height: '100%',
-              px: 2,
-              border: `1px dashed ${SLOT_COLOR}`,
-              borderRadius: 'var(--tecton-radius-50)',
-            }}
-          >
-            <Typography variant="caption" sx={{ color: SLOT_COLOR }}>
-              Your markup
-            </Typography>
-          </Box>
-        </div>
+      <AppBar>
+        <AppBarBrand>APP</AppBarBrand>
+        <AppBarTabs value="tab-1" onAdd={() => {}}>
+          <AppBarTab value="home" aria-label="Home" icon={<Icon name="home" />} />
+          {TWO_TABS.map((tab) => (
+            <AppBarTab
+              key={tab.id}
+              value={tab.id}
+              label={tab.label}
+              icon={<Icon name="project" />}
+              onClose={() => {}}
+            />
+          ))}
+        </AppBarTabs>
+        <AppBarActions>
+          <div slot="actions" style={{ height: '100%' }}>
+            <Box
+              sx={{
+                boxSizing: 'border-box',
+                display: 'flex',
+                alignItems: 'center',
+                height: '100%',
+                px: 2,
+                border: `1px dashed ${SLOT_COLOR}`,
+                borderRadius: 'var(--tecton-radius-50)',
+              }}
+            >
+              <Typography variant="caption" sx={{ color: SLOT_COLOR }}>
+                Your markup
+              </Typography>
+            </Box>
+          </div>
+        </AppBarActions>
       </AppBar>
       <Box sx={{ position: 'relative', height: 32, mt: 1 }}>
         {labels.map((part) => (
@@ -363,7 +429,7 @@ function LiveAttributes() {
   );
 }
 
-const MANY_TABS: AppBarTab[] = Array.from({ length: 14 }, (_, i) => ({
+const MANY_TABS: TabItem[] = Array.from({ length: 14 }, (_, i) => ({
   id: `tab-${i + 1}`,
   label: `Tab ${i + 1}`,
   icon: 'project',
