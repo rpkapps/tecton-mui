@@ -15,13 +15,17 @@ if (mode === 'light' || mode === 'dark') manager?.setMode(mode);
 const scenario = params.get('scenario') ?? 'showcase';
 const container = document.getElementById('root')!;
 if (scenario === 'multi-root') {
-  // Two independently mounted React roots (shell + hosted MFE) sharing one document.
+  // Two independently mounted React roots (shell + hosted MFE) sharing one document, each with its
+  // own id prefix as the MFE guide recommends.
   for (const name of ['shell', 'mfe'] as const) {
     const el = document.createElement('div');
     el.id = `root-${name}`;
     container.appendChild(el);
-    createRoot(el).render(<MultiRootPanel name={name} />);
+    createRoot(el, { identifierPrefix: `${name}-` }).render(<MultiRootPanel name={name} />);
   }
+} else if (scenario === 'modal-layer') {
+  // Loaded on demand: it brings a second copy of MUI that no other scenario should load.
+  void import('./ModalLayerScenario.js').then((m) => m.mountModalLayerScenario(container));
 } else {
   createRoot(container).render(<App scenario={scenario} rtl={params.get('dir') === 'rtl'} />);
 }

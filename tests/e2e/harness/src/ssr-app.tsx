@@ -7,8 +7,16 @@ import RichTreeView from '@tecton-mui/ui/RichTreeView';
 import DataGrid from '@tecton-mui/ui/DataGrid';
 
 const items = [{ id: 'a', label: 'Assets', children: [{ id: 'a1', label: 'Alpha-7' }] }];
-const rows = [{ id: 1, name: 'Alpha-7' }];
-const columns = [{ field: 'name', headerName: 'Name', width: 200 }];
+const rows = [
+  { id: 1, name: 'Alpha-7', site: 'North' },
+  { id: 2, name: 'Bravo-2', site: 'South' },
+];
+const columns = [
+  { field: 'name', headerName: 'Name', width: 200 },
+  { field: 'site', headerName: 'Site', width: 200 },
+];
+// Pinning and cell selection attach to the grid root, which mounts one render after hydration.
+const pinnedColumns = { left: ['name'] };
 
 export function SsrApp() {
   const [count, setCount] = React.useState(0);
@@ -27,8 +35,8 @@ export function SsrApp() {
         <TextField label="Name" defaultValue="Alpha-7" sx={{ ml: 2 }} />
         <NumberField label="Depth" defaultValue={1200} locale="en-US" sx={{ ml: 2 }} />
         <RichTreeView items={items} defaultExpandedItems={['a']} />
-        <div style={{ height: 200 }}>
-          <DataGrid rows={rows} columns={columns} />
+        <div style={{ height: 240 }}>
+          <DataGrid rows={rows} columns={columns} pinnedColumns={pinnedColumns} cellSelection />
         </div>
       </Paper>
     </ThemeProvider>

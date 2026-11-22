@@ -11,7 +11,8 @@ import Button from '@tecton-mui/ui/Button';
 import { ThemeProvider } from '@tecton-mui/ui/styles';
 
 export function mount(element: HTMLElement) {
-  const root = createRoot(element);
+  // A prefix no other root on the page uses (see rule 5).
+  const root = createRoot(element, { identifierPrefix: 'feature-' });
   root.render(
     <ThemeProvider>
       <Button variant="contained">Save</Button>
@@ -31,6 +32,33 @@ Rules for hosted micro-frontends:
 4. `@tecton-mui/ui/styles/components.css` is the stable import for static component styles. Today
    component styles are generated at runtime by Emotion, so the file is intentionally empty; keeping
    the import means a future release can add static styles without code changes on your side.
+5. **Do** give your root an `identifierPrefix` that no other root on the page uses. Components
+   generate element ids with React's `useId` to connect labels, inputs, menus and their `aria-*`
+   attributes. Those ids are unique across roots only when every root shares one copy of React and
+   renders on the client. A server-rendered root that hydrates, or a root rendered by its own copy
+   of React, starts from the same ids as the other roots, so a label can point at another
+   micro-frontend's input. With `hydrateRoot`, pass the same prefix to the server renderer
+   (`renderToString(app, { identifierPrefix: 'feature-' })`).
+
+## Dialogs and menus across micro-frontends
+
+Dialogs, drawers, popovers, menus and select menus of the shell and of micro-frontends can be open
+on top of each other, also when each micro-frontend bundles its own copy, or another version, of
+`@tecton-mui/ui`. There is nothing to set up: `ThemeProvider` installs one modal layer for the page.
+When several versions are on the page, the newest one runs.
+
+Every copy of MUI keeps track of its own open modals. Without the layer, a dialog of one copy over a
+dialog of another would fight over the keyboard focus, and closing them out of order would unlock
+page scrolling too early or leave it locked. The layer keeps them in one stack:
+
+- Only the top modal takes the keyboard focus. Modals of other copies below it are inert.
+- Page scrolling stays locked until the last modal closes; then the page gets its own style back.
+- The page behind the top modal stays hidden from assistive technology.
+- When the top modal closes, the focus goes back to where it was in the modal below.
+
+With modals of one copy only, the layer changes nothing. It needs one root on the page that renders
+a `ThemeProvider` from a version that has it. Modals rendered without any `@tecton-mui/ui` theme
+(plain MUI) all count as one unknown copy, so two such copies cannot be told apart.
 
 ## Standalone application
 
@@ -61,10 +89,11 @@ A common pattern is two entry files that render the same `App`: `mount.tsx` for 
 
 ## Checklist
 
-|                         | Hosted MFE                         | Standalone |
-| ----------------------- | ---------------------------------- | ---------- |
-| `styles/global.css`     | No                                 | Yes, once  |
-| `styles/components.css` | Optional, recommended              | Optional   |
-| `initTecton()`          | Not required (the shell calls it)  | Yes        |
-| `ThemeProvider`         | Yes                                | Yes        |
-| `CssBaseline`           | No (`ScopedCssBaseline` if needed) | Yes        |
+|                         | Hosted MFE                         | Standalone                          |
+| ----------------------- | ---------------------------------- | ----------------------------------- |
+| `styles/global.css`     | No                                 | Yes, once                           |
+| `styles/components.css` | Optional, recommended              | Optional                            |
+| `initTecton()`          | Not required (the shell calls it)  | Yes                                 |
+| `ThemeProvider`         | Yes                                | Yes                                 |
+| `CssBaseline`           | No (`ScopedCssBaseline` if needed) | Yes                                 |
+| `identifierPrefix`      | Yes, unique on the page            | Not needed when it is the only root |

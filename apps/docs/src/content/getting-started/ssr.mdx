@@ -49,6 +49,21 @@ import { initTecton } from '@tecton-mui/ui/styles';
 initTecton({ defaultMode: 'light' });
 ```
 
+## Several roots on one page
+
+When a page hydrates more than one React root (a shell and server-rendered micro-frontends), give
+every root its own `identifierPrefix`, on the server and on the client. Hydrated roots generate
+`useId` ids from their position in the tree, so two roots of the same shape produce the same ids,
+and labels or `aria-*` attributes in one root can point at elements in another.
+
+```tsx
+// Server
+const html = renderToString(<Feature />, { identifierPrefix: 'feature-' });
+
+// Client
+hydrateRoot(element, <Feature />, { identifierPrefix: 'feature-' });
+```
+
 ## Emotion
 
 Follow your framework's Emotion SSR integration (for example a per-request Emotion cache with
