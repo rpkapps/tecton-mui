@@ -2,13 +2,12 @@ import * as React from 'react';
 import Stack from '@tecton-mui/ui/Stack';
 import ToggleButton from '@tecton-mui/ui/ToggleButton';
 import ToggleButtonGroup from '@tecton-mui/ui/ToggleButtonGroup';
-import ChatBox from '@tecton-mui/ui/ChatBox';
+import ChatBox, { type ChatBoxVariant } from '@tecton-mui/ui/ChatBox';
 import {
   createEchoAdapter,
   type ChatDensity,
   type ChatMessage,
   type ChatUser,
-  type ChatVariant,
 } from '@tecton-mui/ui/ChatHeadless';
 
 const you: ChatUser = { id: 'you', displayName: 'You', role: 'user' };
@@ -40,7 +39,7 @@ const messages: ChatMessage[] = [
 
 export default function VariantAndDensity() {
   const [adapter] = React.useState(() => createEchoAdapter());
-  const [variant, setVariant] = React.useState<ChatVariant>('default');
+  const [variant, setVariant] = React.useState<ChatBoxVariant>('default');
   const [density, setDensity] = React.useState<ChatDensity>('standard');
   return (
     <Stack spacing={2} sx={{ width: '100%' }}>
@@ -49,11 +48,12 @@ export default function VariantAndDensity() {
           size="small"
           exclusive
           value={variant}
-          onChange={(_, value: ChatVariant | null) => value && setVariant(value)}
+          onChange={(_, value: ChatBoxVariant | null) => value && setVariant(value)}
           aria-label="Variant"
         >
           <ToggleButton value="default">Default</ToggleButton>
           <ToggleButton value="compact">Compact</ToggleButton>
+          <ToggleButton value="assistant">Assistant</ToggleButton>
         </ToggleButtonGroup>
         <ToggleButtonGroup
           size="small"

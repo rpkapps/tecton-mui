@@ -12,6 +12,7 @@
   "customModules": [
     "ActionBar",
     "AppBar",
+    "ChatBox",
     "DataGrid",
     "DateRangeCalendar",
     "DateRangePicker",
@@ -1092,7 +1093,8 @@
     },
     {
       "package": "@mui/x-chat",
-      "module": "ChatBox"
+      "module": "ChatBox",
+      "overriddenBy": "src/ChatBox"
     },
     {
       "package": "@mui/x-chat",

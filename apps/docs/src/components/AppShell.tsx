@@ -242,10 +242,7 @@ function Footer() {
           Tecton MUI
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          · Tecton {TECTON_VERSION} ·{' '}
-          <RouterLink to="/guides/licensing" color="inherit">
-            Licensing and provenance
-          </RouterLink>
+          · Tecton {TECTON_VERSION}
         </Typography>
       </Box>
       <Typography variant="caption" color="text.secondary" component="p">

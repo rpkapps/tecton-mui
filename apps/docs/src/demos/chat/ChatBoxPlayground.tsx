@@ -1,6 +1,10 @@
 import * as React from 'react';
 import Box from '@tecton-mui/ui/Box';
-import ChatBox, { type ChatBoxLayoutMode, type ChatBoxProps } from '@tecton-mui/ui/ChatBox';
+import ChatBox, {
+  type ChatBoxVariant,
+  type ChatBoxLayoutMode,
+  type ChatBoxProps,
+} from '@tecton-mui/ui/ChatBox';
 import type {
   ChatAdapter,
   ChatConversation,
@@ -8,7 +12,6 @@ import type {
   ChatMessage,
   ChatMessageChunk,
   ChatUser,
-  ChatVariant,
 } from '@tecton-mui/ui/ChatHeadless';
 import {
   Playground,
@@ -137,8 +140,9 @@ const controls: PlaygroundControl[] = [
     name: 'variant',
     kind: 'enum',
     group: 'Appearance',
-    options: ['default', 'compact'],
+    options: ['default', 'compact', 'assistant'],
     defaultValue: 'default',
+    help: 'assistant: full-width answers, as in AI assistants.',
   },
   {
     name: 'density',
@@ -232,7 +236,7 @@ function PlaygroundChat({ values }: { values: PlaygroundValues }) {
         members={[you, assistant, sam]}
         initialConversations={conversations}
         initialActiveConversationId="pressure"
-        variant={values.variant as ChatVariant}
+        variant={values.variant as ChatBoxVariant}
         density={values.density as ChatDensity}
         layoutMode={layoutMode as ChatBoxLayoutMode | undefined}
         features={features}

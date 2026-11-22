@@ -128,6 +128,109 @@ test.describe('Chat', () => {
     expect(ownBox.x).toBeLessThan(otherBox.x);
   });
 
+  for (const dir of ['ltr', 'rtl'] as const) {
+    test(`variant="assistant": only the answers are full width (${dir})`, async ({ page }) => {
+      await page.goto(`/?scenario=chat${dir === 'rtl' ? '&dir=rtl' : ''}`);
+      const chat = page.getByTestId('chat-assistant');
+      await expect(chat.getByText('Two wells are above')).toBeVisible();
+      const layout = await chat.evaluate((root) => {
+        const box = (selector: string) => root.querySelector(selector)!.getBoundingClientRect();
+        const bubble = (id: string) =>
+          root.querySelector(`[data-message-id="${id}"] .MuiChatMessage-bubble`)!;
+        // The box of the text itself, not of its element.
+        const textStart = (el: Element) => {
+          const range = document.createRange();
+          range.selectNodeContents(el);
+          return range.getBoundingClientRect();
+        };
+        const answer = bubble('m2');
+        return {
+          row: box('[data-message-id="m2"]'),
+          answer: answer.getBoundingClientRect(),
+          answerBackground: getComputedStyle(answer).backgroundColor,
+          answerPadding: getComputedStyle(answer).paddingTop,
+          answerText: textStart(answer.querySelector('p')!),
+          names: root.querySelectorAll('[class*="groupAuthorName"]').length,
+          question: bubble('m1').getBoundingClientRect(),
+          questionBackground: getComputedStyle(bubble('m1')).backgroundColor,
+          avatars: root.querySelectorAll('.MuiChatMessage-root .MuiAvatar-root').length,
+          answerTimes: root.querySelectorAll(
+            '[data-message-id="m2"] [class*="MuiChatMessage-"][class*="eta"]',
+          ).length,
+          questionTimes: root.querySelectorAll('[data-message-id="m1"] .MuiChatMessage-inlineMeta')
+            .length,
+        };
+      });
+      // The answer: no bubble, across the row inside the row's 16px padding.
+      expect(layout.answerBackground).toBe('rgba(0, 0, 0, 0)');
+      expect(layout.answerPadding).toBe('0px');
+      expect(layout.answer.width).toBeCloseTo(layout.row.width - 32, 0);
+      // The question keeps its filled bubble on the trailing side, at most 70% of the lane.
+      expect(layout.questionBackground).not.toBe('rgba(0, 0, 0, 0)');
+      expect(layout.question.width).toBeLessThanOrEqual(layout.answer.width * 0.7 + 1);
+      if (dir === 'ltr') {
+        expect(layout.question.right).toBeCloseTo(layout.answer.right, 0);
+        expect(layout.answerText.left).toBeCloseTo(layout.answer.left, 0);
+      } else {
+        expect(layout.question.left).toBeCloseTo(layout.answer.left, 0);
+        expect(layout.answerText.right).toBeCloseTo(layout.answer.right, 0);
+      }
+      // As in AI assistants: no avatars and no author names, but each message is still named.
+      expect(layout.avatars).toBe(0);
+      expect(layout.names).toBe(0);
+      await expect(chat.getByRole('article', { name: /Field assistant/ }).first()).toBeVisible();
+      // Only the user's messages show the time.
+      expect(layout.answerTimes).toBe(0);
+      expect(layout.questionTimes).toBe(1);
+    });
+  }
+
+  test('code blocks in messages are padded, with the language label in line', async ({ page }) => {
+    await page.goto('/?scenario=chat');
+    for (const panel of ['chat-thread', 'chat-assistant']) {
+      const block = page
+        .getByTestId(panel)
+        .locator('[data-message-id="m2"] .MuiChatCodeBlock-root');
+      await expect(block).toBeVisible();
+      const layout = await block.evaluate((root) => {
+        const left = (el: Element) => {
+          const range = document.createRange();
+          range.selectNodeContents(el);
+          return range.getBoundingClientRect().left - root.getBoundingClientRect().left;
+        };
+        return {
+          padding: getComputedStyle(root.querySelector('pre')!).padding,
+          label: left(root.querySelector('[class*="languageLabel"]')!),
+          code: left(root.querySelector('code')!),
+        };
+      });
+      expect(layout.padding).toBe('8px');
+      expect(layout.code).toBeCloseTo(layout.label, 0);
+    }
+  });
+
+  test('variant="assistant": the dots before an answer have no bubble', async ({ page }) => {
+    await page.goto('/?scenario=chat');
+    const chat = page.getByTestId('chat-assistant');
+    const input = chat.getByRole('textbox', { name: 'Message' });
+    await input.fill('Pressure?');
+    await input.press('Enter');
+    const dots = chat.locator('.MuiChatStreamingIndicator-root');
+    await expect(dots).toBeVisible();
+    await expect(chat.locator('.MuiChatStreamingIndicator-row')).toHaveCount(0);
+    expect(await dots.evaluate((el) => getComputedStyle(el.parentElement!).backgroundColor)).toBe(
+      'rgba(0, 0, 0, 0)',
+    );
+    // They sit where the answer will start.
+    const dotsBox = (await dots.boundingBox())!;
+    const answerBox = (await chat
+      .locator('[data-message-id="m2"] .MuiChatMessage-bubble')
+      .boundingBox())!;
+    expect(dotsBox.x).toBeCloseTo(answerBox.x, 0);
+    await expect(chat.getByText('Echo: Pressure?')).toBeVisible();
+    await expect(chat.locator('.MuiChatStreamingIndicator-root')).toHaveCount(0);
+  });
+
   for (const mode of ['light', 'dark'] as const) {
     test(`every colour is a Tecton token (${mode})`, async ({ page }) => {
       await page.goto(`/?scenario=chat&mode=${mode}`);

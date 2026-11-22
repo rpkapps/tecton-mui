@@ -1,0 +1,202 @@
+import { ColorTokenTable, MuiPaletteTable, OtherColorTokens } from '../../components/TokenTables';
+
+## Where the colors come from
+
+Tecton colors are CSS custom properties named `--tecton-color-*`. They are defined in
+`@tecton-mui/ui/styles/tokens.css`, which is part of `global.css`: once for light mode, and again
+under `[data-theme="dark"]` for dark mode. The theme manager sets `data-theme` on `<html>`, so every
+style that reads a variable switches with the mode.
+
+The tables on this page are generated from that stylesheet in the installed Tecton version, so they
+always match what ships. The swatch next to each token uses the variable itself and follows the
+portal's current mode; the **Value** column lists the value in light and in dark mode. Click a name
+in the **CSS variable** column to copy it.
+
+## Using colors
+
+| Where                                    | Use                                     | Example                                         |
+| ---------------------------------------- | --------------------------------------- | ----------------------------------------------- |
+| Component props                          | The MUI color name                      | `<Button color="error">`                        |
+| `sx` and `styled`, standard MUI roles    | A [MUI palette](#mui-palette) key       | `sx={{ color: 'text.secondary' }}`              |
+| `sx` and `styled`, any other Tecton role | `cssVar()` from `@tecton-mui/ui/styles` | `sx={{ bgcolor: cssVar('color-bg-elevated') }}` |
+| Plain CSS                                | The CSS variable                        | `color: var(--tecton-color-text-secondary);`    |
+
+```tsx
+import Box from '@tecton-mui/ui/Box';
+import { cssVar } from '@tecton-mui/ui/styles';
+
+<Box
+  sx={{
+    bgcolor: cssVar('color-bg-paper'),
+    border: `1px solid ${cssVar('color-divider-subtle')}`,
+    color: 'text.secondary',
+  }}
+/>;
+```
+
+`cssVar` takes the variable name without the `--tecton-` prefix (`color-bg-paper` for
+`--tecton-color-bg-paper`).
+
+### Keep the Tecton colors
+
+Every application uses the same palette, so screens look the same wherever they come from.
+
+- Use a token from this page; never hard-code hex, `rgb()` or named colors.
+- Pick the token by its role (text, surface, action, status), not by how its value looks today: values
+  change with the mode and with Tecton releases.
+- Do not add colors to the theme palette or override the palette with `themeOptions`.
+- If no token fits, ask the Tecton team for one instead of creating your own.
+
+## MUI palette
+
+The Tecton theme fills MUI's palette from these tokens, so component `color` props and palette keys in
+`sx` already use Tecton colors. The palette holds plain values (MUI's color utilities cannot read CSS
+variables); the theme is rebuilt when the mode changes.
+
+<MuiPaletteTable />
+
+## Text
+
+Text colors for product copy, metadata, placeholders, disabled controls and text on filled
+surfaces.
+
+<ColorTokenTable group="text" label="Text" />
+
+## Surfaces and dividers
+
+### Surfaces
+
+The page canvas, papers, elevated panels, the modal backdrop and the interaction states of content
+rows.
+
+<ColorTokenTable group="surfaces" label="Surface" />
+
+### Dividers
+
+<ColorTokenTable group="dividers" label="Divider" />
+
+## Actions
+
+Buttons and other actions come in several emphasis levels. Each level defines its background,
+text, icon (adornment) and, where it has one, border for the resting state and for hover, focus,
+press and active.
+
+### Primary
+
+<ColorTokenTable group="action-primary" label="Primary action" />
+
+### Secondary
+
+<ColorTokenTable group="action-secondary" label="Secondary action" />
+
+### Tertiary
+
+<ColorTokenTable group="action-tertiary" label="Tertiary action" />
+
+### Outlined
+
+<ColorTokenTable group="action-outlined" label="Outlined action" />
+
+### Text-only
+
+<ColorTokenTable group="action-text-only" label="Text-only action" />
+
+### Filled and shared
+
+<ColorTokenTable group="action-filled" label="Filled action" />
+
+### Focus ring
+
+<ColorTokenTable group="focus-ring" label="Focus ring" />
+
+## Status
+
+Success, warning, error, info and neutral. Each status has a main hue, a muted and a bright tint, and
+role sets for its filled and outlined variants (alerts, chips, badges).
+
+### Success
+
+<ColorTokenTable group="status-success" label="Success" />
+
+### Warning
+
+<ColorTokenTable group="status-warning" label="Warning" />
+
+### Error
+
+<ColorTokenTable group="status-error" label="Error" />
+
+### Info
+
+<ColorTokenTable group="status-info" label="Info" />
+
+### Neutral
+
+<ColorTokenTable group="status-neutral" label="Neutral" />
+
+## Accents
+
+Hues for tags, categories, data series and avatar fallbacks. Each hue pairs a fill with a text
+color that stays legible on it.
+
+### Accent hues
+
+<ColorTokenTable group="accents" label="Accent" />
+
+### Extended hues
+
+<ColorTokenTable group="extended" label="Extended accent" />
+
+## Components
+
+Colors scoped to one kind of component. Variables that start with `component-` spell out the full
+design-token path. Where one has a shorter equivalent with the same value in both modes, it is listed
+as an **Alias** under the shorter name (for example `--tecton-color-component-input-filled-background`
+under `--tecton-color-input-filled-bg`). Either name works; prefer the shorter one.
+
+### Table
+
+<ColorTokenTable group="table" label="Table" />
+
+### Input, filled
+
+<ColorTokenTable group="input-filled" label="Filled input" />
+
+### Input, outlined
+
+<ColorTokenTable group="input-outlined" label="Outlined input" />
+
+### Input, text-only
+
+<ColorTokenTable group="input-text-only" label="Text-only input" />
+
+### Avatar
+
+<ColorTokenTable group="avatar" label="Avatar" />
+
+### Badge
+
+<ColorTokenTable group="badge" label="Badge" />
+
+### Top navigation
+
+<ColorTokenTable group="top-nav" label="Top navigation" />
+
+### Slider
+
+<ColorTokenTable group="slider" label="Slider" />
+
+## Disabled states
+
+Fills, text, icons and borders of disabled filled, outlined and text-only controls.
+
+<ColorTokenTable group="disabled" label="Disabled" />
+
+## Product branding
+
+Product colors for the application bar. Choose one with the `AppBar` `productColor` prop (`app1` to
+`app4`) instead of using the variables directly.
+
+<ColorTokenTable group="branding" label="Branding" />
+
+<OtherColorTokens />
