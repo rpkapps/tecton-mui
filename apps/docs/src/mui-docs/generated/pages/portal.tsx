@@ -79,6 +79,42 @@ export default function MuiDocs() {
         {'Import'}
       </Heading>
       <CodeBlock code={"import Portal from '@tecton-mui/ui/Portal';"} language={'jsx'} />
+      <Heading level={3} id="customization">
+        {'Customization'}
+      </Heading>
+      <Callout severity="info">
+        {
+          'These examples restyle the component beyond the Tecton defaults to show the customization APIs (sx, styled and theme overrides). Product UIs should keep the Tecton theme styling.'
+        }
+      </Callout>
+      <Heading level={4} id="server-side-portals">
+        {'Server-side Portals'}
+      </Heading>
+      <M.p>
+        {"The DOM API isn't available on the server, so you need to use the "}
+        <M.code>{'container'}</M.code>
+        {' prop callback.\nThis callback is called during a React layout effect:'}
+      </M.p>
+      <CodeBlock
+        code={
+          "<Portal container={() => document.getElementById('filter-panel')!}>\n  <Child />\n</Portal>"
+        }
+        language={'jsx'}
+      />
+      <Callout severity="error">
+        <M.p>
+          {
+            "The Portal component cannot be used to render child elements on the server—client-side hydration is necessary.\nThis is because React doesn't support the "
+          }
+          <M.a href={'https://react.dev/reference/react-dom/createPortal'}>
+            <M.code>{'createPortal()'}</M.code>
+            {' API'}
+          </M.a>
+          {' on the server.\nSee '}
+          <M.a href={'https://github.com/react/react/issues/13097'}>{'this GitHub issue'}</M.a>
+          {' for details.'}
+        </M.p>
+      </Callout>
       <Attribution
         version="9.5.0"
         sources={[

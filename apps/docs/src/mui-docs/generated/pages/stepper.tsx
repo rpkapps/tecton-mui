@@ -20,6 +20,8 @@ import HorizontalLinearAlternativeLabelStepper from '../demos/steppers/Horizonta
 import HorizontalLinearAlternativeLabelStepperSource from '../demos/steppers/HorizontalLinearAlternativeLabelStepper.tsx?raw';
 import HorizontalStepperWithError from '../demos/steppers/HorizontalStepperWithError';
 import HorizontalStepperWithErrorSource from '../demos/steppers/HorizontalStepperWithError.tsx?raw';
+import CustomizedSteppers from '../demos/steppers/CustomizedSteppers';
+import CustomizedSteppersSource from '../demos/steppers/CustomizedSteppers.tsx?raw';
 import VerticalLinearAlternativeLabelStepper from '../demos/steppers/VerticalLinearAlternativeLabelStepper';
 import VerticalLinearAlternativeLabelStepperSource from '../demos/steppers/VerticalLinearAlternativeLabelStepper.tsx?raw';
 import TextMobileStepper from '../demos/steppers/TextMobileStepper';
@@ -43,6 +45,9 @@ const demos = {
   ),
   HorizontalStepperWithError: defineDemo('HorizontalStepperWithError', HorizontalStepperWithError, {
     code: HorizontalStepperWithErrorSource,
+  }),
+  CustomizedSteppers: defineDemo('CustomizedSteppers', CustomizedSteppers, {
+    code: CustomizedSteppersSource,
   }),
   VerticalLinearAlternativeLabelStepper: defineDemo(
     'VerticalLinearAlternativeLabelStepper',
@@ -207,6 +212,17 @@ export default function MuiDocs() {
         {'Error step'}
       </Heading>
       <Demo name="HorizontalStepperWithError" />
+      <Heading level={4} id="customized-horizontal-stepper">
+        {'Customized horizontal stepper'}
+      </Heading>
+      <M.p>
+        {'Here is an example of customizing the component.\nYou can learn more about this in the '}
+        <M.a href={'https://mui.com/material-ui/customization/how-to-customize/'}>
+          {'overrides documentation page'}
+        </M.a>
+        {'.'}
+      </M.p>
+      <Demo name="CustomizedSteppers" />
       <Heading level={3} id="vertical-stepper">
         {'Vertical stepper'}
       </Heading>

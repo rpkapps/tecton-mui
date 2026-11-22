@@ -3,6 +3,7 @@
  * Do not edit: change the manifest or the sync and run `pnpm docs:sync`. */
 import {
   Attribution,
+  Callout,
   Demo,
   ExcludedDemo,
   Heading,
@@ -22,6 +23,8 @@ import CollapsedBreadcrumbs from '../demos/breadcrumbs/CollapsedBreadcrumbs';
 import CollapsedBreadcrumbsSource from '../demos/breadcrumbs/CollapsedBreadcrumbs.tsx?raw';
 import CondensedWithMenu from '../demos/breadcrumbs/CondensedWithMenu';
 import CondensedWithMenuSource from '../demos/breadcrumbs/CondensedWithMenu.tsx?raw';
+import CustomizedBreadcrumbs from '../demos/breadcrumbs/CustomizedBreadcrumbs';
+import CustomizedBreadcrumbsSource from '../demos/breadcrumbs/CustomizedBreadcrumbs.tsx?raw';
 
 const demos = {
   BasicBreadcrumbs: defineDemo('BasicBreadcrumbs', BasicBreadcrumbs, {
@@ -37,6 +40,9 @@ const demos = {
   }),
   CondensedWithMenu: defineDemo('CondensedWithMenu', CondensedWithMenu, {
     code: CondensedWithMenuSource,
+  }),
+  CustomizedBreadcrumbs: defineDemo('CustomizedBreadcrumbs', CustomizedBreadcrumbs, {
+    code: CustomizedBreadcrumbsSource,
   }),
 };
 
@@ -79,6 +85,22 @@ export default function MuiDocs() {
         }
       </M.p>
       <Demo name="CondensedWithMenu" />
+      <Heading level={3} id="customization">
+        {'Customization'}
+      </Heading>
+      <Callout severity="info">
+        {
+          'These examples restyle the component beyond the Tecton defaults to show the customization APIs (sx, styled and theme overrides). Product UIs should keep the Tecton theme styling.'
+        }
+      </Callout>
+      <M.p>
+        {'Here is an example of customizing the component.\nYou can learn more about this in the '}
+        <M.a href={'https://mui.com/material-ui/customization/how-to-customize/'}>
+          {'overrides documentation page'}
+        </M.a>
+        {'.'}
+      </M.p>
+      <Demo name="CustomizedBreadcrumbs" />
       <Heading level={3} id="integration-with-react-router">
         {'Integration with react-router'}
       </Heading>

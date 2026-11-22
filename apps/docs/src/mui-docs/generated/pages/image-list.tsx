@@ -17,6 +17,8 @@ import TitlebarBelowImageList from '../demos/image-list/TitlebarBelowImageList';
 import TitlebarBelowImageListSource from '../demos/image-list/TitlebarBelowImageList.tsx?raw';
 import TitlebarBelowMasonryImageList from '../demos/image-list/TitlebarBelowMasonryImageList';
 import TitlebarBelowMasonryImageListSource from '../demos/image-list/TitlebarBelowMasonryImageList.tsx?raw';
+import CustomImageList from '../demos/image-list/CustomImageList';
+import CustomImageListSource from '../demos/image-list/CustomImageList.tsx?raw';
 
 const demos = {
   StandardImageList: defineDemo('StandardImageList', StandardImageList, {
@@ -40,6 +42,7 @@ const demos = {
     TitlebarBelowMasonryImageList,
     { code: TitlebarBelowMasonryImageListSource },
   ),
+  CustomImageList: defineDemo('CustomImageList', CustomImageList, { code: CustomImageListSource }),
 };
 
 export default function MuiDocs() {
@@ -111,6 +114,21 @@ export default function MuiDocs() {
         {'Title bar below image (masonry)'}
       </Heading>
       <Demo name="TitlebarBelowMasonryImageList" />
+      <Heading level={3} id="custom-image-list">
+        {'Custom image list'}
+      </Heading>
+      <M.p>
+        {
+          'In this example the items have a customized titlebar, positioned at the top and with a custom gradient '
+        }
+        <M.code>{'titleBackground'}</M.code>
+        {'.\nThe secondary action '}
+        <M.code>{'IconButton'}</M.code>
+        {' is positioned on the left. The '}
+        <M.code>{'gap'}</M.code>
+        {' prop is used to adjust the gap between items.'}
+      </M.p>
+      <Demo name="CustomImageList" />
       <Attribution
         version="9.5.0"
         sources={[

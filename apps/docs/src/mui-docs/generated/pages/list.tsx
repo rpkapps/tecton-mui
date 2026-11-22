@@ -3,6 +3,7 @@
  * Do not edit: change the manifest or the sync and run `pnpm docs:sync`. */
 import {
   Attribution,
+  Callout,
   CodeBlock,
   Demo,
   ExcludedDemo,
@@ -35,6 +36,8 @@ import InsetList from '../demos/lists/InsetList';
 import InsetListSource from '../demos/lists/InsetList.tsx?raw';
 import GutterlessList from '../demos/lists/GutterlessList';
 import GutterlessListSource from '../demos/lists/GutterlessList.tsx?raw';
+import CustomizedList from '../demos/lists/CustomizedList';
+import CustomizedListSource from '../demos/lists/CustomizedList.tsx?raw';
 
 const demos = {
   BasicList: defineDemo('BasicList', BasicList, { code: BasicListSource }, { bg: true }),
@@ -89,6 +92,7 @@ const demos = {
     { code: GutterlessListSource },
     { bg: true },
   ),
+  CustomizedList: defineDemo('CustomizedList', CustomizedList, { code: CustomizedListSource }),
 };
 
 export default function MuiDocs() {
@@ -273,6 +277,24 @@ export default function MuiDocs() {
         <M.a href={'https://github.com/petyosi/react-virtuoso'}>{'react-virtuoso'}</M.a>
         {'.'}
       </M.p>
+      <Heading level={3} id="customization">
+        {'Customization'}
+      </Heading>
+      <Callout severity="info">
+        {
+          'These examples restyle the component beyond the Tecton defaults to show the customization APIs (sx, styled and theme overrides). Product UIs should keep the Tecton theme styling.'
+        }
+      </Callout>
+      <M.p>
+        {
+          'Here are some examples of customizing the component.\nYou can learn more about this in the\n'
+        }
+        <M.a href={'https://mui.com/material-ui/customization/how-to-customize/'}>
+          {'overrides documentation page'}
+        </M.a>
+        {'.'}
+      </M.p>
+      <Demo name="CustomizedList" />
       <Attribution
         version="9.5.0"
         sources={[

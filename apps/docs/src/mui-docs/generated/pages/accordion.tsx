@@ -23,6 +23,8 @@ import DisabledAccordion from '../demos/accordion/DisabledAccordion';
 import DisabledAccordionSource from '../demos/accordion/DisabledAccordion.tsx?raw';
 import ControlledAccordions from '../demos/accordion/ControlledAccordions';
 import ControlledAccordionsSource from '../demos/accordion/ControlledAccordions.tsx?raw';
+import CustomizedAccordions from '../demos/accordion/CustomizedAccordions';
+import CustomizedAccordionsSource from '../demos/accordion/CustomizedAccordions.tsx?raw';
 
 const demos = {
   AccordionUsage: defineDemo(
@@ -59,6 +61,12 @@ const demos = {
     'ControlledAccordions',
     ControlledAccordions,
     { code: ControlledAccordionsSource },
+    { bg: true },
+  ),
+  CustomizedAccordions: defineDemo(
+    'CustomizedAccordions',
+    CustomizedAccordions,
+    { code: CustomizedAccordionsSource },
     { bg: true },
   ),
 };
@@ -174,6 +182,43 @@ export default function MuiDocs() {
           {'.'}
         </M.p>
       </Callout>
+      <Heading level={3} id="customization">
+        {'Customization'}
+      </Heading>
+      <Callout severity="info">
+        {
+          'These examples restyle the component beyond the Tecton defaults to show the customization APIs (sx, styled and theme overrides). Product UIs should keep the Tecton theme styling.'
+        }
+      </Callout>
+      <Heading level={4} id="only-one-expanded-at-a-time">
+        {'Only one expanded at a time'}
+      </Heading>
+      <M.p>
+        {'Use the '}
+        <M.code>{'expanded'}</M.code>
+        {" prop with React's "}
+        <M.code>{'useState'}</M.code>
+        {
+          ' hook to allow only one Accordion item to be expanded at a time.\nThe demo below also shows a bit of visual customization.'
+        }
+      </M.p>
+      <Demo name="CustomizedAccordions" />
+      <Heading level={4} id="changing-heading-level">
+        {'Changing heading level'}
+      </Heading>
+      <M.p>
+        {'By default, the Accordion uses an '}
+        <M.code>{'h3'}</M.code>
+        {' element for the heading. You can change the heading element using the '}
+        <M.code>{'slotProps.heading.component'}</M.code>
+        {' prop to ensure the correct heading hierarchy in your document.'}
+      </M.p>
+      <CodeBlock
+        code={
+          '<Accordion slotProps={{ heading: { component: \'h4\' } }}>\n  <AccordionSummary\n    expandIcon={<ExpandMoreIcon />}\n    aria-controls="panel1-content"\n    id="panel1-header"\n  >\n    Accordion\n  </AccordionSummary>\n  <AccordionDetails>\n    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada\n    lacus ex, sit amet blandit leo lobortis eget.\n  </AccordionDetails>\n</Accordion>'
+        }
+        language={'jsx'}
+      />
       <Heading level={3} id="performance">
         {'Performance'}
       </Heading>

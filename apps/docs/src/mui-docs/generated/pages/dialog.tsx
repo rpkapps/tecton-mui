@@ -3,6 +3,7 @@
  * Do not edit: change the manifest or the sync and run `pnpm docs:sync`. */
 import {
   Attribution,
+  Callout,
   CodeBlock,
   Demo,
   ExcludedDemo,
@@ -19,6 +20,8 @@ import AlertDialogSlide from '../demos/dialogs/AlertDialogSlide';
 import AlertDialogSlideSource from '../demos/dialogs/AlertDialogSlide.tsx?raw';
 import FormDialog from '../demos/dialogs/FormDialog';
 import FormDialogSource from '../demos/dialogs/FormDialog.tsx?raw';
+import CustomizedDialogs from '../demos/dialogs/CustomizedDialogs';
+import CustomizedDialogsSource from '../demos/dialogs/CustomizedDialogs.tsx?raw';
 import MaxWidthDialog from '../demos/dialogs/MaxWidthDialog';
 import MaxWidthDialogSource from '../demos/dialogs/MaxWidthDialog.tsx?raw';
 import ResponsiveDialog from '../demos/dialogs/ResponsiveDialog';
@@ -37,6 +40,9 @@ const demos = {
     code: AlertDialogSlideSource,
   }),
   FormDialog: defineDemo('FormDialog', FormDialog, { code: FormDialogSource }),
+  CustomizedDialogs: defineDemo('CustomizedDialogs', CustomizedDialogs, {
+    code: CustomizedDialogsSource,
+  }),
   MaxWidthDialog: defineDemo('MaxWidthDialog', MaxWidthDialog, { code: MaxWidthDialogSource }),
   ResponsiveDialog: defineDemo('ResponsiveDialog', ResponsiveDialog, {
     code: ResponsiveDialogSource,
@@ -156,6 +162,23 @@ export default function MuiDocs() {
         }
       </M.p>
       <Demo name="FormDialog" />
+      <Heading level={3} id="customization">
+        {'Customization'}
+      </Heading>
+      <Callout severity="info">
+        {
+          'These examples restyle the component beyond the Tecton defaults to show the customization APIs (sx, styled and theme overrides). Product UIs should keep the Tecton theme styling.'
+        }
+      </Callout>
+      <M.p>
+        {'Here is an example of customizing the component.\nYou can learn more about this in the '}
+        <M.a href={'https://mui.com/material-ui/customization/how-to-customize/'}>
+          {'overrides documentation page'}
+        </M.a>
+        {'.'}
+      </M.p>
+      <M.p>{'The dialog has a close button added to aid usability.'}</M.p>
+      <Demo name="CustomizedDialogs" />
       <Heading level={3} id="full-screen-dialogs">
         {'Full-screen dialogs'}
       </Heading>

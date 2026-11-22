@@ -25,6 +25,10 @@ import ActionAlerts from '../demos/alert/ActionAlerts';
 import ActionAlertsSource from '../demos/alert/ActionAlerts.tsx?raw';
 import IconAlerts from '../demos/alert/IconAlerts';
 import IconAlertsSource from '../demos/alert/IconAlerts.tsx?raw';
+import DescriptionAlerts from '../demos/alert/DescriptionAlerts';
+import DescriptionAlertsSource from '../demos/alert/DescriptionAlerts.tsx?raw';
+import TransitionAlerts from '../demos/alert/TransitionAlerts';
+import TransitionAlertsSource from '../demos/alert/TransitionAlerts.tsx?raw';
 
 const demos = {
   SimpleAlert: defineDemo('SimpleAlert', SimpleAlert, { code: SimpleAlertSource }),
@@ -34,6 +38,12 @@ const demos = {
   ColorAlerts: defineDemo('ColorAlerts', ColorAlerts, { code: ColorAlertsSource }),
   ActionAlerts: defineDemo('ActionAlerts', ActionAlerts, { code: ActionAlertsSource }),
   IconAlerts: defineDemo('IconAlerts', IconAlerts, { code: IconAlertsSource }),
+  DescriptionAlerts: defineDemo('DescriptionAlerts', DescriptionAlerts, {
+    code: DescriptionAlertsSource,
+  }),
+  TransitionAlerts: defineDemo('TransitionAlerts', TransitionAlerts, {
+    code: TransitionAlertsSource,
+  }),
 };
 
 export default function MuiDocs() {
@@ -148,7 +158,7 @@ export default function MuiDocs() {
         <CodeBlock code={"<Alert sx={{ bgcolor: 'background.paper' }} />"} language={'jsx'} />
         <M.p>
           {'Check out the '}
-          <M.a href={'/components/snackbar'}>{'Snackbar—customization'}</M.a>
+          <M.a href={'/components/snackbar#customization'}>{'Snackbar—customization'}</M.a>
           {' doc for an example of how to use these two components together.'}
         </M.p>
       </Callout>
@@ -219,6 +229,36 @@ export default function MuiDocs() {
         {' for details.'}
       </M.p>
       <Demo name="IconAlerts" />
+      <Heading level={3} id="customization">
+        {'Customization'}
+      </Heading>
+      <Callout severity="info">
+        {
+          'These examples restyle the component beyond the Tecton defaults to show the customization APIs (sx, styled and theme overrides). Product UIs should keep the Tecton theme styling.'
+        }
+      </Callout>
+      <Heading level={4} id="titles">
+        {'Titles'}
+      </Heading>
+      <M.p>{'To add a title to an Alert, import the Alert Title component:'}</M.p>
+      <CodeBlock code={"import AlertTitle from '@tecton-mui/ui/AlertTitle';"} language={'jsx'} />
+      <M.p>
+        {
+          'You can nest this component above the message in your Alert for a neatly styled and properly aligned title, as shown below:'
+        }
+      </M.p>
+      <Demo name="DescriptionAlerts" />
+      <Heading level={4} id="transitions">
+        {'Transitions'}
+      </Heading>
+      <M.p>
+        {'You can use '}
+        <M.a href={'/components/transitions'}>{'Transition components'}</M.a>
+        {' like '}
+        <M.a href={'/components/transitions#collapse'}>{'Collapse'}</M.a>
+        {" to add motion to an Alert's entrance and exit."}
+      </M.p>
+      <Demo name="TransitionAlerts" />
       <Heading level={3} id="alert-accessibility">
         {'Accessibility'}
       </Heading>

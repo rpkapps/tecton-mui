@@ -86,8 +86,8 @@ or per key press), which is a good moment to save or validate.
 - `slotProps.incrementButton` and `slotProps.decrementButton` reach the stepper buttons. Use them to
   translate the accessible names, which default to "Increase" and "Decrease".
 - `NumberField` also has `slotProps.stepper` for the adornment that holds the buttons.
-- The parts carry `TectonNumberField-*` and `TectonNumberSpinner-*` class names
-  (`numberFieldClasses`, `numberSpinnerClasses`), for example for tests. Keep their Tecton styling.
+- Style the parts with `sx`, `className` or the `TectonNumberField-*` and `TectonNumberSpinner-*`
+  classes (`numberFieldClasses`, `numberSpinnerClasses`).
 - `name` and `form` submit the value through a hidden native number input, so the fields work in plain
   HTML forms.
 

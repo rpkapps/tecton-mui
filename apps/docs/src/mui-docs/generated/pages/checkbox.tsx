@@ -29,6 +29,8 @@ import CheckboxesGroup from '../demos/checkboxes/CheckboxesGroup';
 import CheckboxesGroupSource from '../demos/checkboxes/CheckboxesGroup.tsx?raw';
 import FormControlLabelPosition from '../demos/checkboxes/FormControlLabelPosition';
 import FormControlLabelPositionSource from '../demos/checkboxes/FormControlLabelPosition.tsx?raw';
+import CustomizedCheckbox from '../demos/checkboxes/CustomizedCheckbox';
+import CustomizedCheckboxSource from '../demos/checkboxes/CustomizedCheckbox.tsx?raw';
 
 const demos = {
   Checkboxes: defineDemo('Checkboxes', Checkboxes, { code: CheckboxesSource }),
@@ -45,6 +47,9 @@ const demos = {
   CheckboxesGroup: defineDemo('CheckboxesGroup', CheckboxesGroup, { code: CheckboxesGroupSource }),
   FormControlLabelPosition: defineDemo('FormControlLabelPosition', FormControlLabelPosition, {
     code: FormControlLabelPositionSource,
+  }),
+  CustomizedCheckbox: defineDemo('CustomizedCheckbox', CustomizedCheckbox, {
+    code: CustomizedCheckboxSource,
   }),
 };
 
@@ -139,6 +144,29 @@ export default function MuiDocs() {
       </Heading>
       <M.p>{'You can change the placement of the label:'}</M.p>
       <Demo name="FormControlLabelPosition" />
+      <Heading level={3} id="customization">
+        {'Customization'}
+      </Heading>
+      <Callout severity="info">
+        {
+          'These examples restyle the component beyond the Tecton defaults to show the customization APIs (sx, styled and theme overrides). Product UIs should keep the Tecton theme styling.'
+        }
+      </Callout>
+      <M.p>
+        {'Here is an example of customizing the component.\nYou can learn more about this in the '}
+        <M.a href={'https://mui.com/material-ui/customization/how-to-customize/'}>
+          {'overrides documentation page'}
+        </M.a>
+        {'.'}
+      </M.p>
+      <Demo name="CustomizedCheckbox" />
+      <M.p>
+        {'🎨 If you are looking for inspiration, you can check '}
+        <M.a href={'https://mui-treasury.com/primitive/checkbox'}>
+          {"MUI Treasury's customization examples"}
+        </M.a>
+        {'.'}
+      </M.p>
       <Heading level={3} id="when-to-use">
         {'When to use'}
       </Heading>

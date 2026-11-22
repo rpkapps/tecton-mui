@@ -190,6 +190,25 @@ export default function MuiDocs() {
         name="InteractiveStack"
         reason="uses the MUI documentation-site helper @mui/internal-core-docs/HighlightedCode"
       />
+      <Heading level={3} id="customization">
+        {'Customization'}
+      </Heading>
+      <Callout severity="info">
+        {
+          'These examples restyle the component beyond the Tecton defaults to show the customization APIs (sx, styled and theme overrides). Product UIs should keep the Tecton theme styling.'
+        }
+      </Callout>
+      <M.p>
+        {'Use the '}
+        <M.a href={'https://mui.com/system/getting-started/the-sx-prop/'}>
+          <M.code>{'sx'}</M.code>
+          {' prop'}
+        </M.a>
+        {
+          ' to quickly customize any Stack instance using a superset of CSS that has access to all the style functions and theme-aware properties exposed in the MUI System package.\nBelow is an example of how to apply center align items using this prop:'
+        }
+      </M.p>
+      <CodeBlock code={"<Stack sx={{ alignItems: 'center' }} />"} language={'jsx'} />
       <Heading level={3} id="limitations">
         {'Limitations'}
       </Heading>

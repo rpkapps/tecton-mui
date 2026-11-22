@@ -25,6 +25,8 @@ import SelectOtherProps from '../demos/selects/SelectOtherProps';
 import SelectOtherPropsSource from '../demos/selects/SelectOtherProps.tsx?raw';
 import NativeSelectDemo from '../demos/selects/NativeSelectDemo';
 import NativeSelectDemoSource from '../demos/selects/NativeSelectDemo.tsx?raw';
+import CustomizedSelects from '../demos/selects/CustomizedSelects';
+import CustomizedSelectsSource from '../demos/selects/CustomizedSelects.tsx?raw';
 import MultipleSelect from '../demos/selects/MultipleSelect';
 import MultipleSelectSource from '../demos/selects/MultipleSelect.tsx?raw';
 import MultipleSelectCheckmarks from '../demos/selects/MultipleSelectCheckmarks';
@@ -53,6 +55,9 @@ const demos = {
   }),
   NativeSelectDemo: defineDemo('NativeSelectDemo', NativeSelectDemo, {
     code: NativeSelectDemoSource,
+  }),
+  CustomizedSelects: defineDemo('CustomizedSelects', CustomizedSelects, {
+    code: CustomizedSelectsSource,
   }),
   MultipleSelect: defineDemo('MultipleSelect', MultipleSelect, { code: MultipleSelectSource }),
   MultipleSelectCheckmarks: defineDemo('MultipleSelectCheckmarks', MultipleSelectCheckmarks, {
@@ -207,6 +212,48 @@ export default function MuiDocs() {
           ' wrapper component is a complete form control including a label, input and help text.\nYou can find an example with the select mode '
         }
         <M.a href={'/components/text-field#select'}>{'in this section'}</M.a>
+        {'.'}
+      </M.p>
+      <Heading level={3} id="customization">
+        {'Customization'}
+      </Heading>
+      <Callout severity="info">
+        {
+          'These examples restyle the component beyond the Tecton defaults to show the customization APIs (sx, styled and theme overrides). Product UIs should keep the Tecton theme styling.'
+        }
+      </Callout>
+      <M.p>
+        {
+          'Here are some examples of customizing the component.\nYou can learn more about this in the '
+        }
+        <M.a href={'https://mui.com/material-ui/customization/how-to-customize/'}>
+          {'overrides documentation page'}
+        </M.a>
+        {'.'}
+      </M.p>
+      <M.p>
+        {'The first step is to style the '}
+        <M.code>{'InputBase'}</M.code>
+        {
+          " component.\nOnce it's styled, you can either use it directly as a text field or provide it to the select "
+        }
+        <M.code>{'input'}</M.code>
+        {' prop to have a '}
+        <M.code>{'select'}</M.code>
+        {' field.\nNotice that the '}
+        <M.code>{'"standard"'}</M.code>
+        {' variant is easier to customize, since it does not wrap the contents in a '}
+        <M.code>{'fieldset'}</M.code>
+        {'/'}
+        <M.code>{'legend'}</M.code>
+        {' markup.'}
+      </M.p>
+      <Demo name="CustomizedSelects" />
+      <M.p>
+        {'🎨 If you are looking for inspiration, you can check '}
+        <M.a href={'https://mui-treasury.com/primitive/select'}>
+          {"MUI Treasury's customization examples"}
+        </M.a>
         {'.'}
       </M.p>
       <Heading level={3} id="multiple-select">
