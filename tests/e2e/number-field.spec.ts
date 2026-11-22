@@ -33,6 +33,23 @@ test.describe('NumberField and NumberSpinner', () => {
     }
   });
 
+  test('stepper arrows have the Select chevron colour in the error state', async ({ page }) => {
+    await page.goto('/?scenario=number-field');
+    for (const variant of ['Outlined', 'Filled']) {
+      const chevron = await inputRoot(page, `${variant} select error`)
+        .locator('.MuiSelect-icon')
+        .evaluate((el) => getComputedStyle(el).color);
+      const field = inputRoot(page, `${variant} error`);
+      for (const name of ['Increase', 'Decrease']) {
+        await expect(field.getByRole('button', { name })).toHaveCSS('color', chevron);
+      }
+    }
+    // The filled arrows used to keep the grey adornment colour on the red error fill.
+    await expect(
+      inputRoot(page, 'Filled error').getByRole('button', { name: 'Increase' }),
+    ).toHaveCSS('color', await tokenColor(page, 'color-status-error-filled-text'));
+  });
+
   test('filled error fields keep the error fill while focused', async ({ page }) => {
     await page.goto('/?scenario=number-field');
     const root = inputRoot(page, 'Filled error');

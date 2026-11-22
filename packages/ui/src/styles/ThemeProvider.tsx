@@ -9,6 +9,7 @@ import {
 import { createTheme, getDefaultTheme } from './createTheme.js';
 import { useTectonModeValue } from './modeStore.js';
 import { getRtlCache } from './rtl.js';
+import { installInputFocusVisible } from './tecton/focusVisible.js';
 
 export interface ThemeProviderProps {
   children?: React.ReactNode;
@@ -30,10 +31,13 @@ export interface ThemeProviderProps {
 /**
  * Tecton ThemeProvider. With no configuration it provides the approved Tecton theme and follows
  * Tecton's page-wide `themeManager` mode. It renders no DOM and does not apply CssBaseline or
- * LocalizationProvider.
+ * LocalizationProvider. On the client it marks inputs that receive keyboard focus, so they show
+ * Tecton's focus ring.
  */
 export function ThemeProvider({ children, theme, themeOptions, direction }: ThemeProviderProps) {
   const mode = useTectonModeValue();
+  // Marks keyboard-focused inputs so Tecton's input focus ring shows (page-wide, installed once).
+  React.useEffect(() => installInputFocusVisible(), []);
   const resolvedTheme = React.useMemo(() => {
     if (theme) return theme;
     if (!themeOptions) return getDefaultTheme(mode, direction);

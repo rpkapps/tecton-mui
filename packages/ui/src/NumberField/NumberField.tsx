@@ -18,6 +18,7 @@ import { cssVar } from '../styles/tecton/index.js';
 import {
   SSRInitialFilled,
   joinIds,
+  selectIconStyles,
   textFieldRootStyles,
   useFieldIds,
   type NumberFieldBaseProps,
@@ -98,12 +99,14 @@ const StepperButton = styled(IconButton, { name: 'TectonNumberField', slot: 'Ste
     paddingBlock: 0,
     paddingInline: theme.spacing(0.5),
     borderRadius: 0,
-    color: 'inherit',
+    // The arrows take the Select chevron colour of the field's variant and state (error included).
+    ...selectIconStyles(theme),
     fontSize: cssVar('icon-size-100'),
     '&&.MuiIconButton-sizeSmall': { fontSize: cssVar('icon-size-50') },
     '&& [class*="tecton-"]': { fontSize: 'inherit' },
-    // Read-only fields expose the buttons as aria-disabled (still focusable by assistive tech).
-    '&[aria-disabled="true"]': {
+    // Read-only fields expose the buttons as aria-disabled (still focusable by assistive tech). The
+    // selector out-ranks the chevron colours keyed off the input root.
+    '.MuiInputBase-root &&[aria-disabled="true"]': {
       color: theme.palette.text.disabled,
       cursor: 'default',
       backgroundColor: 'transparent',

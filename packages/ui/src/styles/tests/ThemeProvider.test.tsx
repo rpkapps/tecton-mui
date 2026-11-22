@@ -1,8 +1,10 @@
 import * as React from 'react';
-import { act, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { createRoot } from 'react-dom/client';
 import { renderToString } from 'react-dom/server';
 import { hydrateRoot } from 'react-dom/client';
+import createCache from '@emotion/cache';
+import { CacheProvider } from '@emotion/react';
 import { useTheme } from '@mui/material/styles';
 import TextField from '@mui/material/TextField';
 import InputBase from '@mui/material/InputBase';
@@ -18,6 +20,7 @@ import {
 } from '../index.js';
 import { __resetModeStoreForTests } from '../modeStore.js';
 import { GRID_FOCUS_SELECTOR } from '../tecton/compat.js';
+import { INPUT_FOCUS_VISIBLE_SELECTOR } from '../tecton/focusVisible.js';
 
 function ThemeProbe({ id = 'probe' }: { id?: string }) {
   const theme = useTheme();
@@ -441,12 +444,105 @@ describe('Tecton outlined input', () => {
     >;
     // Tecton's own rules are kept; the correction only out-ranks the pointer-focus reset.
     expect(root).toHaveProperty([
-      '&.Mui-focused:not(.Tecton-focusVisible) .MuiOutlinedInput-notchedOutline',
+      `&.Mui-focused:not(${INPUT_FOCUS_VISIBLE_SELECTOR}) .MuiOutlinedInput-notchedOutline`,
     ]);
     expect(
-      root['&.Mui-error.Mui-focused:not(.Tecton-focusVisible) .MuiOutlinedInput-notchedOutline'],
+      root[
+        `&.Mui-error.Mui-focused:not(${INPUT_FOCUS_VISIBLE_SELECTOR}) .MuiOutlinedInput-notchedOutline`
+      ],
     ).toEqual({
       borderColor: 'var(--tecton-color-status-error-outline-border-strong)',
     });
+  });
+
+  it('draws the input focus ring for keyboard-focused inputs, in Tecton order', () => {
+    const components = createTheme().components as Record<string, { styleOverrides?: object }>;
+    const generated = JSON.stringify(components);
+    // Every Tecton `.Tecton-focusVisible` rule also matches the tracker's attribute.
+    expect(generated.replaceAll(INPUT_FOCUS_VISIBLE_SELECTOR, '')).not.toContain(
+      'Tecton-focusVisible',
+    );
+    const outlinedOverrides = components.MuiOutlinedInput?.styleOverrides as { root?: object };
+    const outlined = Object.keys(outlinedOverrides.root ?? {});
+    expect(outlined).toContain(`&${INPUT_FOCUS_VISIBLE_SELECTOR}`);
+    // Rewritten in place: the error outline still comes after the keyboard-focus outline.
+    expect(
+      outlined.indexOf(`&${INPUT_FOCUS_VISIBLE_SELECTOR} .MuiOutlinedInput-notchedOutline`),
+    ).toBeLessThan(outlined.indexOf('&.Mui-error .MuiOutlinedInput-notchedOutline'));
+  });
+
+  it('marks the input root focused with the keyboard, not with the pointer', () => {
+    // A fresh style cache: `beforeEach` empties <head>, where the default cache keeps its tags.
+    render(
+      <CacheProvider value={createCache({ key: 'focus' })}>
+        <ThemeProvider>
+          <TextField label="First" />
+          <TextField label="Second" />
+        </ThemeProvider>
+      </CacheProvider>,
+    );
+    const first = screen.getByLabelText('First');
+    const second = screen.getByLabelText('Second');
+    const marked = (input: HTMLElement) =>
+      input.closest('.MuiInputBase-root')!.hasAttribute('data-tecton-focus-visible');
+
+    fireEvent.keyDown(document.body, { key: 'Tab' });
+    act(() => first.focus());
+    expect(marked(first)).toBe(true);
+
+    act(() => second.focus());
+    expect(marked(first)).toBe(false);
+    expect(marked(second)).toBe(true);
+
+    fireEvent.pointerDown(first);
+    act(() => first.focus());
+    expect(marked(first)).toBe(false);
+    expect(marked(second)).toBe(false);
+    // Typing in a field focused with the pointer does not show the ring.
+    fireEvent.keyDown(first, { key: 'a' });
+    expect(marked(first)).toBe(false);
+  });
+});
+
+describe('Keyboard focus ring (theme.focusVisible)', () => {
+  const focusRule = (theme: ReturnType<typeof createTheme>, name: string) =>
+    (
+      (theme.components as Record<string, { styleOverrides?: { root?: object } }>)[name]
+        ?.styleOverrides?.root as Record<string, Record<string, unknown>>
+    )['&.Mui-focusVisible'];
+
+  it("sets Tecton's ring as MUI's theme.focusVisible", () => {
+    expect(createTheme().focusVisible).toMatchObject({
+      outlineStyle: 'solid',
+      outlineColor: 'var(--tecton-color-focus-ring)',
+      outlineWidth: 'var(--tecton-border-width-200)',
+    });
+  });
+
+  it('draws one ring on tabs and list items, where MUI insets its own', () => {
+    for (const name of ['MuiTab', 'MuiListItemButton']) {
+      const rule = focusRule(createTheme(), name);
+      expect(rule).toHaveProperty('backgroundColor');
+      expect(rule).not.toHaveProperty('boxShadow');
+    }
+  });
+
+  it('keeps the focus fill on menu items, and the ring on digital clock items', () => {
+    const root = (
+      createTheme().components as Record<string, { styleOverrides?: { root?: object } }>
+    ).MuiMenuItem?.styleOverrides?.root as Record<string, Record<string, unknown>>;
+    const key = Object.keys(root).find((k) => k.startsWith('&.Mui-focusVisible:not('));
+    expect(key).toContain('.MuiDigitalClock-item');
+    expect(key).toContain('.MuiMultiSectionDigitalClockSection-item');
+    expect(root[key!]).toMatchObject({ outline: 'none' });
+    expect(root[key!]).toHaveProperty('backgroundColor');
+  });
+
+  it("keeps Tecton's own rings when focusVisible is turned off", () => {
+    const theme = createTheme({ focusVisible: false });
+    expect(theme.focusVisible).toBeFalsy();
+    expect(focusRule(theme, 'MuiTab')).toHaveProperty('boxShadow');
+    // The default theme, built from the same generated overrides, is not affected.
+    expect(focusRule(createTheme(), 'MuiTab')).not.toHaveProperty('boxShadow');
   });
 });
