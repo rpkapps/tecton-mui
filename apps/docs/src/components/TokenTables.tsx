@@ -27,6 +27,13 @@ import { formatFactor, scaleEntries, type ColorGroupId, type ColorRow } from '..
 
 const mono = 'var(--tecton-font-family-mono), monospace';
 
+/**
+ * Value cells sit in the middle of the row; the Token cell (name and guidance) stays at the top.
+ * `!important` because DocsTable top-aligns every cell from its container.
+ */
+const middle = { verticalAlign: 'middle !important' } as const;
+const middleNoWrap = { ...middle, whiteSpace: 'nowrap' } as const;
+
 /** A CSS variable name that copies itself to the clipboard. */
 export function CopyToken({ text, size = 'medium' }: { text: string; size?: 'small' | 'medium' }) {
   const [copied, setCopied] = React.useState(false);
@@ -205,10 +212,10 @@ function ColorTable({ rows, label }: { rows: ColorRow[]; label: string }) {
                 swatch={`var(${row.name})`}
               />
             </TableCell>
-            <TableCell>
+            <TableCell sx={middle}>
               <ModeValues light={row.light} dark={row.dark} />
             </TableCell>
-            <TableCell>
+            <TableCell sx={middle}>
               <VariableCell name={row.name} aliases={row.aliases} />
             </TableCell>
           </TableRow>
@@ -273,10 +280,10 @@ export function MuiPaletteTable() {
       <TableBody>
         {PALETTE_KEYS.map((key) => (
           <TableRow key={key}>
-            <TableCell>
+            <TableCell sx={middle}>
               <InlineCode>{key}</InlineCode>
             </TableCell>
-            <TableCell>
+            <TableCell sx={middle}>
               <ModeValues light={paletteValue(light, key)} dark={paletteValue(dark, key)} />
             </TableCell>
           </TableRow>
@@ -327,15 +334,11 @@ function ScaleTable({
             <TableCell>
               <TokenCell title={`${tokenPrefix}.${key}`} description={descriptions[key]} />
             </TableCell>
-            <TableCell sx={{ whiteSpace: 'nowrap' }}>{value}px</TableCell>
-            <TableCell sx={{ verticalAlign: 'middle !important' }}>
-              {preview(`var(${cssPrefix}${key})`, value)}
-            </TableCell>
-            {extra && (
-              <TableCell sx={{ whiteSpace: 'nowrap' }}>{extra.render(key, value)}</TableCell>
-            )}
+            <TableCell sx={middleNoWrap}>{value}px</TableCell>
+            <TableCell sx={middle}>{preview(`var(${cssPrefix}${key})`, value)}</TableCell>
+            {extra && <TableCell sx={middleNoWrap}>{extra.render(key, value)}</TableCell>}
             {/* Scale variable names are short: keep each on one line. */}
-            <TableCell sx={{ whiteSpace: 'nowrap' }}>
+            <TableCell sx={middleNoWrap}>
               <VariableCell name={`${cssPrefix}${key}`} />
             </TableCell>
           </TableRow>
