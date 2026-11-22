@@ -28,7 +28,7 @@ import { formatFactor, scaleEntries, type ColorGroupId, type ColorRow } from '..
 const mono = 'var(--tecton-font-family-mono), monospace';
 
 /**
- * Value cells sit in the middle of the row; the Token cell (name and guidance) stays at the top.
+ * Every cell of a token row sits in the middle of the row.
  * `!important` because DocsTable top-aligns every cell from its container.
  */
 const middle = { verticalAlign: 'middle !important' } as const;
@@ -153,7 +153,7 @@ function TokenCell({
   swatch?: string;
 }) {
   return (
-    <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start' }}>
+    <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
       {swatch && <Swatch color={swatch} size={32} />}
       <Box sx={{ minWidth: 0, display: 'flex', flexDirection: 'column' }}>
         <Typography variant="body2" component="span" sx={{ fontWeight: 600 }}>
@@ -205,7 +205,7 @@ function ColorTable({ rows, label }: { rows: ColorRow[]; label: string }) {
       <TableBody>
         {rows.map((row) => (
           <TableRow key={row.name}>
-            <TableCell>
+            <TableCell sx={middle}>
               <TokenCell
                 title={row.label}
                 description={row.description}
@@ -331,7 +331,7 @@ function ScaleTable({
       <TableBody>
         {scaleEntries(scale).map(([key, value]) => (
           <TableRow key={key}>
-            <TableCell>
+            <TableCell sx={middle}>
               <TokenCell title={`${tokenPrefix}.${key}`} description={descriptions[key]} />
             </TableCell>
             <TableCell sx={middleNoWrap}>{value}px</TableCell>
