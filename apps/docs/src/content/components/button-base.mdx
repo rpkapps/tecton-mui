@@ -5,10 +5,10 @@ clickable components. It renders a `<button>` (or the element given by `componen
 activation, focus-visible detection and the ripple, and no visual style of its own. Use it only for
 custom interactive surfaces that no existing component covers.
 
-## Before you build on it
+## Custom selectable tiles
 
-Prefer an existing Tecton component: `Button`, `IconButton`, `ToggleButton`, `Chip`, `ListItemButton`
-and `CardActionArea` already have the Tecton look and states. If you still need `ButtonBase`, set
-`focusRipple` for keyboard users, describe the state with ARIA (for example `aria-pressed` for a
-toggle) and keep a visible focus indicator: `ButtonBase` adds the `Mui-focusVisible` class while it
-has keyboard focus.
+Style `ButtonBase` with `sx` from the theme, set `focusRipple` for keyboard users and describe the
+state with ARIA, here `aria-pressed` for toggles. Provide a visible focus indicator: `ButtonBase`
+adds the `Mui-focusVisible` class while it has keyboard focus.
+
+<Demo name="SelectableTiles" />

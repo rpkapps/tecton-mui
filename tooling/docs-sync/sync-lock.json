@@ -13,7 +13,7 @@
     "pagesConsidered": 63,
     "pagesSynced": 57,
     "portalSlugs": 63,
-    "demosIncluded": 418,
+    "demosIncluded": 417,
     "demosExcluded": 41,
     "icons": 119,
     "iconFallbacks": 11
@@ -937,7 +937,7 @@
     },
     {
       "source": "docs/data/material/components/avatars/avatars.md",
-      "status": "included",
+      "status": "modified",
       "target": "avatars",
       "slugs": [
         "avatar"
@@ -952,10 +952,6 @@
         },
         {
           "name": "LetterAvatars",
-          "status": "included"
-        },
-        {
-          "name": "BackgroundLetterAvatars",
           "status": "included"
         },
         {
@@ -3347,7 +3343,6 @@
     "apps/docs/src/mui-docs/generated/demos/autocomplete/Sizes.tsx": "9eab90903fb935390a486493734ca39e346162973c0c3cde5e6aa3b00d017c30",
     "apps/docs/src/mui-docs/generated/demos/autocomplete/Tags.tsx": "5828a628123e780749f4965806b2cd7f9b7bdd8a2d83c23196fc6096a2b33fc1",
     "apps/docs/src/mui-docs/generated/demos/autocomplete/top100Films.ts": "7c7d3a48ae7cd904548ef57d7fed6ee9692f45b966bf9c556a910165ac4aa206",
-    "apps/docs/src/mui-docs/generated/demos/avatars/BackgroundLetterAvatars.tsx": "e67839b77b2b01a2b59fd95e9e661664fe02500d3e427c68a8634526c64c94db",
     "apps/docs/src/mui-docs/generated/demos/avatars/BadgeAvatars.tsx": "a5c0299c21a7195fad7ed0fbf1e80eec4e0a1571832d4fe06be90aa666a8bc17",
     "apps/docs/src/mui-docs/generated/demos/avatars/CustomSurplusAvatars.tsx": "900eed245278ae13fa4bcff3ffd68f5827dc8db38bc364baeebcb3ea68433cf9",
     "apps/docs/src/mui-docs/generated/demos/avatars/FallbackAvatars.tsx": "a85bde5cda607ae38d227e5e35482f61e9bb99d084cee7a3473ff612c9f6a2b2",
@@ -3855,7 +3850,7 @@
     "apps/docs/src/mui-docs/generated/pages/accordion.tsx": "b35071577d41cba30d3a12d6ada4ebac1e83d16143fe6b686525276548847709",
     "apps/docs/src/mui-docs/generated/pages/alert.tsx": "cab96a620d9e77a2e065d3db101b9ca8c6777ed7908e38a2e5c1d0cb1f2b34e5",
     "apps/docs/src/mui-docs/generated/pages/autocomplete.tsx": "06b93300dab1e3a5935d0b463cd91aa304abb1acf2ed17b4928ff4380aa2553b",
-    "apps/docs/src/mui-docs/generated/pages/avatar.tsx": "116bf9d1035d633b5290a8ac3c24d3668d68263f956bd0e973e7d6cee533121c",
+    "apps/docs/src/mui-docs/generated/pages/avatar.tsx": "ea4d908e4a882bab033107ba47a267dbcf1e54847f8755ee2069a73f3ee97b4d",
     "apps/docs/src/mui-docs/generated/pages/backdrop.tsx": "38673d83971cb1a4267b503e1e745ddb3f9f24e264285d3b1fd2f11b4e976367",
     "apps/docs/src/mui-docs/generated/pages/badge.tsx": "9213523aaa69f8609e9ea0c6b34990eea2f57edbc84780684962d43ce93f0ae9",
     "apps/docs/src/mui-docs/generated/pages/bottom-navigation.tsx": "634bfc4e9ca23802203b6f0065cd1ba84aa8bfd20aedb2e694b85625ee9e3d6d",
