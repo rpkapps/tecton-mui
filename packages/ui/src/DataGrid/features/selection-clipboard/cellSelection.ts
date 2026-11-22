@@ -1,5 +1,6 @@
 import type { GridRowId } from '@mui/x-data-grid';
 import type { GridCellSelectionModel } from '../../public-types.js';
+import { gridScopeSelector } from '../../core/scope.js';
 
 export interface CellCoord {
   id: GridRowId;
@@ -80,7 +81,7 @@ function groupedSelector(scope: string, cells: Map<string, Set<string>>): string
         .split('\u0000')
         .map((f) => `[data-field="${esc(f)}"]`)
         .join(',');
-      return `.${scope} .MuiDataGrid-row:is(${rows}) > .MuiDataGrid-cell:is(${fields})`;
+      return `${gridScopeSelector(scope)} .MuiDataGrid-row:is(${rows}) > .MuiDataGrid-cell:is(${fields})`;
     })
     .join(',');
 }

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { gridClasses, type GridColDef } from '@mui/x-data-grid';
 import type { ApiRef } from '../../core/columns.js';
+import type { GridRootRef } from '../../core/rootElement.js';
 import type { GridPinnedColumnFields } from '../../public-types.js';
 
 export const EMPTY_PINNED: GridPinnedColumnFields = { left: [], right: [] };
@@ -67,41 +68,42 @@ export function pinnedColumnsSx(
  */
 export function usePinnedColumnOffsets(
   apiRef: ApiRef,
-  rootRef: React.RefObject<HTMLDivElement | null>,
+  rootRef: GridRootRef,
   pinned: { left: string[]; right: string[] },
 ): void {
   const key = `${pinned.left.join(',')}|${pinned.right.join(',')}`;
   React.useEffect(() => {
     const api = apiRef.current;
-    const root = rootRef.current;
-    if (!api || !root || (!pinned.left.length && !pinned.right.length)) return undefined;
-    const width = (field: string) => {
-      const col = api.getColumn(field) as (GridColDef & { computedWidth?: number }) | undefined;
-      const visible = api.getVisibleColumns().some((c: GridColDef) => c.field === field);
-      return visible ? (col?.computedWidth ?? 0) : 0;
-    };
-    const update = () => {
-      let acc = 0;
-      pinned.left.forEach((field, i) => {
-        root.style.setProperty(`--tdg-pl-${i}`, `${acc}px`);
-        acc += width(field);
-      });
-      acc = 0;
-      for (let i = pinned.right.length - 1; i >= 0; i--) {
-        root.style.setProperty(`--tdg-pr-${i}`, `${acc}px`);
-        acc += width(pinned.right[i]);
-      }
-    };
-    update();
-    const events = [
-      'columnWidthChange',
-      'columnResize',
-      'columnsChange',
-      'columnVisibilityModelChange',
-      'viewportInnerSizeChange',
-    ] as const;
-    const unsubs = events.map((name) => api.subscribeEvent(name as never, update as never));
-    return () => unsubs.forEach((u) => u());
+    if (!api || (!pinned.left.length && !pinned.right.length)) return undefined;
+    return rootRef.observe((root) => {
+      const width = (field: string) => {
+        const col = api.getColumn(field) as (GridColDef & { computedWidth?: number }) | undefined;
+        const visible = api.getVisibleColumns().some((c: GridColDef) => c.field === field);
+        return visible ? (col?.computedWidth ?? 0) : 0;
+      };
+      const update = () => {
+        let acc = 0;
+        pinned.left.forEach((field, i) => {
+          root.style.setProperty(`--tdg-pl-${i}`, `${acc}px`);
+          acc += width(field);
+        });
+        acc = 0;
+        for (let i = pinned.right.length - 1; i >= 0; i--) {
+          root.style.setProperty(`--tdg-pr-${i}`, `${acc}px`);
+          acc += width(pinned.right[i]);
+        }
+      };
+      update();
+      const events = [
+        'columnWidthChange',
+        'columnResize',
+        'columnsChange',
+        'columnVisibilityModelChange',
+        'viewportInnerSizeChange',
+      ] as const;
+      const unsubs = events.map((name) => api.subscribeEvent(name as never, update as never));
+      return () => unsubs.forEach((u) => u());
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [apiRef, rootRef, key]);
 }

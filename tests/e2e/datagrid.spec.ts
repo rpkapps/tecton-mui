@@ -181,6 +181,11 @@ test.describe('DataGrid advanced features', () => {
     await page.mouse.move(b!.x + 10, b!.y + 10, { steps: 6 });
     await page.mouse.up();
     expect(await page.evaluate(() => window.getSelection()?.toString())).toBe('');
+    // The generated stylesheet, scoped to this grid's root, paints the range and nothing else.
+    await expect(root).toHaveAttribute('data-tecton-grid-scope', /^\d+$/);
+    await expect(cell(1, 'name')).toHaveCSS('background-image', /linear-gradient/);
+    await expect(cell(2, 'department')).toHaveCSS('background-image', /linear-gradient/);
+    await expect(cell(3, 'name')).toHaveCSS('background-image', 'none');
     await page.keyboard.press('Control+c');
     await expect
       .poll(() => page.evaluate(() => navigator.clipboard.readText()))

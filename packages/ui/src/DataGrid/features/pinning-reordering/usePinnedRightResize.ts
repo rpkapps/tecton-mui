@@ -7,6 +7,7 @@
 // handled here with the public `setColumnWidth` API (double-click auto-sizing stays Community's).
 import * as React from 'react';
 import type { GridApi, GridColDef } from '@mui/x-data-grid';
+import type { GridRootRef } from '../../core/rootElement.js';
 
 const HANDLE =
   '.MuiDataGrid-columnHeader[class*="tdg-pr-"] .MuiDataGrid-columnSeparator--resizable';
@@ -30,51 +31,52 @@ export const pinnedRightResizeSx = {
 };
 
 export function usePinnedRightResize(
-  rootRef: React.RefObject<HTMLDivElement | null>,
+  rootRef: GridRootRef,
   apiRef: React.RefObject<GridApi | null>,
   enabled: boolean,
 ): void {
   React.useEffect(() => {
-    const root = rootRef.current;
-    if (!root || !enabled) return undefined;
-    let cleanup: (() => void) | null = null;
-    const onPointerDown = (event: PointerEvent) => {
-      if (event.button !== 0) return;
-      const handle = (event.target as HTMLElement).closest<HTMLElement>(HANDLE);
-      const header = handle?.closest<HTMLElement>('.MuiDataGrid-columnHeader');
-      const api = apiRef.current;
-      const field = header?.dataset.field;
-      if (!handle || !header || !api || !field) return;
-      const column = api.getColumn(field) as GridColDef & { computedWidth?: number };
-      // Take over from Community's handle (no compatibility mouse events follow).
-      event.preventDefault();
-      event.stopPropagation();
-      const rtl = getComputedStyle(root).direction === 'rtl';
-      const startX = event.clientX;
-      const startWidth = column.computedWidth ?? column.width ?? 100;
-      const min = column.minWidth ?? 50;
-      const max = column.maxWidth ?? Number.POSITIVE_INFINITY;
-      const doc = root.ownerDocument;
-      const onMove = (move: PointerEvent) => {
-        // Towards the start edge (left in LTR) widens the column.
-        const delta = (startX - move.clientX) * (rtl ? -1 : 1);
-        api.setColumnWidth(field, Math.min(max, Math.max(min, Math.round(startWidth + delta))));
+    if (!enabled) return undefined;
+    return rootRef.observe((root) => {
+      let cleanup: (() => void) | null = null;
+      const onPointerDown = (event: PointerEvent) => {
+        if (event.button !== 0) return;
+        const handle = (event.target as HTMLElement).closest<HTMLElement>(HANDLE);
+        const header = handle?.closest<HTMLElement>('.MuiDataGrid-columnHeader');
+        const api = apiRef.current;
+        const field = header?.dataset.field;
+        if (!handle || !header || !api || !field) return;
+        const column = api.getColumn(field) as GridColDef & { computedWidth?: number };
+        // Take over from Community's handle (no compatibility mouse events follow).
+        event.preventDefault();
+        event.stopPropagation();
+        const rtl = getComputedStyle(root).direction === 'rtl';
+        const startX = event.clientX;
+        const startWidth = column.computedWidth ?? column.width ?? 100;
+        const min = column.minWidth ?? 50;
+        const max = column.maxWidth ?? Number.POSITIVE_INFINITY;
+        const doc = root.ownerDocument;
+        const onMove = (move: PointerEvent) => {
+          // Towards the start edge (left in LTR) widens the column.
+          const delta = (startX - move.clientX) * (rtl ? -1 : 1);
+          api.setColumnWidth(field, Math.min(max, Math.max(min, Math.round(startWidth + delta))));
+        };
+        const stop = () => {
+          doc.removeEventListener('pointermove', onMove);
+          doc.removeEventListener('pointerup', stop);
+          doc.removeEventListener('pointercancel', stop);
+          cleanup = null;
+        };
+        doc.addEventListener('pointermove', onMove);
+        doc.addEventListener('pointerup', stop);
+        doc.addEventListener('pointercancel', stop);
+        cleanup = stop;
       };
-      const stop = () => {
-        doc.removeEventListener('pointermove', onMove);
-        doc.removeEventListener('pointerup', stop);
-        doc.removeEventListener('pointercancel', stop);
-        cleanup = null;
+      root.addEventListener('pointerdown', onPointerDown, true);
+      return () => {
+        root.removeEventListener('pointerdown', onPointerDown, true);
+        cleanup?.();
       };
-      doc.addEventListener('pointermove', onMove);
-      doc.addEventListener('pointerup', stop);
-      doc.addEventListener('pointercancel', stop);
-      cleanup = stop;
-    };
-    root.addEventListener('pointerdown', onPointerDown, true);
-    return () => {
-      root.removeEventListener('pointerdown', onPointerDown, true);
-      cleanup?.();
-    };
+    });
   }, [rootRef, apiRef, enabled]);
 }

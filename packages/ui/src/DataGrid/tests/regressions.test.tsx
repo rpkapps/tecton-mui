@@ -10,6 +10,7 @@ import {
 import { ROW_GROUPING_SINGLE_FIELD } from '../features/grouping-aggregation/rowGrouping.js';
 import { toDateInput } from '../features/sorting-filtering/HeaderFilterRow.js';
 import { layoutSlots } from '../features/pinning-reordering/useColumnReorder.js';
+import { createGridRootRef } from '../core/rootElement.js';
 
 type Row = { id: number; name: string; dept: string; salary: number; count?: number };
 const rows: Row[] = [
@@ -225,7 +226,7 @@ describe('DataGrid helpers', () => {
     const slots = layoutSlots(
       {
         enabled: true,
-        rootRef: { current: null },
+        rootRef: createGridRootRef(),
         canMove: (f) => f !== '__check__',
         sectionOf: (f) => (f === 'pinned' ? 'left' : 'center'),
         onMove: () => {},
