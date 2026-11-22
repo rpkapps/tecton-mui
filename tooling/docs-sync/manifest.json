@@ -290,8 +290,29 @@
     {
       "package": "@mui/material",
       "source": "docs/data/material/components/typography/typography.md",
-      "status": "included",
-      "target": "typography"
+      "status": "modified",
+      "target": "typography",
+      "droppedSections": {
+        "Roboto font": "Tecton does not use Roboto: the theme sets Figtree and IBM Plex Mono, which ship self-hosted in styles/global.css. The authored Fonts section of the page covers them.",
+        "Customization": "Product UIs keep the Tecton typography: the section shows how to add or disable variants and restyle text. The authored page covers choosing the element with `component` and states what not to change."
+      },
+      "edits": [
+        {
+          "find": "follows the [Material Design typographic scale](https://m2.material.io/design/typography/#type-scale) that provides",
+          "replace": "follows the Tecton type scale, which provides",
+          "reason": "The variants map to Tecton text styles (see the authored Type scale section), not the Material Design scale."
+        },
+        {
+          "find": "Use [relative units (rem)](/material-ui/customization/typography/#font-size), instead of pixels, to accommodate the user's browser settings.",
+          "replace": "Use the variants instead of setting font sizes by hand. The Tecton sizes are in pixels and scale with browser zoom.",
+          "reason": "The link explains how to change the theme font sizes; product UIs keep the Tecton type scale, whose tokens are in px."
+        },
+        {
+          "find": "Make sure to [separate the semantics from the style](#changing-the-semantic-element).",
+          "replace": "Make sure to separate the semantics from the style: choose the element with `component` and the look with `variant`.",
+          "reason": "The linked Changing the semantic element section is dropped with Customization."
+        }
+      ]
     },
     {
       "package": "@mui/material",
@@ -502,8 +523,15 @@
     {
       "package": "@mui/material",
       "source": "docs/data/material/components/css-baseline/css-baseline.md",
-      "status": "included",
-      "target": "css-baseline"
+      "status": "modified",
+      "target": "css-baseline",
+      "edits": [
+        {
+          "find": "for better display of the Roboto font.",
+          "replace": "for better display of the Tecton fonts (Figtree and IBM Plex Mono).",
+          "reason": "Tecton does not use Roboto."
+        }
+      ]
     },
     {
       "package": "@mui/material",

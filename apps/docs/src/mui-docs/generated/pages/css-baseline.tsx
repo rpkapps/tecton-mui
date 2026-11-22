@@ -195,7 +195,11 @@ export default function MuiDocs() {
           <M.code>{'<strong>'}</M.code>
           {' elements.'}
         </M.li>
-        <M.li>{'Custom font-smoothing is enabled for better display of the Roboto font.'}</M.li>
+        <M.li>
+          {
+            'Custom font-smoothing is enabled for better display of the Tecton fonts (Figtree and IBM Plex Mono).'
+          }
+        </M.li>
       </M.ul>
       <Heading level={3} id="customization">
         {'Customization'}

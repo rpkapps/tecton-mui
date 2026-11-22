@@ -1,14 +1,48 @@
+import { TypeScaleTable } from '../../components/TypeScaleTable';
+
 ## Purpose
 
 `Typography` renders text with the Tecton type scale: Figtree for headings and body text, IBM Plex
 Mono for tabular data. Using variants instead of ad-hoc font sizes keeps text consistent across
 applications.
 
+## Fonts
+
+The Tecton theme uses two typefaces. MUI's default font, Roboto, is not used: you do not need
+`@fontsource/roboto` or a Google Fonts link.
+
+| Typeface      | Used for                                                                      |
+| ------------- | ----------------------------------------------------------------------------- |
+| Figtree       | Every variant except `data`: headings, body text, labels and buttons          |
+| IBM Plex Mono | The `data` variant and table body cells, where digits must line up in columns |
+
+Both fonts are self-hosted and ship with the library in `@tecton-mui/ui/styles/global.css` (or in
+`fonts.css` on its own). The application that owns the page loads that stylesheet once; components
+do not load fonts. See [Fonts, icons and style entry points](/guides/styles-and-icons#fonts).
+
 ## Type scale
 
-Tecton adds the `data` variant for numbers in tables and dashboards (tabular figures, monospace).
+Each variant is bound to a Tecton text style. Tecton adds the `data` variant for numbers in tables
+and dashboards. The table is generated from the theme and the exported Tecton tokens
+(`tectonTextStyles` from `@tecton-mui/ui/styles`), so it matches the installed Tecton version.
 
-<Demo name="TypeScale" />
+<TypeScaleTable />
+
+## Keep the Tecton typography
+
+The typography is part of the Tecton design system: every application uses the same fonts, sizes,
+weights and line heights. Choose the variant whose text style fits instead of changing it.
+
+- Do not override `fontFamily`, `fontSize`, `fontWeight`, `lineHeight` or `letterSpacing` with `sx`,
+  `styled` or `style`.
+- Do not change `typography` or `MuiTypography` in the theme, and do not add custom variants.
+- Do not load other fonts.
+- When text cannot be a `Typography` (for example inside your own component), spread the variant
+  from the theme, such as `...theme.typography.body2`, instead of setting font properties by hand.
+
+Spacing (`gutterBottom`, `sx={{ mb: 2 }}`), alignment, `noWrap` and the palette's text colors do
+not change the typography. If no variant fits a design, raise it with the Tecton design system team
+instead of restyling text in your application.
 
 ## Visual style versus document structure
 

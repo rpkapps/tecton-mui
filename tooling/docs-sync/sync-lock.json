@@ -1533,7 +1533,7 @@
     },
     {
       "source": "docs/data/material/components/typography/typography.md",
-      "status": "included",
+      "status": "modified",
       "target": "typography",
       "slugs": [
         "typography"
@@ -2657,7 +2657,7 @@
     },
     {
       "source": "docs/data/material/components/css-baseline/css-baseline.md",
-      "status": "included",
+      "status": "modified",
       "target": "css-baseline",
       "slugs": [
         "css-baseline"
@@ -4226,7 +4226,7 @@
     "apps/docs/src/mui-docs/generated/pages/chip.tsx": "d99a3f8af341e8e5b26d126d907219dd6d4d83ed69d733500fbf1cad032c9a52",
     "apps/docs/src/mui-docs/generated/pages/click-away-listener.tsx": "2109d365ff96687a5550a0826bece71a6236ddf529f6087f9533cbfc5b96ea45",
     "apps/docs/src/mui-docs/generated/pages/container.tsx": "01ea1fec145896eb9dc679444b31aa4797eea301e81112cc2c1c7c5d5d0e052b",
-    "apps/docs/src/mui-docs/generated/pages/css-baseline.tsx": "91a67d912336defa8396ce30a306633764b46025fa9db76cdc89444174a77640",
+    "apps/docs/src/mui-docs/generated/pages/css-baseline.tsx": "d8d657dcfd1b3892549b0d017cc6acecefbd1555d89e96b3335952559aa5b213",
     "apps/docs/src/mui-docs/generated/pages/dialog.tsx": "b8bca22a80394e8063219249e053f87587dd7b5de7c495876d3236564bb63c55",
     "apps/docs/src/mui-docs/generated/pages/divider.tsx": "beaf7923eaa8762d1a187a10ecde8decfee781801275e1091f3771de5925d710",
     "apps/docs/src/mui-docs/generated/pages/drawer.tsx": "ba78bfbe234339c98a94fc0dfe0fe9014cb5798459f2e28bc8c745ceb641d495",
@@ -4270,7 +4270,7 @@
     "apps/docs/src/mui-docs/generated/pages/tooltip.tsx": "eab66c8d98ada10de9f22b4eab16f82d380d2f7e77f4d3b8d5492ab9fd8f73c8",
     "apps/docs/src/mui-docs/generated/pages/transfer-list.tsx": "e3bf3b8aa7f5b6cfd31983adc0002aa2499ee3fb09988538a822806802a2534c",
     "apps/docs/src/mui-docs/generated/pages/transitions.tsx": "f36d1ea2429eea8cb3eaaf6a854aefd0854b51073887b977fa74110cd96a8f5d",
-    "apps/docs/src/mui-docs/generated/pages/typography.tsx": "b3befe2debe869fbda2954a9bcfefe892b3da4cd0f88ee8364d0365139897b64",
+    "apps/docs/src/mui-docs/generated/pages/typography.tsx": "5d130138a9cf8b3d7640c42c992340a49d3ed8b200b2bac5c4a05827acef6b8d",
     "apps/docs/src/mui-docs/generated/pages/unstable-trap-focus.tsx": "65cb540f8e1be3a615e654f774f7f9066ced536e6539aea5ac4934eb87a0f517",
     "apps/docs/src/mui-docs/generated/pages/use-media-query.tsx": "d0447dc2a4ab1b8d7a9edf996923bd9543fe29f33cc1b9933c0fc598f9e5a028"
   }
