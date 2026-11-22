@@ -22,17 +22,12 @@ import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import { styled, ThemeProvider } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 import { createSvgIcon } from '@mui/material/utils';
 import { cssVar } from '../styles/tecton/index.js';
 import type { TectonIconName } from '../styles/tecton/index.js';
 import { useScrollButtonCompensation } from './useScrollButtonCompensation.js';
-import {
-  instantScrollTheme,
-  TabStripContext,
-  TabStripScrollButton,
-  useTabStrip,
-} from './tabStrip.js';
+import { TabStripContext, TabStripScrollButton, useTabStrip } from './tabStrip.js';
 import {
   CLOSE_SLOT_ATTRIBUTE,
   TabCloseButton,
@@ -189,7 +184,6 @@ const brandingNameSx = {
   justifyContent: 'center',
   minWidth: cssVar('space-400'),
 } as const;
-const tabsSx = { '& .MuiTabs-scrollButtons.Mui-disabled': { display: 'none' } } as const;
 const fixedTabSx = { minWidth: 48, width: 48 } as const;
 const tabSx = { flexDirection: 'row' } as const;
 const tabLabelSx = {
@@ -245,8 +239,8 @@ export const AppBarNavigation = React.forwardRef<HTMLElement, AppBarNavigationLa
     } = props;
     const primary = tier === 'primary';
     const tabsRef = React.useRef<HTMLDivElement>(null);
-    useScrollButtonCompensation(tabsRef);
     const strip = useTabStrip(tabsRef, activeTab, tabs.length);
+    useScrollButtonCompensation(tabsRef, strip);
 
     // Latest callbacks, so the handlers below keep stable identities.
     const latest = React.useRef({ onTabSelect, onTabClose, onTabAdd, tabs });
@@ -353,79 +347,76 @@ export const AppBarNavigation = React.forwardRef<HTMLElement, AppBarNavigationLa
                     </BrandingLockup>
                   </BrandingRegion>
                 )}
-                <ThemeProvider theme={instantScrollTheme}>
-                  <Tabs
-                    ref={tabsRef}
-                    value={activeTab}
-                    variant="scrollable"
-                    scrollButtons
-                    data-region="tabs"
-                    onChange={handleChange}
-                    slots={tabsSlots}
-                    sx={tabsSx}
-                  >
-                    {primary &&
-                      fixedTabs.map((tab) => (
-                        <Tab
-                          key={tab.id}
-                          aria-label={tab.label ?? tab.id}
-                          component="div"
-                          disabled={tab.disabled}
-                          icon={
-                            <span
-                              className={iconClass(tab.icon!, activeTab === tab.id)}
-                              aria-hidden
-                            />
-                          }
-                          sx={fixedTabSx}
-                          value={tab.id}
-                        />
-                      ))}
-                    {tabs.map(({ id, label, icon, disabled, closeable = true, tags }) => {
-                      const active = activeTab === id;
-                      const canClose = closeable && active && !disabled;
-                      return (
-                        <Tab
-                          key={id}
-                          value={id}
-                          component="div"
-                          disabled={disabled}
-                          sx={tabSx}
-                          aria-keyshortcuts={canClose ? 'Delete' : undefined}
-                          onKeyDown={
-                            canClose
-                              ? (event: React.KeyboardEvent) => {
-                                  if (
-                                    (event.key === 'Delete' || event.key === 'Backspace') &&
-                                    event.target === event.currentTarget
-                                  ) {
-                                    event.preventDefault();
-                                    close(event, id);
-                                  }
+                <Tabs
+                  ref={tabsRef}
+                  value={activeTab}
+                  variant="scrollable"
+                  scrollButtons
+                  data-region="tabs"
+                  onChange={handleChange}
+                  slots={tabsSlots}
+                >
+                  {primary &&
+                    fixedTabs.map((tab) => (
+                      <Tab
+                        key={tab.id}
+                        aria-label={tab.label ?? tab.id}
+                        component="div"
+                        disabled={tab.disabled}
+                        icon={
+                          <span
+                            className={iconClass(tab.icon!, activeTab === tab.id)}
+                            aria-hidden
+                          />
+                        }
+                        sx={fixedTabSx}
+                        value={tab.id}
+                      />
+                    ))}
+                  {tabs.map(({ id, label, icon, disabled, closeable = true, tags }) => {
+                    const active = activeTab === id;
+                    const canClose = closeable && active && !disabled;
+                    return (
+                      <Tab
+                        key={id}
+                        value={id}
+                        component="div"
+                        disabled={disabled}
+                        sx={tabSx}
+                        aria-keyshortcuts={canClose ? 'Delete' : undefined}
+                        onKeyDown={
+                          canClose
+                            ? (event: React.KeyboardEvent) => {
+                                if (
+                                  (event.key === 'Delete' || event.key === 'Backspace') &&
+                                  event.target === event.currentTarget
+                                ) {
+                                  event.preventDefault();
+                                  close(event, id);
                                 }
-                              : undefined
-                          }
-                          label={
-                            <>
-                              <Box data-region="tab-label" sx={tabLabelSx}>
-                                {icon && (
-                                  <span className={iconClass(icon, active)} aria-hidden="true" />
-                                )}
-                                <Typography variant="caption">{label}</Typography>
-                              </Box>
-                              {tags?.map((tag) => (
-                                <Chip key={tag} label={tag} size="small" clickable={false} />
-                              ))}
-                              {closeable && (
-                                <Box aria-hidden sx={closeSlotSx} {...(active && closeSlotProps)} />
+                              }
+                            : undefined
+                        }
+                        label={
+                          <>
+                            <Box data-region="tab-label" sx={tabLabelSx}>
+                              {icon && (
+                                <span className={iconClass(icon, active)} aria-hidden="true" />
                               )}
-                            </>
-                          }
-                        />
-                      );
-                    })}
-                  </Tabs>
-                </ThemeProvider>
+                              <Typography variant="caption">{label}</Typography>
+                            </Box>
+                            {tags?.map((tag) => (
+                              <Chip key={tag} label={tag} size="small" clickable={false} />
+                            ))}
+                            {closeable && (
+                              <Box aria-hidden sx={closeSlotSx} {...(active && closeSlotProps)} />
+                            )}
+                          </>
+                        }
+                      />
+                    );
+                  })}
+                </Tabs>
                 {showAdd && (
                   <IconButton aria-label="Add tab" onClick={handleAdd}>
                     <span className="tecton-add-outline" aria-hidden />
