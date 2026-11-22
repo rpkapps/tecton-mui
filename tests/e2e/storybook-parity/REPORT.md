@@ -26,7 +26,8 @@ with the Tecton UMD theme **0.11.2**, the same Tecton source our adapter generat
    inlines the MUI X pickers. `StorybookScenario.tsx` reproduces the preview layout. Route:
    `/?scenario=sb:<story-id>`.
 2. Both sides are captured at 1280×900, `deviceScaleFactor: 1`, full page, in the same mode, with
-   fonts loaded and transitions/animations disabled. Focus is blurred and the pointer parked, as
+   fonts loaded, transitions/animations disabled and grayscale text antialiasing
+   (`--disable-lcd-text`, see the menu note under Documented differences). Focus is blurred and the pointer parked, as
    the Storybook's `afterEach` does. Storybook `play` functions are stripped from the story
    bundles by request interception, so both sides are compared in their initial render state.
    Several plays click, type or hover: they open drawers, expand accordions and select tabs.
@@ -110,6 +111,13 @@ view sizing in the theme would diverge from MUI.
   reads the packaged copy of the same 0.11.2 file.
 - **Card media:** `images.unsplash.com` photos load on both sides, or on neither when the network
   blocks them.
+- **Menu overflow and text antialiasing:** Tecton pulls the menu list one border width past the
+  bottom of the scrollable paper, so every Tecton menu overflows by 1px and shows a scrollbar where
+  scrollbars take space. `compat.ts` takes that pixel from the list's bottom padding instead: same
+  pixels, no overflow. As a side effect, Chromium composites the Storybook's paper as an opaque
+  scroller and draws its text with LCD (subpixel) antialiasing, while ours is painted on the
+  transparent popover layer with grayscale antialiasing. With LCD text on, `molecules-select--open`
+  differed by 0.18–0.27 % (glyph edges only), so the suite runs with `--disable-lcd-text`.
 
 ## Drop-ins: App Bar (`<wc-app-bar>` vs React `AppBar`)
 
