@@ -3,7 +3,7 @@
 import TextField from '@tecton-mui/ui/TextField';
 import { outlinedInputClasses } from '@tecton-mui/ui/OutlinedInput';
 import Box from '@tecton-mui/ui/Box';
-import { cssVar, createTheme, ThemeProvider, type Theme, useTheme } from '@tecton-mui/ui/styles';
+import { createTheme, ThemeProvider, type Theme, useTheme } from '@tecton-mui/ui/styles';
 
 const customTheme = (outerTheme: Theme) =>
   createTheme({
@@ -14,9 +14,9 @@ const customTheme = (outerTheme: Theme) =>
       MuiTextField: {
         styleOverrides: {
           root: {
-            '--TextField-brandBorderColor': cssVar('color-divider-subtle'),
-            '--TextField-brandBorderHoverColor': cssVar('color-divider'),
-            '--TextField-brandBorderFocusedColor': cssVar('color-divider-strong'),
+            '--TextField-brandBorderColor': '#E0E3E7',
+            '--TextField-brandBorderHoverColor': '#B2BAC2',
+            '--TextField-brandBorderFocusedColor': '#6F7E8C',
             '& label.Mui-focused': {
               color: 'var(--TextField-brandBorderFocusedColor)',
             },
