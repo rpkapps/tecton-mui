@@ -157,16 +157,22 @@ export function MultiFilterPanel() {
     () => columns.filter((c) => c.filterable !== false && c.filterOperators?.length),
     [columns],
   );
-  const items = model.items.filter((i) => !String(i.id ?? '').startsWith('header-filter-'));
-  const headerItems = model.items.filter((i) => String(i.id ?? '').startsWith('header-filter-'));
+  // Every condition, including the ones set in the header filter row: both edit the same model
+  // (a header filter shows its column's first condition).
+  const items = model.items;
   const lastRef = React.useRef<HTMLElement>(null);
+  const addRef = React.useRef<HTMLButtonElement>(null);
+  const panelRef = React.useRef<HTMLDivElement>(null);
+  // Focus the last condition when the panel opens and after "Add filter", but not when a
+  // condition arrives from elsewhere (a header filter) while the panel is open.
+  const focusLast = React.useRef(true);
 
-  const setItems = (next: GridFilterItem[]) =>
-    actions.setFilterModel({ ...model, items: [...headerItems, ...next] });
+  const setItems = (next: GridFilterItem[]) => actions.setFilterModel({ ...model, items: next });
   const addFilter = () => {
     const used = new Set(items.map((i) => i.field));
     const col = filterable.find((c) => !used.has(c.field)) ?? filterable[0];
     if (!col) return;
+    focusLast.current = true;
     setItems([
       ...items,
       { id: `filter-${++newFilterId}`, field: col.field, operator: col.filterOperators![0].value },
@@ -180,73 +186,92 @@ export function MultiFilterPanel() {
   // Move the focus into the panel when it opens and to the new condition when one is added, as
   // the Community filter panel does (keyboard users otherwise stay on the toolbar button).
   React.useEffect(() => {
-    if (items.length === 0) return undefined;
+    if (items.length === 0 || !focusLast.current) return undefined;
     // The popper is placed after mount; focus once it is in position (no scroll jump).
-    const frame = requestAnimationFrame(() => lastRef.current?.focus());
+    const frame = requestAnimationFrame(() => {
+      focusLast.current = false;
+      lastRef.current?.focus();
+    });
     return () => cancelAnimationFrame(frame);
   }, [items.length]);
+  // When the last condition goes (its delete button, or "Remove all", which is then disabled),
+  // the focused control is gone: keep the keyboard in the panel, on "Add filter".
+  const empty = items.length === 0;
+  const wasEmpty = React.useRef(empty);
+  React.useEffect(() => {
+    if (empty && !wasEmpty.current) {
+      const active = document.activeElement;
+      if (!active || active === document.body || panelRef.current?.contains(active))
+        addRef.current?.focus();
+    }
+    wasEmpty.current = empty;
+  }, [empty]);
 
   return (
     <Box
+      ref={panelRef}
       className="TectonDataGrid-filterPanel"
       sx={{ display: 'flex', flexDirection: 'column', minWidth: 'min(720px, 90vw)' }}
     >
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 1,
-          p: 1.5,
-          overflow: 'auto',
-          // The And/Or selector's label is empty and collapses, and the delete button has none:
-          // give the empty label one line of text height and move the button down by the label
-          // block (Tecton's static label: small line height + space-50 below) so every control
-          // lines up on the inputs, also when a multi-value input grows taller.
-          '& .MuiDataGrid-filterForm': { alignItems: 'flex-start' },
-          // The value input takes the rest of the row (Community fixes it at 190px), so a few
-          // "is any of" values fit on one line next to the clear and popup buttons.
-          '& .MuiDataGrid-filterFormValueInput': {
-            width: 'auto',
-            flex: '1 1 190px',
-            minWidth: 190,
-          },
-          '& .MuiDataGrid-filterForm .MuiInputLabel-root:empty::before': { content: '"\\200B"' },
-          '& .MuiDataGrid-filterFormDeleteIcon': {
-            marginTop: `calc(${cssVar('line-height-small')} + ${cssVar('space-50')})`,
-          },
-        }}
-      >
-        {items.map((item, index) => (
-          <GridFilterForm
-            key={item.id ?? index}
-            item={item}
-            hasMultipleFilters={items.length > 1}
-            showMultiFilterOperators={index > 0}
-            disableMultiFilterOperator={index !== 1}
-            focusElementRef={index === items.length - 1 ? lastRef : undefined}
-            applyFilterChanges={(changed: GridFilterItem) =>
-              setItems(items.map((i) => (i.id === changed.id ? changed : i)))
-            }
-            applyMultiFilterOperatorChanges={(logicOperator: GridLogicOperator) =>
-              actions.setFilterModel({ ...model, logicOperator })
-            }
-            deleteFilter={(removed: GridFilterItem) =>
-              setItems(items.filter((i) => i.id !== removed.id))
-            }
-          />
-        ))}
-      </Box>
+      {/* No conditions: no empty, padded list above the actions. */}
+      {empty ? null : (
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 1,
+            p: 1.5,
+            overflow: 'auto',
+            // The And/Or selector's label is empty and collapses, and the delete button has none:
+            // give the empty label one line of text height and move the button down by the label
+            // block (Tecton's static label: small line height + space-50 below) so every control
+            // lines up on the inputs, also when a multi-value input grows taller.
+            '& .MuiDataGrid-filterForm': { alignItems: 'flex-start' },
+            // The value input takes the rest of the row (Community fixes it at 190px), so a few
+            // "is any of" values fit on one line next to the clear and popup buttons.
+            '& .MuiDataGrid-filterFormValueInput': {
+              width: 'auto',
+              flex: '1 1 190px',
+              minWidth: 190,
+            },
+            '& .MuiDataGrid-filterForm .MuiInputLabel-root:empty::before': { content: '"\\200B"' },
+            '& .MuiDataGrid-filterFormDeleteIcon': {
+              marginTop: `calc(${cssVar('line-height-small')} + ${cssVar('space-50')})`,
+            },
+          }}
+        >
+          {items.map((item, index) => (
+            <GridFilterForm
+              key={item.id ?? index}
+              item={item}
+              hasMultipleFilters={items.length > 1}
+              showMultiFilterOperators={index > 0}
+              disableMultiFilterOperator={index !== 1}
+              focusElementRef={index === items.length - 1 ? lastRef : undefined}
+              applyFilterChanges={(changed: GridFilterItem) =>
+                setItems(items.map((i) => (i.id === changed.id ? changed : i)))
+              }
+              applyMultiFilterOperatorChanges={(logicOperator: GridLogicOperator) =>
+                actions.setFilterModel({ ...model, logicOperator })
+              }
+              deleteFilter={(removed: GridFilterItem) =>
+                setItems(items.filter((i) => i.id !== removed.id))
+              }
+            />
+          ))}
+        </Box>
+      )}
       <Box
         sx={{
           display: 'flex',
           justifyContent: 'space-between',
           p: 1,
-          borderTop: 1,
-          borderColor: 'divider',
+          ...(empty ? null : { borderTop: 1, borderColor: 'divider' }),
         }}
       >
-        {features.multiFilter ? (
-          <Button size="small" startIcon={<Icon name="add" />} onClick={addFilter}>
+        {/* With one condition allowed, "Add filter" still adds the first. */}
+        {features.multiFilter || empty ? (
+          <Button ref={addRef} size="small" startIcon={<Icon name="add" />} onClick={addFilter}>
             Add filter
           </Button>
         ) : (

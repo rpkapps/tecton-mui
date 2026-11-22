@@ -138,6 +138,21 @@ export function mergeCommunityFilterModel(
   };
 }
 
+/**
+ * Whether a filter item is complete: it has a value, or its operator needs none (`isEmpty`).
+ * Items still being set up (a new condition in the filter panel) are not.
+ */
+export function isActiveFilterItem(item: GridFilterItem, colDef?: GridColDef): boolean {
+  const op = colDef?.filterOperators?.find((o) => o.value === item.operator);
+  if (op && op.requiresFilterValue === false) return true;
+  return !(
+    item.value === undefined ||
+    item.value === null ||
+    item.value === '' ||
+    (Array.isArray(item.value) && item.value.length === 0)
+  );
+}
+
 /** Number of active (complete) filter items per field, for header filter icon counters. */
 export function countFiltersByField(
   model: GridFilterModel,
@@ -145,15 +160,7 @@ export function countFiltersByField(
 ): Record<string, number> {
   const counts: Record<string, number> = {};
   for (const item of model.items) {
-    const op = lookup[item.field]?.filterOperators?.find((o) => o.value === item.operator);
-    const needsValue = op ? op.requiresFilterValue !== false : true;
-    const hasValue = !(
-      item.value === undefined ||
-      item.value === null ||
-      item.value === '' ||
-      (Array.isArray(item.value) && item.value.length === 0)
-    );
-    if (needsValue && !hasValue) continue;
+    if (!isActiveFilterItem(item, lookup[item.field])) continue;
     counts[item.field] = (counts[item.field] ?? 0) + 1;
   }
   return counts;
