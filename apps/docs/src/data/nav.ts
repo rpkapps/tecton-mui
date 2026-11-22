@@ -30,7 +30,6 @@ export const gettingStarted: NavLink[] = [
   { title: 'Shell Integration', to: '/getting-started/shell-integration' },
   { title: 'MFE / Standalone Integration', to: '/getting-started/mfe-standalone' },
   { title: 'SSR Setup', to: '/getting-started/ssr' },
-  { title: 'Migration from MUI', to: '/getting-started/migration-from-mui' },
 ];
 
 export const foundations: NavLink[] = [

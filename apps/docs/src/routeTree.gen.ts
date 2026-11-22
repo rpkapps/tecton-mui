@@ -19,7 +19,6 @@ import { Route as FoundationsColorsRouteImport } from './routes/foundations/colo
 import { Route as FoundationsSpacingAndRadiusRouteImport } from './routes/foundations/spacing-and-radius';
 import { Route as GettingStartedInstallationRouteImport } from './routes/getting-started/installation';
 import { Route as GettingStartedMfeStandaloneRouteImport } from './routes/getting-started/mfe-standalone';
-import { Route as GettingStartedMigrationFromMuiRouteImport } from './routes/getting-started/migration-from-mui';
 import { Route as GettingStartedQuickStartRouteImport } from './routes/getting-started/quick-start';
 import { Route as GettingStartedShellIntegrationRouteImport } from './routes/getting-started/shell-integration';
 import { Route as GettingStartedSsrRouteImport } from './routes/getting-started/ssr';
@@ -82,12 +81,6 @@ const GettingStartedMfeStandaloneRoute =
     path: '/getting-started/mfe-standalone',
     getParentRoute: () => rootRouteImport,
   } as any);
-const GettingStartedMigrationFromMuiRoute =
-  GettingStartedMigrationFromMuiRouteImport.update({
-    id: '/getting-started/migration-from-mui',
-    path: '/getting-started/migration-from-mui',
-    getParentRoute: () => rootRouteImport,
-  } as any);
 const GettingStartedQuickStartRoute =
   GettingStartedQuickStartRouteImport.update({
     id: '/getting-started/quick-start',
@@ -140,7 +133,6 @@ export interface FileRoutesByFullPath {
   '/foundations/spacing-and-radius': typeof FoundationsSpacingAndRadiusRoute;
   '/getting-started/installation': typeof GettingStartedInstallationRoute;
   '/getting-started/mfe-standalone': typeof GettingStartedMfeStandaloneRoute;
-  '/getting-started/migration-from-mui': typeof GettingStartedMigrationFromMuiRoute;
   '/getting-started/quick-start': typeof GettingStartedQuickStartRoute;
   '/getting-started/shell-integration': typeof GettingStartedShellIntegrationRoute;
   '/getting-started/ssr': typeof GettingStartedSsrRoute;
@@ -161,7 +153,6 @@ export interface FileRoutesByTo {
   '/foundations/spacing-and-radius': typeof FoundationsSpacingAndRadiusRoute;
   '/getting-started/installation': typeof GettingStartedInstallationRoute;
   '/getting-started/mfe-standalone': typeof GettingStartedMfeStandaloneRoute;
-  '/getting-started/migration-from-mui': typeof GettingStartedMigrationFromMuiRoute;
   '/getting-started/quick-start': typeof GettingStartedQuickStartRoute;
   '/getting-started/shell-integration': typeof GettingStartedShellIntegrationRoute;
   '/getting-started/ssr': typeof GettingStartedSsrRoute;
@@ -183,7 +174,6 @@ export interface FileRoutesById {
   '/foundations/spacing-and-radius': typeof FoundationsSpacingAndRadiusRoute;
   '/getting-started/installation': typeof GettingStartedInstallationRoute;
   '/getting-started/mfe-standalone': typeof GettingStartedMfeStandaloneRoute;
-  '/getting-started/migration-from-mui': typeof GettingStartedMigrationFromMuiRoute;
   '/getting-started/quick-start': typeof GettingStartedQuickStartRoute;
   '/getting-started/shell-integration': typeof GettingStartedShellIntegrationRoute;
   '/getting-started/ssr': typeof GettingStartedSsrRoute;
@@ -206,7 +196,6 @@ export interface FileRouteTypes {
     | '/foundations/spacing-and-radius'
     | '/getting-started/installation'
     | '/getting-started/mfe-standalone'
-    | '/getting-started/migration-from-mui'
     | '/getting-started/quick-start'
     | '/getting-started/shell-integration'
     | '/getting-started/ssr'
@@ -227,7 +216,6 @@ export interface FileRouteTypes {
     | '/foundations/spacing-and-radius'
     | '/getting-started/installation'
     | '/getting-started/mfe-standalone'
-    | '/getting-started/migration-from-mui'
     | '/getting-started/quick-start'
     | '/getting-started/shell-integration'
     | '/getting-started/ssr'
@@ -248,7 +236,6 @@ export interface FileRouteTypes {
     | '/foundations/spacing-and-radius'
     | '/getting-started/installation'
     | '/getting-started/mfe-standalone'
-    | '/getting-started/migration-from-mui'
     | '/getting-started/quick-start'
     | '/getting-started/shell-integration'
     | '/getting-started/ssr'
@@ -270,7 +257,6 @@ export interface RootRouteChildren {
   FoundationsSpacingAndRadiusRoute: typeof FoundationsSpacingAndRadiusRoute;
   GettingStartedInstallationRoute: typeof GettingStartedInstallationRoute;
   GettingStartedMfeStandaloneRoute: typeof GettingStartedMfeStandaloneRoute;
-  GettingStartedMigrationFromMuiRoute: typeof GettingStartedMigrationFromMuiRoute;
   GettingStartedQuickStartRoute: typeof GettingStartedQuickStartRoute;
   GettingStartedShellIntegrationRoute: typeof GettingStartedShellIntegrationRoute;
   GettingStartedSsrRoute: typeof GettingStartedSsrRoute;
@@ -355,13 +341,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GettingStartedMfeStandaloneRouteImport;
       parentRoute: typeof rootRouteImport;
     };
-    '/getting-started/migration-from-mui': {
-      id: '/getting-started/migration-from-mui';
-      path: '/getting-started/migration-from-mui';
-      fullPath: '/getting-started/migration-from-mui';
-      preLoaderRoute: typeof GettingStartedMigrationFromMuiRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
     '/getting-started/quick-start': {
       id: '/getting-started/quick-start';
       path: '/getting-started/quick-start';
@@ -430,7 +409,6 @@ const rootRouteChildren: RootRouteChildren = {
   FoundationsSpacingAndRadiusRoute: FoundationsSpacingAndRadiusRoute,
   GettingStartedInstallationRoute: GettingStartedInstallationRoute,
   GettingStartedMfeStandaloneRoute: GettingStartedMfeStandaloneRoute,
-  GettingStartedMigrationFromMuiRoute: GettingStartedMigrationFromMuiRoute,
   GettingStartedQuickStartRoute: GettingStartedQuickStartRoute,
   GettingStartedShellIntegrationRoute: GettingStartedShellIntegrationRoute,
   GettingStartedSsrRoute: GettingStartedSsrRoute,

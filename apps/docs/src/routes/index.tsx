@@ -395,9 +395,6 @@ function Home() {
             <RouterLink to="/getting-started/quick-start" sx={{ typography: 'body2' }}>
               Quick start →
             </RouterLink>
-            <RouterLink to="/getting-started/migration-from-mui" sx={{ typography: 'body2' }}>
-              Migrating from MUI →
-            </RouterLink>
           </Stack>
         </Box>
         <Box sx={{ minWidth: 0 }}>
