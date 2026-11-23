@@ -186,12 +186,12 @@ both modes, and `storybook-parity.spec.ts` runs all 16 comparisons.
 - **Responsive layout (intended difference):** at 1280px the Storybook's fluid "Elevated" row does
   not fit. It overflows its container (the page scrolls sideways to 1637px), the selects truncate
   their values and "Create Project" breaks onto two lines. `Heading` keeps one row and lets its parts
-  give way instead: the secondary actions collapse into an overflow (⋮) button, then the tab group
-  narrows and scrolls with arrows, like the app bar's tab strip (`internal/tab-strip`, shared by
-  both). A very narrow heading gives the tabs a row of their own, so nothing overflows down to 320px
-  (WCAG 1.4.10). The Elevated story is therefore compared at a 1920px viewport, where its fluid row
-  fits and is pixel-identical. `tests/e2e/heading.spec.ts` covers the collapse order, the scrolling
-  tabs, the overflow tray, the compact layout, RTL, keyboard and axe.
+  give way instead (priority+): the secondary actions collapse into an overflow (⋮) button, then the
+  tabs after the selected one into a More pill ("Elevated" at 1280px: six tabs, More, ⋮ and Create
+  Project). A very narrow heading gives the tabs a row of their own, so nothing overflows down to
+  320px (WCAG 1.4.10). The Elevated story is therefore compared at a 1920px viewport, where its
+  fluid row fits and is pixel-identical. `tests/e2e/heading.spec.ts` covers the collapse order, the
+  More menu, the overflow tray, the compact layout, RTL, keyboard and axe.
 - **Search:** the stories' Search icon button is a placeholder. The reproduction renders it with
   `HeadingSearch`, which opens into a search field; closed, it is pixel-identical to the story's
   icon button.

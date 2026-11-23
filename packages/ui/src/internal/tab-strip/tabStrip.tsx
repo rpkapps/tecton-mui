@@ -1,7 +1,7 @@
 'use client';
-// A Tabs strip that scrolls: when its scroll arrows show, and how the strip scrolls. Shared by the
-// app bar's tab strip (MUI scrollable Tabs, its arrows as Tabs slots) and the heading's filled tab
-// group (pills Tabs, whose scroller this drives directly, its arrows beside the Tabs).
+// A Tabs strip that scrolls: when its scroll arrows show, and how the strip scrolls. Used by the
+// app bar's tab strip (MUI scrollable Tabs, its arrows as Tabs slots). It can also drive the
+// scroller of Tabs in another variant, with arrows beside the Tabs (`controlsRef`).
 //
 // MUI decides both on its own timing: the arrows follow an IntersectionObserver (its updates can
 // lag or be missed, which left an arrow on at the end of the strip or the start arrow off while
@@ -41,15 +41,6 @@ export function writeScrollLeft(el: HTMLElement, value: number) {
 /** A scroll target, recomputed every frame: an absolute `scrollLeft`, or null to stop. */
 type Target = () => number | null;
 
-/**
- * How far an arrow click scrolls the strip:
- * - `'cut-off-tab'` (the app bar's): the tab cut off by the edge moves to the other edge
- *   (`pageTarget`);
- * - `'scroll-size'` (MUI's scrollable Tabs): by the width of the tabs that fit in the strip,
- *   counted from the first tab (`scrollSizeTarget`).
- */
-export type TabStripPaging = 'cut-off-tab' | 'scroll-size';
-
 /** Which ways the strip can scroll (physical directions, as MUI's scroll buttons use). */
 export interface TabStripStore {
   subscribe: (listener: () => void) => () => void;
@@ -62,7 +53,7 @@ export interface TabStripStore {
   measure: () => void;
   /** Follows a scroller (scroll events, its size and its tabs' sizes); returns a detach function. */
   attach: (scroller: HTMLElement) => () => void;
-  /** Slides one page toward `direction`: about the strip's width (see `TabStripPaging`). */
+  /** Slides one page toward `direction`: about the strip's width, in whole tabs (see `pageTarget`). */
   scrollPage: (direction: 'left' | 'right') => void;
   /** Brings the selected tab into view: slides, or jumps with `instant`. */
   revealSelected: (instant?: boolean) => void;
@@ -203,31 +194,6 @@ function pageTarget(scroller: HTMLElement, direction: 'left' | 'right', base: nu
   };
 }
 
-/**
- * One page of MUI's scrollable Tabs (`getScrollSize`) toward `direction` (physical) from `base`: the
- * width of the tabs that fit in the strip side by side, counted from the first tab, or the strip's
- * width when even the first tab does not fit.
- */
-function scrollSizeTarget(
-  scroller: HTMLElement,
-  direction: 'left' | 'right',
-  base: number,
-): Target {
-  const container = scroller.clientWidth;
-  const tabs = Array.from(scroller.querySelector('[role="tablist"]')?.children ?? []);
-  let size = 0;
-  for (let index = 0; index < tabs.length; index += 1) {
-    const width = tabs[index]!.clientWidth;
-    if (size + width > container) {
-      if (index === 0) size = container;
-      break;
-    }
-    size += width;
-  }
-  const to = base + (direction === 'right' ? size : -size);
-  return () => to;
-}
-
 /** Keeps a target within the strip's scroll range (negative in RTL). */
 function clampScroll(scroller: HTMLElement, value: number) {
   const max = Math.max(0, scroller.scrollWidth - scroller.clientWidth);
@@ -238,7 +204,7 @@ const prefersReducedMotion = () =>
   typeof window !== 'undefined' &&
   !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
-export function createTabStripStore(paging: TabStripPaging = 'cut-off-tab'): TabStripStore {
+export function createTabStripStore(): TabStripStore {
   let snapshot = 0;
   let scroller: HTMLElement | null = null;
   let duration = 300;
@@ -356,11 +322,7 @@ export function createTabStripStore(paging: TabStripPaging = 'cut-off-tab'): Tab
       if (!el) return;
       // A click during a slide pages on from where that slide is going.
       const base = clampScroll(el, (slide && slide.end()) ?? el.scrollLeft);
-      slideTo(
-        paging === 'scroll-size'
-          ? scrollSizeTarget(el, direction, base)
-          : pageTarget(el, direction, base),
-      );
+      slideTo(pageTarget(el, direction, base));
     },
     attach: (el) => {
       scroller = el;
@@ -415,8 +377,7 @@ export const TabStripContext = React.createContext<TabStripStore | null>(null);
 
 /**
  * The state of one of the strip's scroll arrows: whether it shows (the strip can scroll its way, or
- * is sliding to where it can), whether the strip can scroll at all (`scrollable`), whether it is at
- * the start of the strip, how long it takes to grow in
+ * is sliding to where it can), whether it is at the start of the strip, how long it takes to grow in
  * (0 for its first state, on load or after hydration, and with reduced motion), and what a click
  * does (slide one page).
  */
@@ -429,9 +390,6 @@ export function useTabStripArrow(direction: 'left' | 'right') {
   );
   const theme = useTheme();
   const shown = (state & (direction === 'left' ? LEFT : RIGHT)) !== 0;
-  // The strip can scroll at all: MUI's scrollable Tabs show both arrows then, the one that cannot
-  // scroll its way disabled.
-  const scrollable = state !== 0;
   const atStart = (direction === 'left') !== (theme.direction === 'rtl');
   // The arrows take their first state at once (on load, after hydration); later changes animate.
   const [animate, setAnimate] = React.useState(false);
@@ -441,7 +399,7 @@ export function useTabStripArrow(direction: 'left' | 'right') {
   }, []);
   const duration = animate ? (store?.getDuration() ?? 0) : 0;
   const onClick = React.useCallback(() => store?.scrollPage(direction), [store, direction]);
-  return { shown, scrollable, atStart, duration, onClick };
+  return { shown, atStart, duration, onClick };
 }
 
 /** Interactions that mean the user is moving the strip (or the focus in it) themselves. */
@@ -459,9 +417,8 @@ export function useTabStrip(
   selected: string | null,
   tabCount: number,
   controlsRef?: React.RefObject<HTMLElement | null>,
-  paging?: TabStripPaging,
 ): TabStripStore {
-  const [store] = React.useState(() => createTabStripStore(paging));
+  const [store] = React.useState(createTabStripStore);
   const theme = useTheme();
   store.setDuration(
     theme.motion?.reducedMotion === 'always' ? 0 : (theme.transitions?.duration?.standard ?? 300),
