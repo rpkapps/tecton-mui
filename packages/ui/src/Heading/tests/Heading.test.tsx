@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { act, render, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderToString } from 'react-dom/server';
 import { ThemeProvider } from '../../styles/index.js';
@@ -267,7 +267,7 @@ describe('HeadingTabs', () => {
 });
 
 describe('HeadingTabs scrolling', () => {
-  it('has scroll arrows beside the tabs that show only while the strip can scroll', () => {
+  it('has both scroll arrows while the tabs do not fit, as MUI scrollable Tabs do', () => {
     wrap(
       <HeadingTabs value={0} aria-label="Sections">
         {['Overview', 'Framing', 'Team', 'Builder'].map((label) => (
@@ -276,48 +276,32 @@ describe('HeadingTabs scrolling', () => {
       </HeadingTabs>,
     );
     const group = document.querySelector(`.${headingClasses.tabGroup}`)!;
-    const arrows = group.querySelectorAll(`.${headingClasses.scrollButton}`);
-    expect(arrows).toHaveLength(2);
-    // The tabs fit: no arrow shows (and none is in the tab order or the tab list).
-    arrows.forEach((arrow) => expect(arrow).toHaveClass('Mui-disabled'));
+    const arrows = () => group.querySelectorAll(`.${headingClasses.scrollButton}`);
+    // The tabs fit: no arrows.
+    expect(arrows()).toHaveLength(0);
     expect(within(screen.getByRole('tablist')).getAllByRole('tab')).toHaveLength(4);
 
-    // The strip is narrower than its tabs, at its start: the end arrow shows.
+    // Narrower than its tabs, at its start: both arrows, the start one disabled (MUI's own
+    // TabScrollButton hides it, in its place).
     const scroller = group.querySelector<HTMLElement>('.MuiTabs-scroller')!;
     Object.defineProperty(scroller, 'scrollWidth', { configurable: true, value: 600 });
     Object.defineProperty(scroller, 'clientWidth', { configurable: true, value: 200 });
-    act(() => {
-      scroller.dispatchEvent(new Event('scroll'));
-    });
-    expect(arrows[0]).toHaveClass('Mui-disabled');
-    expect(arrows[1]).not.toHaveClass('Mui-disabled');
-    // The tabs fade out toward the edge they can scroll past (physical side).
-    expect(group).toHaveAttribute('data-fade', 'right');
-  });
-
-  it('fades out toward every edge the strip can scroll past, none at rest', () => {
-    wrap(
-      <HeadingTabs value={0} aria-label="Sections">
-        {['Overview', 'Framing', 'Team', 'Builder'].map((label) => (
-          <Tab key={label} label={label} />
-        ))}
-      </HeadingTabs>,
-    );
-    const group = document.querySelector(`.${headingClasses.tabGroup}`)!;
-    expect(group).not.toHaveAttribute('data-fade');
-    const scroller = group.querySelector<HTMLElement>('.MuiTabs-scroller')!;
-    Object.defineProperty(scroller, 'scrollWidth', { configurable: true, value: 600 });
-    Object.defineProperty(scroller, 'clientWidth', { configurable: true, value: 200 });
-    Object.defineProperty(scroller, 'scrollLeft', { configurable: true, value: 100 });
-    act(() => {
-      scroller.dispatchEvent(new Event('scroll'));
-    });
-    expect(group).toHaveAttribute('data-fade', 'both');
-    Object.defineProperty(scroller, 'scrollLeft', { configurable: true, value: 400 });
-    act(() => {
-      scroller.dispatchEvent(new Event('scroll'));
-    });
-    expect(group).toHaveAttribute('data-fade', 'left');
+    const scrollTo = (left: number) =>
+      act(() => {
+        Object.defineProperty(scroller, 'scrollLeft', { configurable: true, value: left });
+        scroller.dispatchEvent(new Event('scroll'));
+      });
+    scrollTo(0);
+    expect(arrows()).toHaveLength(2);
+    expect(arrows()[0]).toHaveClass('Mui-disabled', 'MuiTabScrollButton-root');
+    expect(arrows()[1]).not.toHaveClass('Mui-disabled');
+    // Mid-strip, both scroll; at the end, the end one is disabled.
+    scrollTo(200);
+    expect(arrows()[0]).not.toHaveClass('Mui-disabled');
+    expect(arrows()[1]).not.toHaveClass('Mui-disabled');
+    scrollTo(400);
+    expect(arrows()).toHaveLength(2);
+    expect(arrows()[1]).toHaveClass('Mui-disabled');
   });
 
   it('lets the pills scroll natively, without a scrollbar', () => {
@@ -630,6 +614,36 @@ describe('HeadingSearch', () => {
     expect(screen.getByRole('search', { name: 'Search' })).toHaveClass(headingClasses.search);
     await userEvent.keyboard('gulf');
     expect(screen.getByTestId('value')).toHaveTextContent('gulf');
+  });
+
+  it('grows out of the button when it opens, not when it starts open', async () => {
+    wrap(<Search />);
+    await userEvent.click(screen.getByRole('button', { name: 'Search' }));
+    const field = document.querySelector(`.${headingClasses.searchField}`)!;
+    expect(field).toHaveAttribute('data-overflow-growing');
+    // An animation of the input inside (autofill) is not the field's.
+    fireEvent.animationEnd(screen.getByRole('textbox'));
+    expect(field).toHaveAttribute('data-overflow-growing');
+    fireEvent.animationEnd(field);
+    expect(field).not.toHaveAttribute('data-overflow-growing');
+  });
+
+  it('starts open without growing, and does not grow with reduced motion', async () => {
+    const { unmount } = wrap(<Search defaultValue="gulf" />);
+    expect(document.querySelector(`.${headingClasses.searchField}`)).not.toHaveAttribute(
+      'data-overflow-growing',
+    );
+    unmount();
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn((query: string) => ({ matches: query.includes('reduce'), media: query })),
+    );
+    wrap(<Search />);
+    await userEvent.click(screen.getByRole('button', { name: 'Search' }));
+    expect(document.querySelector(`.${headingClasses.searchField}`)).not.toHaveAttribute(
+      'data-overflow-growing',
+    );
+    vi.unstubAllGlobals();
   });
 
   it('clears with the clear button, then with Escape, and closes on a second Escape', async () => {

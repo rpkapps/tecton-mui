@@ -5,6 +5,7 @@ import useEnhancedEffect from '@mui/utils/useEnhancedEffect';
 import useForkRef from '@mui/utils/useForkRef';
 import { cssVar } from '../styles/tecton/index.js';
 import { fitCollapse } from '../internal/overflow/collapse.js';
+import { useMeasureAfterGrowth } from '../internal/overflow/growth.js';
 import {
   useCollapsingItems,
   type OverflowSlotProps,
@@ -131,16 +132,18 @@ const AppBarActions = React.forwardRef<HTMLDivElement, AppBarActionsProps>(
     }, [layout]);
 
     // Any change of size, of the bar or of the actions (a label, an avatar that loaded), measures
-    // again; a measure that changes nothing changes no size, so this settles.
+    // again; a measure that changes nothing changes no size, so this settles. An action growing into
+    // its place (an opening search) was measured at its full size: measure again once it has grown.
+    const onResize = useMeasureAfterGrowth(rootRef, remeasure);
     useEnhancedEffect(() => {
       const root = rootRef.current;
       const row = root?.parentElement;
       if (!root || !row || typeof ResizeObserver === 'undefined') return undefined;
-      const observer = new ResizeObserver(remeasure);
+      const observer = new ResizeObserver(onResize);
       observer.observe(row);
       observer.observe(root);
       return () => observer.disconnect();
-    }, [remeasure]);
+    }, [onResize]);
 
     // An action pinned or unpinned changes what can collapse.
     useEnhancedEffect(() => {

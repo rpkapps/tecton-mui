@@ -16,8 +16,10 @@ import InputAdornment from '@mui/material/InputAdornment';
 import { keyframes, styled, type SxProps, type Theme } from '@mui/material/styles';
 import useControlled from '@mui/utils/useControlled';
 import useEnhancedEffect from '@mui/utils/useEnhancedEffect';
+import useForkRef from '@mui/utils/useForkRef';
 import { cssVar } from '../styles/tecton/index.js';
 import { headingClasses } from './Heading.js';
+import { GROWING_ATTRIBUTE } from '../internal/overflow/growth.js';
 import {
   OverflowItemContext,
   type OverflowPriorityMarker,
@@ -79,18 +81,32 @@ const SearchRoot = styled('div', { name: 'TectonHeading', slot: 'Search' })({
   alignItems: 'center',
 });
 
-// The field opens from the button's side. `clip-path` keeps the layout still while it does (the
-// heading measures the open field once), and the RTL style cache does not mirror it: pick the side.
-const revealLtr = keyframes`from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0); }`;
-const revealRtl = keyframes`from { clip-path: inset(0 0 0 100%); } to { clip-path: inset(0); }`;
+// The field grows out of the Search button: it starts at the button's width, in its place, and widens
+// toward the start of the row (the actions keep the end of the heading's row), so what sits before
+// it moves over smoothly instead of jumping. It animates its width, not a clip, for the row to make
+// room as it grows. The row measures it at its full size before it starts (`[data-measuring]`) and
+// holds its next measure until it has grown (internal/overflow/growth.ts).
+const buttonWidth = (size: FilledInputProps['size']) =>
+  `calc(${cssVar(size === 'small' ? 'icon-size-100' : 'icon-size-150')} + 2 * ${cssVar('space-75')})`;
+const grow = (from: string, to: string) => keyframes`from { width: ${from}; } to { width: ${to}; }`;
 
-const Field = styled(FilledInput, { name: 'TectonHeading', slot: 'SearchField' })(({ theme }) => ({
-  width: theme.spacing(30),
-  animation: `${theme.direction === 'rtl' ? revealRtl : revealLtr} ${
-    theme.transitions.duration.shorter
-  }ms ${theme.transitions.easing.easeOut}`,
-  '@media (prefers-reduced-motion: reduce)': { animation: 'none' },
-}));
+const Field = styled(FilledInput, { name: 'TectonHeading', slot: 'SearchField' })(({
+  theme,
+  size,
+}) => {
+  const width = theme.spacing(30);
+  return {
+    width,
+    // The adornments of a field still narrow are cut off, not spilled over its neighbours.
+    overflow: 'hidden',
+    [`&[${GROWING_ATTRIBUTE}]`]: {
+      animation: `${grow(buttonWidth(size), width)} ${theme.transitions.duration.shorter}ms ${
+        theme.transitions.easing.easeInOut
+      }`,
+    },
+    [`[data-measuring] &[${GROWING_ATTRIBUTE}]`]: { animation: 'none' },
+  };
+});
 
 const SearchIcon = styled('span', { name: 'TectonHeading', slot: 'SearchIcon' })({
   fontSize: cssVar('icon-size-100'),
@@ -133,6 +149,38 @@ const HeadingSearch = React.forwardRef<HTMLDivElement, HeadingSearchProps>(
       name: 'HeadingSearch',
       state: 'open',
     });
+
+    // The field grows out of the button when it opens (not when it starts open), unless the user
+    // asks for reduced motion.
+    const [growing, setGrowing] = React.useState(false);
+    const wasOpen = React.useRef(open);
+    useEnhancedEffect(() => {
+      if (open && !wasOpen.current) {
+        setGrowing(!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
+      }
+      if (!open) setGrowing(false);
+      wasOpen.current = open;
+    }, [open]);
+    // Grown: the field's own animation has ended (not one inside it, such as the input's autofill
+    // detection). A native listener: React does not see animation events everywhere it runs.
+    const fieldRef = React.useRef<HTMLDivElement>(null);
+    const handleFieldRef = useForkRef(
+      fieldRef,
+      (slotProps?.input as { ref?: React.Ref<HTMLDivElement> } | undefined)?.ref,
+    );
+    React.useEffect(() => {
+      const field = fieldRef.current;
+      if (!growing || !field) return undefined;
+      const grown = (event: Event) => {
+        if (event.target === field) setGrowing(false);
+      };
+      field.addEventListener('animationend', grown);
+      field.addEventListener('animationcancel', grown);
+      return () => {
+        field.removeEventListener('animationend', grown);
+        field.removeEventListener('animationcancel', grown);
+      };
+    }, [growing]);
 
     const inputRef = React.useRef<HTMLInputElement>(null);
     const buttonRef = React.useRef<HTMLButtonElement>(null);
@@ -254,6 +302,8 @@ const HeadingSearch = React.forwardRef<HTMLDivElement, HeadingSearchProps>(
             ) : null
           }
           {...inputProps2}
+          ref={handleFieldRef}
+          {...{ [GROWING_ATTRIBUTE]: growing ? '' : undefined }}
           className={clsx(headingClasses.searchField, inputClassName)}
           inputProps={{ 'aria-label': label, enterKeyHint: 'search', ...inputProps }}
         />

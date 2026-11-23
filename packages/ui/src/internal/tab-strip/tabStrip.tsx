@@ -41,6 +41,15 @@ export function writeScrollLeft(el: HTMLElement, value: number) {
 /** A scroll target, recomputed every frame: an absolute `scrollLeft`, or null to stop. */
 type Target = () => number | null;
 
+/**
+ * How far an arrow click scrolls the strip:
+ * - `'cut-off-tab'` (the app bar's): the tab cut off by the edge moves to the other edge
+ *   (`pageTarget`);
+ * - `'scroll-size'` (MUI's scrollable Tabs): by the width of the tabs that fit in the strip,
+ *   counted from the first tab (`scrollSizeTarget`).
+ */
+export type TabStripPaging = 'cut-off-tab' | 'scroll-size';
+
 /** Which ways the strip can scroll (physical directions, as MUI's scroll buttons use). */
 export interface TabStripStore {
   subscribe: (listener: () => void) => () => void;
@@ -53,7 +62,7 @@ export interface TabStripStore {
   measure: () => void;
   /** Follows a scroller (scroll events, its size and its tabs' sizes); returns a detach function. */
   attach: (scroller: HTMLElement) => () => void;
-  /** Slides one page toward `direction`: about the strip's width, in whole tabs (see `pageTarget`). */
+  /** Slides one page toward `direction`: about the strip's width (see `TabStripPaging`). */
   scrollPage: (direction: 'left' | 'right') => void;
   /** Brings the selected tab into view: slides, or jumps with `instant`. */
   revealSelected: (instant?: boolean) => void;
@@ -124,8 +133,7 @@ const SHOWN_SLACK = 48;
  * The target follows the tab every frame, since an arrow that shows or hides on the way moves the
  * strip's edges (and, in RTL, where a `scrollLeft` puts the tabs).
  *
- * The strip's edges are its scroll-padding edges, as for the selected tab (`selectedTabTarget`): a
- * strip that fades out its edges keeps the tabs it pages to clear of the fade.
+ * The strip's edges are its scroll-padding edges, as for the selected tab (`selectedTabTarget`).
  */
 function pageTarget(scroller: HTMLElement, direction: 'left' | 'right', base: number): Target {
   const style = getComputedStyle(scroller);
@@ -195,6 +203,31 @@ function pageTarget(scroller: HTMLElement, direction: 'left' | 'right', base: nu
   };
 }
 
+/**
+ * One page of MUI's scrollable Tabs (`getScrollSize`) toward `direction` (physical) from `base`: the
+ * width of the tabs that fit in the strip side by side, counted from the first tab, or the strip's
+ * width when even the first tab does not fit.
+ */
+function scrollSizeTarget(
+  scroller: HTMLElement,
+  direction: 'left' | 'right',
+  base: number,
+): Target {
+  const container = scroller.clientWidth;
+  const tabs = Array.from(scroller.querySelector('[role="tablist"]')?.children ?? []);
+  let size = 0;
+  for (let index = 0; index < tabs.length; index += 1) {
+    const width = tabs[index]!.clientWidth;
+    if (size + width > container) {
+      if (index === 0) size = container;
+      break;
+    }
+    size += width;
+  }
+  const to = base + (direction === 'right' ? size : -size);
+  return () => to;
+}
+
 /** Keeps a target within the strip's scroll range (negative in RTL). */
 function clampScroll(scroller: HTMLElement, value: number) {
   const max = Math.max(0, scroller.scrollWidth - scroller.clientWidth);
@@ -205,7 +238,7 @@ const prefersReducedMotion = () =>
   typeof window !== 'undefined' &&
   !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
-export function createTabStripStore(): TabStripStore {
+export function createTabStripStore(paging: TabStripPaging = 'cut-off-tab'): TabStripStore {
   let snapshot = 0;
   let scroller: HTMLElement | null = null;
   let duration = 300;
@@ -323,7 +356,11 @@ export function createTabStripStore(): TabStripStore {
       if (!el) return;
       // A click during a slide pages on from where that slide is going.
       const base = clampScroll(el, (slide && slide.end()) ?? el.scrollLeft);
-      slideTo(pageTarget(el, direction, base));
+      slideTo(
+        paging === 'scroll-size'
+          ? scrollSizeTarget(el, direction, base)
+          : pageTarget(el, direction, base),
+      );
     },
     attach: (el) => {
       scroller = el;
@@ -378,7 +415,8 @@ export const TabStripContext = React.createContext<TabStripStore | null>(null);
 
 /**
  * The state of one of the strip's scroll arrows: whether it shows (the strip can scroll its way, or
- * is sliding to where it can), whether it is at the start of the strip, how long it takes to grow in
+ * is sliding to where it can), whether the strip can scroll at all (`scrollable`), whether it is at
+ * the start of the strip, how long it takes to grow in
  * (0 for its first state, on load or after hydration, and with reduced motion), and what a click
  * does (slide one page).
  */
@@ -391,6 +429,9 @@ export function useTabStripArrow(direction: 'left' | 'right') {
   );
   const theme = useTheme();
   const shown = (state & (direction === 'left' ? LEFT : RIGHT)) !== 0;
+  // The strip can scroll at all: MUI's scrollable Tabs show both arrows then, the one that cannot
+  // scroll its way disabled.
+  const scrollable = state !== 0;
   const atStart = (direction === 'left') !== (theme.direction === 'rtl');
   // The arrows take their first state at once (on load, after hydration); later changes animate.
   const [animate, setAnimate] = React.useState(false);
@@ -400,7 +441,7 @@ export function useTabStripArrow(direction: 'left' | 'right') {
   }, []);
   const duration = animate ? (store?.getDuration() ?? 0) : 0;
   const onClick = React.useCallback(() => store?.scrollPage(direction), [store, direction]);
-  return { shown, atStart, duration, onClick };
+  return { shown, scrollable, atStart, duration, onClick };
 }
 
 /** Interactions that mean the user is moving the strip (or the focus in it) themselves. */
@@ -418,8 +459,9 @@ export function useTabStrip(
   selected: string | null,
   tabCount: number,
   controlsRef?: React.RefObject<HTMLElement | null>,
+  paging?: TabStripPaging,
 ): TabStripStore {
-  const [store] = React.useState(createTabStripStore);
+  const [store] = React.useState(() => createTabStripStore(paging));
   const theme = useTheme();
   store.setDuration(
     theme.motion?.reducedMotion === 'always' ? 0 : (theme.transitions?.duration?.standard ?? 300),

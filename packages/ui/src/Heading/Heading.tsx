@@ -16,7 +16,7 @@
 //
 // The row lays the parts out as the Figma heading frame does: the title cluster, then the tabs, then
 // the actions at the end. It never wraps: when the parts do not fit, the actions collapse into an
-// overflow button, the tabs scroll as the app bar's do, and a narrow heading gives the tabs a row of
+// overflow button, the tabs scroll as MUI's scrollable Tabs do, and a narrow heading gives the tabs a row of
 // their own (layout.ts). `Heading` measures the parts' natural widths in a pass that is never painted
 // (all items shown, in a layout effect) whenever its own size or a part's size changes, and the
 // parts render what the layout gives them.
@@ -26,6 +26,7 @@ import useEnhancedEffect from '@mui/utils/useEnhancedEffect';
 import useForkRef from '@mui/utils/useForkRef';
 import { styled, useTheme, type SxProps, type Theme } from '@mui/material/styles';
 import { cssVar } from '../styles/tecton/index.js';
+import { useMeasureAfterGrowth } from '../internal/overflow/growth.js';
 import {
   HeadingContext,
   px,
@@ -203,11 +204,14 @@ const Heading = React.forwardRef<HTMLDivElement, HeadingProps>(function Heading(
   );
 
   // Any change of size, of the heading or of one of its parts (a label, a font that loaded, a tab
-  // added), measures again. A measure that changes nothing changes no size, so this settles.
+  // added), measures again. A measure that changes nothing changes no size, so this settles. An
+  // action growing into its place (the opening search) was measured at its full size: the heading
+  // measures again once it has grown.
+  const onResize = useMeasureAfterGrowth(rootRef, requestMeasure);
   useEnhancedEffect(() => {
     const root = rootRef.current;
     if (!root || typeof ResizeObserver === 'undefined') return undefined;
-    const resizeObserver = new ResizeObserver(requestMeasure);
+    const resizeObserver = new ResizeObserver(onResize);
     observer.current = resizeObserver;
     resizeObserver.observe(root);
     parts.current.forEach((entry) => resizeObserver.observe(entry.element));
@@ -215,7 +219,7 @@ const Heading = React.forwardRef<HTMLDivElement, HeadingProps>(function Heading(
       resizeObserver.disconnect();
       observer.current = null;
     };
-  }, [requestMeasure]);
+  }, [onResize]);
 
   // The parts' layout effects (registration) have run: measure them before the browser paints.
   // First the width class, whose gutters the measure must see (one more pass when it changes).
