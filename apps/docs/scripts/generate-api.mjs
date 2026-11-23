@@ -40,6 +40,7 @@ const PART_EXPORTS = {
   Menubar: /^Menubar[A-Z]/,
   ActionBar: /^ActionBar[A-Z]/,
   AppBar: /^AppBar[A-Z]/,
+  Heading: /^Heading[A-Z]/,
 };
 
 const inventory = JSON.parse(

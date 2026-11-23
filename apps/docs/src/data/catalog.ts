@@ -449,6 +449,13 @@ export const authoredPages: AuthoredPage[] = [
     components: ['AppBar', 'AppBarBrand', 'AppBarTabs', 'AppBarTab', 'AppBarActions'],
     summary: 'The Tecton App Bar: branding, the tabs people switch between and your actions.',
   },
+  {
+    slug: 'heading',
+    title: 'Heading',
+    category: 'surfaces',
+    components: ['Heading', 'HeadingTitle', 'HeadingTabs', 'HeadingActions'],
+    summary: "The Tecton page heading: the page's title, its section tabs and its actions.",
+  },
   // Navigation
   {
     slug: 'tabs',

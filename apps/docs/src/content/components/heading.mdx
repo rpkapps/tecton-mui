@@ -1,0 +1,91 @@
+## Purpose
+
+The heading sits at the top of a page, under the app bar: the page's title, the tabs that switch
+between its sections and the page's own actions, such as creating an item or changing the view.
+
+`Heading` is the Tecton page heading from the Figma design (the "Organisms / Heading" stories of the
+Tecton Storybook). Material UI has no such component, so it is composed from Material parts, and
+you compose it from its own parts, MUI style:
+
+| Part             | What it is                                                              |
+| ---------------- | ----------------------------------------------------------------------- |
+| `Heading`        | The row, with the Figma frame's padding                                 |
+| `HeadingTitle`   | The title (an `<h1>`), with optional home and menu buttons              |
+| `HeadingTabs`    | MUI `Tabs` props for MUI `Tab` children, as the Tecton filled tab group |
+| `HeadingActions` | Your buttons, selects and toggles, at the end of the row                |
+
+## Basic heading
+
+A title and one action.
+
+<Demo name="BasicHeading" />
+
+The title is a `Typography` with the Tecton heading 1 type (the theme's `h4` variant), rendered as
+an `<h1>`, since a page has one main heading. `Heading` itself is a `<div>`; `component="header"`
+makes it a `<header>`.
+
+## Home and menu buttons
+
+`onHomeClick` shows a home button before the title; `onMenuClick` shows a chevron after it, for a
+menu that switches to another page of the same kind. The buttons take `IconButton` props through
+`slotProps.homeButton` and `slotProps.menuButton`: an `aria-label` (by default "Home" and "More"),
+the `aria-haspopup`, `aria-expanded` and `aria-controls` of the menu the chevron opens, or an `href`
+that makes the home button a link (it then shows without `onHomeClick`).
+
+<Demo name="TitleButtonsHeading" />
+
+## Tabs
+
+`HeadingTabs` takes the MUI `Tabs` props (`value`, `onChange`, `size`, `aria-label`...) and holds
+MUI `Tab` elements. It always shows the Tecton filled tab group (`Tabs` with `variant="pills"`) on a
+paper surface, so the props that only apply to other variants or to vertical tabs are not offered.
+Your page owns `value` and updates it in `onChange`, as with `Tabs`.
+
+<Demo name="TabsHeading" />
+
+## Actions
+
+`HeadingActions` sits at the end of the row and spaces its content: icon buttons, buttons, selects
+and toggle button groups. Separate groups of actions with a vertical
+`<Divider orientation="vertical" flexItem emphasis="subtle" />`. A select can carry its label
+inside, before the value, as a start adornment.
+
+<Demo name="ActionsHeading" />
+
+## Page heading
+
+The full heading: title, tabs and actions. When they do not fit in one row, the row wraps instead of
+overflowing the page: the actions move to a line of their own, still at the end, then the tabs. At
+very narrow widths the tab group wraps its tabs onto more rows. Make the window narrower to see it.
+
+<Demo name="PageHeading" />
+
+## Section headings and gutters
+
+`Heading` has the Figma frame's padding: `space-400` (32px) above and below and `space-900` (72px)
+at the sides. Inside a container that has its own padding, `disableGutters` removes the side padding,
+and `sx` adjusts the rest (`sx={{ px: { xs: 2, md: 9 } }}` for smaller gutters on small screens). For a
+heading below the page's main one, give the title another element and variant through
+`slotProps.title`, for example `{ component: 'h2', variant: 'h5' }`.
+
+<Demo name="SectionHeading" />
+
+## Customization
+
+Each part takes `sx` and `className`. The parts carry the stable classes of `headingClasses`
+(`TectonHeading-root`, `-title`, `-titleText`, `-homeButton`, `-menuButton`, `-tabs`, `-actions`),
+for styles that reach into the heading from outside.
+
+## Accessibility
+
+- The title is a heading element (`<h1>` by default), so screen reader users can jump to it. Use
+  `<h2>` and below for headings of page sections.
+- The home and menu buttons are icon buttons with an accessible name ("Home" and "More" by default).
+  Give the menu button a name that says what it switches, such as "Switch portfolio", and the
+  `aria-haspopup`, `aria-expanded` and `aria-controls` of its menu.
+- The tabs are an MUI tab list: Tab reaches it once (on the selected tab), Left and Right arrow move
+  between tabs, Home and End jump to the first and last, Enter or Space selects. Give
+  `HeadingTabs` an `aria-label`, and each `Tab` an `id` and `aria-controls` pointing to its panel.
+- Icon buttons in the actions need an `aria-label`; a select whose label is an adornment needs one
+  too (`inputProps={{ 'aria-label': 'Sort' }}`).
+- The row reflows down to 320px without horizontal scrolling (WCAG 1.4.10).

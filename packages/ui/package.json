@@ -508,6 +508,11 @@
       "types": "./dist/Grow/index.d.ts",
       "default": "./dist/Grow/index.js"
     },
+    "./Heading": {
+      "@tecton-mui/source": "./src/Heading/index.ts",
+      "types": "./dist/Heading/index.d.ts",
+      "default": "./dist/Heading/index.js"
+    },
     "./Icon": {
       "@tecton-mui/source": "./src/Icon/index.ts",
       "types": "./dist/Icon/index.d.ts",

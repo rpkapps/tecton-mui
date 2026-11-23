@@ -39,7 +39,7 @@ Inline Editing placeholders, in both modes (480 comparisons). Extra scenarios
 (`stories/PickersExtra.tsx`, `stories/TreeExtra.tsx`) compare our clocks, range pickers and
 `RichTreeView` with the closest stories.
 
-`tests/e2e/storybook-parity.spec.ts` re-runs 41 cases in both modes (82 tests) live against the
+`tests/e2e/storybook-parity.spec.ts` re-runs 64 cases in both modes (128 tests) live against the
 CDN. The tolerance is 0.05 % differing pixels, or 0.6 % for the range picker against the `Range`
 story. The suite skips itself when the CDN is unreachable, unless `STORYBOOK_PARITY_REQUIRED=1`.
 Behind a proxy, run it with `NODE_USE_ENV_PROXY=1`.
@@ -173,6 +173,26 @@ differences below. `storybook-parity.spec.ts` runs all 22 comparisons.
   the button is laid over it from the Tabs scroller (`AppBar/TabCloseButton.tsx`), and only the list
   is a tab list. `tests/e2e/app-bar.spec.ts` runs axe on the bar and checks the button sits on its
   slot (LTR, RTL, scrolled strips).
+
+## Heading (`Heading` component vs "Organisms / Heading")
+
+The eight "Organisms / Heading" stories compose each heading by hand from MUI parts: a padded
+1920px (or fluid) frame, a title cluster (home button, title, chevron), a filled tab group on a
+paper box and a right cluster. `@tecton-mui/ui` now ships that composition as `Heading` with
+`HeadingTitle`, `HeadingTabs` and `HeadingActions` (`packages/ui/src/Heading`), and the
+reproduction (`stories/Heading.tsx`) renders every story with it. All eight are pixel-identical in
+both modes, and `storybook-parity.spec.ts` runs all 16 comparisons.
+
+- **Reflow (intended difference):** at 1280px the Storybook's fluid "Elevated" row does not fit. It
+  overflows its container (the page scrolls sideways to 1637px), the selects truncate their values
+  and "Create Project" breaks onto two lines. `Heading` wraps instead: the actions move to a line of
+  their own, still at the end of the row, then the tabs, whose pills wrap onto more rows at very
+  narrow widths, so nothing overflows down to 320px (WCAG 1.4.10). The Elevated story is therefore
+  compared at a 1920px viewport, where its fluid row fits and is pixel-identical.
+  `tests/e2e/heading.spec.ts` covers the wrapping, RTL, keyboard and axe.
+- **Title letter spacing:** the title uses the theme's `h4` variant (Tecton heading 1) with
+  `letter-spacing: normal`, as the story's title has. MUI's own `h4` letter spacing (0.00735em)
+  survives in the theme and would move the glyphs.
 
 ## Per-story results
 
@@ -403,7 +423,7 @@ differences below. `storybook-parity.spec.ts` runs all 22 comparisons.
 | `organisms-date--examples`                 | match   | 0.000        | 0.000       | Matches after the PickerDay compat fix (selected day in the static calendar).                                                   |
 | `organisms-date--playground`               | match   | 0.000        | 0.000       |                                                                                                                                 |
 | `organisms-heading--compact`               | match   | 0.000        | 0.000       |                                                                                                                                 |
-| `organisms-heading--elevated`              | match   | 0.000        | 0.000       |                                                                                                                                 |
+| `organisms-heading--elevated`              | match   | 0.000        | 0.000       | Matches at a 1920px viewport. At 1280px the Storybook row overflows; `Heading` wraps (see Heading).                             |
 | `organisms-heading--page`                  | match   | 0.000        | 0.000       |                                                                                                                                 |
 | `organisms-heading--reports`               | match   | 0.000        | 0.000       |                                                                                                                                 |
 | `organisms-heading--section`               | match   | 0.000        | 0.000       |                                                                                                                                 |
