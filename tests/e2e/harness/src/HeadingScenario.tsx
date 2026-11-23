@@ -1,5 +1,6 @@
 // Page heading in a real browser: the title's home and menu buttons, tabs that switch the page's
-// section, actions, and a section heading below. Used by tests/e2e/heading.spec.ts.
+// section, a search that filters the projects, actions, and a section heading below. Used by
+// tests/e2e/heading.spec.ts.
 import * as React from 'react';
 import {
   Box,
@@ -8,9 +9,9 @@ import {
   FormControl,
   Heading,
   HeadingActions,
+  HeadingSearch,
   HeadingTabs,
   HeadingTitle,
-  IconButton,
   InputAdornment,
   Menu,
   MenuItem,
@@ -22,6 +23,7 @@ import Icon from '@tecton-mui/ui/Icon';
 
 const PORTFOLIOS = ['Portfolio', 'Gulf Coast', 'North Sea'];
 const SECTIONS = ['Overview', 'Framing', 'Team', 'Builder', 'Time & Cost', 'Compare', 'Analytics'];
+const PROJECTS = ['Orion Discovery', 'Gulf Appraisal', 'North Sea Infill', 'Permian Lateral'];
 
 export function HeadingScenario() {
   const [portfolio, setPortfolio] = React.useState(PORTFOLIOS[0]);
@@ -29,7 +31,9 @@ export function HeadingScenario() {
   const [sort, setSort] = React.useState('Recent');
   const [anchor, setAnchor] = React.useState<HTMLElement | null>(null);
   const [log, setLog] = React.useState('');
+  const [query, setQuery] = React.useState('');
   const open = Boolean(anchor);
+  const projects = PROJECTS.filter((name) => name.toLowerCase().includes(query.toLowerCase()));
 
   return (
     <Box>
@@ -58,11 +62,9 @@ export function HeadingScenario() {
           ))}
         </HeadingTabs>
         <HeadingActions>
-          <IconButton aria-label="Search" onClick={() => setLog('search')}>
-            <Icon name="search" />
-          </IconButton>
+          <HeadingSearch value={query} onChange={(_event, next) => setQuery(next)} />
           <Divider orientation="vertical" flexItem emphasis="subtle" />
-          <FormControl size="small" variant="filled">
+          <FormControl variant="filled">
             <Select
               value={sort}
               onChange={(event) => setSort(event.target.value)}
@@ -111,6 +113,11 @@ export function HeadingScenario() {
       <Box component="main" sx={{ px: 9 }}>
         <Typography data-testid="section">{SECTIONS[section]}</Typography>
         <Typography data-testid="event-log">{log}</Typography>
+        <ul data-testid="projects">
+          {projects.map((name) => (
+            <li key={name}>{name}</li>
+          ))}
+        </ul>
       </Box>
       <Heading data-testid="section-heading">
         <HeadingTitle slotProps={{ title: { component: 'h2' } }}>Wells</HeadingTitle>

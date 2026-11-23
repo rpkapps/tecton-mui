@@ -11,9 +11,11 @@ import { HeadingContext, type HeadingContextValue } from '../HeadingContext.js';
 import { FULL_LAYOUT, type HeadingLayout } from '../layout.js';
 import Heading, {
   HeadingActions,
+  HeadingSearch,
   HeadingTabs,
   HeadingTitle,
   headingClasses,
+  type HeadingSearchProps,
   type HeadingTabsProps,
 } from '../index.js';
 import * as root from '../../index.js';
@@ -52,6 +54,7 @@ describe('Heading', () => {
     expect(root.HeadingTitle).toBe(HeadingTitle);
     expect(root.HeadingTabs).toBe(HeadingTabs);
     expect(root.HeadingActions).toBe(HeadingActions);
+    expect(root.HeadingSearch).toBe(HeadingSearch);
     expect(root.headingClasses).toBe(headingClasses);
   });
 
@@ -263,6 +266,71 @@ describe('HeadingTabs', () => {
   });
 });
 
+describe('HeadingTabs scrolling', () => {
+  it('has scroll arrows beside the tabs that show only while the strip can scroll', () => {
+    wrap(
+      <HeadingTabs value={0} aria-label="Sections">
+        {['Overview', 'Framing', 'Team', 'Builder'].map((label) => (
+          <Tab key={label} label={label} />
+        ))}
+      </HeadingTabs>,
+    );
+    const group = document.querySelector(`.${headingClasses.tabGroup}`)!;
+    const arrows = group.querySelectorAll(`.${headingClasses.scrollButton}`);
+    expect(arrows).toHaveLength(2);
+    // The tabs fit: no arrow shows (and none is in the tab order or the tab list).
+    arrows.forEach((arrow) => expect(arrow).toHaveClass('Mui-disabled'));
+    expect(within(screen.getByRole('tablist')).getAllByRole('tab')).toHaveLength(4);
+
+    // The strip is narrower than its tabs, at its start: the end arrow shows.
+    const scroller = group.querySelector<HTMLElement>('.MuiTabs-scroller')!;
+    Object.defineProperty(scroller, 'scrollWidth', { configurable: true, value: 600 });
+    Object.defineProperty(scroller, 'clientWidth', { configurable: true, value: 200 });
+    act(() => {
+      scroller.dispatchEvent(new Event('scroll'));
+    });
+    expect(arrows[0]).toHaveClass('Mui-disabled');
+    expect(arrows[1]).not.toHaveClass('Mui-disabled');
+    // The tabs fade out toward the edge they can scroll past (physical side).
+    expect(group).toHaveAttribute('data-fade', 'right');
+  });
+
+  it('fades out toward every edge the strip can scroll past, none at rest', () => {
+    wrap(
+      <HeadingTabs value={0} aria-label="Sections">
+        {['Overview', 'Framing', 'Team', 'Builder'].map((label) => (
+          <Tab key={label} label={label} />
+        ))}
+      </HeadingTabs>,
+    );
+    const group = document.querySelector(`.${headingClasses.tabGroup}`)!;
+    expect(group).not.toHaveAttribute('data-fade');
+    const scroller = group.querySelector<HTMLElement>('.MuiTabs-scroller')!;
+    Object.defineProperty(scroller, 'scrollWidth', { configurable: true, value: 600 });
+    Object.defineProperty(scroller, 'clientWidth', { configurable: true, value: 200 });
+    Object.defineProperty(scroller, 'scrollLeft', { configurable: true, value: 100 });
+    act(() => {
+      scroller.dispatchEvent(new Event('scroll'));
+    });
+    expect(group).toHaveAttribute('data-fade', 'both');
+    Object.defineProperty(scroller, 'scrollLeft', { configurable: true, value: 400 });
+    act(() => {
+      scroller.dispatchEvent(new Event('scroll'));
+    });
+    expect(group).toHaveAttribute('data-fade', 'left');
+  });
+
+  it('lets the pills scroll natively, without a scrollbar', () => {
+    wrap(
+      <HeadingTabs value={0} aria-label="Sections">
+        <Tab label="Overview" />
+      </HeadingTabs>,
+    );
+    const scroller = document.querySelector<HTMLElement>('.MuiTabs-scroller')!;
+    expect(getComputedStyle(scroller).overflowX).toBe('auto');
+  });
+});
+
 describe('HeadingActions', () => {
   it('holds the actions and forwards its ref and attributes', () => {
     const ref = React.createRef<HTMLDivElement>();
@@ -327,78 +395,6 @@ describe('collapsed parts (in a narrow Heading)', () => {
     return <HeadingContext.Provider value={context}>{children}</HeadingContext.Provider>;
   }
 
-  const SECTIONS = ['Overview', 'Framing', 'Team', 'Builder'];
-  function Sections({ layout }: { layout: Partial<HeadingLayout> }) {
-    const [value, setValue] = React.useState('Overview');
-    return (
-      <Collapsed layout={layout}>
-        <HeadingTabs
-          value={value}
-          onChange={(_event, next) => setValue(next)}
-          aria-label="Sections"
-        >
-          {SECTIONS.map((name) => (
-            <Tab key={name} value={name} label={name} />
-          ))}
-        </HeadingTabs>
-      </Collapsed>
-    );
-  }
-
-  it('shows the tabs that fit and lists the others in the More menu', async () => {
-    wrap(<Sections layout={{ tabs: 2 }} />);
-    const list = screen.getByRole('tablist', { name: 'Sections' });
-    expect(
-      within(list)
-        .getAllByRole('tab')
-        .map((tab) => tab.textContent),
-    ).toEqual(['Overview', 'Framing']);
-    const more = screen.getByRole('button', { name: 'More' });
-    expect(more).toHaveClass(headingClasses.moreButton);
-    expect(more).toHaveAttribute('aria-haspopup', 'menu');
-    expect(more).toHaveAttribute('aria-expanded', 'false');
-    await userEvent.click(more);
-    expect(more).toHaveAttribute('aria-expanded', 'true');
-    const menu = screen.getByRole('menu', { name: 'More' });
-    expect(
-      within(menu)
-        .getAllByRole('menuitem')
-        .map((item) => item.textContent),
-    ).toEqual(['Team', 'Builder']);
-  });
-
-  it('selects a tab picked in the menu, shows it in place of the last one and focuses it', async () => {
-    wrap(<Sections layout={{ tabs: 2 }} />);
-    await userEvent.click(screen.getByRole('button', { name: 'More' }));
-    await userEvent.click(screen.getByRole('menuitem', { name: 'Builder' }));
-    const tabs = within(screen.getByRole('tablist')).getAllByRole('tab');
-    expect(tabs.map((tab) => tab.textContent)).toEqual(['Overview', 'Builder']);
-    expect(tabs[1]).toHaveAttribute('aria-selected', 'true');
-    expect(tabs[1]).toHaveFocus();
-  });
-
-  it('shows no More pill when every tab fits, and none outside a Heading', () => {
-    wrap(<Sections layout={{ tabs: 9 }} />);
-    expect(screen.getAllByRole('tab')).toHaveLength(4);
-    expect(screen.queryByRole('button', { name: 'More' })).toBeNull();
-  });
-
-  it('takes the More pill label and props through slotProps', () => {
-    wrap(
-      <Collapsed layout={{ tabs: 1 }}>
-        <HeadingTabs
-          value={0}
-          aria-label="Views"
-          slotProps={{ moreButton: { children: 'Plus', className: 'extra' } }}
-        >
-          <Tab label="Grid" />
-          <Tab label="Map" />
-        </HeadingTabs>
-      </Collapsed>,
-    );
-    expect(screen.getByRole('button', { name: 'Plus' })).toHaveClass('extra');
-  });
-
   function Actions({
     layout,
     onCreate,
@@ -425,7 +421,7 @@ describe('collapsed parts (in a narrow Heading)', () => {
   }
 
   it('moves the actions that do not fit into the overflow tray, as they are', async () => {
-    wrap(<Actions layout={{ actions: 3 }} />);
+    wrap(<Actions layout={{ actions: 2 }} />);
     expect(screen.queryByRole('button', { name: 'Search' })).toBeNull();
     expect(screen.getByRole('button', { name: 'Create' })).toBeInTheDocument();
     const overflow = screen.getByRole('button', { name: 'More actions' });
@@ -442,7 +438,7 @@ describe('collapsed parts (in a narrow Heading)', () => {
   });
 
   it('leaves out a separator at either end of the tray', async () => {
-    wrap(<Actions layout={{ actions: 2 }} />);
+    wrap(<Actions layout={{ actions: 1 }} />);
     expect(screen.getByRole('button', { name: 'List' })).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'More actions' }));
     const tray = screen.getByRole('dialog', { name: 'More actions' });
@@ -452,7 +448,7 @@ describe('collapsed parts (in a narrow Heading)', () => {
 
   it('closes the tray after a command, not after a toggle', async () => {
     const onCreate = vi.fn();
-    wrap(<Actions layout={{ actions: 4 }} onCreate={onCreate} />);
+    wrap(<Actions layout={{ actions: 3 }} onCreate={onCreate} />);
     await userEvent.click(screen.getByRole('button', { name: 'More actions' }));
     const tray = screen.getByRole('dialog', { name: 'More actions' });
     await userEvent.click(within(tray).getByRole('button', { name: 'List' }));
@@ -473,12 +469,10 @@ describe('collapsed parts (in a narrow Heading)', () => {
         </HeadingActions>
       </Collapsed>,
     );
-    for (const className of [headingClasses.moreButton, headingClasses.overflowButton]) {
-      const button = document.querySelector<HTMLElement>(`.${className}`)!;
-      expect(button).toHaveAttribute('aria-hidden', 'true');
-      expect(button).toHaveAttribute('tabindex', '-1');
-      expect(button.style.visibility).toBe('hidden');
-    }
+    const button = document.querySelector<HTMLElement>(`.${headingClasses.overflowButton}`)!;
+    expect(button).toHaveAttribute('aria-hidden', 'true');
+    expect(button).toHaveAttribute('tabindex', '-1');
+    expect(button.style.visibility).toBe('hidden');
     expect(screen.getAllByRole('tab')).toHaveLength(1);
     expect(screen.getByRole('button', { name: 'Publish' })).toBeInTheDocument();
   });
@@ -494,9 +488,8 @@ describe('Heading layout (with layout geometry)', () => {
     if (element.classList.contains(headingClasses.root)) return headingWidth;
     if (element.classList.contains(headingClasses.title)) return 160;
     if (element.getAttribute('role') === 'tab') return 90;
-    if (element.classList.contains(headingClasses.moreButton)) return 80;
     if (element.classList.contains(headingClasses.overflowButton)) return 40;
-    if (element.hasAttribute('data-heading-action')) return 120;
+    if (element.hasAttribute('data-overflow-item')) return 120;
     return 0;
   };
 
@@ -579,11 +572,14 @@ describe('Heading layout (with layout geometry)', () => {
     expect(screen.getByRole('button', { name: 'Create' })).toBeInTheDocument();
     expect(screen.getAllByRole('tab')).toHaveLength(5);
 
-    // Then the tabs.
+    // Then the tabs narrow (and scroll), still in one row: 636px of content (32px gutters) holds
+    // the title, the narrowest tab group and ⋮ with the primary action, not the whole group.
     resizeTo(700);
     expect(heading).toHaveAttribute('data-width', 'md');
-    expect(screen.getByRole('button', { name: 'More' })).toBeInTheDocument();
-    expect(screen.getAllByRole('tab').length).toBeLessThan(5);
+    expect(heading).toHaveAttribute('data-tabs');
+    expect(heading).not.toHaveClass(headingClasses.compact);
+    expect(screen.getAllByRole('tab')).toHaveLength(5);
+    expect(screen.getByRole('button', { name: 'Create' })).toBeInTheDocument();
 
     // Compact: the tabs get a row of their own.
     resizeTo(300);
@@ -604,5 +600,187 @@ describe('Heading layout (with layout geometry)', () => {
     resizeTo(300);
     expect(screen.getAllByRole('tab')).toHaveLength(5);
     expect(screen.queryByRole('button', { name: 'More actions' })).toBeNull();
+  });
+});
+
+describe('HeadingSearch', () => {
+  function Search(props: Partial<HeadingSearchProps>) {
+    const [value, setValue] = React.useState(props.defaultValue ?? '');
+    return (
+      <>
+        <HeadingSearch {...props} value={value} onChange={(_event, next) => setValue(next)} />
+        <output data-testid="value">{value}</output>
+        <button type="button">Elsewhere</button>
+      </>
+    );
+  }
+
+  it('is a Search button that opens into a focused search field', async () => {
+    const onOpen = vi.fn();
+    wrap(<Search onOpen={onOpen} />);
+    const button = screen.getByRole('button', { name: 'Search' });
+    expect(button).toHaveClass(headingClasses.searchButton);
+    expect(button).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('search')).toBeNull();
+    await userEvent.click(button);
+    expect(onOpen).toHaveBeenCalledTimes(1);
+    const field = screen.getByRole('textbox', { name: 'Search' });
+    expect(field).toHaveFocus();
+    expect(field).toHaveAttribute('placeholder', 'Search');
+    expect(screen.getByRole('search', { name: 'Search' })).toHaveClass(headingClasses.search);
+    await userEvent.keyboard('gulf');
+    expect(screen.getByTestId('value')).toHaveTextContent('gulf');
+  });
+
+  it('clears with the clear button, then with Escape, and closes on a second Escape', async () => {
+    const onClose = vi.fn();
+    wrap(<Search onClose={onClose} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Search' }));
+    await userEvent.keyboard('gulf');
+    await userEvent.click(screen.getByRole('button', { name: 'Clear search' }));
+    expect(screen.getByTestId('value')).toHaveTextContent('');
+    expect(screen.getByRole('textbox', { name: 'Search' })).toHaveFocus();
+    expect(screen.queryByRole('button', { name: 'Clear search' })).toBeNull();
+
+    await userEvent.keyboard('sea{Escape}');
+    expect(screen.getByTestId('value')).toHaveTextContent('');
+    expect(screen.getByRole('search')).toBeInTheDocument();
+    await userEvent.keyboard('{Escape}');
+    expect(onClose).toHaveBeenCalledWith(expect.anything(), 'escapeKeyDown');
+    expect(screen.queryByRole('search')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Search' })).toHaveFocus();
+  });
+
+  it('closes when the focus leaves it empty, and stays open with a search in progress', async () => {
+    const onClose = vi.fn();
+    wrap(<Search onClose={onClose} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Search' }));
+    await userEvent.keyboard('gulf');
+    await userEvent.click(screen.getByRole('button', { name: 'Elsewhere' }));
+    expect(screen.getByRole('search')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('textbox'));
+    await userEvent.clear(screen.getByRole('textbox'));
+    await userEvent.click(screen.getByRole('button', { name: 'Elsewhere' }));
+    expect(onClose).toHaveBeenCalledWith(expect.anything(), 'blur');
+    expect(screen.queryByRole('search')).toBeNull();
+  });
+
+  it('starts open with text to show, and follows a controlled open state', () => {
+    const { rerender } = wrap(<Search defaultValue="north" />);
+    expect(screen.getByRole('textbox', { name: 'Search' })).toHaveValue('north');
+    rerender(
+      <ThemeProvider>
+        <HeadingSearch open={false} value="north" />
+      </ThemeProvider>,
+    );
+    expect(screen.getByRole('button', { name: 'Search' })).toBeInTheDocument();
+  });
+
+  it('is medium by default, like the buttons and inputs beside it, and small on request', async () => {
+    const { unmount } = wrap(<Search />);
+    expect(screen.getByRole('button', { name: 'Search' })).toHaveClass('MuiIconButton-sizeMedium');
+    await userEvent.click(screen.getByRole('button', { name: 'Search' }));
+    expect(screen.getByRole('textbox').closest('.MuiInputBase-root')).not.toHaveClass(
+      'MuiInputBase-sizeSmall',
+    );
+    unmount();
+    wrap(<Search size="small" />);
+    expect(screen.getByRole('button', { name: 'Search' })).toHaveClass('MuiIconButton-sizeSmall');
+    await userEvent.click(screen.getByRole('button', { name: 'Search' }));
+    expect(screen.getByRole('textbox').closest('.MuiInputBase-root')).toHaveClass(
+      'MuiInputBase-sizeSmall',
+    );
+  });
+
+  it('takes its label and its parts through props and slotProps', async () => {
+    const onClick = vi.fn();
+    wrap(
+      <Search
+        label="Search wells"
+        placeholder="Well name"
+        slotProps={{
+          button: { onClick },
+          input: { className: 'field' },
+          clearButton: { 'aria-label': 'Erase' },
+        }}
+      />,
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Search wells' }));
+    expect(onClick).toHaveBeenCalledTimes(1);
+    const field = screen.getByRole('textbox', { name: 'Search wells' });
+    expect(field).toHaveAttribute('placeholder', 'Well name');
+    expect(field.closest(`.${headingClasses.searchField}`)).toHaveClass('field');
+    await userEvent.keyboard('a');
+    expect(screen.getByRole('button', { name: 'Erase' })).toBeInTheDocument();
+  });
+
+  function Collapsed({ actions, children }: { actions: number; children: React.ReactNode }) {
+    const context = React.useMemo<HeadingContextValue>(
+      () => ({
+        layout: { ...FULL_LAYOUT, actions },
+        register: () => () => {},
+        requestMeasure: () => {},
+      }),
+      [actions],
+    );
+    return <HeadingContext.Provider value={context}>{children}</HeadingContext.Provider>;
+  }
+
+  it('collapses after the other secondary actions, and never while open', async () => {
+    wrap(
+      <Collapsed actions={1}>
+        <HeadingActions>
+          <HeadingSearch />
+          <Button>Filter</Button>
+          <Button variant="contained">Create</Button>
+        </HeadingActions>
+      </Collapsed>,
+    );
+    // The filter goes first, though it comes after the search.
+    expect(screen.queryByRole('button', { name: 'Filter' })).toBeNull();
+    await userEvent.click(screen.getByRole('button', { name: 'Search' }));
+    expect(screen.getByRole('search')).toBeInTheDocument();
+  });
+
+  it('keeps its place while open, however narrow the heading', async () => {
+    const actions = (collapsed: number) => (
+      <ThemeProvider>
+        <Collapsed actions={collapsed}>
+          <HeadingActions>
+            <HeadingSearch />
+            <Button>Filter</Button>
+            <Button variant="contained">Create</Button>
+          </HeadingActions>
+        </Collapsed>
+      </ThemeProvider>
+    );
+    const { rerender } = render(actions(0));
+    await userEvent.click(screen.getByRole('button', { name: 'Search' }));
+    // The heading narrows: two actions collapse, the filter and the primary one, not the open
+    // search.
+    rerender(actions(2));
+    expect(screen.getByRole('search')).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Search' })).toHaveFocus();
+    expect(screen.queryByRole('button', { name: 'Create' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Filter' })).toBeNull();
+  });
+
+  it('opens in the overflow tray, which stays open', async () => {
+    wrap(
+      <Collapsed actions={3}>
+        <HeadingActions>
+          <HeadingSearch />
+          <Button>Filter</Button>
+          <Button variant="contained">Create</Button>
+        </HeadingActions>
+      </Collapsed>,
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'More actions' }));
+    const tray = screen.getByRole('dialog', { name: 'More actions' });
+    await userEvent.click(within(tray).getByRole('button', { name: 'Search' }));
+    expect(within(tray).getByRole('search')).toBeInTheDocument();
+    await userEvent.keyboard('g');
+    await userEvent.click(within(tray).getByRole('button', { name: 'Clear search' }));
+    expect(screen.getByRole('dialog', { name: 'More actions' })).toBeInTheDocument();
   });
 });

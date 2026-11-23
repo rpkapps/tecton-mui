@@ -1,17 +1,15 @@
 import * as React from 'react';
 import { act, fireEvent, render, renderHook, screen } from '@testing-library/react';
-import { useScrollButtonCompensation } from '../useScrollButtonCompensation.js';
+import { useScrollButtonCompensation } from '../../internal/tab-strip/useScrollButtonCompensation.js';
 import {
   createTabStripStore,
-  arrowSx,
-  SCROLL_ARROW_WIDTH,
   selectedTabTarget,
   TabStripContext,
-  TabStripScrollButton,
   useTabStrip,
   writeScrollLeft,
   type TabStripStore,
-} from '../tabStrip.js';
+} from '../../internal/tab-strip/tabStrip.js';
+import { arrowSx, SCROLL_ARROW_WIDTH, TabStripScrollButton } from '../TabStripScrollButton.js';
 import { createTheme, ThemeProvider as MuiThemeProvider, type Theme } from '@mui/material/styles';
 
 // jsdom has no layout: the tests give the strip its geometry by hand. The scroller is 200px wide at

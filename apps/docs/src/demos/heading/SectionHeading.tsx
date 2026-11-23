@@ -12,9 +12,7 @@ export default function SectionHeading() {
           Team
         </HeadingTitle>
         <HeadingActions>
-          <Button variant="outlined" size="small">
-            Invite
-          </Button>
+          <Button variant="outlined">Invite</Button>
         </HeadingActions>
       </Heading>
       <Typography sx={{ color: 'text.secondary' }}>Five people work on this portfolio.</Typography>

@@ -2,6 +2,7 @@ import * as React from 'react';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderToString } from 'react-dom/server';
+import IconButton from '@mui/material/IconButton';
 import SvgIcon from '@mui/material/SvgIcon';
 import { ThemeProvider } from '../../styles/index.js';
 import Icon from '../../Icon/index.js';
@@ -582,6 +583,125 @@ describe('AppBarTabs: keyboard', () => {
     fireEvent.click(screen.getByRole('button', { name: 'close tab' }));
     expect(outside).toHaveFocus();
     outside.remove();
+  });
+});
+
+describe('AppBarActions: collapsing (with layout geometry)', () => {
+  // jsdom has no layout: give the bar, its parts and the actions widths, and drive the
+  // ResizeObservers by hand.
+  let barWidth = 1200;
+  let observers: (() => void)[] = [];
+  const widthFor = (element: Element) => {
+    if (element.classList.contains('MuiToolbar-root')) return barWidth;
+    if (element.getAttribute('data-region') === 'branding') return 100;
+    if (element.getAttribute('role') === 'tab') return 120;
+    if (element.getAttribute('aria-label') === 'Add tab') return 48;
+    if (element.classList.contains('TectonAppBar-overflowButton')) return 40;
+    if (element.hasAttribute('data-overflow-item')) return 40;
+    return 0;
+  };
+
+  beforeEach(() => {
+    barWidth = 1200;
+    vi.spyOn(Element.prototype, 'getClientRects').mockImplementation(
+      () => [{}] as unknown as DOMRectList,
+    );
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (
+      this: Element,
+    ) {
+      return { width: widthFor(this), left: 0, right: widthFor(this) } as DOMRect;
+    });
+    vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockImplementation(function (
+      this: HTMLElement,
+    ) {
+      return widthFor(this);
+    });
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        constructor(callback: () => void) {
+          observers.push(callback);
+        }
+        observe() {}
+        unobserve() {}
+        disconnect() {}
+      },
+    );
+  });
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+    observers = [];
+  });
+
+  const resizeTo = (width: number) =>
+    act(() => {
+      barWidth = width;
+      observers.forEach((callback) => callback());
+    });
+
+  // MUI's scrollable Tabs do not settle on jsdom geometry (every element at x = 0), so a plain
+  // stand-in takes the tab strip's place: the region, its Tabs root with the selected tab, and the
+  // add button, which is all the actions read of it. The browser tests use the real strip.
+  function Actions() {
+    return (
+      <AppBar>
+        <AppBarBrand>APP</AppBarBrand>
+        <div data-region="tab-strip">
+          <div className="MuiTabs-root">
+            <div role="tab" aria-selected="true">
+              Tab 1
+            </div>
+          </div>
+          <button type="button" aria-label="Add tab" />
+        </div>
+        <AppBarActions>
+          <IconButton aria-label="Search" />
+          <IconButton aria-label="Notifications" />
+          <IconButton aria-label="Account" />
+        </AppBarActions>
+      </AppBar>
+    );
+  }
+
+  it('keeps the actions while the narrowest tab strip leaves them room', () => {
+    wrap(<Actions />);
+    expect(screen.queryByRole('button', { name: 'More actions' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Search' })).toBeInTheDocument();
+  });
+
+  it('collapses them first to last, keeping the last, as the bar narrows', () => {
+    wrap(<Actions />);
+    const actions = document.querySelector('[data-region="right"]')!;
+    const padding =
+      Number.parseFloat(getComputedStyle(actions).paddingLeft) +
+      Number.parseFloat(getComputedStyle(actions).paddingRight);
+    // The narrowest strip: the selected tab between two arrows and the add button.
+    const strip = 120 + 2 * 48 + 48;
+    // Room for ⋮ and the last action (40 + gap + 40), not one more.
+    const gap = Number.parseFloat(getComputedStyle(actions).columnGap) || 0;
+    resizeTo(100 + strip + padding + 80 + gap + 20);
+    expect(screen.getByRole('button', { name: 'More actions' })).toHaveClass(
+      'TectonAppBar-overflowButton',
+    );
+    expect(screen.queryByRole('button', { name: 'Search' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Notifications' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Account' })).toBeInTheDocument();
+
+    // Wide again: every action is back.
+    resizeTo(1200);
+    expect(screen.queryByRole('button', { name: 'More actions' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Search' })).toBeInTheDocument();
+  });
+
+  it('shows every action while the bar has no layout (hidden)', () => {
+    wrap(<Actions />);
+    vi.spyOn(Element.prototype, 'getClientRects').mockImplementation(
+      () => [] as unknown as DOMRectList,
+    );
+    resizeTo(200);
+    expect(screen.queryByRole('button', { name: 'More actions' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Search' })).toBeInTheDocument();
   });
 });
 

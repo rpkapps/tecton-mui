@@ -16,8 +16,8 @@
 //
 // The row lays the parts out as the Figma heading frame does: the title cluster, then the tabs, then
 // the actions at the end. It never wraps: when the parts do not fit, the actions collapse into an
-// overflow button and the tabs into a More pill, and a narrow heading gives the tabs a row of their
-// own (layout.ts). `Heading` measures the parts' natural widths in a pass that is never painted
+// overflow button, the tabs scroll as the app bar's do, and a narrow heading gives the tabs a row of
+// their own (layout.ts). `Heading` measures the parts' natural widths in a pass that is never painted
 // (all items shown, in a layout effect) whenever its own size or a part's size changes, and the
 // parts render what the layout gives them.
 import * as React from 'react';
@@ -52,16 +52,22 @@ export const headingClasses = {
   menuButton: 'TectonHeading-menuButton',
   /** `HeadingTabs`: the `Tabs` root. */
   tabs: 'TectonHeading-tabs',
-  /** The tab group's paper surface, holding the tabs and the More pill. */
+  /** The tab group's paper surface, holding the tabs and their scroll arrows. */
   tabGroup: 'TectonHeading-tabGroup',
-  /** The More pill, for the tabs that do not fit. */
-  moreButton: 'TectonHeading-moreButton',
+  /** A scroll arrow of the tab group (a `TabScrollButton`), shown while it can scroll its way. */
+  scrollButton: 'TectonHeading-scrollButton',
   /** `HeadingActions`: the actions at the end of the row. */
   actions: 'TectonHeading-actions',
   /** The overflow (⋮) button, for the actions that do not fit. */
   overflowButton: 'TectonHeading-overflowButton',
   /** The tray the overflow button opens, holding those actions. */
   overflowTray: 'TectonHeading-overflowTray',
+  /** `HeadingSearch`: its root (a search landmark while open). */
+  search: 'TectonHeading-search',
+  /** The Search button that opens the field. */
+  searchButton: 'TectonHeading-searchButton',
+  /** The search field (a `FilledInput`). */
+  searchField: 'TectonHeading-searchField',
 } as const;
 
 export type HeadingClassKey = keyof typeof headingClasses;
@@ -122,11 +128,12 @@ const HeadingRoot = styled('div', { name: 'TectonHeading', slot: 'Root' })({
   paddingLeft: 'var(--TectonHeading-gutter)',
   paddingRight: 'var(--TectonHeading-gutter)',
   [`&.${headingClasses.disableGutters}`]: { paddingLeft: 0, paddingRight: 0 },
-  // The title gives way last, with an ellipsis; the tabs and the actions take what the layout gives
-  // them (their own collapsing).
+  // The actions take what the layout gives them (their own collapsing). The tabs take what room is
+  // left, and scroll in it; without tabs, the title gives way last, with an ellipsis.
   [part('title')]: { flex: '0 1 auto', minWidth: 0 },
-  [part('tabs')]: { flex: 'none' },
+  [part('tabs')]: { flex: '0 1 auto', minWidth: 0 },
   [part('actions')]: { flex: 'none' },
+  '&[data-tabs]': { [part('title')]: { flex: 'none' } },
   // Compact: the title and the actions on the first row, the tabs on a row of their own.
   [`&.${headingClasses.compact}`]: {
     flexWrap: 'wrap',
@@ -136,6 +143,7 @@ const HeadingRoot = styled('div', { name: 'TectonHeading', slot: 'Root' })({
   // Measure pass (never painted): every part at its natural width.
   '&[data-measuring]': {
     [part('title')]: { flex: 'none' },
+    [part('tabs')]: { flex: 'none' },
   },
 });
 
@@ -162,7 +170,7 @@ function measureHeading(
 /**
  * Tecton page heading. Compose it from `HeadingTitle`, `HeadingTabs` (holding MUI `Tab` elements)
  * and `HeadingActions`, or any content of your own. When the parts do not fit in its row, the
- * actions and the tabs collapse into overflow menus.
+ * actions collapse into an overflow menu and the tabs scroll.
  *
  * Demos: [Heading](/components/heading)
  */
@@ -235,6 +243,7 @@ const Heading = React.forwardRef<HTMLDivElement, HeadingProps>(function Heading(
         ref={handleRef}
         as={component}
         data-measuring={layout.measuring ? '' : undefined}
+        data-tabs={layout.tabs ? '' : undefined}
         data-width={width}
         className={clsx(
           headingClasses.root,

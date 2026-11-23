@@ -13,6 +13,7 @@ you compose it from its own parts, MUI style:
 | `HeadingTitle`   | The title (an `<h1>`), with optional home and menu buttons              |
 | `HeadingTabs`    | MUI `Tabs` props for MUI `Tab` children, as the Tecton filled tab group |
 | `HeadingActions` | Your buttons, selects and toggles, at the end of the row                |
+| `HeadingSearch`  | A Search button that opens into a search field, among the actions       |
 
 ## Basic heading
 
@@ -40,9 +41,8 @@ that makes the home button a link (it then shows without `onHomeClick`).
 MUI `Tab` elements. It always shows the Tecton filled tab group (`Tabs` with `variant="pills"`) on a
 paper surface, so the props that only apply to other variants or to vertical tabs are not offered.
 Your page owns `value` and updates it in `onChange`, as with `Tabs`. When the heading runs out of
-room, the tabs after the selected one move into a More pill at the end of the group (see
-[Responsive layout](#responsive-layout)); a tab picked there is selected through the same
-`onChange`.
+room, the tab group narrows and scrolls like the [App Bar](/components/app-bar)'s tabs (see
+[Responsive layout](#responsive-layout)).
 
 <Demo name="TabsHeading" />
 
@@ -51,11 +51,33 @@ room, the tabs after the selected one move into a More pill at the end of the gr
 `HeadingActions` sits at the end of the row and spaces its content: icon buttons, buttons, selects
 and toggle button groups. Separate groups of actions with a vertical
 `<Divider orientation="vertical" flexItem emphasis="subtle" />`. A select can carry its label
-inside, before the value, as a start adornment. Put the primary action last: when the heading runs
+inside, before the value, as a start adornment. Keep the actions one size: at the default `medium`,
+buttons, icon buttons, selects and `HeadingSearch` are all 32px tall. Put the primary action last: when the heading runs
 out of room, the actions move into an overflow (⋮) button first to last, and the last one stays the
 longest.
 
 <Demo name="ActionsHeading" />
+
+## Search
+
+`HeadingSearch` is a Search button that opens into a search field in place, among the actions
+(usually first). Like a `TextField`, it takes `value` and `onChange(event, value)`, and your page
+filters what it shows. Type below.
+
+<Demo name="SearchHeading" />
+
+- The field opens focused. Escape clears it; on an empty field, Escape closes it and gives the
+  focus back to the button. The clear button empties it too.
+- The field only closes empty: with a search in progress it stays open when the focus leaves it, so
+  the page never filters by a term nobody can see.
+- `label` names the button, the field and its search landmark (default "Search"); `placeholder`
+  defaults to it. `size` (`medium` by default, or `small`) sizes the button and the field like the
+  buttons and inputs beside them. `open`, `onOpen` and `onClose(event, reason)` control the field from outside, and
+  `slotProps.button`, `slotProps.input` (a `FilledInput`) and `slotProps.clearButton` reach its
+  parts.
+- In a narrow heading, a closed search collapses into the overflow tray after the other secondary
+  actions, and opens in the tray. An open field keeps its place in the row: the other actions and
+  the tabs make room for it.
 
 ## Page heading
 
@@ -68,16 +90,20 @@ The full heading: title, tabs and actions.
 The heading keeps one row. When its parts do not fit, they give way one step at a time, in this
 order:
 
-1. **Actions.** They move into an overflow (⋮) button at the start of the actions, first to last.
-   The button opens a tray that shows them as they are (icon buttons, selects, toggles). A click on a
-   command in the tray closes it; toggles and selects leave it open. The last action, the primary
-   one, stays.
-2. **Tabs.** The tabs after the selected one move into a More pill at the end of the tab group, the
-   last ones first. The pill opens a menu of those tabs. The selected tab always shows: pick a tab
-   in the menu and it takes the place of the last tab shown.
+1. **Actions.** They move into an overflow (⋮) button at the start of the actions, first to last,
+   a closed `HeadingSearch` last of them; an open one keeps its place. The button opens a tray that
+   shows them as they are (icon buttons, selects, toggles, the search). A click on a command in the
+   tray closes it; toggles, selects and the search leave it open. The last action, the primary one,
+   stays.
+2. **Tabs.** The tab group narrows and scrolls, the way the App Bar's tabs do: an arrow at either end
+   shows while the tabs can scroll that way, and a click slides them by whole tabs. The tabs fade out
+   toward an edge they can scroll past, and the tabs the strip brings into view stop clear of the
+   fade. The selected tab slides into view whenever it changes, and the wheel, touch and the
+   keyboard scroll the tabs too. The group narrows down to the selected tab between its two arrows.
 3. **The primary action** joins the others in the tray.
 4. **Compact.** When even that does not fit, as on a phone, the tabs get a row of their own under the
-   title and the actions, and the title shortens with an ellipsis as a last resort.
+   title and the actions (scrolling there if they must), and the title shortens with an ellipsis as a
+   last resort.
 
 The heading measures its parts again whenever its own width or a part's width changes (a label, a
 font that loaded, a tab added), before the browser paints, so nothing flickers. Drag the slider to
@@ -102,10 +128,9 @@ another element and variant through `slotProps.title`, for example
 
 Each part takes `sx` and `className`. The parts carry the stable classes of `headingClasses`
 (`TectonHeading-root`, `-compact`, `-title`, `-titleText`, `-homeButton`, `-menuButton`, `-tabs`,
-`-tabGroup`, `-moreButton`, `-actions`, `-overflowButton`, `-overflowTray`), for styles that reach
-into the heading from outside. The More pill and its menu take props through `HeadingTabs`'
-`slotProps.moreButton` and `slotProps.moreMenu` (for example a translated label), the overflow
-button and its tray through `HeadingActions`' `slotProps.overflowButton` and
+`-tabGroup`, `-scrollButton`, `-actions`, `-overflowButton`, `-overflowTray`, `-search`,
+`-searchButton`, `-searchField`), for styles that reach into the heading from outside. The overflow
+button and its tray take props through `HeadingActions`' `slotProps.overflowButton` and
 `slotProps.overflowTray`.
 
 ## Accessibility
@@ -120,10 +145,14 @@ button and its tray through `HeadingActions`' `slotProps.overflowButton` and
   `HeadingTabs` an `aria-label`, and each `Tab` an `id` and `aria-controls` pointing to its panel.
 - Icon buttons in the actions need an `aria-label`; a select whose label is an adornment needs one
   too (`inputProps={{ 'aria-label': 'Sort' }}`).
-- The tabs and actions that do not fit are left out of the page, not hidden: the tab list holds only
-  the tabs it shows, and the keyboard never lands on something out of sight.
-- The More pill is a menu button (`aria-haspopup="menu"`, `aria-expanded`): its menu lists the
-  hidden tabs. A tab picked there takes the focus; Escape gives it back to the pill.
+- Every tab stays in the tab list when the tabs scroll: the arrow keys reach all of them, and the tab
+  that takes the focus scrolls into view. The scroll arrows are for the pointer only, as in the App
+  Bar (and MUI's `Tabs`): they are not in the tab order.
+- The actions that do not fit are left out of the row, not hidden, so the keyboard never lands on
+  something out of sight; the overflow button reaches them.
 - The overflow button ("More actions") opens its tray as a dialog (`aria-haspopup="dialog"`); focus
   moves into it, Escape closes it and gives the focus back to the button.
+- The open search is a search landmark (`role="search"`) holding a labelled field. Its Escape key
+  stays in the field (first clearing it, then closing it), so it never closes a tray or a dialog it
+  sits in. Give `HeadingSearch` a `label` that says what it searches, such as "Search wells".
 - The heading reflows down to 320px without horizontal scrolling (WCAG 1.4.10).

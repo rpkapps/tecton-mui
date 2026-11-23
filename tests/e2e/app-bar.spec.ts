@@ -34,6 +34,40 @@ test.describe('Tecton app bar: drop-in behaviour', () => {
     await expect(bar.locator('.MuiToolbar-root')).toHaveCSS('height', '40px');
   });
 
+  test('a narrow bar collapses its actions into the overflow button, the tabs keep room', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 600 });
+    await open(page, 'primary');
+    const bar = page.getByRole('banner').first();
+    const more = bar.getByRole('button', { name: 'More actions' });
+    await expect(more).toHaveCount(0);
+    await expect(bar.getByRole('button', { name: 'notifications' })).toBeVisible();
+
+    // Too narrow for the actions beside the narrowest tab strip: they go into the overflow button.
+    await page.setViewportSize({ width: 520, height: 600 });
+    await expect(more).toBeVisible();
+    await expect(bar.getByRole('button', { name: 'notifications' })).toHaveCount(0);
+    // The strip keeps at least the selected tab.
+    const [strip, selected] = await Promise.all([
+      bar.locator('[data-region="tab-strip"] .MuiTabs-root').boundingBox(),
+      bar.getByRole('tab', { selected: true }).boundingBox(),
+    ]);
+    expect(strip!.width).toBeGreaterThanOrEqual(selected!.width);
+
+    // The tray holds the actions as they are; a command closes it and reaches the page.
+    await more.click();
+    const tray = page.getByRole('dialog', { name: 'More actions' });
+    await tray.getByRole('button', { name: 'notifications' }).click();
+    await expect(page.getByText('Action "notifications" was clicked.')).toBeVisible();
+    await expect(tray).toBeHidden();
+
+    // Wide again: the actions are back in the bar.
+    await page.setViewportSize({ width: 1280, height: 600 });
+    await expect(more).toHaveCount(0);
+    await expect(bar.getByRole('button', { name: 'notifications' })).toBeVisible();
+  });
+
   test('a click on an action reaches the page', async ({ page }) => {
     await open(page, 'primary');
     await page.getByRole('button', { name: 'notifications' }).click();

@@ -91,7 +91,8 @@ and `IconButton`, `variant="square"` on `IconButton`, `shape` on `Chip` and `Bad
 `Divider` and `tier` on `AppBar`. `AppBar` is the Tecton App Bar, composed from `AppBarBrand`,
 `AppBarTabs` / `AppBarTab` (the MUI `Tabs` and `Tab` props, plus close and add buttons) and
 `AppBarActions`. It replaces the MUI `AppBar` and its `Toolbar` composition; see the App Bar page of
-the docs portal.
+the docs portal. On a narrow bar, the tabs scroll and then the actions collapse into an overflow (⋮)
+button, as a `Heading`'s do.
 
 ## Stylesheets: shell, hosted MFE and standalone
 
@@ -447,10 +448,12 @@ import Tab from '@tecton-mui/ui/Tab';
 ```
 
 The title is an `<h1>` (`slotProps.title` changes the element and `Typography` variant);
-`onHomeClick` and `onMenuClick` show the home button and the menu chevron. `HeadingTabs` takes the
+`onHomeClick` and `onMenuClick` show the home button and the menu chevron. `HeadingSearch`, among
+the actions, is a Search button that opens into a search field (`value`, `onChange`; Escape clears,
+then closes). `HeadingTabs` takes the
 MUI `Tabs` props and shows the Tecton filled tab group. The row never wraps: when it runs out of
 room, the actions collapse into an overflow (⋮) button first to last (the last, primary one stays),
-then the tabs after the selected one into a More pill, then the primary action; a very narrow
+then the tabs narrow and scroll as the app bar's do, then the primary action; a very narrow
 heading gives the tabs a row of their own. The gutters follow the heading's own width;
 `disableGutters` removes them.
 

@@ -57,6 +57,8 @@ packages/ui/
 │   ├── <Module>/index.ts        # passthrough (generated, AUTO-GENERATED marker) or hand-written
 │   ├── internal/passthrough/    # generated re-exports of lowercase MUI utility modules (root barrel only)
 │   ├── internal/range-pickers/  # shared range picker implementation + SUPPORT.md
+│   ├── internal/tab-strip/      # scrolling tab strip shared by AppBarTabs and HeadingTabs
+│   ├── internal/overflow/       # actions that collapse into ⋮, shared by AppBarActions and HeadingActions
 │   ├── DataGrid/                # unified Data Grid
 │   ├── RichTreeView/            # unified Rich Tree View + SUPPORT.md
 │   ├── Icon/, LocalizationProvider/

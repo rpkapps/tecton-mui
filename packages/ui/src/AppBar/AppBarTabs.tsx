@@ -16,8 +16,9 @@ import { createSvgIcon } from '@mui/material/utils';
 import useForkRef from '@mui/utils/useForkRef';
 import { cssVar } from '../styles/tecton/index.js';
 import { sxList } from '../internal/sxList.js';
-import { useScrollButtonCompensation } from './useScrollButtonCompensation.js';
-import { TabStripContext, TabStripScrollButton, useTabStrip } from './tabStrip.js';
+import { useScrollButtonCompensation } from '../internal/tab-strip/useScrollButtonCompensation.js';
+import { TabStripContext, useTabStrip } from '../internal/tab-strip/tabStrip.js';
+import { TabStripScrollButton } from './TabStripScrollButton.js';
 import { TabCloseButton, TabCloseContext, type TabCloseContextValue } from './TabCloseButton.js';
 
 export interface AppBarTabsProps extends Omit<
