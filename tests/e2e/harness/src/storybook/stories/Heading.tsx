@@ -14,7 +14,6 @@ import {
   HeadingSearch,
   HeadingTabs,
   HeadingTitle,
-  Icon,
   IconButton,
   InputAdornment,
   MenuItem,
@@ -57,19 +56,12 @@ function Title({
   chevronButton?: boolean;
 }) {
   return (
-    <>
-      {homeButton ? (
-        <IconButton aria-label="Home" onClick={noop}>
-          <Icon name="home" />
-        </IconButton>
-      ) : null}
-      <HeadingTitle>{title}</HeadingTitle>
-      {chevronButton ? (
-        <IconButton size="small" aria-label="More" onClick={noop}>
-          <Icon name="chevron-down" />
-        </IconButton>
-      ) : null}
-    </>
+    <HeadingTitle
+      onHomeClick={homeButton ? noop : undefined}
+      onMenuClick={chevronButton ? noop : undefined}
+    >
+      {title}
+    </HeadingTitle>
   );
 }
 

@@ -3,10 +3,9 @@
 ---
 
 New `Heading`: the Tecton page heading (the "Organisms / Heading" stories of the Tecton Storybook),
-composed from parts, MUI style. `HeadingTitle` is the title, a `Typography` that is an `<h1>` by
-default and takes the `Typography` props (`component`, `variant`). A home button and a menu chevron
-are plain `IconButton`s placed before and after it in the `Heading`, which sets them beside the
-title and measures them with it. `HeadingTabs` takes the MUI
+composed from parts, MUI style. `HeadingTitle` is the title, an `<h1>` by default
+(`slotProps.title` sets the element and `Typography` variant), with a home button (`onHomeClick`, or
+an `href` in `slotProps.homeButton`) and a menu chevron (`onMenuClick`). `HeadingTabs` takes the MUI
 `Tabs` props for MUI `Tab` children and shows the Tecton filled tab group on paper. `HeadingActions`
 holds the page's actions at the end of the row. `Heading` takes `component`, `disableGutters`, `sx`
 and a ref; `headingClasses` names each part. It matches all eight Storybook stories pixel for pixel.

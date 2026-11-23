@@ -10,7 +10,7 @@ you compose it from its own parts, MUI style:
 | Part             | What it is                                                              |
 | ---------------- | ----------------------------------------------------------------------- |
 | `Heading`        | The row, with the Figma frame's padding                                 |
-| `HeadingTitle`   | The title: a `Typography`, an `<h1>` by default                         |
+| `HeadingTitle`   | The title (an `<h1>`), with optional home and menu buttons              |
 | `HeadingTabs`    | MUI `Tabs` props for MUI `Tab` children, as the Tecton filled tab group |
 | `HeadingActions` | Your buttons, selects and toggles, at the end of the row                |
 | `HeadingSearch`  | A Search button that opens into a search field, among the actions       |
@@ -21,31 +21,17 @@ A title and one action.
 
 <Demo name="BasicHeading" />
 
-`HeadingTitle` is a `Typography` with the Tecton heading 1 type (the theme's `h4` variant),
-rendered as an `<h1>`, since a page has one main heading. It takes the `Typography` props:
-`component`, `variant`, `id`, `noWrap` (on by default, so that a heading out of room ends the title
-with an ellipsis). `Heading` itself is a `<div>`; `component="header"` makes it a `<header>`.
+The title is a `Typography` with the Tecton heading 1 type (the theme's `h4` variant), rendered as
+an `<h1>`, since a page has one main heading. `Heading` itself is a `<div>`; `component="header"`
+makes it a `<header>`.
 
 ## Home and menu buttons
 
-A home button and a menu chevron are plain `IconButton`s: put them in the `Heading`, before and
-after the `HeadingTitle`. The heading sets them beside the title (space-75 apart, closer than its
-parts), and makes room for them as it narrows. Give the home button an `href` to make it a link, and
-the chevron `size="small"`, an `aria-label` that says what it switches, and the `aria-haspopup`,
-`aria-expanded` and `aria-controls` of the menu it opens. Anything else of your own beside the
-title, a `Chip` for a status for example, sits there the same way.
-
-```tsx
-<Heading>
-  <IconButton aria-label="All portfolios" href="/portfolios">
-    <Icon name="home" />
-  </IconButton>
-  <HeadingTitle>Gulf Coast</HeadingTitle>
-  <IconButton size="small" aria-label="Switch portfolio" aria-haspopup="menu" onClick={openMenu}>
-    <Icon name="chevron-down" />
-  </IconButton>
-</Heading>
-```
+`onHomeClick` shows a home button before the title; `onMenuClick` shows a chevron after it, for a
+menu that switches to another page of the same kind. The buttons take `IconButton` props through
+`slotProps.homeButton` and `slotProps.menuButton`: an `aria-label` (by default "Home" and "More"),
+the `aria-haspopup`, `aria-expanded` and `aria-controls` of the menu the chevron opens, or an `href`
+that makes the home button a link (it then shows without `onHomeClick`).
 
 <Demo name="TitleButtonsHeading" />
 
@@ -133,16 +119,17 @@ at the sides. A heading narrower than the theme's `md` breakpoint (900px by defa
 above and below. The heading's own width counts, not the window's, so a heading in a narrow panel is
 as roomy as on a phone. Inside a container that has its own padding, `disableGutters` removes the
 side padding, and `sx` adjusts the rest. For a heading below the page's main one, give the title
-another element and variant: `<HeadingTitle component="h2" variant="h5">`.
+another element and variant through `slotProps.title`, for example
+`{ component: 'h2', variant: 'h5' }`.
 
 <Demo name="SectionHeading" />
 
 ## Customization
 
 Each part takes `sx` and `className`. The parts carry the stable classes of `headingClasses`
-(`TectonHeading-root`, `-compact`, `-title`, `-tabs`, `-tabGroup`, `-scrollButton`, `-actions`,
-`-overflowButton`, `-overflowTray`, `-search`, `-searchButton`, `-searchField`), for styles that
-reach into the heading from outside. The overflow
+(`TectonHeading-root`, `-compact`, `-title`, `-titleText`, `-homeButton`, `-menuButton`, `-tabs`,
+`-tabGroup`, `-scrollButton`, `-actions`, `-overflowButton`, `-overflowTray`, `-search`,
+`-searchButton`, `-searchField`), for styles that reach into the heading from outside. The overflow
 button and its tray take props through `HeadingActions`' `slotProps.overflowButton` and
 `slotProps.overflowTray`.
 
@@ -150,9 +137,9 @@ button and its tray take props through `HeadingActions`' `slotProps.overflowButt
 
 - The title is a heading element (`<h1>` by default), so screen reader users can jump to it. Use
   `<h2>` and below for headings of page sections.
-- The home and menu buttons are your own `IconButton`s, outside the heading element: give each an
-  `aria-label`. Name the menu button after what it switches, such as "Switch portfolio", and give it
-  the `aria-haspopup`, `aria-expanded` and `aria-controls` of its menu.
+- The home and menu buttons are icon buttons with an accessible name ("Home" and "More" by default).
+  Give the menu button a name that says what it switches, such as "Switch portfolio", and the
+  `aria-haspopup`, `aria-expanded` and `aria-controls` of its menu.
 - The tabs are an MUI tab list: Tab reaches it once (on the selected tab), Left and Right arrow move
   between tabs, Home and End jump to the first and last, Enter or Space selects. Give
   `HeadingTabs` an `aria-label`, and each `Tab` an `id` and `aria-controls` pointing to its panel.

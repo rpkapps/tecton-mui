@@ -8,7 +8,7 @@ export default function SectionHeading() {
     <Paper sx={{ width: '100%', px: 3, pb: 3 }}>
       {/* The paper has its own padding: no gutters, a smaller h2 title. */}
       <Heading component="section" disableGutters sx={{ py: 2 }} aria-labelledby="team-title">
-        <HeadingTitle component="h2" variant="h5" id="team-title">
+        <HeadingTitle slotProps={{ title: { component: 'h2', variant: 'h5', id: 'team-title' } }}>
           Team
         </HeadingTitle>
         <HeadingActions>

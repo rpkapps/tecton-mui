@@ -5,8 +5,6 @@ import { renderToString } from 'react-dom/server';
 import { ThemeProvider } from '../../styles/index.js';
 import Button from '../../Button/index.js';
 import Divider from '../../Divider/index.js';
-import Icon from '../../Icon/index.js';
-import IconButton from '../../IconButton/index.js';
 import Tab from '../../Tab/index.js';
 import ToggleButton from '../../ToggleButton/index.js';
 import { HeadingContext, type HeadingContextValue } from '../HeadingContext.js';
@@ -26,7 +24,7 @@ function wrap(ui: React.ReactElement) {
   return render(<ThemeProvider>{ui}</ThemeProvider>);
 }
 
-/** The canonical page heading: the title with its buttons, tabs and actions. */
+/** The canonical page heading: title cluster, tabs and actions. */
 function PageHeading({
   value = 0,
   onChange,
@@ -36,13 +34,9 @@ function PageHeading({
 }) {
   return (
     <Heading>
-      <IconButton aria-label="Home" href="/">
-        <Icon name="home" />
-      </IconButton>
-      <HeadingTitle>Portfolio</HeadingTitle>
-      <IconButton size="small" aria-label="Switch portfolio">
-        <Icon name="chevron-down" />
-      </IconButton>
+      <HeadingTitle onHomeClick={() => {}} onMenuClick={() => {}}>
+        Portfolio
+      </HeadingTitle>
       <HeadingTabs value={value} onChange={onChange} aria-label="Portfolio sections">
         <Tab label="Overview" />
         <Tab label="Team" />
@@ -124,67 +118,106 @@ describe('Heading', () => {
 });
 
 describe('HeadingTitle', () => {
-  it('is an h1 in Tecton heading-1 type by default', () => {
+  it('is an h1 with no buttons by default', () => {
     wrap(<HeadingTitle>Portfolio</HeadingTitle>);
     const title = screen.getByRole('heading', { level: 1, name: 'Portfolio' });
-    expect(title).toHaveClass(headingClasses.title, 'MuiTypography-h4', 'MuiTypography-noWrap');
+    expect(title).toHaveClass(headingClasses.titleText, 'MuiTypography-h4');
     // Tecton heading-1 without MUI's h4 letter spacing.
     expect(getComputedStyle(title).letterSpacing).toBe('normal');
+    expect(screen.queryByRole('button')).toBeNull();
   });
 
-  it('takes the Typography props, a className, sx and a ref', () => {
-    const ref = React.createRef<HTMLHeadingElement>();
+  it('takes the title element and Typography props through slotProps.title', () => {
     wrap(
-      <HeadingTitle
-        ref={ref}
-        component="h2"
-        variant="h5"
-        noWrap={false}
-        id="wells"
-        className="title"
-        sx={{ letterSpacing: '1px' }}
-      >
+      <HeadingTitle slotProps={{ title: { component: 'h2', className: 'title', id: 'wells' } }}>
         Wells
       </HeadingTitle>,
     );
     const title = screen.getByRole('heading', { level: 2, name: 'Wells' });
-    expect(ref.current).toBe(title);
-    expect(title).toHaveClass(headingClasses.title, 'title', 'MuiTypography-h5');
-    expect(title).not.toHaveClass('MuiTypography-noWrap');
+    expect(title).toHaveClass(headingClasses.titleText, 'title');
     expect(title).toHaveAttribute('id', 'wells');
-    // The consumer's sx comes after the title's own.
-    expect(getComputedStyle(title).letterSpacing).toBe('1px');
   });
 
-  it('has IconButtons of your own beside it, in the heading', async () => {
+  it('shows the home button with onHomeClick and calls it', async () => {
+    const onHomeClick = vi.fn();
     const onClick = vi.fn();
     wrap(
-      <Heading>
-        <IconButton aria-label="All portfolios" href="/portfolios">
-          <Icon name="home" />
-        </IconButton>
-        <HeadingTitle>Portfolio</HeadingTitle>
-        <IconButton
-          size="small"
-          aria-label="Switch portfolio"
-          aria-haspopup="menu"
-          onClick={onClick}
-        >
-          <Icon name="chevron-down" />
-        </IconButton>
-      </Heading>,
+      <HeadingTitle onHomeClick={onHomeClick} slotProps={{ homeButton: { onClick } }}>
+        Portfolio
+      </HeadingTitle>,
     );
-    const title = screen.getByRole('heading', { level: 1 });
-    expect(title).toHaveAccessibleName('Portfolio');
-    const home = screen.getByRole('link', { name: 'All portfolios' });
-    expect(home).toHaveAttribute('href', '/portfolios');
+    const home = screen.getByRole('button', { name: 'Home' });
+    expect(home).toHaveClass(headingClasses.homeButton);
+    // The button comes before the title.
+    expect(
+      home.compareDocumentPosition(screen.getByRole('heading')) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    await userEvent.click(home);
+    expect(onClick).toHaveBeenCalledTimes(1);
+    expect(onHomeClick).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('button', { name: 'More' })).toBeNull();
+  });
+
+  it('shows the home button as a link with an href', () => {
+    wrap(
+      <HeadingTitle slotProps={{ homeButton: { href: '/home', 'aria-label': 'All portfolios' } }}>
+        Portfolio
+      </HeadingTitle>,
+    );
+    expect(screen.getByRole('link', { name: 'All portfolios' })).toHaveAttribute('href', '/home');
+  });
+
+  it('shows the menu button with onMenuClick and calls it with the event', async () => {
+    const onMenuClick = vi.fn((event: React.MouseEvent<HTMLButtonElement>) => event.currentTarget);
+    const onClick = vi.fn();
+    wrap(
+      <HeadingTitle
+        onMenuClick={onMenuClick}
+        slotProps={{
+          menuButton: {
+            'aria-label': 'Switch portfolio',
+            'aria-haspopup': 'menu',
+            className: 'chevron',
+            onClick,
+          },
+        }}
+      >
+        Portfolio
+      </HeadingTitle>,
+    );
     const menu = screen.getByRole('button', { name: 'Switch portfolio' });
-    // Siblings of the title in the heading's row, outside the heading element.
-    expect(home.parentElement).toBe(title.parentElement);
-    expect(menu.parentElement).toBe(title.parentElement);
-    expect(title).not.toContainElement(menu);
+    expect(menu).toHaveClass(headingClasses.menuButton, 'chevron', 'MuiIconButton-sizeSmall');
+    expect(menu).toHaveAttribute('aria-haspopup', 'menu');
+    expect(
+      menu.compareDocumentPosition(screen.getByRole('heading')) & Node.DOCUMENT_POSITION_PRECEDING,
+    ).toBeTruthy();
     await userEvent.click(menu);
     expect(onClick).toHaveBeenCalledTimes(1);
+    expect(onMenuClick).toHaveBeenCalledTimes(1);
+    expect(onMenuClick.mock.results[0]!.value).toBe(menu);
+  });
+
+  it('labels the buttons "Home" and "More" by default, with decorative icons', () => {
+    wrap(
+      <HeadingTitle onHomeClick={() => {}} onMenuClick={() => {}}>
+        Portfolio
+      </HeadingTitle>,
+    );
+    for (const name of ['Home', 'More']) {
+      const button = screen.getByRole('button', { name });
+      expect(button.querySelector('[aria-hidden]')).not.toBeNull();
+    }
+  });
+
+  it('forwards its ref, className and HTML attributes to the cluster', () => {
+    const ref = React.createRef<HTMLDivElement>();
+    wrap(
+      <HeadingTitle ref={ref} className="cluster" data-testid="cluster">
+        Portfolio
+      </HeadingTitle>,
+    );
+    expect(ref.current).toBe(screen.getByTestId('cluster'));
+    expect(ref.current).toHaveClass(headingClasses.title, 'cluster');
   });
 });
 
@@ -318,9 +351,15 @@ export function typeChecks() {
   return (
     <>
       <Heading component="section" disableGutters />
-      <HeadingTitle component="h2" variant="h5" noWrap={false} />
-      {/* @ts-expect-error Home and menu buttons are IconButtons of your own, beside the title. */}
-      <HeadingTitle onHomeClick={() => {}} />
+      <HeadingTitle
+        onHomeClick={(event: React.MouseEvent<HTMLButtonElement>) => event}
+        onMenuClick={(event: React.MouseEvent<HTMLButtonElement>) => event.currentTarget}
+        slotProps={{
+          title: { component: 'h2', variant: 'h5' },
+          homeButton: { href: '/' },
+          menuButton: { 'aria-expanded': true },
+        }}
+      />
       <HeadingTabs value={0} size="small" onChange={(_event, value: number) => value} />
       {/* @ts-expect-error The heading's tabs are always the filled (pills) tab group. */}
       <HeadingTabs value={0} variant="scrollable" />
@@ -450,7 +489,6 @@ describe('Heading layout (with layout geometry)', () => {
     if (element.classList.contains(headingClasses.title)) return 160;
     if (element.getAttribute('role') === 'tab') return 90;
     if (element.classList.contains(headingClasses.overflowButton)) return 40;
-    if (element.classList.contains('MuiIconButton-root')) return 32;
     if (element.hasAttribute('data-overflow-item')) return 120;
     return 0;
   };
@@ -552,48 +590,6 @@ describe('Heading layout (with layout geometry)', () => {
     resizeTo(2000);
     expect(heading).not.toHaveClass(headingClasses.compact);
     expect(screen.getAllByRole('tab')).toHaveLength(5);
-  });
-
-  it('measures what sits beside the title, again when it comes or goes', async () => {
-    function Start({ home }: { home: boolean }) {
-      return (
-        <Heading data-testid="heading">
-          {home ? (
-            <IconButton aria-label="Home">
-              <Icon name="home" />
-            </IconButton>
-          ) : null}
-          <HeadingTitle>Portfolio</HeadingTitle>
-          <HeadingActions>
-            <Button>Publish</Button>
-            <Button variant="contained">Create</Button>
-          </HeadingActions>
-        </Heading>
-      );
-    }
-    // 468px of content (16px gutters) hold the title and both actions (448px), not with a 32px
-    // home button space-75 (6px) before the title (486px).
-    headingWidth = 500;
-    const { rerender } = wrap(<Start home={false} />);
-    expect(screen.queryByRole('button', { name: 'More actions' })).toBeNull();
-    rerender(
-      <ThemeProvider>
-        <Start home />
-      </ThemeProvider>,
-    );
-    // No size changed: the new child alone measures the row again.
-    expect(await screen.findByRole('button', { name: 'More actions' })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Publish' })).toBeNull();
-    expect(screen.getByRole('button', { name: 'Create' })).toBeInTheDocument();
-    rerender(
-      <ThemeProvider>
-        <Start home={false} />
-      </ThemeProvider>,
-    );
-    await waitFor(() =>
-      expect(screen.getByRole('button', { name: 'Publish' })).toBeInTheDocument(),
-    );
-    expect(screen.queryByRole('button', { name: 'More actions' })).toBeNull();
   });
 
   it('shows everything while it has no layout (hidden)', () => {

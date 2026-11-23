@@ -1,4 +1,4 @@
-// Tecton page heading (`Heading` and its parts) in a real browser: the buttons beside the title, the tabs,
+// Tecton page heading (`Heading` and its parts) in a real browser: the title's buttons, the tabs,
 // reflow at narrow widths, RTL and axe. Scenario: tests/e2e/harness/src/HeadingScenario.tsx. Visual
 // parity with the Storybook "Organisms/Heading" stories is checked in storybook-parity.spec.ts.
 import AxeBuilder from '@axe-core/playwright';
@@ -255,17 +255,14 @@ test.describe('Heading', () => {
     const heading = page.getByTestId('page-heading');
     await expect(heading).toHaveClass(/TectonHeading-compact/);
     const root = '[data-testid="page-heading"]';
-    const [home, title, group, overflow] = await Promise.all([
-      page.getByRole('button', { name: 'Home' }).boundingBox(),
+    const [title, group, overflow] = await Promise.all([
       box(page, `${root} .TectonHeading-title`),
       box(page, `${root} .TectonHeading-tabGroup`),
       box(page, `${root} .TectonHeading-overflowButton`),
     ]);
     // A narrow heading has narrow gutters (space-200), whatever the window's width.
     const rootBox = await box(page, root);
-    expect(home!.x - rootBox.x).toBeCloseTo(16, 0);
-    // The title sits beside the home button (space-75), not a part's gap away.
-    expect(title.x - (home!.x + home!.width)).toBeCloseTo(6, 0);
+    expect(title.x - rootBox.x).toBeCloseTo(16, 0);
     // Title and actions on the first row, the tabs below.
     expect(overflow.y + overflow.height / 2).toBeCloseTo(title.y + title.height / 2, 0);
     expect(group.y).toBeGreaterThanOrEqual(title.y + title.height);
@@ -293,15 +290,12 @@ test.describe('Heading', () => {
     await page.setViewportSize({ width: 1600, height: 800 });
     await open(page, '&dir=rtl');
     const root = '[data-testid="page-heading"]';
-    const [rootBox, homeBox, titleBox, actionsBox] = await Promise.all([
+    const [rootBox, titleBox, actionsBox] = await Promise.all([
       box(page, root),
-      page.getByRole('button', { name: 'Home' }).boundingBox(),
       box(page, `${root} .TectonHeading-title`),
       box(page, `${root} .TectonHeading-actions`),
     ]);
-    expect(rootBox.x + rootBox.width - (homeBox!.x + homeBox!.width)).toBeCloseTo(72, 0);
-    // The title follows the home button, on its left, space-75 away.
-    expect(homeBox!.x - (titleBox.x + titleBox.width)).toBeCloseTo(6, 0);
+    expect(rootBox.x + rootBox.width - (titleBox.x + titleBox.width)).toBeCloseTo(72, 0);
     expect(actionsBox.x - rootBox.x).toBeCloseTo(72, 0);
     // Collapsed, the overflow button comes first: on the right of the primary action.
     await page.setViewportSize({ width: 1280, height: 800 });

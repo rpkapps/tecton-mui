@@ -1,8 +1,6 @@
 import * as React from 'react';
 import Box from '@tecton-mui/ui/Box';
 import Heading, { HeadingTitle } from '@tecton-mui/ui/Heading';
-import Icon from '@tecton-mui/ui/Icon';
-import IconButton from '@tecton-mui/ui/IconButton';
 import Menu from '@tecton-mui/ui/Menu';
 import MenuItem from '@tecton-mui/ui/MenuItem';
 
@@ -17,20 +15,21 @@ export default function TitleButtonsHeading() {
   return (
     <Box sx={{ width: '100%' }}>
       <Heading>
-        <IconButton aria-label={HOME} onClick={() => setPortfolio(HOME)}>
-          <Icon name="home" />
-        </IconButton>
-        <HeadingTitle>{portfolio}</HeadingTitle>
-        <IconButton
-          size="small"
-          aria-label="Switch portfolio"
-          aria-haspopup="menu"
-          aria-expanded={open}
-          aria-controls={open ? 'heading-portfolio-menu' : undefined}
-          onClick={(event) => setAnchor(event.currentTarget)}
+        <HeadingTitle
+          onHomeClick={() => setPortfolio(HOME)}
+          onMenuClick={(event) => setAnchor(event.currentTarget)}
+          slotProps={{
+            homeButton: { 'aria-label': HOME },
+            menuButton: {
+              'aria-label': 'Switch portfolio',
+              'aria-haspopup': 'menu',
+              'aria-expanded': open,
+              'aria-controls': open ? 'heading-portfolio-menu' : undefined,
+            },
+          }}
         >
-          <Icon name="chevron-down" />
-        </IconButton>
+          {portfolio}
+        </HeadingTitle>
       </Heading>
       <Menu
         id="heading-portfolio-menu"

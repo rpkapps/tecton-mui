@@ -4,8 +4,7 @@
 // colour comes from the theme. Its parts go in as children, MUI style:
 //
 //   <Heading>
-//     <IconButton aria-label="All portfolios" href="/portfolios"><Icon name="home" /></IconButton>
-//     <HeadingTitle>Portfolio</HeadingTitle>
+//     <HeadingTitle onHomeClick={…} onMenuClick={…}>Portfolio</HeadingTitle>
 //     <HeadingTabs value={tab} onChange={…} aria-label="Portfolio sections">
 //       <Tab label="Overview" />
 //       <Tab label="Team" />
@@ -15,9 +14,8 @@
 //     </HeadingActions>
 //   </Heading>
 //
-// The row lays the parts out as the Figma heading frame does: the title with what sits beside it (a
-// home button, a menu button, a badge: any content of the consumer's own), then the tabs, then the
-// actions at the end. It never wraps: when the parts do not fit, the actions collapse into an
+// The row lays the parts out as the Figma heading frame does: the title cluster, then the tabs, then
+// the actions at the end. It never wraps: when the parts do not fit, the actions collapse into an
 // overflow button, the tabs scroll as the app bar's do, and a narrow heading gives the tabs a row of
 // their own (layout.ts). `Heading` measures the parts' natural widths in a pass that is never painted
 // (all items shown, in a layout effect) whenever its own size or a part's size changes, and the
@@ -44,8 +42,14 @@ export const headingClasses = {
   compact: 'TectonHeading-compact',
   /** On the root with `disableGutters`. */
   disableGutters: 'TectonHeading-disableGutters',
-  /** `HeadingTitle`: the title (a `Typography`). */
+  /** `HeadingTitle`: the title cluster (home button, title, menu button). */
   title: 'TectonHeading-title',
+  /** The title text (a `Typography`). */
+  titleText: 'TectonHeading-titleText',
+  /** The home button before the title. */
+  homeButton: 'TectonHeading-homeButton',
+  /** The menu (chevron) button after the title. */
+  menuButton: 'TectonHeading-menuButton',
   /** `HeadingTabs`: the `Tabs` root. */
   tabs: 'TectonHeading-tabs',
   /** The tab group's paper surface, holding the tabs and their scroll arrows. */
@@ -69,11 +73,7 @@ export const headingClasses = {
 export type HeadingClassKey = keyof typeof headingClasses;
 
 export interface HeadingProps extends React.HTMLAttributes<HTMLDivElement> {
-  /**
-   * The heading's content: `HeadingTitle`, with anything of your own beside it (an `IconButton`
-   * before it to go home, one after it to open a menu, a `Chip`), then `HeadingTabs` and
-   * `HeadingActions`.
-   */
+  /** The heading's content: `HeadingTitle`, `HeadingTabs`, `HeadingActions` or any of your own. */
   children?: React.ReactNode;
   /**
    * The component used for the root node: a string for an HTML element (for example `'header'`) or
@@ -91,13 +91,7 @@ export interface HeadingProps extends React.HTMLAttributes<HTMLDivElement> {
   sx?: SxProps<Theme>;
 }
 
-const part = (name: HeadingPart | 'title') => `& > [data-heading-part="${name}"]`;
-
-/**
- * The heading's own content at its start: the title and whatever sits beside it, every child that is
- * neither the tabs nor the actions (nor a style tag Emotion renders on the server).
- */
-const START_ITEM = ':not([data-heading-part="tabs"], [data-heading-part="actions"], style, script)';
+const part = (name: HeadingPart) => `& > [data-heading-part="${name}"]`;
 
 /**
  * The heading's own width class: `lg` from the theme's `md` breakpoint width up, `md` from `sm`,
@@ -134,22 +128,16 @@ const HeadingRoot = styled('div', { name: 'TectonHeading', slot: 'Root' })({
   paddingLeft: 'var(--TectonHeading-gutter)',
   paddingRight: 'var(--TectonHeading-gutter)',
   [`&.${headingClasses.disableGutters}`]: { paddingLeft: 0, paddingRight: 0 },
-  // Figma: the title and the buttons beside it sit space-75 apart, closer than the parts do.
-  [`& > ${START_ITEM} + ${START_ITEM}`]: {
-    marginLeft: `calc(${cssVar('space-75')} - ${cssVar('space-400')})`,
-  },
   // The actions take what the layout gives them (their own collapsing). The tabs take what room is
   // left, and scroll in it; without tabs, the title gives way last, with an ellipsis.
   [part('title')]: { flex: '0 1 auto', minWidth: 0 },
   [part('tabs')]: { flex: '0 1 auto', minWidth: 0 },
   [part('actions')]: { flex: 'none' },
   '&[data-tabs]': { [part('title')]: { flex: 'none' } },
-  // Compact: the title and the actions on the first row, the tabs on a row of their own. The title
-  // grows from nothing (so that the first row never wraps) up to its own width, and shortens with an
-  // ellipsis when the row is short of room.
+  // Compact: the title and the actions on the first row, the tabs on a row of their own.
   [`&.${headingClasses.compact}`]: {
     flexWrap: 'wrap',
-    [part('title')]: { flex: '1 1 0%', maxWidth: 'max-content' },
+    [part('title')]: { flex: '1 1 0%' },
     [part('tabs')]: { order: 1, flexBasis: '100%' },
   },
   // Measure pass (never painted): every part at its natural width.
@@ -158,25 +146,6 @@ const HeadingRoot = styled('div', { name: 'TectonHeading', slot: 'Root' })({
     [part('tabs')]: { flex: 'none' },
   },
 });
-
-/** The children at the heading's start (see `START_ITEM`) that take part in its row. */
-function startItems(root: HTMLElement) {
-  return Array.from(root.children).filter((child) => {
-    if (!child.matches(START_ITEM)) return false;
-    const { display, position } = getComputedStyle(child);
-    return display !== 'none' && position !== 'absolute' && position !== 'fixed';
-  });
-}
-
-/** The natural width of the heading's start: its items, their margins and the gaps between them. */
-function startWidth(items: Element[], gap: number) {
-  if (items.length === 0) return null;
-  return items.reduce((total, item, index) => {
-    const style = getComputedStyle(item);
-    const margins = px(style.marginLeft) + px(style.marginRight);
-    return total + item.getBoundingClientRect().width + margins + (index > 0 ? gap : 0);
-  }, 0);
-}
 
 /** Reads the parts' widths and shares the row between them. */
 function measureHeading(
@@ -187,21 +156,20 @@ function measureHeading(
   const style = getComputedStyle(root);
   const available = root.clientWidth - px(style.paddingLeft) - px(style.paddingRight);
   if (available <= 0) return FULL_LAYOUT;
-  const gap = px(style.columnGap);
   const measure = <P extends HeadingPart>(name: P) =>
     (parts.get(name) as HeadingPartEntry<P> | undefined)?.measure() ?? null;
   return allocateHeading({
     available,
-    gap,
-    title: startWidth(startItems(root), gap),
+    gap: px(style.columnGap),
+    title: measure('title'),
     tabs: measure('tabs'),
     actions: measure('actions'),
   });
 }
 
 /**
- * Tecton page heading. Compose it from `HeadingTitle` (with `IconButton`s or other content of your
- * own beside it), `HeadingTabs` (holding MUI `Tab` elements) and `HeadingActions`. When the parts do not fit in its row, the
+ * Tecton page heading. Compose it from `HeadingTitle`, `HeadingTabs` (holding MUI `Tab` elements)
+ * and `HeadingActions`, or any content of your own. When the parts do not fit in its row, the
  * actions collapse into an overflow menu and the tabs scroll.
  *
  * Demos: [Heading](/components/heading)
@@ -234,9 +202,8 @@ const Heading = React.forwardRef<HTMLDivElement, HeadingProps>(function Heading(
     [requestMeasure],
   );
 
-  // Any change of size, of the heading or of one of its children (a title or a label, a font that
-  // loaded, a tab added), measures again, and so does a child added or removed (a home button). A
-  // measure that changes nothing changes no size, so this settles.
+  // Any change of size, of the heading or of one of its parts (a label, a font that loaded, a tab
+  // added), measures again. A measure that changes nothing changes no size, so this settles.
   useEnhancedEffect(() => {
     const root = rootRef.current;
     if (!root || typeof ResizeObserver === 'undefined') return undefined;
@@ -244,12 +211,8 @@ const Heading = React.forwardRef<HTMLDivElement, HeadingProps>(function Heading(
     observer.current = resizeObserver;
     resizeObserver.observe(root);
     parts.current.forEach((entry) => resizeObserver.observe(entry.element));
-    const mutationObserver =
-      typeof MutationObserver === 'undefined' ? null : new MutationObserver(requestMeasure);
-    mutationObserver?.observe(root, { childList: true });
     return () => {
       resizeObserver.disconnect();
-      mutationObserver?.disconnect();
       observer.current = null;
     };
   }, [requestMeasure]);
@@ -266,8 +229,6 @@ const Heading = React.forwardRef<HTMLDivElement, HeadingProps>(function Heading(
         return;
       }
     }
-    // The start's own items have no part to register them: watch them as they are now.
-    startItems(root).forEach((item) => observer.current?.observe(item));
     setLayout(measureHeading(root, parts.current));
   }, [layout, width, breakpoints]);
 
