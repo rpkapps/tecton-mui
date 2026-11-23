@@ -266,6 +266,44 @@ describe('HeadingTabs', () => {
   });
 });
 
+describe('HeadingTabs scrolling', () => {
+  it('has scroll arrows beside the tabs that show only while the strip can scroll', () => {
+    wrap(
+      <HeadingTabs value={0} aria-label="Sections">
+        {['Overview', 'Framing', 'Team', 'Builder'].map((label) => (
+          <Tab key={label} label={label} />
+        ))}
+      </HeadingTabs>,
+    );
+    const group = document.querySelector(`.${headingClasses.tabGroup}`)!;
+    const arrows = group.querySelectorAll(`.${headingClasses.scrollButton}`);
+    expect(arrows).toHaveLength(2);
+    // The tabs fit: no arrow shows (and none is in the tab order or the tab list).
+    arrows.forEach((arrow) => expect(arrow).toHaveClass('Mui-disabled'));
+    expect(within(screen.getByRole('tablist')).getAllByRole('tab')).toHaveLength(4);
+
+    // The strip is narrower than its tabs, at its start: the end arrow shows.
+    const scroller = group.querySelector<HTMLElement>('.MuiTabs-scroller')!;
+    Object.defineProperty(scroller, 'scrollWidth', { configurable: true, value: 600 });
+    Object.defineProperty(scroller, 'clientWidth', { configurable: true, value: 200 });
+    act(() => {
+      scroller.dispatchEvent(new Event('scroll'));
+    });
+    expect(arrows[0]).toHaveClass('Mui-disabled');
+    expect(arrows[1]).not.toHaveClass('Mui-disabled');
+  });
+
+  it('lets the pills scroll natively, without a scrollbar', () => {
+    wrap(
+      <HeadingTabs value={0} aria-label="Sections">
+        <Tab label="Overview" />
+      </HeadingTabs>,
+    );
+    const scroller = document.querySelector<HTMLElement>('.MuiTabs-scroller')!;
+    expect(getComputedStyle(scroller).overflowX).toBe('auto');
+  });
+});
+
 describe('HeadingActions', () => {
   it('holds the actions and forwards its ref and attributes', () => {
     const ref = React.createRef<HTMLDivElement>();
@@ -329,78 +367,6 @@ describe('collapsed parts (in a narrow Heading)', () => {
     );
     return <HeadingContext.Provider value={context}>{children}</HeadingContext.Provider>;
   }
-
-  const SECTIONS = ['Overview', 'Framing', 'Team', 'Builder'];
-  function Sections({ layout }: { layout: Partial<HeadingLayout> }) {
-    const [value, setValue] = React.useState('Overview');
-    return (
-      <Collapsed layout={layout}>
-        <HeadingTabs
-          value={value}
-          onChange={(_event, next) => setValue(next)}
-          aria-label="Sections"
-        >
-          {SECTIONS.map((name) => (
-            <Tab key={name} value={name} label={name} />
-          ))}
-        </HeadingTabs>
-      </Collapsed>
-    );
-  }
-
-  it('shows the tabs that fit and lists the others in the More menu', async () => {
-    wrap(<Sections layout={{ tabs: 2 }} />);
-    const list = screen.getByRole('tablist', { name: 'Sections' });
-    expect(
-      within(list)
-        .getAllByRole('tab')
-        .map((tab) => tab.textContent),
-    ).toEqual(['Overview', 'Framing']);
-    const more = screen.getByRole('button', { name: 'More' });
-    expect(more).toHaveClass(headingClasses.moreButton);
-    expect(more).toHaveAttribute('aria-haspopup', 'menu');
-    expect(more).toHaveAttribute('aria-expanded', 'false');
-    await userEvent.click(more);
-    expect(more).toHaveAttribute('aria-expanded', 'true');
-    const menu = screen.getByRole('menu', { name: 'More' });
-    expect(
-      within(menu)
-        .getAllByRole('menuitem')
-        .map((item) => item.textContent),
-    ).toEqual(['Team', 'Builder']);
-  });
-
-  it('selects a tab picked in the menu, shows it in place of the last one and focuses it', async () => {
-    wrap(<Sections layout={{ tabs: 2 }} />);
-    await userEvent.click(screen.getByRole('button', { name: 'More' }));
-    await userEvent.click(screen.getByRole('menuitem', { name: 'Builder' }));
-    const tabs = within(screen.getByRole('tablist')).getAllByRole('tab');
-    expect(tabs.map((tab) => tab.textContent)).toEqual(['Overview', 'Builder']);
-    expect(tabs[1]).toHaveAttribute('aria-selected', 'true');
-    expect(tabs[1]).toHaveFocus();
-  });
-
-  it('shows no More pill when every tab fits, and none outside a Heading', () => {
-    wrap(<Sections layout={{ tabs: 9 }} />);
-    expect(screen.getAllByRole('tab')).toHaveLength(4);
-    expect(screen.queryByRole('button', { name: 'More' })).toBeNull();
-  });
-
-  it('takes the More pill label and props through slotProps', () => {
-    wrap(
-      <Collapsed layout={{ tabs: 1 }}>
-        <HeadingTabs
-          value={0}
-          aria-label="Views"
-          slotProps={{ moreButton: { children: 'Plus', className: 'extra' } }}
-        >
-          <Tab label="Grid" />
-          <Tab label="Map" />
-        </HeadingTabs>
-      </Collapsed>,
-    );
-    expect(screen.getByRole('button', { name: 'Plus' })).toHaveClass('extra');
-  });
 
   function Actions({
     layout,
@@ -476,12 +442,10 @@ describe('collapsed parts (in a narrow Heading)', () => {
         </HeadingActions>
       </Collapsed>,
     );
-    for (const className of [headingClasses.moreButton, headingClasses.overflowButton]) {
-      const button = document.querySelector<HTMLElement>(`.${className}`)!;
-      expect(button).toHaveAttribute('aria-hidden', 'true');
-      expect(button).toHaveAttribute('tabindex', '-1');
-      expect(button.style.visibility).toBe('hidden');
-    }
+    const button = document.querySelector<HTMLElement>(`.${headingClasses.overflowButton}`)!;
+    expect(button).toHaveAttribute('aria-hidden', 'true');
+    expect(button).toHaveAttribute('tabindex', '-1');
+    expect(button.style.visibility).toBe('hidden');
     expect(screen.getAllByRole('tab')).toHaveLength(1);
     expect(screen.getByRole('button', { name: 'Publish' })).toBeInTheDocument();
   });
@@ -497,7 +461,6 @@ describe('Heading layout (with layout geometry)', () => {
     if (element.classList.contains(headingClasses.root)) return headingWidth;
     if (element.classList.contains(headingClasses.title)) return 160;
     if (element.getAttribute('role') === 'tab') return 90;
-    if (element.classList.contains(headingClasses.moreButton)) return 80;
     if (element.classList.contains(headingClasses.overflowButton)) return 40;
     if (element.hasAttribute('data-heading-action')) return 120;
     return 0;
@@ -582,11 +545,14 @@ describe('Heading layout (with layout geometry)', () => {
     expect(screen.getByRole('button', { name: 'Create' })).toBeInTheDocument();
     expect(screen.getAllByRole('tab')).toHaveLength(5);
 
-    // Then the tabs.
+    // Then the tabs narrow (and scroll), still in one row: 636px of content (32px gutters) holds
+    // the title, the narrowest tab group and ⋮ with the primary action, not the whole group.
     resizeTo(700);
     expect(heading).toHaveAttribute('data-width', 'md');
-    expect(screen.getByRole('button', { name: 'More' })).toBeInTheDocument();
-    expect(screen.getAllByRole('tab').length).toBeLessThan(5);
+    expect(heading).toHaveAttribute('data-tabs');
+    expect(heading).not.toHaveClass(headingClasses.compact);
+    expect(screen.getAllByRole('tab')).toHaveLength(5);
+    expect(screen.getByRole('button', { name: 'Create' })).toBeInTheDocument();
 
     // Compact: the tabs get a row of their own.
     resizeTo(300);

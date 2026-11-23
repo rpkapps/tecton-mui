@@ -41,9 +41,8 @@ that makes the home button a link (it then shows without `onHomeClick`).
 MUI `Tab` elements. It always shows the Tecton filled tab group (`Tabs` with `variant="pills"`) on a
 paper surface, so the props that only apply to other variants or to vertical tabs are not offered.
 Your page owns `value` and updates it in `onChange`, as with `Tabs`. When the heading runs out of
-room, the tabs after the selected one move into a More pill at the end of the group (see
-[Responsive layout](#responsive-layout)); a tab picked there is selected through the same
-`onChange`.
+room, the tab group narrows and scrolls like the [App Bar](/components/app-bar)'s tabs (see
+[Responsive layout](#responsive-layout)).
 
 <Demo name="TabsHeading" />
 
@@ -94,12 +93,14 @@ order:
    shows them as they are (icon buttons, selects, toggles, the search). A click on a command in the
    tray closes it; toggles, selects and the search leave it open. The last action, the primary one,
    stays.
-2. **Tabs.** The tabs after the selected one move into a More pill at the end of the tab group, the
-   last ones first. The pill opens a menu of those tabs. The selected tab always shows: pick a tab
-   in the menu and it takes the place of the last tab shown.
+2. **Tabs.** The tab group narrows and scrolls, the way the App Bar's tabs do: an arrow at either end
+   shows while the tabs can scroll that way, and a click slides them by whole tabs. The selected tab
+   slides into view whenever it changes, and the wheel, touch and the keyboard scroll the tabs too.
+   The group narrows down to the selected tab between its two arrows.
 3. **The primary action** joins the others in the tray.
 4. **Compact.** When even that does not fit, as on a phone, the tabs get a row of their own under the
-   title and the actions, and the title shortens with an ellipsis as a last resort.
+   title and the actions (scrolling there if they must), and the title shortens with an ellipsis as a
+   last resort.
 
 The heading measures its parts again whenever its own width or a part's width changes (a label, a
 font that loaded, a tab added), before the browser paints, so nothing flickers. Drag the slider to
@@ -124,10 +125,9 @@ another element and variant through `slotProps.title`, for example
 
 Each part takes `sx` and `className`. The parts carry the stable classes of `headingClasses`
 (`TectonHeading-root`, `-compact`, `-title`, `-titleText`, `-homeButton`, `-menuButton`, `-tabs`,
-`-tabGroup`, `-moreButton`, `-actions`, `-overflowButton`, `-overflowTray`, `-search`,
-`-searchButton`, `-searchField`), for styles that reach into the heading from outside. The More pill and its menu take props through `HeadingTabs`'
-`slotProps.moreButton` and `slotProps.moreMenu` (for example a translated label), the overflow
-button and its tray through `HeadingActions`' `slotProps.overflowButton` and
+`-tabGroup`, `-scrollButton`, `-actions`, `-overflowButton`, `-overflowTray`, `-search`,
+`-searchButton`, `-searchField`), for styles that reach into the heading from outside. The overflow
+button and its tray take props through `HeadingActions`' `slotProps.overflowButton` and
 `slotProps.overflowTray`.
 
 ## Accessibility
@@ -142,10 +142,11 @@ button and its tray through `HeadingActions`' `slotProps.overflowButton` and
   `HeadingTabs` an `aria-label`, and each `Tab` an `id` and `aria-controls` pointing to its panel.
 - Icon buttons in the actions need an `aria-label`; a select whose label is an adornment needs one
   too (`inputProps={{ 'aria-label': 'Sort' }}`).
-- The tabs and actions that do not fit are left out of the page, not hidden: the tab list holds only
-  the tabs it shows, and the keyboard never lands on something out of sight.
-- The More pill is a menu button (`aria-haspopup="menu"`, `aria-expanded`): its menu lists the
-  hidden tabs. A tab picked there takes the focus; Escape gives it back to the pill.
+- Every tab stays in the tab list when the tabs scroll: the arrow keys reach all of them, and the tab
+  that takes the focus scrolls into view. The scroll arrows are for the pointer only, as in the App
+  Bar (and MUI's `Tabs`): they are not in the tab order.
+- The actions that do not fit are left out of the row, not hidden, so the keyboard never lands on
+  something out of sight; the overflow button reaches them.
 - The overflow button ("More actions") opens its tray as a dialog (`aria-haspopup="dialog"`); focus
   moves into it, Escape closes it and gives the focus back to the button.
 - The open search is a search landmark (`role="search"`) holding a labelled field. Its Escape key

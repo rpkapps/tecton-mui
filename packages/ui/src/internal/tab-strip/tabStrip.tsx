@@ -1,5 +1,7 @@
 'use client';
-// The app bar's tab strip: when its scroll arrows show, and how the strip scrolls.
+// A Tabs strip that scrolls: when its scroll arrows show, and how the strip scrolls. Shared by the
+// app bar's tab strip (MUI scrollable Tabs, its arrows as Tabs slots) and the heading's filled tab
+// group (pills Tabs, whose scroller this drives directly, its arrows beside the Tabs).
 //
 // MUI decides both on its own timing: the arrows follow an IntersectionObserver (its updates can
 // lag or be missed, which left an arrow on at the end of the strip or the start arrow off while
@@ -8,23 +10,18 @@
 // in the drop-in too). Here the strip owns both:
 // - an arrow shows exactly while the strip can scroll its way, re-measured on every scroll, resize
 //   and render;
-// - all scrolling the bar does (bringing the selected tab into view, arrow clicks) is one slide with
-//   MUI's duration and easing, whose target is recomputed every frame, so an arrow that shows or
-//   hides on the way cannot leave it short. MUI's own writes to the strip's scroll position are
+// - all scrolling the strip does (bringing the selected tab into view, arrow clicks) is one slide
+//   with MUI's duration and easing, whose target is recomputed every frame, so an arrow that shows
+//   or hides on the way cannot leave it short. MUI's own writes to the strip's scroll position are
 //   ignored (see `attach`), so nothing else moves it; the user's wheel, touch and keyboard focus
 //   scroll it natively as before.
 import * as React from 'react';
-import TabScrollButton, { type TabScrollButtonProps } from '@mui/material/TabScrollButton';
 import { useTheme } from '@mui/material/styles';
-import { cssVar } from '../styles/tecton/index.js';
 
 const useEnhancedEffect = typeof window === 'undefined' ? React.useEffect : React.useLayoutEffect;
 
-const LEFT = 1;
-const RIGHT = 2;
-
-/** Same width as the Home (fixed) tab cell, so the start arrow and Home take the same room. */
-export const SCROLL_ARROW_WIDTH = 48;
+export const LEFT = 1;
+export const RIGHT = 2;
 
 /** MUI's Tabs scroll easing (`easeInOutSin`). */
 const ease = (t: number) => (1 + Math.sin(Math.PI * t - Math.PI / 2)) / 2;
@@ -109,7 +106,7 @@ export function selectedTabTarget(scroller: HTMLElement): number | null {
 /** The shortest step a page takes, as a share of the strip (shorter reads as a click that did nothing). */
 const MIN_PAGE = 1 / 3;
 /** How much of a tab cut off by the strip's edge still counts as shown: its padding and close slot. */
-const SHOWN_SLACK = SCROLL_ARROW_WIDTH;
+const SHOWN_SLACK = 48;
 
 /**
  * Where one page toward `direction` (physical) takes the strip from `base` (a `scrollLeft`): about
@@ -370,76 +367,48 @@ const noopSubscribe = () => () => {};
 
 export const TabStripContext = React.createContext<TabStripStore | null>(null);
 
-const divider = `1px solid ${cssVar('color-divider-subtle')}`;
-
 /**
- * An arrow's look: a cell as wide as the Home tab with a divider toward the tabs (written for LTR;
- * the RTL style cache mirrors it), or no room at all while it cannot scroll. It grows in over the
- * slide duration when it shows, and goes at once when it hides.
+ * The state of one of the strip's scroll arrows: whether it shows (the strip can scroll its way, or
+ * is sliding to where it can), whether it is at the start of the strip, how long it takes to grow in
+ * (0 for its first state, on load or after hydration, and with reduced motion), and what a click
+ * does (slide one page).
  */
-export function arrowSx(shown: boolean, atStart: boolean, duration: number) {
-  return {
-    width: shown ? SCROLL_ARROW_WIDTH : 0,
-    overflow: 'hidden',
-    [atStart ? 'borderRight' : 'borderLeft']: shown ? divider : 'none',
-    transition:
-      shown && duration > 0
-        ? `width ${duration}ms cubic-bezier(0.4, 0, 0.2, 1), opacity ${duration}ms cubic-bezier(0.4, 0, 0.2, 1)`
-        : 'none',
-    '@media (prefers-reduced-motion: reduce)': { transition: 'none' },
-  } as const;
+export function useTabStripArrow(direction: 'left' | 'right') {
+  const store = React.useContext(TabStripContext);
+  const state = React.useSyncExternalStore(
+    store?.subscribe ?? noopSubscribe,
+    store?.getSnapshot ?? getServerSnapshot,
+    getServerSnapshot,
+  );
+  const theme = useTheme();
+  const shown = (state & (direction === 'left' ? LEFT : RIGHT)) !== 0;
+  const atStart = (direction === 'left') !== (theme.direction === 'rtl');
+  // The arrows take their first state at once (on load, after hydration); later changes animate.
+  const [animate, setAnimate] = React.useState(false);
+  React.useEffect(() => {
+    const frame = requestAnimationFrame(() => setAnimate(true));
+    return () => cancelAnimationFrame(frame);
+  }, []);
+  const duration = animate ? (store?.getDuration() ?? 0) : 0;
+  const onClick = React.useCallback(() => store?.scrollPage(direction), [store, direction]);
+  return { shown, atStart, duration, onClick };
 }
-
-/**
- * `slots.scrollButtons` of the app bar's Tabs: MUI's scroll button, as wide as the Home tab, shown
- * while the strip can scroll its way (or is sliding to where it can) and taking no room otherwise. A
- * click slides one page, as MUI's does.
- */
-export const TabStripScrollButton = React.forwardRef<HTMLButtonElement, TabScrollButtonProps>(
-  function TabStripScrollButton(props, ref) {
-    const store = React.useContext(TabStripContext);
-    const state = React.useSyncExternalStore(
-      store?.subscribe ?? noopSubscribe,
-      store?.getSnapshot ?? getServerSnapshot,
-      getServerSnapshot,
-    );
-    const theme = useTheme();
-    const direction = props.direction === 'left' ? 'left' : 'right';
-    const can = (state & (direction === 'left' ? LEFT : RIGHT)) !== 0;
-    const atStart = (direction === 'left') !== (theme.direction === 'rtl');
-    // The arrows take their first state at once (on load, after hydration); later changes animate.
-    const [animate, setAnimate] = React.useState(false);
-    React.useEffect(() => {
-      const frame = requestAnimationFrame(() => setAnimate(true));
-      return () => cancelAnimationFrame(frame);
-    }, []);
-    const duration = animate ? (store?.getDuration() ?? 0) : 0;
-    const sx = React.useMemo(() => arrowSx(can, atStart, duration), [can, atStart, duration]);
-    return (
-      <TabScrollButton
-        ref={ref}
-        {...props}
-        sx={sx}
-        disabled={!can}
-        onClick={() => store?.scrollPage(direction)}
-      />
-    );
-  },
-);
 
 /** Interactions that mean the user is moving the strip (or the focus in it) themselves. */
 const USER_SCROLL_EVENTS = ['pointerdown', 'wheel', 'touchstart', 'keydown'] as const;
 
 /**
- * Drives the app bar's tab strip: follows its geometry for the scroll arrows, and keeps the selected
+ * Drives a tab strip: follows its geometry for the scroll arrows, and keeps the selected
  * tab in view: on the first render and while the strip settles (fonts, an arrow showing or hiding),
  * at once, as MUI would; when it changes later (selected, added or closed), with a slide. It stops
- * following once the user moves the strip themselves.
+ * following once the user moves the strip themselves, anywhere in `controlsRef` (the Tabs by
+ * default; the element that also holds the arrows when they sit beside the Tabs).
  */
 export function useTabStrip(
   tabsRef: React.RefObject<HTMLElement | null>,
   selected: string | null,
   tabCount: number,
+  controlsRef?: React.RefObject<HTMLElement | null>,
 ): TabStripStore {
   const [store] = React.useState(createTabStripStore);
   const theme = useTheme();
@@ -454,8 +423,8 @@ export function useTabStrip(
 
   const mounted = React.useRef(false);
   useEnhancedEffect(() => {
-    const root = tabsRef.current;
-    const scroller = root?.querySelector<HTMLElement>('.MuiTabs-scroller');
+    const root = controlsRef?.current ?? tabsRef.current;
+    const scroller = tabsRef.current?.querySelector<HTMLElement>('.MuiTabs-scroller');
     const first = !mounted.current;
     mounted.current = true;
     if (!root || !scroller || selected == null) return undefined;
@@ -481,7 +450,7 @@ export function useTabStrip(
     }
     for (const type of USER_SCROLL_EVENTS) root.addEventListener(type, takeOver, true);
     return release;
-  }, [store, tabsRef, selected, tabCount]);
+  }, [store, tabsRef, controlsRef, selected, tabCount]);
 
   // Every render can change the tabs (labels, tags, count): re-measure before paint.
   useEnhancedEffect(() => {
