@@ -183,13 +183,15 @@ paper box and a right cluster. `@tecton-mui/ui` now ships that composition as `H
 reproduction (`stories/Heading.tsx`) renders every story with it. All eight are pixel-identical in
 both modes, and `storybook-parity.spec.ts` runs all 16 comparisons.
 
-- **Reflow (intended difference):** at 1280px the Storybook's fluid "Elevated" row does not fit. It
-  overflows its container (the page scrolls sideways to 1637px), the selects truncate their values
-  and "Create Project" breaks onto two lines. `Heading` wraps instead: the actions move to a line of
-  their own, still at the end of the row, then the tabs, whose pills wrap onto more rows at very
-  narrow widths, so nothing overflows down to 320px (WCAG 1.4.10). The Elevated story is therefore
-  compared at a 1920px viewport, where its fluid row fits and is pixel-identical.
-  `tests/e2e/heading.spec.ts` covers the wrapping, RTL, keyboard and axe.
+- **Responsive layout (intended difference):** at 1280px the Storybook's fluid "Elevated" row does
+  not fit. It overflows its container (the page scrolls sideways to 1637px), the selects truncate
+  their values and "Create Project" breaks onto two lines. `Heading` keeps one row and lets its parts
+  give way instead (priority+): the secondary actions collapse into an overflow (⋮) button, then the
+  tabs after the selected one into a More pill ("Elevated" at 1280px: six tabs, More, ⋮ and Create
+  Project). A very narrow heading gives the tabs a row of their own, so nothing overflows down to
+  320px (WCAG 1.4.10). The Elevated story is therefore compared at a 1920px viewport, where its
+  fluid row fits and is pixel-identical. `tests/e2e/heading.spec.ts` covers the collapse order, the
+  More menu, the overflow tray, the compact layout, RTL, keyboard and axe.
 - **Title letter spacing:** the title uses the theme's `h4` variant (Tecton heading 1) with
   `letter-spacing: normal`, as the story's title has. MUI's own `h4` letter spacing (0.00735em)
   survives in the theme and would move the glyphs.
@@ -423,7 +425,7 @@ both modes, and `storybook-parity.spec.ts` runs all 16 comparisons.
 | `organisms-date--examples`                 | match   | 0.000        | 0.000       | Matches after the PickerDay compat fix (selected day in the static calendar).                                                   |
 | `organisms-date--playground`               | match   | 0.000        | 0.000       |                                                                                                                                 |
 | `organisms-heading--compact`               | match   | 0.000        | 0.000       |                                                                                                                                 |
-| `organisms-heading--elevated`              | match   | 0.000        | 0.000       | Matches at a 1920px viewport. At 1280px the Storybook row overflows; `Heading` wraps (see Heading).                             |
+| `organisms-heading--elevated`              | match   | 0.000        | 0.000       | Matches at a 1920px viewport. At 1280px the Storybook row overflows; `Heading` collapses (see Heading).                         |
 | `organisms-heading--page`                  | match   | 0.000        | 0.000       |                                                                                                                                 |
 | `organisms-heading--reports`               | match   | 0.000        | 0.000       |                                                                                                                                 |
 | `organisms-heading--section`               | match   | 0.000        | 0.000       |                                                                                                                                 |

@@ -8,6 +8,10 @@ composed from parts, MUI style. `HeadingTitle` is the title, an `<h1>` by defaul
 an `href` in `slotProps.homeButton`) and a menu chevron (`onMenuClick`). `HeadingTabs` takes the MUI
 `Tabs` props for MUI `Tab` children and shows the Tecton filled tab group on paper. `HeadingActions`
 holds the page's actions at the end of the row. `Heading` takes `component`, `disableGutters`, `sx`
-and a ref; `headingClasses` names each part. It matches all eight Storybook stories pixel for pixel,
-and when the row does not fit it wraps (the actions first, then the tabs and their pills) instead of
-overflowing the page.
+and a ref; `headingClasses` names each part. It matches all eight Storybook stories pixel for pixel.
+
+The row never wraps. When it runs out of room, its parts give way in turn (priority+): the actions
+move into an overflow (⋮) button whose tray shows them as they are, first to last, keeping the last
+(primary) one; then the tabs after the selected one move into a More pill and its menu; then the
+primary action. A very narrow heading gives the tabs a row of their own and shortens the title with
+an ellipsis. The gutters follow the heading's own width (72px, 32px, 16px).

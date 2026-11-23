@@ -4,9 +4,11 @@ import clsx from 'clsx';
 import IconButton, { type IconButtonProps } from '@mui/material/IconButton';
 import Typography, { type TypographyProps } from '@mui/material/Typography';
 import { styled, type SxProps, type Theme } from '@mui/material/styles';
+import useForkRef from '@mui/utils/useForkRef';
 import { cssVar } from '../styles/tecton/index.js';
-import { headingClasses } from './Heading.js';
 import { sxList } from '../internal/sxList.js';
+import { headingClasses } from './Heading.js';
+import { useHeadingPart, widthOf } from './HeadingContext.js';
 
 export interface HeadingTitleProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
   /** The title. */
@@ -24,8 +26,9 @@ export interface HeadingTitleProps extends Omit<React.HTMLAttributes<HTMLDivElem
   /** Props for the title's own parts. */
   slotProps?: {
     /**
-     * Props of the title text, a `Typography` (`variant="h4"`, an `<h1>` by default): for example
-     * `component: 'h2'` for a section heading.
+     * Props of the title text, a `Typography` (`variant="h4"`, an `<h1>` by default, `noWrap` so
+     * that a heading out of room ends it with an ellipsis): for example `component: 'h2'` for a
+     * section heading.
      */
     title?: Partial<TypographyProps> & { component?: React.ElementType };
     /**
@@ -48,10 +51,13 @@ const TitleRoot = styled('div', { name: 'TectonHeading', slot: 'Title' })({
   alignItems: 'center',
   // Figma: the home button, the title and the chevron sit space-75 apart.
   gap: cssVar('space-75'),
+  // A narrow heading shortens the title, never its buttons.
+  [`& > .${headingClasses.homeButton}, & > .${headingClasses.menuButton}`]: { flexShrink: 0 },
 });
 
-// Tecton heading-1 type (the theme's `h4`) without the letter spacing MUI's own h4 adds.
-const titleTextSx = { color: 'text.primary', letterSpacing: 'normal' } as const;
+// Tecton heading-1 type (the theme's `h4`) without the letter spacing MUI's own h4 adds. When the
+// heading has no room left, the title ends with an ellipsis (`noWrap`).
+const titleTextSx = { color: 'text.primary', letterSpacing: 'normal', minWidth: 0 } as const;
 
 const MenuIcon = styled('span', { name: 'TectonHeading', slot: 'MenuIcon' })({
   fontSize: cssVar('icon-size-100'),
@@ -77,9 +83,17 @@ const HeadingTitle = React.forwardRef<HTMLDivElement, HeadingTitleProps>(
     } = slotProps?.menuButton ?? {};
     const showHome = onHomeClick != null || homeButtonProps.href != null;
     const showMenu = onMenuClick != null;
+    const rootRef = React.useRef<HTMLDivElement>(null);
+    const handleRef = useForkRef(rootRef, ref);
+    useHeadingPart('title', rootRef, () => widthOf(rootRef.current));
 
     return (
-      <TitleRoot ref={ref} className={clsx(headingClasses.title, className)} {...other}>
+      <TitleRoot
+        ref={handleRef}
+        data-heading-part="title"
+        className={clsx(headingClasses.title, className)}
+        {...other}
+      >
         {showHome && (
           <IconButton
             aria-label="Home"
@@ -96,6 +110,7 @@ const HeadingTitle = React.forwardRef<HTMLDivElement, HeadingTitleProps>(
         <Typography
           variant="h4"
           component="h1"
+          noWrap
           {...titleProps}
           className={clsx(headingClasses.titleText, titleClassName)}
           sx={[titleTextSx, ...sxList(titleSx)]}

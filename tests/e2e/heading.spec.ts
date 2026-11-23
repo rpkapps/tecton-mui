@@ -45,6 +45,7 @@ test.describe('Heading', () => {
   });
 
   test('Tab order follows the row; arrow keys move between tabs', async ({ page }) => {
+    await page.setViewportSize({ width: 1600, height: 800 });
     await open(page);
     await page.getByRole('button', { name: 'Home' }).focus();
     await page.keyboard.press('Tab');
@@ -64,47 +65,128 @@ test.describe('Heading', () => {
     await expect(page.getByRole('button', { name: 'Search' })).toBeFocused();
   });
 
-  test('one row when it fits; it reflows without horizontal scrolling down to 320px', async ({
+  test('one row: the actions collapse first, then the tabs; the primary action stays', async ({
     page,
   }) => {
     await page.setViewportSize({ width: 1600, height: 800 });
     await open(page);
+    const overflow = page.getByRole('button', { name: 'More actions' });
+    const more = page.getByRole('button', { name: 'More', exact: true });
+    const create = page.getByRole('button', { name: 'Create Project' });
+    // Everything fits.
+    await expect(page.getByRole('tab')).toHaveCount(7);
+    await expect(overflow).toHaveCount(0);
+    await expect(more).toHaveCount(0);
+
+    // The secondary actions go into the overflow button first; all the tabs stay.
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await expect(overflow).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Search' })).toHaveCount(0);
+    await expect(create).toBeVisible();
+    await expect(page.getByRole('tab')).toHaveCount(7);
+
+    // Then the tabs after the selected one go into the More pill.
+    await page.setViewportSize({ width: 1000, height: 800 });
+    await expect(more).toBeVisible();
+    await expect(page.getByRole('tab', { name: 'Overview' })).toBeVisible();
+    await expect(page.getByRole('tab', { name: 'Analytics' })).toHaveCount(0);
+    await expect(create).toBeVisible();
+
+    // Still one row: the parts share a center line, and nothing passes the gutters.
+    const rows = await page.getByTestId('page-heading').evaluate((heading) => {
+      const centers = Array.from(heading.children).map((child) => {
+        const rect = child.getBoundingClientRect();
+        return rect.top + rect.height / 2;
+      });
+      const last = heading.lastElementChild!.getBoundingClientRect();
+      return {
+        spread: Math.max(...centers) - Math.min(...centers),
+        endGap: heading.getBoundingClientRect().right - last.right,
+      };
+    });
+    expect(rows.spread).toBeLessThan(1);
+    expect(rows.endGap).toBeCloseTo(72, 0);
+    await expect(page.getByTestId('page-heading')).not.toHaveClass(/TectonHeading-compact/);
+  });
+
+  test('the More pill lists the hidden tabs; a pick selects, shows and focuses it', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1000, height: 800 });
+    await open(page);
+    // The open menu is modal: it hides the rest of the page from assistive technology.
+    const more = page.getByRole('button', { name: 'More', exact: true, includeHidden: true });
+    await more.click();
+    await expect(more).toHaveAttribute('aria-expanded', 'true');
+    const menu = page.getByRole('menu', { name: 'More' });
+    await menu.getByRole('menuitem', { name: 'Analytics' }).click();
+    const analytics = page.getByRole('tab', { name: 'Analytics' });
+    await expect(analytics).toHaveAttribute('aria-selected', 'true');
+    await expect(analytics).toBeFocused();
+    await expect(page.getByTestId('section')).toHaveText('Analytics');
+    await expect(page.getByRole('menu')).toBeHidden();
+    // Escape closes the menu and gives the focus back to the pill.
+    await more.click();
+    await expect(page.getByRole('menu')).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('menu')).toBeHidden();
+    await expect(more).toBeFocused();
+  });
+
+  test('the overflow tray holds the hidden actions as they are; a command closes it', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1000, height: 800 });
+    await open(page);
+    const overflow = page.getByRole('button', { name: 'More actions', includeHidden: true });
+    await overflow.click();
+    await expect(overflow).toHaveAttribute('aria-expanded', 'true');
+    const tray = page.getByRole('dialog', { name: 'More actions' });
+    await expect(tray.getByText('Sort:')).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(tray).toBeHidden();
+    await expect(overflow).toBeFocused();
+
+    await overflow.click();
+    await tray.getByRole('button', { name: 'Search' }).click();
+    await expect(page.getByTestId('event-log')).toHaveText('search');
+    await expect(tray).toBeHidden();
+  });
+
+  test('compact: the tabs get a row of their own; nothing overflows down to 320px', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 375, height: 800 });
+    await open(page);
+    const heading = page.getByTestId('page-heading');
+    await expect(heading).toHaveClass(/TectonHeading-compact/);
     const root = '[data-testid="page-heading"]';
-    const tabs = `${root} .TectonHeading-tabs`;
-    const actions = `${root} .TectonHeading-actions`;
-
-    // Wide: title, tabs and actions share one row, the actions at its end (72px gutter).
-    let [rootBox, tabsBox, actionsBox] = await Promise.all([
-      box(page, root),
-      box(page, tabs),
-      box(page, actions),
+    const [title, group, overflow] = await Promise.all([
+      box(page, `${root} .TectonHeading-title`),
+      box(page, `${root} .TectonHeading-tabGroup`),
+      box(page, `${root} .TectonHeading-overflowButton`),
     ]);
-    expect(actionsBox.y + actionsBox.height / 2).toBeCloseTo(tabsBox.y + tabsBox.height / 2, 0);
-    expect(rootBox.x + rootBox.width - (actionsBox.x + actionsBox.width)).toBeCloseTo(72, 0);
+    // A narrow heading has narrow gutters (space-200), whatever the window's width.
+    const rootBox = await box(page, root);
+    expect(title.x - rootBox.x).toBeCloseTo(16, 0);
+    // Title and actions on the first row, the tabs below.
+    expect(overflow.y + overflow.height / 2).toBeCloseTo(title.y + title.height / 2, 0);
+    expect(group.y).toBeGreaterThanOrEqual(title.y + title.height);
+    await expect(page.getByRole('tab', { name: 'Overview' })).toBeInViewport();
+    await expect(page.getByRole('button', { name: 'More', exact: true })).toBeInViewport();
 
-    // Narrower: the actions move to a line of their own, still at the end.
-    await page.setViewportSize({ width: 1100, height: 800 });
-    [rootBox, tabsBox, actionsBox] = await Promise.all([
-      box(page, root),
-      box(page, tabs),
-      box(page, actions),
-    ]);
-    expect(actionsBox.y).toBeGreaterThanOrEqual(tabsBox.y + tabsBox.height);
-    expect(rootBox.x + rootBox.width - (actionsBox.x + actionsBox.width)).toBeCloseTo(72, 0);
-
-    // Down to 320px (WCAG 1.4.10 Reflow), nothing overflows the page: the tab group wraps its pills
-    // onto more rows and the actions wrap.
-    for (const width of [900, 600, 375, 320]) {
+    for (const width of [375, 320]) {
       await page.setViewportSize({ width, height: 800 });
-      const overflow = await page.evaluate(
+      const overflowX = await page.evaluate(
         () => document.documentElement.scrollWidth - window.innerWidth,
       );
-      expect(overflow, `horizontal overflow at ${width}px`).toBeLessThanOrEqual(0);
+      expect(overflowX, `horizontal overflow at ${width}px`).toBeLessThanOrEqual(0);
     }
-    for (const name of ['Overview', 'Analytics']) {
-      await expect(page.getByRole('tab', { name })).toBeInViewport();
-    }
-    await expect(page.getByRole('button', { name: 'Create Project' })).toBeInViewport();
+
+    // Wide again: one row with everything.
+    await page.setViewportSize({ width: 1600, height: 800 });
+    await expect(heading).not.toHaveClass(/TectonHeading-compact/);
+    await expect(page.getByRole('tab')).toHaveCount(7);
   });
 
   test('RTL: the row runs right to left, the actions at its left end', async ({ page }) => {
@@ -118,6 +200,13 @@ test.describe('Heading', () => {
     ]);
     expect(rootBox.x + rootBox.width - (titleBox.x + titleBox.width)).toBeCloseTo(72, 0);
     expect(actionsBox.x - rootBox.x).toBeCloseTo(72, 0);
+    // Collapsed, the overflow button comes first: on the right of the primary action.
+    await page.setViewportSize({ width: 1280, height: 800 });
+    const [overflow, create] = await Promise.all([
+      box(page, `${root} .TectonHeading-overflowButton`),
+      page.getByRole('button', { name: 'Create Project' }).boundingBox(),
+    ]);
+    expect(overflow.x).toBeGreaterThan(create!.x);
   });
 
   for (const mode of ['light', 'dark'] as const) {
@@ -132,11 +221,26 @@ test.describe('Heading', () => {
             .filter((v) => v.impact === 'serious' || v.impact === 'critical')
             .flatMap((v) => v.nodes.map((n) => `${v.id}: ${n.target.join(' ')}`));
         };
+        // Wait for a popup's fade-in: half-transparent items would fail the contrast check.
+        const shown = async (popup: string) => {
+          await expect(page.locator(`.MuiPopover-paper:has(${popup})`)).toHaveCSS('opacity', '1');
+        };
         expect(await analyze()).toEqual([]);
         await page.getByRole('button', { name: 'Switch portfolio' }).click();
-        await expect(page.getByRole('menu')).toBeVisible();
-        // Wait for the menu's fade-in: half-transparent items would fail the contrast check.
-        await expect(page.locator('.MuiMenu-paper')).toHaveCSS('opacity', '1');
+        await shown('[role="menu"]');
+        expect(await analyze()).toEqual([]);
+        await page.keyboard.press('Escape');
+        await expect(page.getByRole('menu')).toBeHidden();
+
+        // Collapsed: the More menu and the overflow tray.
+        await page.setViewportSize({ width: 1000, height: 800 });
+        await page.getByRole('button', { name: 'More', exact: true }).click();
+        await shown('[role="menu"]');
+        expect(await analyze()).toEqual([]);
+        await page.keyboard.press('Escape');
+        await expect(page.getByRole('menu')).toBeHidden();
+        await page.getByRole('button', { name: 'More actions' }).click();
+        await shown('.TectonHeading-overflowTray');
         expect(await analyze()).toEqual([]);
       });
     }

@@ -39,7 +39,10 @@ that makes the home button a link (it then shows without `onHomeClick`).
 `HeadingTabs` takes the MUI `Tabs` props (`value`, `onChange`, `size`, `aria-label`...) and holds
 MUI `Tab` elements. It always shows the Tecton filled tab group (`Tabs` with `variant="pills"`) on a
 paper surface, so the props that only apply to other variants or to vertical tabs are not offered.
-Your page owns `value` and updates it in `onChange`, as with `Tabs`.
+Your page owns `value` and updates it in `onChange`, as with `Tabs`. When the heading runs out of
+room, the tabs after the selected one move into a More pill at the end of the group (see
+[Responsive layout](#responsive-layout)); a tab picked there is selected through the same
+`onChange`.
 
 <Demo name="TabsHeading" />
 
@@ -48,33 +51,62 @@ Your page owns `value` and updates it in `onChange`, as with `Tabs`.
 `HeadingActions` sits at the end of the row and spaces its content: icon buttons, buttons, selects
 and toggle button groups. Separate groups of actions with a vertical
 `<Divider orientation="vertical" flexItem emphasis="subtle" />`. A select can carry its label
-inside, before the value, as a start adornment.
+inside, before the value, as a start adornment. Put the primary action last: when the heading runs
+out of room, the actions move into an overflow (⋮) button first to last, and the last one stays the
+longest.
 
 <Demo name="ActionsHeading" />
 
 ## Page heading
 
-The full heading: title, tabs and actions. When they do not fit in one row, the row wraps instead of
-overflowing the page: the actions move to a line of their own, still at the end, then the tabs. At
-very narrow widths the tab group wraps its tabs onto more rows. Make the window narrower to see it.
+The full heading: title, tabs and actions.
 
 <Demo name="PageHeading" />
+
+## Responsive layout
+
+The heading keeps one row. When its parts do not fit, they give way one step at a time, in this
+order:
+
+1. **Actions.** They move into an overflow (⋮) button at the start of the actions, first to last.
+   The button opens a tray that shows them as they are (icon buttons, selects, toggles). A click on a
+   command in the tray closes it; toggles and selects leave it open. The last action, the primary
+   one, stays.
+2. **Tabs.** The tabs after the selected one move into a More pill at the end of the tab group, the
+   last ones first. The pill opens a menu of those tabs. The selected tab always shows: pick a tab
+   in the menu and it takes the place of the last tab shown.
+3. **The primary action** joins the others in the tray.
+4. **Compact.** When even that does not fit, as on a phone, the tabs get a row of their own under the
+   title and the actions, and the title shortens with an ellipsis as a last resort.
+
+The heading measures its parts again whenever its own width or a part's width changes (a label, a
+font that loaded, a tab added), before the browser paints, so nothing flickers. Drag the slider to
+see it.
+
+<Demo name="ResponsiveHeading" />
 
 ## Section headings and gutters
 
 `Heading` has the Figma frame's padding: `space-400` (32px) above and below and `space-900` (72px)
-at the sides. Inside a container that has its own padding, `disableGutters` removes the side padding,
-and `sx` adjusts the rest (`sx={{ px: { xs: 2, md: 9 } }}` for smaller gutters on small screens). For a
-heading below the page's main one, give the title another element and variant through
-`slotProps.title`, for example `{ component: 'h2', variant: 'h5' }`.
+at the sides. A heading narrower than the theme's `md` breakpoint (900px by default) has `space-400`
+(32px) sides, and one narrower than `sm` (600px) `space-200` (16px) sides with `space-300` (24px)
+above and below. The heading's own width counts, not the window's, so a heading in a narrow panel is
+as roomy as on a phone. Inside a container that has its own padding, `disableGutters` removes the
+side padding, and `sx` adjusts the rest. For a heading below the page's main one, give the title
+another element and variant through `slotProps.title`, for example
+`{ component: 'h2', variant: 'h5' }`.
 
 <Demo name="SectionHeading" />
 
 ## Customization
 
 Each part takes `sx` and `className`. The parts carry the stable classes of `headingClasses`
-(`TectonHeading-root`, `-title`, `-titleText`, `-homeButton`, `-menuButton`, `-tabs`, `-actions`),
-for styles that reach into the heading from outside.
+(`TectonHeading-root`, `-compact`, `-title`, `-titleText`, `-homeButton`, `-menuButton`, `-tabs`,
+`-tabGroup`, `-moreButton`, `-actions`, `-overflowButton`, `-overflowTray`), for styles that reach
+into the heading from outside. The More pill and its menu take props through `HeadingTabs`'
+`slotProps.moreButton` and `slotProps.moreMenu` (for example a translated label), the overflow
+button and its tray through `HeadingActions`' `slotProps.overflowButton` and
+`slotProps.overflowTray`.
 
 ## Accessibility
 
@@ -88,4 +120,10 @@ for styles that reach into the heading from outside.
   `HeadingTabs` an `aria-label`, and each `Tab` an `id` and `aria-controls` pointing to its panel.
 - Icon buttons in the actions need an `aria-label`; a select whose label is an adornment needs one
   too (`inputProps={{ 'aria-label': 'Sort' }}`).
-- The row reflows down to 320px without horizontal scrolling (WCAG 1.4.10).
+- The tabs and actions that do not fit are left out of the page, not hidden: the tab list holds only
+  the tabs it shows, and the keyboard never lands on something out of sight.
+- The More pill is a menu button (`aria-haspopup="menu"`, `aria-expanded`): its menu lists the
+  hidden tabs. A tab picked there takes the focus; Escape gives it back to the pill.
+- The overflow button ("More actions") opens its tray as a dialog (`aria-haspopup="dialog"`); focus
+  moves into it, Escape closes it and gives the focus back to the button.
+- The heading reflows down to 320px without horizontal scrolling (WCAG 1.4.10).

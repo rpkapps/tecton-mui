@@ -99,8 +99,8 @@ const CASES: ParityCase[] = [
   { id: 'molecules-toggle-button--sizes' },
   // Heading: the `Heading` component against every "Organisms/Heading" story. "Elevated" is the
   // canonical heading at fluid width; at 1280px the Storybook's row overflows its container, where
-  // `Heading` wraps its actions onto a line of their own (see the parity report), so it is compared
-  // at a width where the row fits.
+  // `Heading` collapses its actions and tabs into overflow menus (see the parity report), so it is
+  // compared at a width where the row fits.
   ...['compact', 'page', 'reports', 'section', 'wells', 'with-crumbs', 'workspaces'].map(
     (story) => ({ id: `organisms-heading--${story}` }),
   ),

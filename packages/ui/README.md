@@ -448,8 +448,11 @@ import Tab from '@tecton-mui/ui/Tab';
 
 The title is an `<h1>` (`slotProps.title` changes the element and `Typography` variant);
 `onHomeClick` and `onMenuClick` show the home button and the menu chevron. `HeadingTabs` takes the
-MUI `Tabs` props and shows the Tecton filled tab group. When the row does not fit, it wraps (the
-actions first) instead of overflowing. `disableGutters` removes the 72px side padding.
+MUI `Tabs` props and shows the Tecton filled tab group. The row never wraps: when it runs out of
+room, the actions collapse into an overflow (⋮) button first to last (the last, primary one stays),
+then the tabs after the selected one into a More pill, then the primary action; a very narrow
+heading gives the tabs a row of their own. The gutters follow the heading's own width;
+`disableGutters` removes them.
 
 ## ColorSwatchControl
 
