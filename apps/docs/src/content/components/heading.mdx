@@ -66,6 +66,9 @@ filters what it shows. Type below.
 
 <Demo name="SearchHeading" />
 
+- The field grows out of the button toward the start of the row, and what sits before it moves over
+  to make room (it simply appears when the system asks for reduced motion). The heading measures
+  the field at its full size first, so any action that must collapse does so before it grows.
 - The field opens focused. Escape clears it; on an empty field, Escape closes it and gives the
   focus back to the button. The clear button empties it too.
 - The field only closes empty: with a search in progress it stays open when the focus leaves it, so
@@ -96,10 +99,9 @@ order:
    tray closes it; toggles, selects and the search leave it open. The last action, the primary one,
    stays.
 2. **Tabs.** The tab group narrows and scrolls, the way the App Bar's tabs do: an arrow at either end
-   shows while the tabs can scroll that way, and a click slides them by whole tabs. The tabs fade out
-   toward an edge they can scroll past, and the tabs the strip brings into view stop clear of the
-   fade. The selected tab slides into view whenever it changes, and the wheel, touch and the
-   keyboard scroll the tabs too. The group narrows down to the selected tab between its two arrows.
+   shows while the tabs can scroll that way, and a click slides them by whole tabs. The selected tab
+   slides into view whenever it changes, and the wheel, touch and the keyboard scroll the tabs
+   too. The group narrows down to the selected tab between its two arrows.
 3. **The primary action** joins the others in the tray.
 4. **Compact.** When even that does not fit, as on a phone, the tabs get a row of their own under the
    title and the actions (scrolling there if they must), and the title shortens with an ellipsis as a

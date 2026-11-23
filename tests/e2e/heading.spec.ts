@@ -133,25 +133,16 @@ test.describe('Heading', () => {
     await expect(start).toHaveClass(/Mui-disabled/);
     await expect(end).not.toHaveClass(/Mui-disabled/);
     const group = page.locator('[data-testid="page-heading"] .TectonHeading-tabGroup');
-    // At the start, the tabs fade out toward the end only.
-    await expect(group).toHaveAttribute('data-fade', 'right');
-    await expect(group.locator('.MuiTabs-scroller')).toHaveCSS('mask-image', /linear-gradient/);
-    // A page: the tab cut off at the end comes to the start, clear of the start's fade; both arrows
-    // show mid-strip, and both edges fade.
+    // The tabs are cut off at the edge, as the app bar's are: no fade.
+    await expect(group.locator('.MuiTabs-scroller')).toHaveCSS('mask-image', 'none');
+    // A page: the tab cut off at the end slides into view; both arrows show mid-strip.
     await end.click();
     await expect(start).not.toHaveClass(/Mui-disabled/);
-    await expect(group).toHaveAttribute('data-fade', 'both');
     await expect.poll(() => inStrip(page, 'Overview')).toBe(false);
     await expect.poll(() => inStrip(page, 'Builder')).toBe(true);
-    const clearOfFade = await page.getByRole('tab', { name: 'Builder' }).evaluate((tab) => {
-      const view = tab.closest('.MuiTabs-scroller')!.getBoundingClientRect();
-      return tab.getBoundingClientRect().left - view.left;
-    });
-    expect(clearOfFade).toBeGreaterThanOrEqual(23);
     await start.click();
     await expect.poll(() => inStrip(page, 'Overview')).toBe(true);
     await expect(start).toHaveClass(/Mui-disabled/);
-    await expect(group).toHaveAttribute('data-fade', 'right');
 
     // The keyboard reaches every tab; the selected one slides into view.
     await page.getByRole('tab', { name: 'Overview' }).focus();
@@ -192,6 +183,56 @@ test.describe('Heading', () => {
     await expect(tray).toBeHidden();
     await expect(overflow).toBeFocused();
   });
+
+  for (const dir of ['ltr', 'rtl'] as const) {
+    test(`the search field grows out of its button toward the start of the row (${dir})`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: 1600, height: 800 });
+      await open(page, `&dir=${dir}`);
+      const button = (await page.getByRole('button', { name: 'Search' }).boundingBox())!;
+      // Every frame of the opening: the field's box, from the click on.
+      await page.evaluate(() => {
+        const frames: { left: number; right: number; width: number }[] = [];
+        (window as unknown as { frames_: typeof frames }).frames_ = frames;
+        document.addEventListener(
+          'click',
+          () => {
+            const start = performance.now();
+            const sample = (time: number) => {
+              const field = document.querySelector('.TectonHeading-searchField');
+              if (field) {
+                const { left, right, width } = field.getBoundingClientRect();
+                frames.push({ left, right, width });
+              }
+              if (time - start < 400) requestAnimationFrame(sample);
+            };
+            requestAnimationFrame(sample);
+          },
+          { once: true, capture: true },
+        );
+      });
+      await page.getByRole('button', { name: 'Search' }).click();
+      await expect(page.locator('.TectonHeading-searchField')).not.toHaveAttribute(
+        'data-overflow-growing',
+      );
+      const frames = await page.evaluate(
+        () =>
+          (window as unknown as { frames_: { left: number; right: number; width: number }[] })
+            .frames_,
+      );
+      // It starts at the button's width and widens frame by frame to its own (240px)...
+      expect(frames[0]!.width).toBeLessThan(60);
+      expect(frames.at(-1)!.width).toBeCloseTo(240, 0);
+      expect(frames.filter((f) => f.width > 60 && f.width < 230).length).toBeGreaterThan(2);
+      frames.slice(1).forEach((f, i) => expect(f.width).toBeGreaterThanOrEqual(frames[i]!.width));
+      // ...from the button's end edge, which stays put: toward the left in LTR, the right in RTL.
+      for (const f of frames) {
+        if (dir === 'ltr') expect(f.right).toBeCloseTo(button.x + button.width, 0);
+        else expect(f.left).toBeCloseTo(button.x, 0);
+      }
+    });
+  }
 
   test('the search opens into a field that filters; Escape clears, then closes', async ({
     page,

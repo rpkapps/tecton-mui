@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { act, render, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderToString } from 'react-dom/server';
 import { ThemeProvider } from '../../styles/index.js';
@@ -291,33 +291,6 @@ describe('HeadingTabs scrolling', () => {
     });
     expect(arrows[0]).toHaveClass('Mui-disabled');
     expect(arrows[1]).not.toHaveClass('Mui-disabled');
-    // The tabs fade out toward the edge they can scroll past (physical side).
-    expect(group).toHaveAttribute('data-fade', 'right');
-  });
-
-  it('fades out toward every edge the strip can scroll past, none at rest', () => {
-    wrap(
-      <HeadingTabs value={0} aria-label="Sections">
-        {['Overview', 'Framing', 'Team', 'Builder'].map((label) => (
-          <Tab key={label} label={label} />
-        ))}
-      </HeadingTabs>,
-    );
-    const group = document.querySelector(`.${headingClasses.tabGroup}`)!;
-    expect(group).not.toHaveAttribute('data-fade');
-    const scroller = group.querySelector<HTMLElement>('.MuiTabs-scroller')!;
-    Object.defineProperty(scroller, 'scrollWidth', { configurable: true, value: 600 });
-    Object.defineProperty(scroller, 'clientWidth', { configurable: true, value: 200 });
-    Object.defineProperty(scroller, 'scrollLeft', { configurable: true, value: 100 });
-    act(() => {
-      scroller.dispatchEvent(new Event('scroll'));
-    });
-    expect(group).toHaveAttribute('data-fade', 'both');
-    Object.defineProperty(scroller, 'scrollLeft', { configurable: true, value: 400 });
-    act(() => {
-      scroller.dispatchEvent(new Event('scroll'));
-    });
-    expect(group).toHaveAttribute('data-fade', 'left');
   });
 
   it('lets the pills scroll natively, without a scrollbar', () => {
@@ -630,6 +603,36 @@ describe('HeadingSearch', () => {
     expect(screen.getByRole('search', { name: 'Search' })).toHaveClass(headingClasses.search);
     await userEvent.keyboard('gulf');
     expect(screen.getByTestId('value')).toHaveTextContent('gulf');
+  });
+
+  it('grows out of the button when it opens, not when it starts open', async () => {
+    wrap(<Search />);
+    await userEvent.click(screen.getByRole('button', { name: 'Search' }));
+    const field = document.querySelector(`.${headingClasses.searchField}`)!;
+    expect(field).toHaveAttribute('data-overflow-growing');
+    // An animation of the input inside (autofill) is not the field's.
+    fireEvent.animationEnd(screen.getByRole('textbox'));
+    expect(field).toHaveAttribute('data-overflow-growing');
+    fireEvent.animationEnd(field);
+    expect(field).not.toHaveAttribute('data-overflow-growing');
+  });
+
+  it('starts open without growing, and does not grow with reduced motion', async () => {
+    const { unmount } = wrap(<Search defaultValue="gulf" />);
+    expect(document.querySelector(`.${headingClasses.searchField}`)).not.toHaveAttribute(
+      'data-overflow-growing',
+    );
+    unmount();
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn((query: string) => ({ matches: query.includes('reduce'), media: query })),
+    );
+    wrap(<Search />);
+    await userEvent.click(screen.getByRole('button', { name: 'Search' }));
+    expect(document.querySelector(`.${headingClasses.searchField}`)).not.toHaveAttribute(
+      'data-overflow-growing',
+    );
+    vi.unstubAllGlobals();
   });
 
   it('clears with the clear button, then with Escape, and closes on a second Escape', async () => {
