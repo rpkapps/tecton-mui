@@ -16,7 +16,7 @@
 //
 // The row lays the parts out as the Figma heading frame does: the title cluster, then the tabs, then
 // the actions at the end. It never wraps: when the parts do not fit, the actions collapse into an
-// overflow button, the tabs scroll as the app bar's do, and a narrow heading gives the tabs a row of
+// overflow button, the tabs scroll as MUI's scrollable Tabs do, and a narrow heading gives the tabs a row of
 // their own (layout.ts). `Heading` measures the parts' natural widths in a pass that is never painted
 // (all items shown, in a layout effect) whenever its own size or a part's size changes, and the
 // parts render what the layout gives them.

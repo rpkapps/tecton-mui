@@ -7,7 +7,7 @@
 //    the primary one in the Tecton design, stays. Late actions (a closed search) go after the
 //    others, pinned ones (an open search field) never, and separators follow the actions around
 //    them (internal/overflow/collapse.ts).
-// 2. The tab group narrows and scrolls, with arrows, as the app bar's tab strip does, down to the
+// 2. The tab group narrows and scrolls, with arrows, as MUI's scrollable Tabs do, down to the
 //    selected tab between its two arrows.
 // 3. The last action collapses too.
 // 4. When even that does not fit (a narrow container), the heading turns compact: the title and the

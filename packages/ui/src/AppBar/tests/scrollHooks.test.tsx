@@ -357,6 +357,43 @@ describe('createTabStripStore', () => {
       expect(strip.scroller.scrollLeft).toBe(570);
     });
 
+    describe("with MUI's scroll size ('scroll-size', the heading's tabs)", () => {
+      /** Gives the strip's tabs their `clientWidth`, which MUI's page size reads. */
+      function sizedStrip(widths: readonly number[], options: { rtl?: boolean } = {}) {
+        const strip = pagedStrip(widths, options);
+        strip.scroller.querySelectorAll('[role="tab"]').forEach((tab, index) => {
+          Object.defineProperty(tab, 'clientWidth', { value: widths[index], configurable: true });
+        });
+        return strip;
+      }
+      function pageWith(strip: Strip, clicks: readonly ('left' | 'right')[]) {
+        const store = createTabStripStore('scroll-size');
+        store.attach(strip.scroller);
+        store.setDuration(0);
+        return clicks.map((direction) => {
+          store.scrollPage(direction);
+          return strip.scroller.scrollLeft;
+        });
+      }
+
+      it('scrolls by the tabs that fit in the strip, counted from the first, wherever it is', () => {
+        // 80 + 90 fit in the 200px strip, not the 100px tab after them: 170px a page, from where
+        // the strip is (not from a tab edge), within the scroll range (570).
+        expect(
+          pageWith(sizedStrip(WHOLE_TABS), ['right', 'right', 'right', 'right', 'left']),
+        ).toEqual([170, 340, 510, 570, 400]);
+      });
+
+      it('scrolls by the strip width when even the first tab does not fit', () => {
+        expect(pageWith(sizedStrip([250, 100, 100]), ['right', 'right'])).toEqual([200, 250]);
+      });
+
+      it('pages toward the start in RTL (negative scroll positions)', () => {
+        const strip = sizedStrip(WHOLE_TABS, { rtl: true });
+        expect(pageWith(strip, ['left', 'left', 'right'])).toEqual([-170, -340, -170]);
+      });
+    });
+
     it('shows the arrows for where a slide is going, so they change along with it', () => {
       const strip = pagedStrip([80, 90, 130]); // max 100
       const store = createTabStripStore();
