@@ -12,8 +12,6 @@ and a ref; `headingClasses` names each part. It matches all eight Storybook stor
 
 The row never wraps. When it runs out of room, its parts give way in turn (priority+): the actions
 move into an overflow (⋮) button whose tray shows them as they are, first to last, keeping the last
-(primary) one; then the tab group narrows and scrolls with arrows, as MUI's scrollable `Tabs` do
-(both arrows while the tabs do not fit, the disabled one out of sight in its place, a click
-scrolling by the tabs that fit, the selected tab kept in view, no arrows on a phone); then the
+(primary) one; then the tabs after the selected one move into a More pill and its menu; then the
 primary action. A very narrow heading gives the tabs a row of their own and shortens the title with
 an ellipsis. The gutters follow the heading's own width (72px, 32px, 16px).

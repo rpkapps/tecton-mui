@@ -1,23 +1,19 @@
 'use client';
-// The heading's tabs: the Tecton filled tab group (MUI Tabs, `variant="pills"`) on a paper surface.
-// When the group is wider than the room the heading gives it, it scrolls as MUI's scrollable Tabs
-// (`variant="scrollable"`, `scrollButtons="auto"`) do: both scroll arrows while the tabs do not fit,
-// the one that cannot scroll its way disabled and out of sight, a click that scrolls by the tabs
-// that fit, the selected tab kept in view, no arrows on a phone, and native wheel, touch and
-// keyboard scrolling. The theme styles the filled group through `variant="pills"`, which
-// `variant="scrollable"` would replace, so the shared tab strip engine (internal/tab-strip) drives
-// the pills' scroller directly and the arrows sit beside the Tabs, in the group.
 import * as React from 'react';
 import clsx from 'clsx';
-import TabScrollButton from '@mui/material/TabScrollButton';
+import Button, { type ButtonProps } from '@mui/material/Button';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import Menu, { type MenuProps } from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 import Tabs, { tabsClasses, type TabsProps } from '@mui/material/Tabs';
-import { styled, useTheme, type Theme } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
+import useEnhancedEffect from '@mui/utils/useEnhancedEffect';
 import useForkRef from '@mui/utils/useForkRef';
 import { cssVar } from '../styles/tecton/index.js';
-import { sxList } from '../internal/sxList.js';
-import { TabStripContext, useTabStrip, useTabStripArrow } from '../internal/tab-strip/tabStrip.js';
 import { headingClasses } from './Heading.js';
 import { px, useHeadingPart, widthOf } from './HeadingContext.js';
+import { visibleTabIndices } from './layout.js';
 
 /**
  * The MUI `Tabs` props. The props that only apply to other variants or to vertical tabs are left
@@ -36,176 +32,229 @@ export interface HeadingTabsProps extends Omit<
   | 'TabIndicatorProps'
   | 'TabScrollButtonProps'
   | 'ScrollButtonComponent'
+  | 'slotProps'
 > {
   /** The tabs: MUI `Tab` elements. */
   children?: React.ReactNode;
+  /** Props for the `Tabs` slots, and for the More pill and its menu. */
+  slotProps?: NonNullable<TabsProps['slotProps']> & {
+    /**
+     * Props of the More pill (a tertiary text `Button`), shown when not every tab fits: for
+     * example its label (`children`, default "More").
+     */
+    moreButton?: Partial<ButtonProps>;
+    /** Props of the More pill's `Menu`, which lists the tabs that do not fit. */
+    moreMenu?: Partial<MenuProps>;
+  };
+}
+
+interface TabItem {
+  element: React.ReactElement<Record<string, unknown>>;
+  /** The tab's value, as MUI `Tabs` reads it: its `value` prop, or else its index. */
+  value: unknown;
+}
+
+function readTabs(children: React.ReactNode): TabItem[] {
+  return React.Children.toArray(children)
+    .filter((child) => React.isValidElement<Record<string, unknown>>(child))
+    .map((element, index) => ({
+      element,
+      value: element.props.value === undefined ? index : element.props.value,
+    }));
 }
 
 // The tab group's row is as tall as the Figma heading's title row (space-600), whatever the tab size.
-// It takes the room the heading gives it, and no less than its scroll arrows need.
 const TabsRegion = styled('div', { name: 'TectonHeading', slot: 'TabsRegion' })({
   display: 'flex',
   alignItems: 'center',
   minHeight: cssVar('space-600'),
-  minWidth: 0,
 });
 
 // Figma <TabGroup type="filled" background=true>: the pills on a paper surface. The theme's `pills`
-// variant styles the strip and leaves this surface to the heading. The scroll arrows sit in it too.
+// variant styles the strip and leaves this surface to the heading. The More pill sits in it too.
 const TabGroup = styled('div', { name: 'TectonHeading', slot: 'TabGroup' })({
+  position: 'relative',
   display: 'flex',
   alignItems: 'center',
-  minWidth: 0,
-  maxWidth: '100%',
+  gap: cssVar('space-25'),
   backgroundColor: cssVar('color-bg-paper'),
   padding: cssVar('space-75'),
   borderRadius: cssVar('radius-50'),
 });
 
-// The pills' scroller: MUI keeps a non-scrollable strip `overflow: hidden` (inline). The heading's
-// strip scrolls, natively too (wheel, touch), without a scrollbar.
-const tabsSx = {
+// The More pill has the look of a tab that is not selected (the tertiary action colors of the
+// filled tab group), and the tab's size.
+const MoreButton = styled(Button, { name: 'TectonHeading', slot: 'MoreButton' })({
+  flexShrink: 0,
   minWidth: 0,
-  flex: '0 1 auto',
-  [`& .${tabsClasses.scroller}`]: {
-    overflowX: 'auto !important',
-    scrollbarWidth: 'none',
-    '&::-webkit-scrollbar': { display: 'none' },
+  minHeight: cssVar('space-400'),
+  paddingTop: cssVar('space-50'),
+  paddingBottom: cssVar('space-50'),
+  paddingLeft: cssVar('space-100'),
+  paddingRight: cssVar('space-100'),
+  borderRadius: cssVar('radius-50'),
+  lineHeight: cssVar('line-height-medium'),
+  // Open: the pressed look of the tertiary button (Figma State=Activated).
+  '&[aria-expanded="true"]': {
+    backgroundColor: cssVar('color-action-tertiary-bg-active'),
+    color: cssVar('color-action-tertiary-text-active'),
   },
-} as const;
+});
 
-/**
- * Tecton chevrons, the size of the heading's other small glyphs. MUI also hands an icon slot its
- * `fontSize` and `ownerState`, which a `<span>` does not take.
- */
-const chevron = (glyph: string) =>
-  function HeadingScrollIcon({ className, style }: React.HTMLAttributes<HTMLSpanElement>) {
-    return (
-      <span
-        className={clsx(glyph, className)}
-        style={{ fontSize: cssVar('icon-size-100'), ...style }}
-        aria-hidden
-      />
-    );
-  };
-const arrowSlots = {
-  StartScrollButtonIcon: chevron('tecton-chevron-left-outline'),
-  EndScrollButtonIcon: chevron('tecton-chevron-right-outline'),
-};
+const MoreIcon = styled('span', { name: 'TectonHeading', slot: 'MoreIcon' })({
+  fontSize: cssVar('icon-size-100'),
+});
 
-/**
- * An arrow: a square as tall as a pill, with the pills' gap toward them. Written for LTR; the RTL
- * style cache mirrors it.
- */
-const arrowSx = (edge: 'start' | 'end') => (theme: Theme) =>
-  ({
-    flexShrink: 0,
-    width: cssVar('space-400'),
-    height: cssVar('space-400'),
-    borderRadius: cssVar('radius-50'),
-    [edge === 'start' ? 'marginRight' : 'marginLeft']: cssVar('space-25'),
-    // The filled tab group's tertiary colors, as on a pill that is not selected.
-    color: cssVar('color-action-tertiary-adornment'),
-    '&:hover': {
-      backgroundColor: cssVar('color-action-tertiary-bg-hover'),
-      color: cssVar('color-action-tertiary-adornment-hover'),
-    },
-    // As MUI's scrollable Tabs do without `allowScrollButtonsMobile`: no arrows on a phone, where
-    // the tabs scroll by touch.
-    [theme.breakpoints.down('sm')]: { display: 'none' },
-  }) as const;
-const startArrowSx = arrowSx('start');
-const endArrowSx = arrowSx('end');
-
-/**
- * A scroll arrow, as in MUI's scrollable Tabs (`scrollButtons="auto"`): both arrows show while the
- * tabs do not fit, and the one that cannot scroll its way is disabled, out of sight (MUI's own
- * `TabScrollButton` style) but in its place, so that the tabs never move when it comes or goes.
- */
-function ScrollArrow({ edge }: { edge: 'start' | 'end' }) {
-  const rtl = useTheme().direction === 'rtl';
-  const direction = (edge === 'start') !== rtl ? 'left' : 'right';
-  const { shown, scrollable, onClick } = useTabStripArrow(direction);
-  if (!scrollable) return null;
-  return (
-    <TabScrollButton
-      direction={direction}
-      orientation="horizontal"
-      slots={arrowSlots}
-      disabled={!shown}
-      onClick={onClick}
-      className={headingClasses.scrollButton}
-      sx={edge === 'start' ? startArrowSx : endArrowSx}
-    />
-  );
-}
+/** Kept for the measure pass but out of the flow and out of sight. */
+const measureOnly = { position: 'absolute', visibility: 'hidden', left: 0, top: 0 } as const;
 
 /**
  * The heading's tabs: MUI `Tabs` with the Tecton filled (`pills`) look on a paper surface. Give them
- * an `aria-label`. When they do not fit, they scroll, with arrows, as MUI's scrollable Tabs do.
+ * an `aria-label`. In a `Heading` that is too narrow, the tabs after the selected one go into a More
+ * pill's menu; the selected tab always shows.
  */
 const HeadingTabs = React.forwardRef<HTMLDivElement, HeadingTabsProps>(
   function HeadingTabs(props, ref) {
-    const { children, value, className, sx, ...other } = props;
-    const tabCount = React.Children.toArray(children).filter(React.isValidElement).length;
+    const { children, value, onChange, className, slotProps, ...other } = props;
+    const {
+      moreButton: moreButtonProps,
+      moreMenu: moreMenuProps,
+      ...tabsSlotProps
+    } = slotProps ?? {};
+    const items = React.useMemo(() => readTabs(children), [children]);
+    const total = items.length;
+    const pinned = items.findIndex((item) => item.value === value);
+
     const regionRef = React.useRef<HTMLDivElement>(null);
     const groupRef = React.useRef<HTMLDivElement>(null);
     const tabsRef = React.useRef<HTMLDivElement>(null);
+    const moreRef = React.useRef<HTMLButtonElement>(null);
     const handleTabsRef = useForkRef(tabsRef, ref);
 
-    const selected = value === false || value == null ? null : String(value);
-    // The arrows sit beside the Tabs, in the group: a click on one is the user's too. A click pages
-    // as in MUI's scrollable Tabs.
-    const strip = useTabStrip(tabsRef, selected, tabCount, groupRef, 'scroll-size');
-    const theme = useTheme();
-
-    useHeadingPart('tabs', regionRef, () => {
-      const group = groupRef.current;
+    const heading = useHeadingPart('tabs', regionRef, () => {
       const list = tabsRef.current?.querySelector(`.${tabsClasses.list}`);
       const tabs = list
         ? Array.from(list.children).filter((child) => child.getAttribute('role') === 'tab')
         : [];
-      const style = group ? getComputedStyle(group) : null;
-      const padding = style ? px(style.paddingLeft) + px(style.paddingRight) : 0;
-      // The tabs side by side, whatever the strip's width (they never shrink).
-      const gap = list ? px(getComputedStyle(list).columnGap) : 0;
-      const all =
-        tabs.reduce((total, tab) => total + widthOf(tab), 0) + gap * Math.max(0, tabs.length - 1);
-      const selected = tabs.find((tab) => tab.getAttribute('aria-selected') === 'true') ?? tabs[0];
-      // Each arrow: a pill-high square and the pills' gap, none on a phone (see `arrowSx`).
-      const phone =
-        typeof window !== 'undefined' &&
-        !!window.matchMedia?.(theme.breakpoints.down('sm').replace(/^@media\s*/, '')).matches;
-      const arrow =
-        style && !phone
-          ? px(style.getPropertyValue('--tecton-space-400')) +
-            px(style.getPropertyValue('--tecton-space-25'))
-          : 0;
+      const group = groupRef.current ? getComputedStyle(groupRef.current) : null;
       return {
-        natural: padding + all,
-        min: padding + Math.min(all, widthOf(selected)) + (tabs.length > 1 ? 2 * arrow : 0),
+        items: tabs.map(widthOf),
+        gap: list ? px(getComputedStyle(list).columnGap) : 0,
+        padding: group ? px(group.paddingLeft) + px(group.paddingRight) : 0,
+        more: widthOf(moreRef.current),
+        pinned,
       };
     });
+    const measuring = heading?.layout.measuring ?? false;
+    const count = heading && !measuring ? heading.layout.tabs : total;
+    const shown = visibleTabIndices(total, count, pinned);
+    const shownSet = new Set(shown);
+    const hidden = items.filter((_, index) => !shownSet.has(index));
+
+    // Another selected tab may be wider than the one it replaces: share the row again.
+    const requestMeasure = heading?.requestMeasure;
+    useEnhancedEffect(() => {
+      requestMeasure?.();
+    }, [pinned, total, requestMeasure]);
+
+    const [anchor, setAnchor] = React.useState<HTMLElement | null>(null);
+    // A tab picked in the menu takes the focus (once it shows), not the More pill.
+    const [picked, setPicked] = React.useState(false);
+    const pendingFocus = React.useRef(false);
+    const open = Boolean(anchor) && hidden.length > 0;
+    const menuId = React.useId();
+    const buttonId = React.useId();
+
+    React.useEffect(() => {
+      if (!pendingFocus.current) return;
+      pendingFocus.current = false;
+      const selected = tabsRef.current?.querySelector<HTMLElement>(
+        '[role="tab"][aria-selected="true"]',
+      );
+      (selected ?? moreRef.current)?.focus();
+    });
+
+    const { onClick: onMoreClick, className: moreClassName, ...moreProps } = moreButtonProps ?? {};
 
     return (
-      <TabStripContext.Provider value={strip}>
-        <TabsRegion ref={regionRef} data-heading-part="tabs">
-          <TabGroup ref={groupRef} className={headingClasses.tabGroup}>
-            <ScrollArrow edge="start" />
-            <Tabs
-              ref={handleTabsRef}
-              {...other}
-              value={value}
-              variant="pills"
-              className={clsx(headingClasses.tabs, className)}
-              sx={[tabsSx, ...sxList(sx)]}
+      <TabsRegion ref={regionRef} data-heading-part="tabs">
+        <TabGroup ref={groupRef} className={headingClasses.tabGroup}>
+          <Tabs
+            ref={handleTabsRef}
+            {...other}
+            value={value}
+            onChange={onChange}
+            variant="pills"
+            slotProps={tabsSlotProps}
+            className={clsx(headingClasses.tabs, className)}
+          >
+            {shown.map((index) => {
+              const item = items[index]!;
+              return React.cloneElement(item.element, { value: item.value });
+            })}
+          </Tabs>
+          {(measuring || hidden.length > 0) && (
+            <MoreButton
+              ref={moreRef}
+              id={buttonId}
+              variant="text"
+              color="tertiary"
+              aria-haspopup="menu"
+              aria-expanded={open}
+              aria-controls={open ? menuId : undefined}
+              endIcon={<MoreIcon className="tecton-chevron-down-outline" aria-hidden />}
+              tabIndex={measuring ? -1 : undefined}
+              aria-hidden={measuring || undefined}
+              style={measuring ? measureOnly : undefined}
+              {...moreProps}
+              className={clsx(headingClasses.moreButton, moreClassName)}
+              onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+                onMoreClick?.(event);
+                setPicked(false);
+                setAnchor(event.currentTarget);
+              }}
             >
-              {children}
-            </Tabs>
-            <ScrollArrow edge="end" />
-          </TabGroup>
-        </TabsRegion>
-      </TabStripContext.Provider>
+              {moreProps.children ?? 'More'}
+            </MoreButton>
+          )}
+        </TabGroup>
+        <Menu
+          id={menuId}
+          anchorEl={anchor}
+          open={open}
+          onClose={() => setAnchor(null)}
+          disableRestoreFocus={picked}
+          {...moreMenuProps}
+          slotProps={{
+            ...moreMenuProps?.slotProps,
+            list: { 'aria-labelledby': buttonId, ...moreMenuProps?.slotProps?.list },
+          }}
+        >
+          {hidden.map((item) => {
+            const tab = item.element.props as {
+              label?: React.ReactNode;
+              icon?: React.ReactNode;
+              disabled?: boolean;
+              'aria-label'?: string;
+            };
+            return (
+              <MenuItem
+                key={item.element.key}
+                disabled={tab.disabled}
+                onClick={(event) => {
+                  setPicked(true);
+                  setAnchor(null);
+                  pendingFocus.current = true;
+                  onChange?.(event, item.value);
+                }}
+              >
+                {tab.icon ? <ListItemIcon>{tab.icon}</ListItemIcon> : null}
+                <ListItemText>{tab.label ?? tab['aria-label']}</ListItemText>
+              </MenuItem>
+            );
+          })}
+        </Menu>
+      </TabsRegion>
     );
   },
 );

@@ -16,20 +16,6 @@ const box = async (page: Page, selector: string) => {
   return rect;
 };
 
-/** The heading's tab scroll arrows, start and end. */
-const arrow = (page: Page, index: number) =>
-  page.locator('[data-testid="page-heading"] .TectonHeading-scrollButton').nth(index);
-const shownArrows = (page: Page) =>
-  page.locator('[data-testid="page-heading"] .TectonHeading-scrollButton:not(.Mui-disabled)');
-
-/** Whether a tab is wholly within the tab strip's view. */
-const inStrip = (page: Page, name: string) =>
-  page.getByRole('tab', { name }).evaluate((tab) => {
-    const view = tab.closest('.MuiTabs-scroller')!.getBoundingClientRect();
-    const rect = tab.getBoundingClientRect();
-    return rect.left >= view.left - 1 && rect.right <= view.right + 1;
-  });
-
 test.describe('Heading', () => {
   test('the title is a heading: the page title an h1, a section title an h2', async ({ page }) => {
     await open(page);
@@ -79,34 +65,33 @@ test.describe('Heading', () => {
     await expect(page.getByRole('button', { name: 'Search' })).toBeFocused();
   });
 
-  test('one row: the actions collapse first, then the tabs scroll; the primary action stays', async ({
+  test('one row: the actions collapse first, then the tabs; the primary action stays', async ({
     page,
   }) => {
     await page.setViewportSize({ width: 1600, height: 800 });
     await open(page);
     const overflow = page.getByRole('button', { name: 'More actions' });
+    const more = page.getByRole('button', { name: 'More', exact: true });
     const create = page.getByRole('button', { name: 'Create Project' });
-    // Everything fits: no overflow button, no scroll arrow.
+    // Everything fits.
     await expect(page.getByRole('tab')).toHaveCount(7);
     await expect(overflow).toHaveCount(0);
-    await expect(shownArrows(page)).toHaveCount(0);
-    expect(await inStrip(page, 'Analytics')).toBe(true);
+    await expect(more).toHaveCount(0);
 
-    // The secondary actions go into the overflow button first, the search last of them; every tab
-    // stays in view.
+    // The secondary actions go into the overflow button first, the search last of them; all the
+    // tabs stay.
     await page.setViewportSize({ width: 1280, height: 800 });
     await expect(overflow).toBeVisible();
     await expect(page.getByText('Sort:')).toHaveCount(0);
     await expect(page.getByRole('button', { name: 'Search' })).toBeVisible();
     await expect(create).toBeVisible();
-    await expect(shownArrows(page)).toHaveCount(0);
-
-    // Then the tabs narrow and scroll, as in MUI scrollable Tabs: the end arrow works.
-    await page.setViewportSize({ width: 1000, height: 800 });
-    await expect(shownArrows(page)).toHaveCount(1);
     await expect(page.getByRole('tab')).toHaveCount(7);
-    expect(await inStrip(page, 'Overview')).toBe(true);
-    expect(await inStrip(page, 'Analytics')).toBe(false);
+
+    // Then the tabs after the selected one go into the More pill.
+    await page.setViewportSize({ width: 1000, height: 800 });
+    await expect(more).toBeVisible();
+    await expect(page.getByRole('tab', { name: 'Overview' })).toBeVisible();
+    await expect(page.getByRole('tab', { name: 'Analytics' })).toHaveCount(0);
     await expect(create).toBeVisible();
 
     // Still one row: the parts share a center line, and nothing passes the gutters.
@@ -126,44 +111,28 @@ test.describe('Heading', () => {
     await expect(page.getByTestId('page-heading')).not.toHaveClass(/TectonHeading-compact/);
   });
 
-  test('the tab arrows work as in MUI scrollable Tabs; a selected tab slides into view', async ({
+  test('the More pill lists the hidden tabs; a pick selects, shows and focuses it', async ({
     page,
   }) => {
-    await page.setViewportSize({ width: 900, height: 800 });
+    await page.setViewportSize({ width: 1000, height: 800 });
     await open(page);
-    const [start, end] = [arrow(page, 0), arrow(page, 1)];
-    // Both arrows while the tabs do not fit; the one that cannot scroll is disabled, out of sight
-    // in its place, so the tabs do not move when it comes back.
-    await expect(start).toHaveClass(/Mui-disabled/);
-    await expect(start).toHaveCSS('opacity', '0');
-    expect((await start.boundingBox())!.width).toBeCloseTo(32, 0);
-    await expect(end).not.toHaveClass(/Mui-disabled/);
-    const firstTab = async () =>
-      (await page.getByRole('tab', { name: 'Overview' }).boundingBox())!.x;
-    const before = await firstTab();
-    const group = page.locator('[data-testid="page-heading"] .TectonHeading-tabGroup');
-    // The tabs are cut off at the edge, as the app bar's are: no fade.
-    await expect(group.locator('.MuiTabs-scroller')).toHaveCSS('mask-image', 'none');
-    // A page: the tabs that fit in the strip scroll by; both arrows work mid-strip.
-    await end.click();
-    await expect(start).not.toHaveClass(/Mui-disabled/);
-    await expect.poll(() => inStrip(page, 'Overview')).toBe(false);
-    await expect.poll(() => inStrip(page, 'Builder')).toBe(true);
-    await start.click();
-    await expect.poll(() => inStrip(page, 'Overview')).toBe(true);
-    await expect(start).toHaveClass(/Mui-disabled/);
-    // Back at the start, the tabs are where they were: the arrows never took room from them.
-    await expect.poll(firstTab).toBeCloseTo(before, 0);
-
-    // The keyboard reaches every tab; the selected one slides into view.
-    await page.getByRole('tab', { name: 'Overview' }).focus();
-    await page.keyboard.press('End');
-    await expect(page.getByRole('tab', { name: 'Analytics' })).toBeFocused();
-    await page.keyboard.press('Enter');
+    // The open menu is modal: it hides the rest of the page from assistive technology.
+    const more = page.getByRole('button', { name: 'More', exact: true, includeHidden: true });
+    await more.click();
+    await expect(more).toHaveAttribute('aria-expanded', 'true');
+    const menu = page.getByRole('menu', { name: 'More' });
+    await menu.getByRole('menuitem', { name: 'Analytics' }).click();
+    const analytics = page.getByRole('tab', { name: 'Analytics' });
+    await expect(analytics).toHaveAttribute('aria-selected', 'true');
+    await expect(analytics).toBeFocused();
     await expect(page.getByTestId('section')).toHaveText('Analytics');
-    await expect.poll(() => inStrip(page, 'Analytics')).toBe(true);
-    await expect(end).toHaveClass(/Mui-disabled/);
-    await expect(start).not.toHaveClass(/Mui-disabled/);
+    await expect(page.getByRole('menu')).toBeHidden();
+    // Escape closes the menu and gives the focus back to the pill.
+    await more.click();
+    await expect(page.getByRole('menu')).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('menu')).toBeHidden();
+    await expect(more).toBeFocused();
   });
 
   test('the overflow tray holds the hidden actions as they are; the search opens in it', async ({
@@ -282,9 +251,8 @@ test.describe('Heading', () => {
     const field = page.getByRole('search', { name: 'Search' }).getByRole('textbox');
     await expect(field).toBeFocused();
     await page.keyboard.type('sea');
-    // The field takes room from the tabs, which scroll; the primary action stays, the row stays
-    // one row.
-    await expect(shownArrows(page)).toHaveCount(1);
+    // The field takes the room of some tabs; the primary action stays, the row stays one row.
+    await expect(page.getByRole('button', { name: 'More', exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Create Project' })).toBeVisible();
     await expect(field).toBeFocused();
     await expect(field).toHaveValue('sea');
@@ -319,15 +287,7 @@ test.describe('Heading', () => {
     expect(overflow.y + overflow.height / 2).toBeCloseTo(title.y + title.height / 2, 0);
     expect(group.y).toBeGreaterThanOrEqual(title.y + title.height);
     await expect(page.getByRole('tab', { name: 'Overview' })).toBeInViewport();
-    // The tab row scrolls by touch: on a phone, as in MUI scrollable Tabs, it has no arrows.
-    await expect(arrow(page, 1)).toBeHidden();
-    await expect
-      .poll(() =>
-        page
-          .locator('[data-testid="page-heading"] .MuiTabs-scroller')
-          .evaluate((el) => el.scrollWidth > el.clientWidth),
-      )
-      .toBe(true);
+    await expect(page.getByRole('button', { name: 'More', exact: true })).toBeInViewport();
 
     for (const width of [375, 320]) {
       await page.setViewportSize({ width, height: 800 });
@@ -388,10 +348,13 @@ test.describe('Heading', () => {
         // Gone, not fading out: half-transparent items would fail the contrast check.
         await expect(page.locator('.MuiMenu-paper')).toHaveCount(0);
 
-        // Collapsed: scrolling tabs and the overflow tray.
+        // Collapsed: the More menu and the overflow tray.
         await page.setViewportSize({ width: 1000, height: 800 });
-        await expect(shownArrows(page)).toHaveCount(1);
+        await page.getByRole('button', { name: 'More', exact: true }).click();
+        await shown('[role="menu"]');
         expect(await analyze()).toEqual([]);
+        await page.keyboard.press('Escape');
+        await expect(page.locator('.MuiMenu-paper')).toHaveCount(0);
         await page.getByRole('button', { name: 'More actions' }).click();
         await shown('.TectonHeading-overflowTray');
         expect(await analyze()).toEqual([]);

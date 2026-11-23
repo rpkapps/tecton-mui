@@ -453,7 +453,7 @@ the actions, is a Search button that opens into a search field (`value`, `onChan
 then closes). `HeadingTabs` takes the
 MUI `Tabs` props and shows the Tecton filled tab group. The row never wraps: when it runs out of
 room, the actions collapse into an overflow (⋮) button first to last (the last, primary one stays),
-then the tabs narrow and scroll as MUI's scrollable `Tabs` do, then the primary action; a very narrow
+then the tabs after the selected one into a More pill, then the primary action; a very narrow
 heading gives the tabs a row of their own. The gutters follow the heading's own width;
 `disableGutters` removes them.
 
