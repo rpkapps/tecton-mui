@@ -291,6 +291,33 @@ describe('HeadingTabs scrolling', () => {
     });
     expect(arrows[0]).toHaveClass('Mui-disabled');
     expect(arrows[1]).not.toHaveClass('Mui-disabled');
+    // The tabs fade out toward the edge they can scroll past (physical side).
+    expect(group).toHaveAttribute('data-fade', 'right');
+  });
+
+  it('fades out toward every edge the strip can scroll past, none at rest', () => {
+    wrap(
+      <HeadingTabs value={0} aria-label="Sections">
+        {['Overview', 'Framing', 'Team', 'Builder'].map((label) => (
+          <Tab key={label} label={label} />
+        ))}
+      </HeadingTabs>,
+    );
+    const group = document.querySelector(`.${headingClasses.tabGroup}`)!;
+    expect(group).not.toHaveAttribute('data-fade');
+    const scroller = group.querySelector<HTMLElement>('.MuiTabs-scroller')!;
+    Object.defineProperty(scroller, 'scrollWidth', { configurable: true, value: 600 });
+    Object.defineProperty(scroller, 'clientWidth', { configurable: true, value: 200 });
+    Object.defineProperty(scroller, 'scrollLeft', { configurable: true, value: 100 });
+    act(() => {
+      scroller.dispatchEvent(new Event('scroll'));
+    });
+    expect(group).toHaveAttribute('data-fade', 'both');
+    Object.defineProperty(scroller, 'scrollLeft', { configurable: true, value: 400 });
+    act(() => {
+      scroller.dispatchEvent(new Event('scroll'));
+    });
+    expect(group).toHaveAttribute('data-fade', 'left');
   });
 
   it('lets the pills scroll natively, without a scrollbar', () => {
@@ -647,6 +674,22 @@ describe('HeadingSearch', () => {
       </ThemeProvider>,
     );
     expect(screen.getByRole('button', { name: 'Search' })).toBeInTheDocument();
+  });
+
+  it('is medium by default, like the buttons and inputs beside it, and small on request', async () => {
+    const { unmount } = wrap(<Search />);
+    expect(screen.getByRole('button', { name: 'Search' })).toHaveClass('MuiIconButton-sizeMedium');
+    await userEvent.click(screen.getByRole('button', { name: 'Search' }));
+    expect(screen.getByRole('textbox').closest('.MuiInputBase-root')).not.toHaveClass(
+      'MuiInputBase-sizeSmall',
+    );
+    unmount();
+    wrap(<Search size="small" />);
+    expect(screen.getByRole('button', { name: 'Search' })).toHaveClass('MuiIconButton-sizeSmall');
+    await userEvent.click(screen.getByRole('button', { name: 'Search' }));
+    expect(screen.getByRole('textbox').closest('.MuiInputBase-root')).toHaveClass(
+      'MuiInputBase-sizeSmall',
+    );
   });
 
   it('takes its label and its parts through props and slotProps', async () => {

@@ -123,15 +123,21 @@ const SHOWN_SLACK = 48;
  *
  * The target follows the tab every frame, since an arrow that shows or hides on the way moves the
  * strip's edges (and, in RTL, where a `scrollLeft` puts the tabs).
+ *
+ * The strip's edges are its scroll-padding edges, as for the selected tab (`selectedTabTarget`): a
+ * strip that fades out its edges keeps the tabs it pages to clear of the fade.
  */
 function pageTarget(scroller: HTMLElement, direction: 'left' | 'right', base: number): Target {
-  const size = scroller.clientWidth;
+  const style = getComputedStyle(scroller);
+  const padLeft = scrollPadding(style.scrollPaddingLeft, scroller.clientWidth);
+  const padRight = scrollPadding(style.scrollPaddingRight, scroller.clientWidth);
+  const size = scroller.clientWidth - padLeft - padRight;
   const toRight = direction === 'right';
   const slack = Math.min(SHOWN_SLACK, size * MIN_PAGE);
   // The view at `base` in scroll space, where a point's position is the `scrollLeft` that puts it
   // at the strip's left edge.
-  const viewStart = base;
-  const viewEnd = base + size;
+  const viewStart = base + padLeft;
+  const viewEnd = base + padLeft + size;
   const offset = scroller.scrollLeft - scroller.getBoundingClientRect().left;
   // Toward the right, the first tab not fully in view past the right edge; toward the left, the
   // last one past the left edge.
@@ -152,7 +158,7 @@ function pageTarget(scroller: HTMLElement, direction: 'left' | 'right', base: nu
   let target: Target;
   if (!next) {
     // Nothing past the edge but the rest of the scroll range (the slide clamps to it).
-    const page = toRight ? viewEnd : viewStart - size;
+    const page = toRight ? base + size : base - size;
     target = () => page;
   } else {
     const { tab } = next;
@@ -162,7 +168,10 @@ function pageTarget(scroller: HTMLElement, direction: 'left' | 'right', base: nu
       if (!tab.isConnected) return null;
       const s = scroller.getBoundingClientRect();
       return (
-        scroller.scrollLeft + tab.getBoundingClientRect()[edge] + by - (toRight ? s.left : s.right)
+        scroller.scrollLeft +
+        tab.getBoundingClientRect()[edge] +
+        by -
+        (toRight ? s.left + padLeft : s.right - padRight)
       );
     };
     // In the direction of travel: whether the tab is partly in view, how much of it is cut off, and

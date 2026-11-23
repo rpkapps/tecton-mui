@@ -26,7 +26,7 @@ function LabeledSelect({
   onChange: (value: string) => void;
 }) {
   return (
-    <FormControl size="small" variant="filled">
+    <FormControl variant="filled">
       <Select
         value={value}
         onChange={(event) => onChange(event.target.value)}

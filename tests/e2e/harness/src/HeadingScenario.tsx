@@ -64,7 +64,7 @@ export function HeadingScenario() {
         <HeadingActions>
           <HeadingSearch value={query} onChange={(_event, next) => setQuery(next)} />
           <Divider orientation="vertical" flexItem emphasis="subtle" />
-          <FormControl size="small" variant="filled">
+          <FormControl variant="filled">
             <Select
               value={sort}
               onChange={(event) => setSort(event.target.value)}

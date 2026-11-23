@@ -51,7 +51,8 @@ room, the tab group narrows and scrolls like the [App Bar](/components/app-bar)'
 `HeadingActions` sits at the end of the row and spaces its content: icon buttons, buttons, selects
 and toggle button groups. Separate groups of actions with a vertical
 `<Divider orientation="vertical" flexItem emphasis="subtle" />`. A select can carry its label
-inside, before the value, as a start adornment. Put the primary action last: when the heading runs
+inside, before the value, as a start adornment. Keep the actions one size: at the default `medium`,
+buttons, icon buttons, selects and `HeadingSearch` are all 32px tall. Put the primary action last: when the heading runs
 out of room, the actions move into an overflow (⋮) button first to last, and the last one stays the
 longest.
 
@@ -70,7 +71,8 @@ filters what it shows. Type below.
 - The field only closes empty: with a search in progress it stays open when the focus leaves it, so
   the page never filters by a term nobody can see.
 - `label` names the button, the field and its search landmark (default "Search"); `placeholder`
-  defaults to it. `open`, `onOpen` and `onClose(event, reason)` control the field from outside, and
+  defaults to it. `size` (`medium` by default, or `small`) sizes the button and the field like the
+  buttons and inputs beside them. `open`, `onOpen` and `onClose(event, reason)` control the field from outside, and
   `slotProps.button`, `slotProps.input` (a `FilledInput`) and `slotProps.clearButton` reach its
   parts.
 - In a narrow heading, a closed search collapses into the overflow tray after the other secondary
@@ -94,9 +96,10 @@ order:
    tray closes it; toggles, selects and the search leave it open. The last action, the primary one,
    stays.
 2. **Tabs.** The tab group narrows and scrolls, the way the App Bar's tabs do: an arrow at either end
-   shows while the tabs can scroll that way, and a click slides them by whole tabs. The selected tab
-   slides into view whenever it changes, and the wheel, touch and the keyboard scroll the tabs too.
-   The group narrows down to the selected tab between its two arrows.
+   shows while the tabs can scroll that way, and a click slides them by whole tabs. The tabs fade out
+   toward an edge they can scroll past, and the tabs the strip brings into view stop clear of the
+   fade. The selected tab slides into view whenever it changes, and the wheel, touch and the
+   keyboard scroll the tabs too. The group narrows down to the selected tab between its two arrows.
 3. **The primary action** joins the others in the tray.
 4. **Compact.** When even that does not fit, as on a phone, the tabs get a row of their own under the
    title and the actions (scrolling there if they must), and the title shortens with an ellipsis as a

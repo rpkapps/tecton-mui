@@ -45,17 +45,16 @@ export default function PageHeading() {
           />
           <ToggleButtonGroup
             exclusive
-            size="small"
             value={layout}
             onChange={(_event, next: string | null) => next && setLayout(next)}
             aria-label="Layout"
           >
             <ToggleButton value="list">
-              <Icon name="list" size="small" sx={{ mr: 0.5 }} />
+              <Icon name="list" sx={{ mr: 0.5 }} />
               List
             </ToggleButton>
             <ToggleButton value="grid">
-              <Icon name="grid-view" size="small" sx={{ mr: 0.5 }} />
+              <Icon name="grid-view" sx={{ mr: 0.5 }} />
               Grid
             </ToggleButton>
           </ToggleButtonGroup>

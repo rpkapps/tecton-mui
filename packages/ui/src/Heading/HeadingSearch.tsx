@@ -42,6 +42,11 @@ export interface HeadingSearchProps extends Omit<
    * @default the `label`
    */
   placeholder?: string;
+  /**
+   * The size of the Search button and of the field, as for the buttons and inputs next to it.
+   * @default 'medium'
+   */
+  size?: 'small' | 'medium';
   /** The field is open (controlled). */
   open?: boolean;
   /**
@@ -101,6 +106,7 @@ const HeadingSearch = React.forwardRef<HTMLDivElement, HeadingSearchProps>(
       onChange,
       label = 'Search',
       placeholder,
+      size = 'medium',
       open: openProp,
       defaultOpen,
       onOpen,
@@ -170,6 +176,7 @@ const HeadingSearch = React.forwardRef<HTMLDivElement, HeadingSearchProps>(
         <SearchRoot ref={ref} className={clsx(headingClasses.search, className)} {...other}>
           <IconButton
             ref={buttonRef}
+            size={size}
             aria-label={label}
             aria-expanded={false}
             {...buttonProps}
@@ -202,7 +209,7 @@ const HeadingSearch = React.forwardRef<HTMLDivElement, HeadingSearchProps>(
       >
         <Field
           inputRef={inputRef}
-          size="small"
+          size={size}
           hiddenLabel
           value={value}
           placeholder={placeholder ?? label}

@@ -14,7 +14,13 @@ import { styled, useTheme } from '@mui/material/styles';
 import useForkRef from '@mui/utils/useForkRef';
 import { cssVar } from '../styles/tecton/index.js';
 import { sxList } from '../internal/sxList.js';
-import { TabStripContext, useTabStrip, useTabStripArrow } from '../internal/tab-strip/tabStrip.js';
+import {
+  LEFT,
+  RIGHT,
+  TabStripContext,
+  useTabStrip,
+  useTabStripArrow,
+} from '../internal/tab-strip/tabStrip.js';
 import { useScrollButtonCompensation } from '../internal/tab-strip/useScrollButtonCompensation.js';
 import { headingClasses } from './Heading.js';
 import { px, useHeadingPart, widthOf } from './HeadingContext.js';
@@ -50,8 +56,17 @@ const TabsRegion = styled('div', { name: 'TectonHeading', slot: 'TabsRegion' })(
   minWidth: 0,
 });
 
+/** How far the strip fades out at an edge it can scroll past. */
+const FADE = cssVar('space-300');
+/**
+ * A fade as a mask over the scroller. Angles, not `to left` / `to right`: the RTL style cache would
+ * mirror those, and the strip's scroll state is physical.
+ */
+const fade = (gradient: string) => ({ maskImage: gradient, WebkitMaskImage: gradient });
+
 // Figma <TabGroup type="filled" background=true>: the pills on a paper surface. The theme's `pills`
 // variant styles the strip and leaves this surface to the heading. The scroll arrows sit in it too.
+// While the tabs can scroll past an edge, they fade out toward it (`data-fade`, physical sides).
 const TabGroup = styled('div', { name: 'TectonHeading', slot: 'TabGroup' })({
   display: 'flex',
   alignItems: 'center',
@@ -60,19 +75,33 @@ const TabGroup = styled('div', { name: 'TectonHeading', slot: 'TabGroup' })({
   backgroundColor: cssVar('color-bg-paper'),
   padding: cssVar('space-75'),
   borderRadius: cssVar('radius-50'),
+  [`&[data-fade="left"] .${tabsClasses.scroller}`]: fade(
+    `linear-gradient(90deg, transparent, #000 ${FADE})`,
+  ),
+  [`&[data-fade="right"] .${tabsClasses.scroller}`]: fade(
+    `linear-gradient(270deg, transparent, #000 ${FADE})`,
+  ),
+  [`&[data-fade="both"] .${tabsClasses.scroller}`]: fade(
+    `linear-gradient(90deg, transparent, #000 ${FADE}, #000 calc(100% - ${FADE}), transparent)`,
+  ),
 });
 
 // The pills' scroller: MUI keeps a non-scrollable strip `overflow: hidden` (inline). The heading's
-// strip scrolls, natively too (wheel, touch), without a scrollbar.
+// strip scrolls, natively too (wheel, touch), without a scrollbar. Its scroll padding keeps the tabs
+// the strip brings into view (the selected one, a page) clear of the fades.
 const tabsSx = {
   minWidth: 0,
   flex: '0 1 auto',
   [`& .${tabsClasses.scroller}`]: {
     overflowX: 'auto !important',
     scrollbarWidth: 'none',
+    scrollPaddingLeft: FADE,
+    scrollPaddingRight: FADE,
     '&::-webkit-scrollbar': { display: 'none' },
   },
 } as const;
+
+const getServerEdges = () => 0;
 
 /**
  * Tecton chevrons, the size of the heading's other small glyphs. MUI also hands an icon slot its
@@ -157,6 +186,16 @@ const HeadingTabs = React.forwardRef<HTMLDivElement, HeadingTabsProps>(
     // The arrows sit beside the Tabs, in the group: a click on one is the user's too.
     const strip = useTabStrip(tabsRef, selected, tabCount, groupRef);
     useScrollButtonCompensation(tabsRef, strip, scrollButtons, groupRef);
+    // The edges the strip can scroll past, to fade them out.
+    const edges = React.useSyncExternalStore(strip.subscribe, strip.getSnapshot, getServerEdges);
+    const faded =
+      edges === (LEFT | RIGHT)
+        ? 'both'
+        : edges === LEFT
+          ? 'left'
+          : edges === RIGHT
+            ? 'right'
+            : undefined;
 
     useHeadingPart('tabs', regionRef, () => {
       const group = groupRef.current;
@@ -185,7 +224,7 @@ const HeadingTabs = React.forwardRef<HTMLDivElement, HeadingTabsProps>(
     return (
       <TabStripContext.Provider value={strip}>
         <TabsRegion ref={regionRef} data-heading-part="tabs">
-          <TabGroup ref={groupRef} className={headingClasses.tabGroup}>
+          <TabGroup ref={groupRef} className={headingClasses.tabGroup} data-fade={faded}>
             <ScrollArrow edge="start" />
             <Tabs
               ref={handleTabsRef}

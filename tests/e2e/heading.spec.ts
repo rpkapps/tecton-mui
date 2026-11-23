@@ -132,14 +132,26 @@ test.describe('Heading', () => {
     const [start, end] = [arrow(page, 0), arrow(page, 1)];
     await expect(start).toHaveClass(/Mui-disabled/);
     await expect(end).not.toHaveClass(/Mui-disabled/);
-    // A page: the tab cut off at the end comes to the start; both arrows show mid-strip.
+    const group = page.locator('[data-testid="page-heading"] .TectonHeading-tabGroup');
+    // At the start, the tabs fade out toward the end only.
+    await expect(group).toHaveAttribute('data-fade', 'right');
+    await expect(group.locator('.MuiTabs-scroller')).toHaveCSS('mask-image', /linear-gradient/);
+    // A page: the tab cut off at the end comes to the start, clear of the start's fade; both arrows
+    // show mid-strip, and both edges fade.
     await end.click();
     await expect(start).not.toHaveClass(/Mui-disabled/);
+    await expect(group).toHaveAttribute('data-fade', 'both');
     await expect.poll(() => inStrip(page, 'Overview')).toBe(false);
     await expect.poll(() => inStrip(page, 'Builder')).toBe(true);
+    const clearOfFade = await page.getByRole('tab', { name: 'Builder' }).evaluate((tab) => {
+      const view = tab.closest('.MuiTabs-scroller')!.getBoundingClientRect();
+      return tab.getBoundingClientRect().left - view.left;
+    });
+    expect(clearOfFade).toBeGreaterThanOrEqual(23);
     await start.click();
     await expect.poll(() => inStrip(page, 'Overview')).toBe(true);
     await expect(start).toHaveClass(/Mui-disabled/);
+    await expect(group).toHaveAttribute('data-fade', 'right');
 
     // The keyboard reaches every tab; the selected one slides into view.
     await page.getByRole('tab', { name: 'Overview' }).focus();
