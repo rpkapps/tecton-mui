@@ -1,0 +1,608 @@
+import * as React from 'react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { renderToString } from 'react-dom/server';
+import { ThemeProvider } from '../../styles/index.js';
+import Button from '../../Button/index.js';
+import Divider from '../../Divider/index.js';
+import Tab from '../../Tab/index.js';
+import ToggleButton from '../../ToggleButton/index.js';
+import { HeadingContext, type HeadingContextValue } from '../HeadingContext.js';
+import { FULL_LAYOUT, type HeadingLayout } from '../layout.js';
+import Heading, {
+  HeadingActions,
+  HeadingTabs,
+  HeadingTitle,
+  headingClasses,
+  type HeadingTabsProps,
+} from '../index.js';
+import * as root from '../../index.js';
+
+function wrap(ui: React.ReactElement) {
+  return render(<ThemeProvider>{ui}</ThemeProvider>);
+}
+
+/** The canonical page heading: title cluster, tabs and actions. */
+function PageHeading({
+  value = 0,
+  onChange,
+}: {
+  value?: number;
+  onChange?: HeadingTabsProps['onChange'];
+}) {
+  return (
+    <Heading>
+      <HeadingTitle onHomeClick={() => {}} onMenuClick={() => {}}>
+        Portfolio
+      </HeadingTitle>
+      <HeadingTabs value={value} onChange={onChange} aria-label="Portfolio sections">
+        <Tab label="Overview" />
+        <Tab label="Team" />
+      </HeadingTabs>
+      <HeadingActions>
+        <Button variant="contained">New Project</Button>
+      </HeadingActions>
+    </Heading>
+  );
+}
+
+describe('Heading', () => {
+  it('is exported from the root barrel with its parts', () => {
+    expect(root.Heading).toBe(Heading);
+    expect(root.HeadingTitle).toBe(HeadingTitle);
+    expect(root.HeadingTabs).toBe(HeadingTabs);
+    expect(root.HeadingActions).toBe(HeadingActions);
+    expect(root.headingClasses).toBe(headingClasses);
+  });
+
+  it('lays out the title, the tabs and the actions in one row', () => {
+    const { container } = wrap(<PageHeading />);
+    const heading = container.querySelector(`.${headingClasses.root}`)!;
+    expect(heading.tagName).toBe('DIV');
+    expect(heading).not.toHaveClass(headingClasses.disableGutters);
+    expect(within(heading as HTMLElement).getByRole('heading', { level: 1 })).toHaveTextContent(
+      'Portfolio',
+    );
+    expect(heading.querySelector(`.${headingClasses.title}`)).not.toBeNull();
+    expect(heading.querySelector(`.${headingClasses.tabs}`)).toHaveClass('MuiTabs-root');
+    expect(heading.querySelector(`.${headingClasses.actions}`)).toHaveTextContent('New Project');
+  });
+
+  it('takes a root component, disableGutters, className, sx and a ref', () => {
+    const ref = React.createRef<HTMLDivElement>();
+    wrap(
+      <Heading
+        ref={ref}
+        component="header"
+        disableGutters
+        className="page-heading"
+        sx={{ mb: 2 }}
+        data-testid="heading"
+      >
+        <HeadingTitle>Wells</HeadingTitle>
+      </Heading>,
+    );
+    const heading = screen.getByTestId('heading');
+    expect(ref.current).toBe(heading);
+    expect(heading.tagName).toBe('HEADER');
+    expect(heading).toHaveClass(headingClasses.root, headingClasses.disableGutters, 'page-heading');
+    expect(getComputedStyle(heading).paddingLeft).toBe('0px');
+    expect(getComputedStyle(heading).marginBottom).not.toBe('');
+  });
+
+  it('has the Figma frame gutters by default', () => {
+    wrap(
+      <Heading data-testid="heading">
+        <HeadingTitle>Wells</HeadingTitle>
+      </Heading>,
+    );
+    const style = getComputedStyle(screen.getByTestId('heading'));
+    expect(style.paddingLeft).toBe('72px');
+    expect(style.paddingTop).toBe('32px');
+  });
+
+  it('renders on the server', () => {
+    const html = renderToString(
+      <ThemeProvider>
+        <PageHeading />
+      </ThemeProvider>,
+    );
+    expect(html).toContain('<h1');
+    expect(html).toContain('Portfolio');
+    expect(html).toContain('role="tablist"');
+    expect(html).toContain(headingClasses.actions);
+  });
+});
+
+describe('HeadingTitle', () => {
+  it('is an h1 with no buttons by default', () => {
+    wrap(<HeadingTitle>Portfolio</HeadingTitle>);
+    const title = screen.getByRole('heading', { level: 1, name: 'Portfolio' });
+    expect(title).toHaveClass(headingClasses.titleText, 'MuiTypography-h4');
+    // Tecton heading-1 without MUI's h4 letter spacing.
+    expect(getComputedStyle(title).letterSpacing).toBe('normal');
+    expect(screen.queryByRole('button')).toBeNull();
+  });
+
+  it('takes the title element and Typography props through slotProps.title', () => {
+    wrap(
+      <HeadingTitle slotProps={{ title: { component: 'h2', className: 'title', id: 'wells' } }}>
+        Wells
+      </HeadingTitle>,
+    );
+    const title = screen.getByRole('heading', { level: 2, name: 'Wells' });
+    expect(title).toHaveClass(headingClasses.titleText, 'title');
+    expect(title).toHaveAttribute('id', 'wells');
+  });
+
+  it('shows the home button with onHomeClick and calls it', async () => {
+    const onHomeClick = vi.fn();
+    const onClick = vi.fn();
+    wrap(
+      <HeadingTitle onHomeClick={onHomeClick} slotProps={{ homeButton: { onClick } }}>
+        Portfolio
+      </HeadingTitle>,
+    );
+    const home = screen.getByRole('button', { name: 'Home' });
+    expect(home).toHaveClass(headingClasses.homeButton);
+    // The button comes before the title.
+    expect(
+      home.compareDocumentPosition(screen.getByRole('heading')) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    await userEvent.click(home);
+    expect(onClick).toHaveBeenCalledTimes(1);
+    expect(onHomeClick).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('button', { name: 'More' })).toBeNull();
+  });
+
+  it('shows the home button as a link with an href', () => {
+    wrap(
+      <HeadingTitle slotProps={{ homeButton: { href: '/home', 'aria-label': 'All portfolios' } }}>
+        Portfolio
+      </HeadingTitle>,
+    );
+    expect(screen.getByRole('link', { name: 'All portfolios' })).toHaveAttribute('href', '/home');
+  });
+
+  it('shows the menu button with onMenuClick and calls it with the event', async () => {
+    const onMenuClick = vi.fn((event: React.MouseEvent<HTMLButtonElement>) => event.currentTarget);
+    const onClick = vi.fn();
+    wrap(
+      <HeadingTitle
+        onMenuClick={onMenuClick}
+        slotProps={{
+          menuButton: {
+            'aria-label': 'Switch portfolio',
+            'aria-haspopup': 'menu',
+            className: 'chevron',
+            onClick,
+          },
+        }}
+      >
+        Portfolio
+      </HeadingTitle>,
+    );
+    const menu = screen.getByRole('button', { name: 'Switch portfolio' });
+    expect(menu).toHaveClass(headingClasses.menuButton, 'chevron', 'MuiIconButton-sizeSmall');
+    expect(menu).toHaveAttribute('aria-haspopup', 'menu');
+    expect(
+      menu.compareDocumentPosition(screen.getByRole('heading')) & Node.DOCUMENT_POSITION_PRECEDING,
+    ).toBeTruthy();
+    await userEvent.click(menu);
+    expect(onClick).toHaveBeenCalledTimes(1);
+    expect(onMenuClick).toHaveBeenCalledTimes(1);
+    expect(onMenuClick.mock.results[0]!.value).toBe(menu);
+  });
+
+  it('labels the buttons "Home" and "More" by default, with decorative icons', () => {
+    wrap(
+      <HeadingTitle onHomeClick={() => {}} onMenuClick={() => {}}>
+        Portfolio
+      </HeadingTitle>,
+    );
+    for (const name of ['Home', 'More']) {
+      const button = screen.getByRole('button', { name });
+      expect(button.querySelector('[aria-hidden]')).not.toBeNull();
+    }
+  });
+
+  it('forwards its ref, className and HTML attributes to the cluster', () => {
+    const ref = React.createRef<HTMLDivElement>();
+    wrap(
+      <HeadingTitle ref={ref} className="cluster" data-testid="cluster">
+        Portfolio
+      </HeadingTitle>,
+    );
+    expect(ref.current).toBe(screen.getByTestId('cluster'));
+    expect(ref.current).toHaveClass(headingClasses.title, 'cluster');
+  });
+});
+
+describe('HeadingTabs', () => {
+  it('is a tab list of MUI tabs, selected by value, that reports changes', async () => {
+    const onChange = vi.fn();
+    wrap(<PageHeading value={0} onChange={onChange} />);
+    const list = screen.getByRole('tablist', { name: 'Portfolio sections' });
+    expect(within(list).getByRole('tab', { name: 'Overview' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+    await userEvent.click(within(list).getByRole('tab', { name: 'Team' }));
+    expect(onChange).toHaveBeenCalledWith(expect.anything(), 1);
+  });
+
+  it('forwards its ref, className and sx to the Tabs root', () => {
+    const ref = React.createRef<HTMLDivElement>();
+    wrap(
+      <HeadingTabs
+        ref={ref}
+        value="a"
+        className="sections"
+        sx={{ borderRadius: '3px' }}
+        aria-label="Sections"
+      >
+        <Tab value="a" label="A" />
+      </HeadingTabs>,
+    );
+    expect(ref.current).toHaveClass('MuiTabs-root', headingClasses.tabs, 'sections');
+    expect(getComputedStyle(ref.current!).borderRadius).toBe('3px');
+    // The tabs sit on the tab group's paper surface.
+    const group = ref.current!.parentElement!;
+    expect(group).toHaveClass(headingClasses.tabGroup);
+    expect(getComputedStyle(group).padding).toBe('6px');
+    expect(ref.current).toContainElement(screen.getByRole('tablist', { name: 'Sections' }));
+  });
+
+  it('takes the small tab size', () => {
+    wrap(
+      <HeadingTabs value={0} size="small" aria-label="Views">
+        <Tab label="Grid" />
+      </HeadingTabs>,
+    );
+    expect(screen.getByRole('tab', { name: 'Grid' })).toHaveAttribute('aria-selected', 'true');
+  });
+});
+
+describe('HeadingActions', () => {
+  it('holds the actions and forwards its ref and attributes', () => {
+    const ref = React.createRef<HTMLDivElement>();
+    wrap(
+      <HeadingActions ref={ref} className="tools" aria-label="Page actions" role="group">
+        <Button>Publish</Button>
+      </HeadingActions>,
+    );
+    const group = screen.getByRole('group', { name: 'Page actions' });
+    expect(ref.current).toBe(group);
+    expect(group).toHaveClass(headingClasses.actions, 'tools');
+    expect(within(group).getByRole('button', { name: 'Publish' })).toBeInTheDocument();
+  });
+});
+
+// Type-level checks (compiled by `pnpm typecheck`).
+export function typeChecks() {
+  return (
+    <>
+      <Heading component="section" disableGutters />
+      <HeadingTitle
+        onHomeClick={(event: React.MouseEvent<HTMLButtonElement>) => event}
+        onMenuClick={(event: React.MouseEvent<HTMLButtonElement>) => event.currentTarget}
+        slotProps={{
+          title: { component: 'h2', variant: 'h5' },
+          homeButton: { href: '/' },
+          menuButton: { 'aria-expanded': true },
+        }}
+      />
+      <HeadingTabs value={0} size="small" onChange={(_event, value: number) => value} />
+      {/* @ts-expect-error The heading's tabs are always the filled (pills) tab group. */}
+      <HeadingTabs value={0} variant="scrollable" />
+      {/* @ts-expect-error The heading's tabs are horizontal. */}
+      <HeadingTabs value={0} orientation="vertical" />
+      {/* @ts-expect-error The filled tab group has no indicator. */}
+      <HeadingTabs value={0} indicatorColor="secondary" />
+      {/* @ts-expect-error The filled tab group sets the label colors. */}
+      <HeadingTabs value={0} textColor="secondary" />
+      {/* @ts-expect-error Only the filled tab group's scroll-free row is offered. */}
+      <HeadingTabs value={0} scrollButtons />
+    </>
+  );
+}
+
+describe('collapsed parts (in a narrow Heading)', () => {
+  /** Renders the parts with a given layout, as their `Heading` would after measuring them. */
+  function Collapsed({
+    layout,
+    children,
+  }: {
+    layout: Partial<HeadingLayout>;
+    children: React.ReactNode;
+  }) {
+    const context = React.useMemo<HeadingContextValue>(
+      () => ({
+        layout: { ...FULL_LAYOUT, ...layout },
+        register: () => () => {},
+        requestMeasure: () => {},
+      }),
+      [layout],
+    );
+    return <HeadingContext.Provider value={context}>{children}</HeadingContext.Provider>;
+  }
+
+  const SECTIONS = ['Overview', 'Framing', 'Team', 'Builder'];
+  function Sections({ layout }: { layout: Partial<HeadingLayout> }) {
+    const [value, setValue] = React.useState('Overview');
+    return (
+      <Collapsed layout={layout}>
+        <HeadingTabs
+          value={value}
+          onChange={(_event, next) => setValue(next)}
+          aria-label="Sections"
+        >
+          {SECTIONS.map((name) => (
+            <Tab key={name} value={name} label={name} />
+          ))}
+        </HeadingTabs>
+      </Collapsed>
+    );
+  }
+
+  it('shows the tabs that fit and lists the others in the More menu', async () => {
+    wrap(<Sections layout={{ tabs: 2 }} />);
+    const list = screen.getByRole('tablist', { name: 'Sections' });
+    expect(
+      within(list)
+        .getAllByRole('tab')
+        .map((tab) => tab.textContent),
+    ).toEqual(['Overview', 'Framing']);
+    const more = screen.getByRole('button', { name: 'More' });
+    expect(more).toHaveClass(headingClasses.moreButton);
+    expect(more).toHaveAttribute('aria-haspopup', 'menu');
+    expect(more).toHaveAttribute('aria-expanded', 'false');
+    await userEvent.click(more);
+    expect(more).toHaveAttribute('aria-expanded', 'true');
+    const menu = screen.getByRole('menu', { name: 'More' });
+    expect(
+      within(menu)
+        .getAllByRole('menuitem')
+        .map((item) => item.textContent),
+    ).toEqual(['Team', 'Builder']);
+  });
+
+  it('selects a tab picked in the menu, shows it in place of the last one and focuses it', async () => {
+    wrap(<Sections layout={{ tabs: 2 }} />);
+    await userEvent.click(screen.getByRole('button', { name: 'More' }));
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Builder' }));
+    const tabs = within(screen.getByRole('tablist')).getAllByRole('tab');
+    expect(tabs.map((tab) => tab.textContent)).toEqual(['Overview', 'Builder']);
+    expect(tabs[1]).toHaveAttribute('aria-selected', 'true');
+    expect(tabs[1]).toHaveFocus();
+  });
+
+  it('shows no More pill when every tab fits, and none outside a Heading', () => {
+    wrap(<Sections layout={{ tabs: 9 }} />);
+    expect(screen.getAllByRole('tab')).toHaveLength(4);
+    expect(screen.queryByRole('button', { name: 'More' })).toBeNull();
+  });
+
+  it('takes the More pill label and props through slotProps', () => {
+    wrap(
+      <Collapsed layout={{ tabs: 1 }}>
+        <HeadingTabs
+          value={0}
+          aria-label="Views"
+          slotProps={{ moreButton: { children: 'Plus', className: 'extra' } }}
+        >
+          <Tab label="Grid" />
+          <Tab label="Map" />
+        </HeadingTabs>
+      </Collapsed>,
+    );
+    expect(screen.getByRole('button', { name: 'Plus' })).toHaveClass('extra');
+  });
+
+  function Actions({
+    layout,
+    onCreate,
+  }: {
+    layout: Partial<HeadingLayout>;
+    onCreate?: () => void;
+  }) {
+    return (
+      <Collapsed layout={layout}>
+        <HeadingActions>
+          <>
+            <Button>Search</Button>
+            <Divider orientation="vertical" flexItem />
+          </>
+          <ToggleButton value="list" selected>
+            List
+          </ToggleButton>
+          <Button variant="contained" onClick={onCreate}>
+            Create
+          </Button>
+        </HeadingActions>
+      </Collapsed>
+    );
+  }
+
+  it('moves the actions that do not fit into the overflow tray, as they are', async () => {
+    wrap(<Actions layout={{ actions: 3 }} />);
+    expect(screen.queryByRole('button', { name: 'Search' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Create' })).toBeInTheDocument();
+    const overflow = screen.getByRole('button', { name: 'More actions' });
+    expect(overflow).toHaveClass(headingClasses.overflowButton);
+    expect(overflow).toHaveAttribute('aria-haspopup', 'dialog');
+    await userEvent.click(overflow);
+    expect(overflow).toHaveAttribute('aria-expanded', 'true');
+    const tray = screen.getByRole('dialog', { name: 'More actions' });
+    expect(tray).toHaveClass(headingClasses.overflowTray);
+    expect(within(tray).getByRole('button', { name: 'Search' })).toBeInTheDocument();
+    expect(within(tray).getByRole('button', { name: 'List' })).toBeInTheDocument();
+    // The separator between them stays.
+    expect(tray.querySelector('.MuiDivider-root')).not.toBeNull();
+  });
+
+  it('leaves out a separator at either end of the tray', async () => {
+    wrap(<Actions layout={{ actions: 2 }} />);
+    expect(screen.getByRole('button', { name: 'List' })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'More actions' }));
+    const tray = screen.getByRole('dialog', { name: 'More actions' });
+    expect(within(tray).getByRole('button', { name: 'Search' })).toBeInTheDocument();
+    expect(tray.querySelector('.MuiDivider-root')).toBeNull();
+  });
+
+  it('closes the tray after a command, not after a toggle', async () => {
+    const onCreate = vi.fn();
+    wrap(<Actions layout={{ actions: 4 }} onCreate={onCreate} />);
+    await userEvent.click(screen.getByRole('button', { name: 'More actions' }));
+    const tray = screen.getByRole('dialog', { name: 'More actions' });
+    await userEvent.click(within(tray).getByRole('button', { name: 'List' }));
+    expect(screen.getByRole('dialog', { name: 'More actions' })).toBeInTheDocument();
+    await userEvent.click(within(tray).getByRole('button', { name: 'Create' }));
+    expect(onCreate).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  });
+
+  it('keeps the overflow button out of sight and reach while measuring', () => {
+    wrap(
+      <Collapsed layout={{ measuring: true }}>
+        <HeadingTabs value={0} aria-label="Views">
+          <Tab label="Grid" />
+        </HeadingTabs>
+        <HeadingActions>
+          <Button>Publish</Button>
+        </HeadingActions>
+      </Collapsed>,
+    );
+    for (const className of [headingClasses.moreButton, headingClasses.overflowButton]) {
+      const button = document.querySelector<HTMLElement>(`.${className}`)!;
+      expect(button).toHaveAttribute('aria-hidden', 'true');
+      expect(button).toHaveAttribute('tabindex', '-1');
+      expect(button.style.visibility).toBe('hidden');
+    }
+    expect(screen.getAllByRole('tab')).toHaveLength(1);
+    expect(screen.getByRole('button', { name: 'Publish' })).toBeInTheDocument();
+  });
+});
+
+describe('Heading layout (with layout geometry)', () => {
+  // jsdom has no layout: give the parts natural widths and the heading a width that a test sets,
+  // and drive the ResizeObserver by hand.
+  let headingWidth = 2000;
+  // Every observer's callback (MUI's Tabs observe too).
+  let observers: (() => void)[] = [];
+  const widthFor = (element: Element) => {
+    if (element.classList.contains(headingClasses.root)) return headingWidth;
+    if (element.classList.contains(headingClasses.title)) return 160;
+    if (element.getAttribute('role') === 'tab') return 90;
+    if (element.classList.contains(headingClasses.moreButton)) return 80;
+    if (element.classList.contains(headingClasses.overflowButton)) return 40;
+    if (element.hasAttribute('data-heading-action')) return 120;
+    return 0;
+  };
+
+  beforeEach(() => {
+    headingWidth = 2000;
+    vi.spyOn(Element.prototype, 'getClientRects').mockImplementation(
+      () => [{}] as unknown as DOMRectList,
+    );
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (
+      this: Element,
+    ) {
+      return { width: widthFor(this) } as DOMRect;
+    });
+    vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockImplementation(function (
+      this: HTMLElement,
+    ) {
+      return widthFor(this);
+    });
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        constructor(callback: () => void) {
+          observers.push(callback);
+        }
+        observe() {}
+        unobserve() {}
+        disconnect() {}
+      },
+    );
+  });
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+    observers = [];
+  });
+
+  function Page() {
+    const [value, setValue] = React.useState(0);
+    return (
+      <Heading data-testid="heading">
+        <HeadingTitle>Portfolio</HeadingTitle>
+        <HeadingTabs
+          value={value}
+          onChange={(_event, next) => setValue(next)}
+          aria-label="Sections"
+        >
+          {['A', 'B', 'C', 'D', 'E'].map((label) => (
+            <Tab key={label} label={label} />
+          ))}
+        </HeadingTabs>
+        <HeadingActions>
+          <Button>Search</Button>
+          <Button>Publish</Button>
+          <Button variant="contained">Create</Button>
+        </HeadingActions>
+      </Heading>
+    );
+  }
+
+  const resizeTo = (width: number) =>
+    act(() => {
+      headingWidth = width;
+      observers.forEach((callback) => callback());
+    });
+
+  it('measures its parts and lets them give way as it narrows', () => {
+    wrap(<Page />);
+    const heading = screen.getByTestId('heading');
+    // Everything fits.
+    expect(screen.getAllByRole('tab')).toHaveLength(5);
+    expect(screen.queryByRole('button', { name: 'More actions' })).toBeNull();
+    expect(heading).toHaveAttribute('data-width', 'lg');
+    expect(heading).not.toHaveAttribute('data-measuring');
+
+    // The actions go first, the primary one stays: 956px of content (72px gutters) holds the title,
+    // the five tabs, ⋮ and the primary action (870px), not one more action (1006px).
+    resizeTo(1100);
+    expect(screen.getByRole('button', { name: 'More actions' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Search' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Create' })).toBeInTheDocument();
+    expect(screen.getAllByRole('tab')).toHaveLength(5);
+
+    // Then the tabs.
+    resizeTo(700);
+    expect(heading).toHaveAttribute('data-width', 'md');
+    expect(screen.getByRole('button', { name: 'More' })).toBeInTheDocument();
+    expect(screen.getAllByRole('tab').length).toBeLessThan(5);
+
+    // Compact: the tabs get a row of their own.
+    resizeTo(300);
+    expect(heading).toHaveAttribute('data-width', 'sm');
+    expect(heading).toHaveClass(headingClasses.compact);
+
+    // And back.
+    resizeTo(2000);
+    expect(heading).not.toHaveClass(headingClasses.compact);
+    expect(screen.getAllByRole('tab')).toHaveLength(5);
+  });
+
+  it('shows everything while it has no layout (hidden)', () => {
+    wrap(<Page />);
+    vi.spyOn(Element.prototype, 'getClientRects').mockImplementation(
+      () => [] as unknown as DOMRectList,
+    );
+    resizeTo(300);
+    expect(screen.getAllByRole('tab')).toHaveLength(5);
+    expect(screen.queryByRole('button', { name: 'More actions' })).toBeNull();
+  });
+});

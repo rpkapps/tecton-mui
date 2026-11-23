@@ -13,7 +13,8 @@ customization APIs, preconfigured with the **Tecton** design system.
   recipes, packaged as components: built on Base UI (`@base-ui/react`, MIT) and styled by the theme.
 - `NumberSlider` and `NumberRangeSlider`: a number input (or a range of two) next to a drag bar,
   built on the same Base UI number field.
-- `ActionBar`, the Tecton vertical tool palette, composed from Material components.
+- `ActionBar`, the Tecton vertical tool palette, and `Heading`, the Tecton page heading (title,
+  section tabs and actions), composed from Material components.
 - `ColorSwatchControl`, the Tecton color input: a swatch and hex value that open the browser's
   color picker.
 - Tecton fonts, icons and tokens, with a typed `Icon` (no `@mui/icons-material` needed). Light and
@@ -419,6 +420,39 @@ Buttons with a `value` are tools (one is current); buttons without one are plain
 menu holds a set of tools and opens on long press, right-click or the arrow key toward its menu.
 `ActionBarSelect` adds a compact `Select` (two can share a row in an
 `<ActionBarGroup orientation="horizontal">`); `alignment="right"` docks the bar on the right.
+
+## Heading
+
+The Tecton page heading, under the app bar: the page's title, the tabs of its sections and its
+actions. It is composed from parts, MUI style:
+
+```tsx
+import Heading, { HeadingActions, HeadingTabs, HeadingTitle } from '@tecton-mui/ui/Heading';
+import Tab from '@tecton-mui/ui/Tab';
+
+<Heading>
+  <HeadingTitle onHomeClick={goHome} onMenuClick={(event) => openMenu(event.currentTarget)}>
+    Portfolio
+  </HeadingTitle>
+  <HeadingTabs value={section} onChange={(event, value) => setSection(value)} aria-label="Sections">
+    <Tab value="overview" label="Overview" />
+    <Tab value="team" label="Team" />
+  </HeadingTabs>
+  <HeadingActions>
+    <Button variant="contained" startIcon={<Icon name="add" />}>
+      New Project
+    </Button>
+  </HeadingActions>
+</Heading>;
+```
+
+The title is an `<h1>` (`slotProps.title` changes the element and `Typography` variant);
+`onHomeClick` and `onMenuClick` show the home button and the menu chevron. `HeadingTabs` takes the
+MUI `Tabs` props and shows the Tecton filled tab group. The row never wraps: when it runs out of
+room, the actions collapse into an overflow (⋮) button first to last (the last, primary one stays),
+then the tabs after the selected one into a More pill, then the primary action; a very narrow
+heading gives the tabs a row of their own. The gutters follow the heading's own width;
+`disableGutters` removes them.
 
 ## ColorSwatchControl
 

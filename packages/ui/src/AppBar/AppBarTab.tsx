@@ -7,7 +7,7 @@ import Tab, { type TabProps } from '@mui/material/Tab';
 import Typography from '@mui/material/Typography';
 import Icon from '../Icon/Icon.js';
 import { cssVar } from '../styles/tecton/index.js';
-import { sxList } from './sxList.js';
+import { sxList } from '../internal/sxList.js';
 import { CLOSE_SLOT_ATTRIBUTE, TabCloseContext } from './TabCloseButton.js';
 
 export interface AppBarTabProps extends Omit<

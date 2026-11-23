@@ -15,7 +15,7 @@ import { styled } from '@mui/material/styles';
 import { createSvgIcon } from '@mui/material/utils';
 import useForkRef from '@mui/utils/useForkRef';
 import { cssVar } from '../styles/tecton/index.js';
-import { sxList } from './sxList.js';
+import { sxList } from '../internal/sxList.js';
 import { useScrollButtonCompensation } from './useScrollButtonCompensation.js';
 import { TabStripContext, TabStripScrollButton, useTabStrip } from './tabStrip.js';
 import { TabCloseButton, TabCloseContext, type TabCloseContextValue } from './TabCloseButton.js';

@@ -1,474 +1,341 @@
-// Reproduction of the Tecton Storybook 0.10.1 stories for this component, generated from the
-// published story bundle and rendered with @tecton-mui/ui (see tests/e2e/storybook-parity).
-// Story ids match the Storybook index; layout wrappers are reproduced by StorybookScenario.
+// Reproduction of the Tecton Storybook 0.10.1 "Organisms/Heading" stories, rendered with the
+// @tecton-mui/ui `Heading` component and its parts (see tests/e2e/storybook-parity). The Storybook
+// composes each heading by hand from MUI parts: a padded frame (`Heading`), a title cluster
+// (`HeadingTitle`), a filled tab group on paper (`HeadingTabs`) and a right cluster
+// (`HeadingActions`). The canvases, captions and controls are the story bundle's. Story ids match
+// the Storybook index; layout wrappers are reproduced by StorybookScenario.
 import * as React from 'react';
 import {
-  Box,
   Button,
   Divider,
   FormControl,
+  Heading,
+  HeadingActions,
+  HeadingTabs,
+  HeadingTitle,
   IconButton,
   InputAdornment,
   MenuItem,
   Select,
   Stack,
   Tab,
-  Tabs,
   ToggleButton,
-  ToggleButtonGroup as ToggleButtonGroup_a,
+  ToggleButtonGroup,
   Typography,
 } from '@tecton-mui/ui';
 
-function CP({ fluid: r = false, left: n, right: a }) {
+const noop = () => {};
+/** The Storybook's headings are 1920px wide (the Figma frame) unless fluid. */
+const figmaWidth = { width: 1920 } as const;
+
+function Frame({
+  fluid = false,
+  children,
+  actions,
+}: {
+  fluid?: boolean;
+  children: React.ReactNode;
+  actions?: React.ReactNode;
+}) {
   return (
-    <Box
-      sx={{
-        width: r ? '100%' : 1920,
-        paddingInline: '72px',
-        paddingBlock: '32px',
-        boxSizing: 'border-box',
-      }}
+    <Heading sx={fluid ? undefined : figmaWidth}>
+      {children}
+      {actions ? <HeadingActions>{actions}</HeadingActions> : null}
+    </Heading>
+  );
+}
+
+function Title({
+  title,
+  homeButton = false,
+  chevronButton = false,
+}: {
+  title: string;
+  homeButton?: boolean;
+  chevronButton?: boolean;
+}) {
+  return (
+    <HeadingTitle
+      onHomeClick={homeButton ? noop : undefined}
+      onMenuClick={chevronButton ? noop : undefined}
     >
-      <Stack
-        direction="row"
-        sx={{ width: '100%', alignItems: 'center', justifyContent: 'space-between' }}
-      >
-        {n}
-        {a ? (
-          <Stack direction="row" spacing={2} sx={{ alignItems: 'center', marginLeft: 'auto' }}>
-            {a}
-          </Stack>
-        ) : null}
-      </Stack>
-    </Box>
+      {title}
+    </HeadingTitle>
   );
 }
-const ue = {
-  fontFamily: 'var(--tecton-font-family-sans)',
-  fontSize: 'var(--tecton-font-size-heading-1)',
-  fontWeight: 500,
-  lineHeight: 'var(--tecton-line-height-heading-1)',
-  color: 'var(--tecton-color-text-primary)',
-  whiteSpace: 'nowrap',
-};
-function CH({ title: r, homeButton: n = false, chevronButton: a = false }) {
-  return (
-    <Stack direction="row" sx={{ alignItems: 'center' }} spacing="6px">
-      {n ? (
-        <IconButton size="medium" aria-label="Home">
-          <span className="tecton-home-outline" aria-hidden />
-        </IconButton>
-      ) : null}
-      <Typography sx={ue}>{r}</Typography>
-      {a ? (
-        <IconButton size="small" aria-label="More">
-          <span
-            className="tecton-chevron-down-outline"
-            style={{ fontSize: 'var(--tecton-icon-size-100)' }}
-            aria-hidden
-          />
-        </IconButton>
-      ) : null}
-    </Stack>
-  );
-}
-function B({ label: r }) {
+
+function SelectLabel({ label }: { label: string }) {
   return (
     <InputAdornment position="start">
       <Typography variant="caption" sx={{ color: 'var(--tecton-color-text-secondary)' }}>
-        {r}
+        {label}
       </Typography>
     </InputAdornment>
   );
 }
-function F() {
-  return (
-    <Box
-      component="hr"
-      role="separator"
-      aria-orientation="vertical"
-      sx={{
-        width: '1px',
-        margin: 0,
-        border: 0,
-        alignSelf: 'stretch',
-        backgroundColor: 'var(--tecton-color-divider-subtle)',
-      }}
-    />
-  );
+
+function Separator() {
+  return <Divider orientation="vertical" flexItem emphasis="subtle" />;
 }
-function P({ fluid: r = false }) {
+
+function AddButton({ children }: { children: React.ReactNode }) {
   return (
-    <CP
-      fluid={r}
-      left={<CH title="Portfolio" homeButton chevronButton />}
-      right={
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<span className="tecton-add-outline" aria-hidden />}
-        >
-          New Project
-        </Button>
-      }
-    />
-  );
-}
-function D({ fluid: r = false }) {
-  return (
-    <CP
-      fluid={r}
-      left={
-        <Stack
-          direction="row"
-          sx={{ alignItems: 'center', height: 'var(--tecton-space-600)' }}
-          spacing={4}
-        >
-          <CH title="Orion Discovery" />
-          <Box
-            sx={{
-              bgcolor: 'var(--tecton-color-bg-paper)',
-              p: 'var(--tecton-space-75)',
-              borderRadius: 'var(--tecton-radius-50)',
-            }}
-          >
-            <Tabs value={0} variant="pills" aria-label="Discovery sections">
-              <Tab label="Overview" />
-              <Tab label="Framing" />
-              <Tab label="Team" />
-              <Tab label="Builder" />
-              <Tab label="Time & Cost" />
-              <Tab label="Compare" />
-              <Tab label="Analytics" />
-            </Tabs>
-          </Box>
-        </Stack>
-      }
-      right={
-        <ToggleButtonGroup_a exclusive value="list" size="small" aria-label="View mode">
-          <ToggleButton value="list">
-            <span
-              className="tecton-list-outline"
-              style={{ fontSize: 'var(--tecton-icon-size-100)', marginRight: '4px' }}
-              aria-hidden
-            />
-            List
-          </ToggleButton>
-          <ToggleButton value="grid">
-            <span
-              className="tecton-grid-view-outline"
-              style={{ fontSize: 'var(--tecton-icon-size-100)', marginRight: '4px' }}
-              aria-hidden
-            />
-            Grid
-          </ToggleButton>
-        </ToggleButtonGroup_a>
-      }
-    />
-  );
-}
-function O({ fluid: r = false }) {
-  return (
-    <CP
-      fluid={r}
-      left={
-        <Stack
-          direction="row"
-          sx={{ alignItems: 'center', height: 'var(--tecton-space-600)' }}
-          spacing={4}
-        >
-          <CH title="Wells" />
-          <Box
-            sx={{
-              bgcolor: 'var(--tecton-color-bg-paper)',
-              p: 'var(--tecton-space-75)',
-              borderRadius: 'var(--tecton-radius-50)',
-            }}
-          >
-            <Tabs value={0} variant="pills" aria-label="Wells views">
-              <Tab label="Grid" />
-              <Tab label="List" />
-              <Tab label="Map" />
-            </Tabs>
-          </Box>
-        </Stack>
-      }
-      right={
-        <React.Fragment>
-          <IconButton size="medium" aria-label="Search">
-            <span className="tecton-search-outline" aria-hidden />
-          </IconButton>
-          <IconButton size="medium" aria-label="Filter">
-            <span className="tecton-filter-outline" aria-hidden />
-          </IconButton>
-          <F />
-          <FormControl size="small" variant="filled">
-            <Select value="by well" startAdornment={<B label="View:" />}>
-              <MenuItem value="by well">by well</MenuItem>
-            </Select>
-          </FormControl>
-          <FormControl size="small" variant="filled">
-            <Select value="Recent" startAdornment={<B label="Sort:" />}>
-              <MenuItem value="Recent">Recent</MenuItem>
-            </Select>
-          </FormControl>
-          <F />
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<span className="tecton-add-outline" aria-hidden />}
-          >
-            New Well
-          </Button>
-        </React.Fragment>
-      }
-    />
-  );
-}
-function E({ fluid: r = false }) {
-  return (
-    <CP
-      fluid={r}
-      left={
-        <Stack
-          direction="row"
-          sx={{ alignItems: 'center', height: 'var(--tecton-space-600)' }}
-          spacing={4}
-        >
-          <CH title="Workspaces" />
-          <Box
-            sx={{
-              bgcolor: 'var(--tecton-color-bg-paper)',
-              p: 'var(--tecton-space-75)',
-              borderRadius: 'var(--tecton-radius-50)',
-            }}
-          >
-            <Tabs value={0} variant="pills" aria-label="Workspace scopes">
-              <Tab label="All Workspaces" />
-              <Tab label="Projects" />
-              <Tab label="My Sandbox" />
-            </Tabs>
-          </Box>
-        </Stack>
-      }
-      right={
-        <React.Fragment>
-          <FormControl size="small" variant="filled">
-            <Select value="Recent" startAdornment={<B label="Sort:" />}>
-              <MenuItem value="Recent">Recent</MenuItem>
-            </Select>
-          </FormControl>
-          <F />
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<span className="tecton-add-outline" aria-hidden />}
-          >
-            New Workspace
-          </Button>
-        </React.Fragment>
-      }
-    />
-  );
-}
-function CLe() {
-  return (
-    <Stack
-      direction="row"
-      sx={{ alignItems: 'center', height: 'var(--tecton-space-600)' }}
-      spacing={4}
+    <Button
+      variant="contained"
+      color="primary"
+      startIcon={<span className="tecton-add-outline" aria-hidden />}
     >
-      <CH title="Portfolio" homeButton chevronButton />
-      <Box
-        sx={{
-          bgcolor: 'var(--tecton-color-bg-paper)',
-          p: 'var(--tecton-space-75)',
-          borderRadius: 'var(--tecton-radius-50)',
-        }}
-      >
-        <Tabs value={0} variant="pills" aria-label="Portfolio sections">
-          <Tab label="Overview" />
-          <Tab label="Framing" />
-          <Tab label="Team" />
-          <Tab label="Builder" />
-          <Tab label="Time & Cost" />
-          <Tab label="Compare" />
-          <Tab label="Analytics" />
-        </Tabs>
-      </Box>
-    </Stack>
+      {children}
+    </Button>
   );
 }
-function CCe() {
+
+function ViewModeToggle() {
   return (
-    <React.Fragment>
+    <ToggleButtonGroup exclusive value="list" size="small" aria-label="View mode">
+      <ToggleButton value="list">
+        <span
+          className="tecton-list-outline"
+          style={{ fontSize: 'var(--tecton-icon-size-100)', marginRight: '4px' }}
+          aria-hidden
+        />
+        List
+      </ToggleButton>
+      <ToggleButton value="grid">
+        <span
+          className="tecton-grid-view-outline"
+          style={{ fontSize: 'var(--tecton-icon-size-100)', marginRight: '4px' }}
+          aria-hidden
+        />
+        Grid
+      </ToggleButton>
+    </ToggleButtonGroup>
+  );
+}
+
+function LabeledSelect({ label, value }: { label: string; value: string }) {
+  return (
+    <FormControl size="small" variant="filled">
+      <Select value={value} startAdornment={<SelectLabel label={label} />}>
+        <MenuItem value={value}>{value}</MenuItem>
+      </Select>
+    </FormControl>
+  );
+}
+
+function SearchAndFilter() {
+  return (
+    <>
       <IconButton size="medium" aria-label="Search">
         <span className="tecton-search-outline" aria-hidden />
       </IconButton>
       <IconButton size="medium" aria-label="Filter">
         <span className="tecton-filter-outline" aria-hidden />
       </IconButton>
-      <FormControl size="small" variant="filled">
-        <Select value="by well" startAdornment={<B label="View:" />}>
-          <MenuItem value="by well">by well</MenuItem>
-        </Select>
-      </FormControl>
-      <FormControl size="small" variant="filled">
-        <Select value="Recent" startAdornment={<B label="Sort:" />}>
-          <MenuItem value="Recent">Recent</MenuItem>
-        </Select>
-      </FormControl>
-      <ToggleButtonGroup_a exclusive value="list" size="small" aria-label="View mode">
-        <ToggleButton value="list">
-          <span
-            className="tecton-list-outline"
-            style={{ fontSize: 'var(--tecton-icon-size-100)', marginRight: '4px' }}
-            aria-hidden
-          />
-          List
-        </ToggleButton>
-        <ToggleButton value="grid">
-          <span
-            className="tecton-grid-view-outline"
-            style={{ fontSize: 'var(--tecton-icon-size-100)', marginRight: '4px' }}
-            aria-hidden
-          />
-          Grid
-        </ToggleButton>
-      </ToggleButtonGroup_a>
-      <Button variant="text" color="secondary">
-        Publish
-      </Button>
-      <Button
-        variant="contained"
-        color="primary"
-        startIcon={<span className="tecton-add-outline" aria-hidden />}
-      >
-        Create Project
-      </Button>
-    </React.Fragment>
+    </>
   );
 }
+
+function Tabs({ label, tabs }: { label: string; tabs: string[] }) {
+  return (
+    <HeadingTabs value={0} aria-label={label}>
+      {tabs.map((tab) => (
+        <Tab key={tab} label={tab} />
+      ))}
+    </HeadingTabs>
+  );
+}
+
+const SECTIONS = ['Overview', 'Framing', 'Team', 'Builder', 'Time & Cost', 'Compare', 'Analytics'];
+
+// Compact: the portfolio title cluster and one action.
+function Compact({ fluid = false }: { fluid?: boolean }) {
+  return (
+    <Frame fluid={fluid} actions={<AddButton>New Project</AddButton>}>
+      <Title title="Portfolio" homeButton chevronButton />
+    </Frame>
+  );
+}
+
+// Reports: title, the section tabs and the view toggle.
+function Reports({ fluid = false }: { fluid?: boolean }) {
+  return (
+    <Frame fluid={fluid} actions={<ViewModeToggle />}>
+      <Title title="Orion Discovery" />
+      <Tabs label="Discovery sections" tabs={SECTIONS} />
+    </Frame>
+  );
+}
+
+function Wells({ fluid = false }: { fluid?: boolean }) {
+  return (
+    <Frame
+      fluid={fluid}
+      actions={
+        <>
+          <SearchAndFilter />
+          <Separator />
+          <LabeledSelect label="View:" value="by well" />
+          <LabeledSelect label="Sort:" value="Recent" />
+          <Separator />
+          <AddButton>New Well</AddButton>
+        </>
+      }
+    >
+      <Title title="Wells" />
+      <Tabs label="Wells views" tabs={['Grid', 'List', 'Map']} />
+    </Frame>
+  );
+}
+
+function Workspaces({ fluid = false }: { fluid?: boolean }) {
+  return (
+    <Frame
+      fluid={fluid}
+      actions={
+        <>
+          <LabeledSelect label="Sort:" value="Recent" />
+          <Separator />
+          <AddButton>New Workspace</AddButton>
+        </>
+      }
+    >
+      <Title title="Workspaces" />
+      <Tabs label="Workspace scopes" tabs={['All Workspaces', 'Projects', 'My Sandbox']} />
+    </Frame>
+  );
+}
+
+// The canonical page heading: title cluster, seven tabs and the full right cluster.
+function Canonical({ fluid = false }: { fluid?: boolean }) {
+  return (
+    <Frame
+      fluid={fluid}
+      actions={
+        <>
+          <SearchAndFilter />
+          <LabeledSelect label="View:" value="by well" />
+          <LabeledSelect label="Sort:" value="Recent" />
+          <ViewModeToggle />
+          <Button variant="text" color="secondary">
+            Publish
+          </Button>
+          <AddButton>Create Project</AddButton>
+        </>
+      }
+    >
+      <Title title="Portfolio" homeButton chevronButton />
+      <Tabs label="Portfolio sections" tabs={SECTIONS} />
+    </Frame>
+  );
+}
+
+function Caption({ children }: { children: React.ReactNode }) {
+  return (
+    <Typography variant="caption" sx={{ opacity: 0.7, px: 9 }}>
+      {children}
+    </Typography>
+  );
+}
+
 function SectionCanvas() {
   return (
     <Stack spacing={3}>
-      <Typography variant="caption" sx={{ opacity: 0.7, px: 9 }}>
+      <Caption>
         Section-level heading: title cluster only, no tabs, no right cluster. Uses the shared
         HeadingFrame at Figma-exact 1920px width.
-      </Typography>
-      <CP left={<CH title="Portfolio" />} />
+      </Caption>
+      <Frame>
+        <Title title="Portfolio" />
+      </Frame>
     </Stack>
   );
 }
 function PageCanvas() {
   return (
     <Stack spacing={3}>
-      <Typography variant="caption" sx={{ opacity: 0.7, px: 9 }}>
+      <Caption>
         Canonical page heading Figma authors on the master symbol: title + 7-tab filled TabGroup +
         full right cluster. Fixed 1920px width matches Figma exactly.
-      </Typography>
-      <CP left={<CLe />} right={<CCe />} />
+      </Caption>
+      <Canonical />
     </Stack>
   );
 }
 function ElevatedCanvas() {
   return (
     <Stack spacing={3}>
-      <Typography variant="caption" sx={{ opacity: 0.7, px: 9 }}>
+      <Caption>
         Same canonical composition, fluid width. Elevated to fill the host container instead of the
         Figma-authored 1920px.
-      </Typography>
-      <CP fluid left={<CLe />} right={<CCe />} />
+      </Caption>
+      <Canonical fluid />
     </Stack>
   );
 }
 function WithCrumbsCanvas() {
   return (
     <Stack spacing={3}>
-      <Typography variant="caption" sx={{ opacity: 0.7, px: 9 }}>
+      <Caption>
         Breadcrumb-style title cluster: home IconButton + title + chevron IconButton, no tabs, no
         right cluster. Shows the navigation-in-title pattern in isolation.
-      </Typography>
-      <CP left={<CH title="Portfolio" homeButton chevronButton />} />
+      </Caption>
+      <Frame>
+        <Title title="Portfolio" homeButton chevronButton />
+      </Frame>
     </Stack>
   );
 }
-function CL({ label: r, children: n }) {
+
+function Labeled({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <Stack spacing={1}>
       <Typography variant="caption" sx={{ px: 9, color: 'text.secondary' }}>
-        {r}
+        {label}
       </Typography>
-      {n}
+      {children}
     </Stack>
   );
 }
-function WellsCanvas() {
+function Pair({
+  name,
+  Variant,
+}: {
+  name: string;
+  Variant: React.ComponentType<{ fluid?: boolean }>;
+}) {
   return (
     <Stack spacing={4} divider={<Divider flexItem />}>
-      <CL label="Wells · Figma-exact width (1920px)">
-        <O />
-      </CL>
-      <CL label="Wells · fluid width">
-        <O fluid />
-      </CL>
+      <Labeled label={`${name} · Figma-exact width (1920px)`}>
+        <Variant />
+      </Labeled>
+      <Labeled label={`${name} · fluid width`}>
+        <Variant fluid />
+      </Labeled>
     </Stack>
   );
 }
-function WorkspacesCanvas() {
-  return (
-    <Stack spacing={4} divider={<Divider flexItem />}>
-      <CL label="Workspaces · Figma-exact width (1920px)">
-        <E />
-      </CL>
-      <CL label="Workspaces · fluid width">
-        <E fluid />
-      </CL>
-    </Stack>
-  );
-}
-function CompactCanvas() {
-  return (
-    <Stack spacing={4} divider={<Divider flexItem />}>
-      <CL label="Portfolio · Figma-exact width (1920px)">
-        <P />
-      </CL>
-      <CL label="Portfolio · fluid width">
-        <P fluid />
-      </CL>
-    </Stack>
-  );
-}
-function ReportsCanvas() {
-  return (
-    <Stack spacing={4} divider={<Divider flexItem />}>
-      <CL label="Orion Discovery · Figma-exact width (1920px)">
-        <D />
-      </CL>
-      <CL label="Orion Discovery · fluid width">
-        <D fluid />
-      </CL>
-    </Stack>
-  );
-}
-const Ct = { title: 'Organisms/Heading', component: Box };
-const Story_Section = { name: 'Section', render: () => <SectionCanvas /> };
-const Story_Page = { name: 'Page', render: () => <PageCanvas /> };
-const Story_Elevated = { name: 'Elevated', render: () => <ElevatedCanvas /> };
-const Story_WithCrumbs = { name: 'With crumbs', render: () => <WithCrumbsCanvas /> };
-const Story_Wells = { name: 'Wells', render: () => <WellsCanvas /> };
-const Story_Workspaces = { name: 'Workspaces', render: () => <WorkspacesCanvas /> };
-const Story_Compact = { name: 'Compact', render: () => <CompactCanvas /> };
-const Story_Reports = { name: 'Reports', render: () => <ReportsCanvas /> };
 
-export const meta = Ct;
+export const meta = { title: 'Organisms/Heading' };
 export const stories = {
-  'organisms-heading--compact': Story_Compact,
-  'organisms-heading--elevated': Story_Elevated,
-  'organisms-heading--page': Story_Page,
-  'organisms-heading--reports': Story_Reports,
-  'organisms-heading--section': Story_Section,
-  'organisms-heading--wells': Story_Wells,
-  'organisms-heading--with-crumbs': Story_WithCrumbs,
-  'organisms-heading--workspaces': Story_Workspaces,
+  'organisms-heading--compact': {
+    name: 'Compact',
+    render: () => <Pair name="Portfolio" Variant={Compact} />,
+  },
+  'organisms-heading--elevated': { name: 'Elevated', render: () => <ElevatedCanvas /> },
+  'organisms-heading--page': { name: 'Page', render: () => <PageCanvas /> },
+  'organisms-heading--reports': {
+    name: 'Reports',
+    render: () => <Pair name="Orion Discovery" Variant={Reports} />,
+  },
+  'organisms-heading--section': { name: 'Section', render: () => <SectionCanvas /> },
+  'organisms-heading--wells': {
+    name: 'Wells',
+    render: () => <Pair name="Wells" Variant={Wells} />,
+  },
+  'organisms-heading--with-crumbs': { name: 'With crumbs', render: () => <WithCrumbsCanvas /> },
+  'organisms-heading--workspaces': {
+    name: 'Workspaces',
+    render: () => <Pair name="Workspaces" Variant={Workspaces} />,
+  },
 };

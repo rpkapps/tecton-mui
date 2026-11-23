@@ -37,6 +37,7 @@ import { StorybookScenario } from './storybook/StorybookScenario.js';
 import { MenubarScenario } from './MenubarScenario.js';
 import { ActionBarScenario } from './ActionBarScenario.js';
 import { AppBarAttachedScenario } from './AppBarAttachedScenario.js';
+import { HeadingScenario } from './HeadingScenario.js';
 import { ColorSwatchScenario } from './ColorSwatchScenario.js';
 import { NumberFieldScenario } from './NumberFieldScenario.js';
 import { NumberSliderScenario } from './NumberSliderScenario.js';
@@ -215,6 +216,8 @@ export function App({ scenario, rtl }: { scenario: string; rtl: boolean }) {
           <ActionBarScenario />
         ) : scenario === 'app-bar-attached' ? (
           <AppBarAttachedScenario />
+        ) : scenario === 'heading' ? (
+          <HeadingScenario />
         ) : scenario === 'color-swatch' ? (
           <ColorSwatchScenario />
         ) : scenario === 'number-field' ? (

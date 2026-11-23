@@ -53,6 +53,8 @@ interface ParityCase {
    * side. Use it for stories with scrollable tabs that fit in the viewport.
    */
   viewportOnly?: boolean;
+  /** Viewport of both captures (default VIEWPORT). */
+  viewport?: { width: number; height: number };
 }
 
 // Representative stories (atoms, molecules, organisms, pickers, tree view). Each one matched the
@@ -95,7 +97,14 @@ const CASES: ParityCase[] = [
   { id: 'molecules-tabs--medium' },
   { id: 'molecules-textfield--states' },
   { id: 'molecules-toggle-button--sizes' },
-  { id: 'organisms-heading--page' },
+  // Heading: the `Heading` component against every "Organisms/Heading" story. "Elevated" is the
+  // canonical heading at fluid width; at 1280px the Storybook's row overflows its container, where
+  // `Heading` collapses its actions and tabs into overflow menus (see the parity report), so it is
+  // compared at a width where the row fits.
+  ...['compact', 'page', 'reports', 'section', 'wells', 'with-crumbs', 'workspaces'].map(
+    (story) => ({ id: `organisms-heading--${story}` }),
+  ),
+  { id: 'organisms-heading--elevated', viewport: { width: 1920, height: 900 } },
   { id: 'organisms-date--sizes' },
   { id: 'organisms-date--range' },
   { id: 'organisms-date--month-view' },
@@ -297,6 +306,7 @@ for (const mode of ['light', 'dark'] as const) {
       tolerance = DEFAULT_TOLERANCE,
       storybook: source = 'mui',
       viewportOnly = false,
+      viewport = VIEWPORT,
     } of CASES) {
       test(oursId === id ? id : `${id} vs ${oursId}`, async ({ browser, baseURL }, testInfo) => {
         test.skip(
@@ -305,7 +315,7 @@ for (const mode of ['light', 'dark'] as const) {
         );
         test.setTimeout(120_000);
         const context = await browser.newContext({
-          viewport: VIEWPORT,
+          viewport,
           deviceScaleFactor: 1,
           reducedMotion: 'reduce',
         });
