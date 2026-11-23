@@ -5,18 +5,20 @@ import Divider from '@mui/material/Divider';
 import IconButton, { type IconButtonProps } from '@mui/material/IconButton';
 import Popover, { type PopoverProps } from '@mui/material/Popover';
 import { styled, useTheme, type SxProps, type Theme } from '@mui/material/styles';
+import useEnhancedEffect from '@mui/utils/useEnhancedEffect';
 import useForkRef from '@mui/utils/useForkRef';
 import { cssVar } from '../styles/tecton/index.js';
 import { flattenChildren } from './flattenChildren.js';
 import { headingClasses } from './Heading.js';
 import { px, useHeadingPart, widthOf } from './HeadingContext.js';
+import { hiddenActions } from './layout.js';
 
 export interface HeadingActionsProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
-   * The actions: buttons, icon buttons, selects, a toggle button group, and vertical `Divider`s
-   * (`orientation="vertical" flexItem emphasis="subtle"`) between groups of them. Put the primary
-   * action last: when the heading is too narrow, the actions collapse into the overflow button
-   * first to last, and the last one stays the longest.
+   * The actions: buttons, icon buttons, a `HeadingSearch`, selects, a toggle button group, and
+   * vertical `Divider`s (`orientation="vertical" flexItem emphasis="subtle"`) between groups of
+   * them. Put the primary action last: when the heading is too narrow, the actions collapse into
+   * the overflow button first to last, and the last one stays the longest.
    */
   children?: React.ReactNode;
   /** Props for the overflow button and its tray. */
@@ -29,6 +31,16 @@ export interface HeadingActionsProps extends React.HTMLAttributes<HTMLDivElement
   /** The system prop that allows defining system overrides as well as additional CSS styles. */
   sx?: SxProps<Theme>;
 }
+
+/** What an action learns about its place: in the row or in the overflow tray. */
+export interface HeadingActionContextValue {
+  /** The action is in the overflow tray. */
+  inTray: boolean;
+  /** Keeps the action in the row (it never collapses) while `true`: an open search field. */
+  setPinned: (pinned: boolean) => void;
+}
+
+export const HeadingActionContext = React.createContext<HeadingActionContextValue | null>(null);
 
 // Physical sides, as everywhere in the library: the RTL style cache mirrors them.
 const ActionsRoot = styled('div', { name: 'TectonHeading', slot: 'Actions' })({
@@ -63,30 +75,65 @@ const measureOnly = { position: 'absolute', visibility: 'hidden', left: 0, top: 
 
 const isSeparator = (node: React.ReactNode) => React.isValidElement(node) && node.type === Divider;
 
-const keyOf = (node: React.ReactNode, index: number) =>
-  React.isValidElement(node) && node.key != null ? node.key : `#${index}`;
+/** A `HeadingSearch` collapses after the other actions (known from its type, never from state). */
+const isLate = (node: React.ReactNode) =>
+  React.isValidElement(node) &&
+  (node.type as { muiName?: string } | null)?.muiName === 'HeadingSearch';
 
-/** The tray's content: the hidden actions without separators at either end. */
-function trimSeparators(nodes: React.ReactNode[]) {
-  let start = 0;
-  let end = nodes.length;
-  while (start < end && isSeparator(nodes[start])) start += 1;
-  while (end > start && isSeparator(nodes[end - 1])) end -= 1;
-  return nodes.slice(start, end);
+const keyOf = (node: React.ReactNode, index: number) =>
+  String(React.isValidElement(node) && node.key != null ? node.key : `#${index}`);
+
+/** The tray's content: the hidden actions, without separators at either end or two in a row. */
+function trayItems(nodes: React.ReactNode[]) {
+  const kept: React.ReactNode[] = [];
+  nodes.forEach((node) => {
+    const last = kept[kept.length - 1];
+    if (isSeparator(node) && (kept.length === 0 || isSeparator(last))) return;
+    kept.push(node);
+  });
+  while (kept.length > 0 && isSeparator(kept[kept.length - 1])) kept.pop();
+  return kept;
 }
 
 /**
- * A click on a command in the tray closes it, as in a menu; controls that keep a state or open
- * their own popup (toggle buttons, selects, menu buttons) leave it open.
+ * A click on a command in the tray closes it, as in a menu. Controls that keep a state or open
+ * something of their own (toggle buttons, selects, menu and disclosure buttons, a search field)
+ * leave it open.
  */
 function closesTray(target: EventTarget) {
   if (!(target instanceof Element)) return false;
   const control = target.closest('button, a[href]');
   return (
     control != null &&
-    !control.hasAttribute('aria-pressed') &&
-    !control.hasAttribute('aria-haspopup') &&
+    !control.closest('[role="search"]') &&
+    !['aria-pressed', 'aria-haspopup', 'aria-expanded'].some((name) =>
+      control.hasAttribute(name),
+    ) &&
     control.getAttribute('role') !== 'combobox'
+  );
+}
+
+/** An action's cell, telling the action where it is and letting it pin itself to the row. */
+function ActionCell({
+  itemKey,
+  inTray,
+  onPin,
+  children,
+  ...other
+}: {
+  itemKey: string;
+  inTray: boolean;
+  onPin: (key: string, pinned: boolean) => void;
+  children: React.ReactNode;
+} & React.HTMLAttributes<HTMLDivElement>) {
+  const context = React.useMemo<HeadingActionContextValue>(
+    () => ({ inTray, setPinned: (pinned) => onPin(itemKey, pinned) }),
+    [inTray, itemKey, onPin],
+  );
+  return (
+    <HeadingActionContext.Provider value={context}>
+      <ActionItem {...other}>{children}</ActionItem>
+    </HeadingActionContext.Provider>
   );
 }
 
@@ -98,10 +145,26 @@ const HeadingActions = React.forwardRef<HTMLDivElement, HeadingActionsProps>(
   function HeadingActions(props, ref) {
     const { children, slotProps, className, ...other } = props;
     const items = React.useMemo(() => flattenChildren(children), [children]);
-    const total = items.length;
+    const keys = items.map(keyOf);
+    const separators = items.map(isSeparator);
     const rootRef = React.useRef<HTMLDivElement>(null);
     const overflowRef = React.useRef<HTMLButtonElement>(null);
     const handleRef = useForkRef(rootRef, ref);
+
+    // Actions that keep their place in the row: an open search field. A pinned action never
+    // collapses, so it never unmounts from the row on its own and the state stays settled.
+    const [pinnedKeys, setPinnedKeys] = React.useState<ReadonlySet<string>>(() => new Set());
+    const onPin = React.useCallback((key: string, pinned: boolean) => {
+      setPinnedKeys((current) => {
+        if (current.has(key) === pinned) return current;
+        const next = new Set(current);
+        if (pinned) next.add(key);
+        else next.delete(key);
+        return next;
+      });
+    }, []);
+    const pinned = keys.map((key) => pinnedKeys.has(key));
+    const late = items.map(isLate);
 
     const heading = useHeadingPart('actions', rootRef, () => {
       const root = rootRef.current;
@@ -110,16 +173,28 @@ const HeadingActions = React.forwardRef<HTMLDivElement, HeadingActionsProps>(
         : [];
       return {
         items: cells.map(widthOf),
-        separators: items.map(isSeparator),
+        separators,
+        pinned,
+        late,
         gap: root ? px(getComputedStyle(root).columnGap) : 0,
         overflow: widthOf(overflowRef.current),
       };
     });
     const measuring = heading?.layout.measuring ?? false;
-    const hiddenCount = heading && !measuring ? Math.min(heading.layout.actions, total) : 0;
+    const hidden = hiddenActions(
+      { separators, pinned, late },
+      heading && !measuring ? heading.layout.actions : 0,
+    );
+    const collapsed = hidden.some((isHidden, index) => isHidden && !separators[index]);
+
+    // An action pinned or unpinned changes what can collapse: share the row again.
+    const requestMeasure = heading?.requestMeasure;
+    useEnhancedEffect(() => {
+      requestMeasure?.();
+    }, [pinnedKeys, requestMeasure]);
 
     const [anchor, setAnchor] = React.useState<HTMLElement | null>(null);
-    const open = Boolean(anchor) && hiddenCount > 0;
+    const open = Boolean(anchor) && collapsed;
     const trayId = React.useId();
     const buttonId = React.useId();
     const rtl = useTheme().direction === 'rtl';
@@ -139,7 +214,7 @@ const HeadingActions = React.forwardRef<HTMLDivElement, HeadingActionsProps>(
         className={clsx(headingClasses.actions, className)}
         {...other}
       >
-        {(measuring || hiddenCount > 0) && (
+        {(measuring || collapsed) && (
           <IconButton
             ref={overflowRef}
             id={buttonId}
@@ -160,11 +235,19 @@ const HeadingActions = React.forwardRef<HTMLDivElement, HeadingActionsProps>(
             <span className="tecton-more-vert-outline" aria-hidden />
           </IconButton>
         )}
-        {items.slice(hiddenCount).map((node, index) => (
-          <ActionItem key={keyOf(node, hiddenCount + index)} data-heading-action="">
-            {node}
-          </ActionItem>
-        ))}
+        {items.map((node, index) =>
+          hidden[index] ? null : (
+            <ActionCell
+              key={keys[index]}
+              itemKey={keys[index]!}
+              inTray={false}
+              onPin={onPin}
+              data-heading-action=""
+            >
+              {node}
+            </ActionCell>
+          ),
+        )}
         <Popover
           anchorEl={anchor}
           open={open}
@@ -182,9 +265,14 @@ const HeadingActions = React.forwardRef<HTMLDivElement, HeadingActionsProps>(
               if (closesTray(event.target)) setAnchor(null);
             }}
           >
-            {trimSeparators(items.slice(0, hiddenCount)).map((node, index) => (
-              <ActionItem key={keyOf(node, index)}>{node}</ActionItem>
-            ))}
+            {trayItems(items.filter((_, index) => hidden[index])).map((node) => {
+              const key = keyOf(node, items.indexOf(node));
+              return (
+                <ActionCell key={key} itemKey={key} inTray onPin={onPin}>
+                  {node}
+                </ActionCell>
+              );
+            })}
           </Tray>
         </Popover>
       </ActionsRoot>

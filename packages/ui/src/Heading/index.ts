@@ -8,3 +8,5 @@ export { default as HeadingTabs } from './HeadingTabs.js';
 export type { HeadingTabsProps } from './HeadingTabs.js';
 export { default as HeadingActions } from './HeadingActions.js';
 export type { HeadingActionsProps } from './HeadingActions.js';
+export { default as HeadingSearch } from './HeadingSearch.js';
+export type { HeadingSearchCloseReason, HeadingSearchProps } from './HeadingSearch.js';

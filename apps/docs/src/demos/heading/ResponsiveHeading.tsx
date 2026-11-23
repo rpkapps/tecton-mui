@@ -2,9 +2,13 @@ import * as React from 'react';
 import Box from '@tecton-mui/ui/Box';
 import Button from '@tecton-mui/ui/Button';
 import Divider from '@tecton-mui/ui/Divider';
-import Heading, { HeadingActions, HeadingTabs, HeadingTitle } from '@tecton-mui/ui/Heading';
+import Heading, {
+  HeadingActions,
+  HeadingSearch,
+  HeadingTabs,
+  HeadingTitle,
+} from '@tecton-mui/ui/Heading';
 import Icon from '@tecton-mui/ui/Icon';
-import IconButton from '@tecton-mui/ui/IconButton';
 import Slider from '@tecton-mui/ui/Slider';
 import Stack from '@tecton-mui/ui/Stack';
 import Tab from '@tecton-mui/ui/Tab';
@@ -15,6 +19,7 @@ const SECTIONS = ['Overview', 'Framing', 'Team', 'Builder', 'Time & Cost', 'Comp
 export default function ResponsiveHeading() {
   const [width, setWidth] = React.useState(100);
   const [section, setSection] = React.useState('Overview');
+  const [query, setQuery] = React.useState('');
 
   return (
     <Stack spacing={2} sx={{ width: '100%' }}>
@@ -45,12 +50,7 @@ export default function ResponsiveHeading() {
             ))}
           </HeadingTabs>
           <HeadingActions>
-            <IconButton aria-label="Search">
-              <Icon name="search" />
-            </IconButton>
-            <IconButton aria-label="Filter">
-              <Icon name="filter" />
-            </IconButton>
+            <HeadingSearch value={query} onChange={(_event, next) => setQuery(next)} />
             <Divider orientation="vertical" flexItem emphasis="subtle" />
             <Button variant="text" color="secondary">
               Publish
@@ -60,6 +60,11 @@ export default function ResponsiveHeading() {
             </Button>
           </HeadingActions>
         </Heading>
+        {query ? (
+          <Typography variant="body2" sx={{ px: { xs: 2, md: 9 }, pb: 2 }}>
+            Projects matching “{query}”
+          </Typography>
+        ) : null}
       </Box>
     </Stack>
   );

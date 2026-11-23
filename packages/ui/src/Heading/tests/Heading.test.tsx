@@ -11,9 +11,11 @@ import { HeadingContext, type HeadingContextValue } from '../HeadingContext.js';
 import { FULL_LAYOUT, type HeadingLayout } from '../layout.js';
 import Heading, {
   HeadingActions,
+  HeadingSearch,
   HeadingTabs,
   HeadingTitle,
   headingClasses,
+  type HeadingSearchProps,
   type HeadingTabsProps,
 } from '../index.js';
 import * as root from '../../index.js';
@@ -52,6 +54,7 @@ describe('Heading', () => {
     expect(root.HeadingTitle).toBe(HeadingTitle);
     expect(root.HeadingTabs).toBe(HeadingTabs);
     expect(root.HeadingActions).toBe(HeadingActions);
+    expect(root.HeadingSearch).toBe(HeadingSearch);
     expect(root.headingClasses).toBe(headingClasses);
   });
 
@@ -425,7 +428,7 @@ describe('collapsed parts (in a narrow Heading)', () => {
   }
 
   it('moves the actions that do not fit into the overflow tray, as they are', async () => {
-    wrap(<Actions layout={{ actions: 3 }} />);
+    wrap(<Actions layout={{ actions: 2 }} />);
     expect(screen.queryByRole('button', { name: 'Search' })).toBeNull();
     expect(screen.getByRole('button', { name: 'Create' })).toBeInTheDocument();
     const overflow = screen.getByRole('button', { name: 'More actions' });
@@ -442,7 +445,7 @@ describe('collapsed parts (in a narrow Heading)', () => {
   });
 
   it('leaves out a separator at either end of the tray', async () => {
-    wrap(<Actions layout={{ actions: 2 }} />);
+    wrap(<Actions layout={{ actions: 1 }} />);
     expect(screen.getByRole('button', { name: 'List' })).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'More actions' }));
     const tray = screen.getByRole('dialog', { name: 'More actions' });
@@ -452,7 +455,7 @@ describe('collapsed parts (in a narrow Heading)', () => {
 
   it('closes the tray after a command, not after a toggle', async () => {
     const onCreate = vi.fn();
-    wrap(<Actions layout={{ actions: 4 }} onCreate={onCreate} />);
+    wrap(<Actions layout={{ actions: 3 }} onCreate={onCreate} />);
     await userEvent.click(screen.getByRole('button', { name: 'More actions' }));
     const tray = screen.getByRole('dialog', { name: 'More actions' });
     await userEvent.click(within(tray).getByRole('button', { name: 'List' }));
@@ -604,5 +607,171 @@ describe('Heading layout (with layout geometry)', () => {
     resizeTo(300);
     expect(screen.getAllByRole('tab')).toHaveLength(5);
     expect(screen.queryByRole('button', { name: 'More actions' })).toBeNull();
+  });
+});
+
+describe('HeadingSearch', () => {
+  function Search(props: Partial<HeadingSearchProps>) {
+    const [value, setValue] = React.useState(props.defaultValue ?? '');
+    return (
+      <>
+        <HeadingSearch {...props} value={value} onChange={(_event, next) => setValue(next)} />
+        <output data-testid="value">{value}</output>
+        <button type="button">Elsewhere</button>
+      </>
+    );
+  }
+
+  it('is a Search button that opens into a focused search field', async () => {
+    const onOpen = vi.fn();
+    wrap(<Search onOpen={onOpen} />);
+    const button = screen.getByRole('button', { name: 'Search' });
+    expect(button).toHaveClass(headingClasses.searchButton);
+    expect(button).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('search')).toBeNull();
+    await userEvent.click(button);
+    expect(onOpen).toHaveBeenCalledTimes(1);
+    const field = screen.getByRole('textbox', { name: 'Search' });
+    expect(field).toHaveFocus();
+    expect(field).toHaveAttribute('placeholder', 'Search');
+    expect(screen.getByRole('search', { name: 'Search' })).toHaveClass(headingClasses.search);
+    await userEvent.keyboard('gulf');
+    expect(screen.getByTestId('value')).toHaveTextContent('gulf');
+  });
+
+  it('clears with the clear button, then with Escape, and closes on a second Escape', async () => {
+    const onClose = vi.fn();
+    wrap(<Search onClose={onClose} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Search' }));
+    await userEvent.keyboard('gulf');
+    await userEvent.click(screen.getByRole('button', { name: 'Clear search' }));
+    expect(screen.getByTestId('value')).toHaveTextContent('');
+    expect(screen.getByRole('textbox', { name: 'Search' })).toHaveFocus();
+    expect(screen.queryByRole('button', { name: 'Clear search' })).toBeNull();
+
+    await userEvent.keyboard('sea{Escape}');
+    expect(screen.getByTestId('value')).toHaveTextContent('');
+    expect(screen.getByRole('search')).toBeInTheDocument();
+    await userEvent.keyboard('{Escape}');
+    expect(onClose).toHaveBeenCalledWith(expect.anything(), 'escapeKeyDown');
+    expect(screen.queryByRole('search')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Search' })).toHaveFocus();
+  });
+
+  it('closes when the focus leaves it empty, and stays open with a search in progress', async () => {
+    const onClose = vi.fn();
+    wrap(<Search onClose={onClose} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Search' }));
+    await userEvent.keyboard('gulf');
+    await userEvent.click(screen.getByRole('button', { name: 'Elsewhere' }));
+    expect(screen.getByRole('search')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('textbox'));
+    await userEvent.clear(screen.getByRole('textbox'));
+    await userEvent.click(screen.getByRole('button', { name: 'Elsewhere' }));
+    expect(onClose).toHaveBeenCalledWith(expect.anything(), 'blur');
+    expect(screen.queryByRole('search')).toBeNull();
+  });
+
+  it('starts open with text to show, and follows a controlled open state', () => {
+    const { rerender } = wrap(<Search defaultValue="north" />);
+    expect(screen.getByRole('textbox', { name: 'Search' })).toHaveValue('north');
+    rerender(
+      <ThemeProvider>
+        <HeadingSearch open={false} value="north" />
+      </ThemeProvider>,
+    );
+    expect(screen.getByRole('button', { name: 'Search' })).toBeInTheDocument();
+  });
+
+  it('takes its label and its parts through props and slotProps', async () => {
+    const onClick = vi.fn();
+    wrap(
+      <Search
+        label="Search wells"
+        placeholder="Well name"
+        slotProps={{
+          button: { onClick },
+          input: { className: 'field' },
+          clearButton: { 'aria-label': 'Erase' },
+        }}
+      />,
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Search wells' }));
+    expect(onClick).toHaveBeenCalledTimes(1);
+    const field = screen.getByRole('textbox', { name: 'Search wells' });
+    expect(field).toHaveAttribute('placeholder', 'Well name');
+    expect(field.closest(`.${headingClasses.searchField}`)).toHaveClass('field');
+    await userEvent.keyboard('a');
+    expect(screen.getByRole('button', { name: 'Erase' })).toBeInTheDocument();
+  });
+
+  function Collapsed({ actions, children }: { actions: number; children: React.ReactNode }) {
+    const context = React.useMemo<HeadingContextValue>(
+      () => ({
+        layout: { ...FULL_LAYOUT, actions },
+        register: () => () => {},
+        requestMeasure: () => {},
+      }),
+      [actions],
+    );
+    return <HeadingContext.Provider value={context}>{children}</HeadingContext.Provider>;
+  }
+
+  it('collapses after the other secondary actions, and never while open', async () => {
+    wrap(
+      <Collapsed actions={1}>
+        <HeadingActions>
+          <HeadingSearch />
+          <Button>Filter</Button>
+          <Button variant="contained">Create</Button>
+        </HeadingActions>
+      </Collapsed>,
+    );
+    // The filter goes first, though it comes after the search.
+    expect(screen.queryByRole('button', { name: 'Filter' })).toBeNull();
+    await userEvent.click(screen.getByRole('button', { name: 'Search' }));
+    expect(screen.getByRole('search')).toBeInTheDocument();
+  });
+
+  it('keeps its place while open, however narrow the heading', async () => {
+    const actions = (collapsed: number) => (
+      <ThemeProvider>
+        <Collapsed actions={collapsed}>
+          <HeadingActions>
+            <HeadingSearch />
+            <Button>Filter</Button>
+            <Button variant="contained">Create</Button>
+          </HeadingActions>
+        </Collapsed>
+      </ThemeProvider>
+    );
+    const { rerender } = render(actions(0));
+    await userEvent.click(screen.getByRole('button', { name: 'Search' }));
+    // The heading narrows: two actions collapse, the filter and the primary one, not the open
+    // search.
+    rerender(actions(2));
+    expect(screen.getByRole('search')).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Search' })).toHaveFocus();
+    expect(screen.queryByRole('button', { name: 'Create' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Filter' })).toBeNull();
+  });
+
+  it('opens in the overflow tray, which stays open', async () => {
+    wrap(
+      <Collapsed actions={3}>
+        <HeadingActions>
+          <HeadingSearch />
+          <Button>Filter</Button>
+          <Button variant="contained">Create</Button>
+        </HeadingActions>
+      </Collapsed>,
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'More actions' }));
+    const tray = screen.getByRole('dialog', { name: 'More actions' });
+    await userEvent.click(within(tray).getByRole('button', { name: 'Search' }));
+    expect(within(tray).getByRole('search')).toBeInTheDocument();
+    await userEvent.keyboard('g');
+    await userEvent.click(within(tray).getByRole('button', { name: 'Clear search' }));
+    expect(screen.getByRole('dialog', { name: 'More actions' })).toBeInTheDocument();
   });
 });

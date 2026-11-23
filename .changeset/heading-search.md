@@ -1,0 +1,12 @@
+---
+'@tecton-mui/ui': minor
+---
+
+New `HeadingSearch`, so that search in a `Heading` works: a Search button that opens into a search
+field in place, among the heading's actions. It takes `value` / `defaultValue` and
+`onChange(event, value)` like a field, and `open` / `onOpen` / `onClose(event, reason)` for the
+field. The field opens focused; Escape clears it, then closes it and gives the focus back to the
+button; it only closes empty, so a search in progress stays on show. In a narrow heading, a closed
+search collapses into the overflow tray after the other secondary actions and opens in the tray;
+an open one keeps its place while the other actions and the tabs make room. New `headingClasses`:
+`search`, `searchButton`, `searchField`.

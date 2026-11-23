@@ -453,7 +453,7 @@ export const authoredPages: AuthoredPage[] = [
     slug: 'heading',
     title: 'Heading',
     category: 'surfaces',
-    components: ['Heading', 'HeadingTitle', 'HeadingTabs', 'HeadingActions'],
+    components: ['Heading', 'HeadingTitle', 'HeadingTabs', 'HeadingActions', 'HeadingSearch'],
     summary: "The Tecton page heading: the page's title, its section tabs and its actions.",
   },
   // Navigation

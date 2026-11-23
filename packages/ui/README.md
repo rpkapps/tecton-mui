@@ -447,7 +447,9 @@ import Tab from '@tecton-mui/ui/Tab';
 ```
 
 The title is an `<h1>` (`slotProps.title` changes the element and `Typography` variant);
-`onHomeClick` and `onMenuClick` show the home button and the menu chevron. `HeadingTabs` takes the
+`onHomeClick` and `onMenuClick` show the home button and the menu chevron. `HeadingSearch`, among
+the actions, is a Search button that opens into a search field (`value`, `onChange`; Escape clears,
+then closes). `HeadingTabs` takes the
 MUI `Tabs` props and shows the Tecton filled tab group. The row never wraps: when it runs out of
 room, the actions collapse into an overflow (⋮) button first to last (the last, primary one stays),
 then the tabs after the selected one into a More pill, then the primary action; a very narrow

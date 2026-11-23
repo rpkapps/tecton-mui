@@ -4,7 +4,9 @@
 // The row never wraps. When the parts do not fit, they give way in this order (priority+):
 //
 // 1. The actions collapse into the overflow (⋮) button, the first ones first; the last action,
-//    the primary one in the Tecton design, stays.
+//    the primary one in the Tecton design, stays. Late actions (a closed search) go after the
+//    others, pinned ones (an open search field) never, and separators follow the actions around
+//    them.
 // 2. The tabs after the selected one collapse into the More pill, the last ones first. The selected
 //    tab stays visible.
 // 3. The last action collapses too.
@@ -30,8 +32,12 @@ export interface TabsMeasure {
 export interface ActionsMeasure {
   /** Each action's width, in order. */
   items: number[];
-  /** Which actions are separators (vertical dividers): never left first in the row. */
+  /** Which actions are separators (vertical dividers): they follow the actions around them. */
   separators: boolean[];
+  /** Which actions never collapse (an open search field). */
+  pinned: boolean[];
+  /** Which actions collapse after the others, before the last one (a closed search). */
+  late: boolean[];
   /** Space between two actions. */
   gap: number;
   /** The overflow (⋮) button's width. */
@@ -56,7 +62,7 @@ export interface HeadingLayout {
   compact: boolean;
   /** How many tabs show (the rest are in the More menu). */
   tabs: number;
-  /** How many actions, from the first, are in the overflow tray. */
+  /** How many of the actions that can collapse are in the overflow tray (the first ones). */
   actions: number;
 }
 
@@ -97,21 +103,65 @@ function tabsWidth(tabs: TabsMeasure, count: number) {
   return tabs.padding + sum(shown) + tabs.gap * Math.max(0, shown.length - 1) + more;
 }
 
+type ActionKinds = Pick<ActionsMeasure, 'separators' | 'pinned' | 'late'>;
+
 /**
- * The number of actions to hide for `hidden` of them to go: a separator that would come first
- * in the row (right after the overflow button) goes with them.
+ * The order in which the actions collapse: first to last, the late ones after the others, and the
+ * last action (the primary one) at the very end. Separators and pinned actions never do.
  */
-export function hiddenActionCount(actions: ActionsMeasure, hidden: number) {
-  const total = actions.items.length;
-  let count = Math.max(0, Math.min(hidden, total));
-  if (count === 0) return 0;
-  while (count < total && actions.separators[count]) count += 1;
-  return count;
+export function actionCollapseOrder(actions: ActionKinds): number[] {
+  const { separators, pinned, late } = actions;
+  const candidates = separators
+    .map((separator, index) => (separator || pinned[index] ? -1 : index))
+    .filter((index) => index >= 0);
+  const primary = candidates.pop();
+  if (primary === undefined) return [];
+  return [
+    ...candidates.filter((index) => !late[index]),
+    ...candidates.filter((index) => late[index]),
+    primary,
+  ];
 }
 
-function actionsWidth(actions: ActionsMeasure, hidden: number) {
-  const shown = actions.items.slice(hidden);
-  const overflow = hidden > 0 ? actions.overflow + (shown.length > 0 ? actions.gap : 0) : 0;
+/** How many actions can collapse: those that are neither separators nor pinned. */
+export function collapsibleActionCount(actions: ActionKinds) {
+  return actionCollapseOrder(actions).length;
+}
+
+/**
+ * Which actions are in the overflow tray when `count` of them collapse: the first `count` in
+ * collapse order, and the separators that would be left with nothing before them in the row,
+ * after another separator or at its end.
+ */
+export function hiddenActions(actions: ActionKinds, count: number): boolean[] {
+  const { separators } = actions;
+  const hidden = separators.map(() => false);
+  actionCollapseOrder(actions)
+    .slice(0, Math.max(0, count))
+    .forEach((index) => {
+      hidden[index] = true;
+    });
+  if (count <= 0) return hidden;
+  let afterAction = false;
+  separators.forEach((separator, index) => {
+    if (hidden[index]) return;
+    if (!separator) afterAction = true;
+    else if (afterAction) afterAction = false;
+    else hidden[index] = true;
+  });
+  for (let index = separators.length - 1; index >= 0; index -= 1) {
+    if (hidden[index]) continue;
+    if (!separators[index]) break;
+    hidden[index] = true;
+  }
+  return hidden;
+}
+
+function actionsWidth(actions: ActionsMeasure, count: number) {
+  const hidden = hiddenActions(actions, count);
+  const shown = actions.items.filter((_, index) => !hidden[index]);
+  const collapsed = hidden.some((isHidden, index) => isHidden && !actions.separators[index]);
+  const overflow = collapsed ? actions.overflow + (shown.length > 0 ? actions.gap : 0) : 0;
   return overflow + sum(shown) + actions.gap * Math.max(0, shown.length - 1);
 }
 
@@ -124,8 +174,7 @@ function rowWidth(gap: number, parts: (number | null)[]) {
 export function allocateHeading(measure: HeadingMeasure): HeadingLayout {
   const { available, gap, title, tabs, actions } = measure;
   const tabCount = tabs?.items.length ?? 0;
-  const actionCount = actions?.items.length ?? 0;
-  const hide = (count: number) => (actions ? hiddenActionCount(actions, count) : 0);
+  const actionCount = actions ? collapsibleActionCount(actions) : 0;
   const fits = (shownTabs: number, hiddenActions: number) =>
     rowWidth(gap, [
       title,
@@ -144,22 +193,22 @@ export function allocateHeading(measure: HeadingMeasure): HeadingLayout {
   if (fits(tabCount, 0)) return layout(tabCount, 0);
   // 2. The actions but the last collapse, the first ones first.
   for (let count = 1; count < actionCount; count += 1) {
-    if (fits(tabCount, hide(count))) return layout(tabCount, hide(count));
+    if (fits(tabCount, count)) return layout(tabCount, count);
   }
-  const allButLast = hide(Math.max(0, actionCount - 1));
+  const allButLast = Math.max(0, actionCount - 1);
   // 3. The tabs after the selected one collapse, the last ones first.
   for (let shown = tabCount - 1; shown >= 1; shown -= 1) {
     if (fits(shown, allButLast)) return layout(shown, allButLast);
   }
   // 4. The last action too.
-  const all = hide(actionCount);
+  const all = actionCount;
   for (let shown = tabCount; shown >= 1; shown -= 1) {
     if (fits(shown, all)) return layout(shown, all);
   }
   if (tabCount === 0) {
     // One row of title and actions; the title shortens once the actions are all collapsed.
     for (let count = 0; count <= actionCount; count += 1) {
-      if (fits(0, hide(count))) return layout(0, hide(count));
+      if (fits(0, count)) return layout(0, count);
     }
     return layout(0, all);
   }
@@ -167,10 +216,9 @@ export function allocateHeading(measure: HeadingMeasure): HeadingLayout {
   // 5. Compact: the title and the actions on the first row, the tabs on a row of their own.
   let hidden = all;
   for (let count = 0; count <= actionCount; count += 1) {
-    const candidate = hide(count);
-    const row = rowWidth(gap, [title, actions ? actionsWidth(actions, candidate) : null]);
+    const row = rowWidth(gap, [title, actions ? actionsWidth(actions, count) : null]);
     if (row <= available + EPSILON) {
-      hidden = candidate;
+      hidden = count;
       break;
     }
   }

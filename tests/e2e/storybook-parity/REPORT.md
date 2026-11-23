@@ -192,6 +192,9 @@ both modes, and `storybook-parity.spec.ts` runs all 16 comparisons.
   320px (WCAG 1.4.10). The Elevated story is therefore compared at a 1920px viewport, where its
   fluid row fits and is pixel-identical. `tests/e2e/heading.spec.ts` covers the collapse order, the
   More menu, the overflow tray, the compact layout, RTL, keyboard and axe.
+- **Search:** the stories' Search icon button is a placeholder. The reproduction renders it with
+  `HeadingSearch`, which opens into a search field; closed, it is pixel-identical to the story's
+  icon button.
 - **Title letter spacing:** the title uses the theme's `h4` variant (Tecton heading 1) with
   `letter-spacing: normal`, as the story's title has. MUI's own `h4` letter spacing (0.00735em)
   survives in the theme and would move the glyphs.

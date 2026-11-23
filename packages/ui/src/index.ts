@@ -315,8 +315,8 @@ export { default as DesktopDateTimeRangePicker } from './DesktopDateTimeRangePic
 export type { DesktopDateTimeRangePickerProps } from './DesktopDateTimeRangePicker/index.js';
 export { default as DesktopTimeRangePicker } from './DesktopTimeRangePicker/index.js';
 export type { DesktopTimeRangePickerProps, TimeRangeValidationError } from './DesktopTimeRangePicker/index.js';
-export { default as Heading, HeadingActions, HeadingTabs, HeadingTitle, headingClasses } from './Heading/index.js';
-export type { HeadingActionsProps, HeadingClassKey, HeadingProps, HeadingTabsProps, HeadingTitleProps } from './Heading/index.js';
+export { default as Heading, HeadingActions, HeadingSearch, HeadingTabs, HeadingTitle, headingClasses } from './Heading/index.js';
+export type { HeadingActionsProps, HeadingClassKey, HeadingProps, HeadingSearchCloseReason, HeadingSearchProps, HeadingTabsProps, HeadingTitleProps } from './Heading/index.js';
 export { default as Icon, getIconClassName } from './Icon/index.js';
 export type { IconName, IconProps, IconSize, IconVariant } from './Icon/index.js';
 export { default as LocalizationProvider } from './LocalizationProvider/index.js';

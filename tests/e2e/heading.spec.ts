@@ -78,10 +78,12 @@ test.describe('Heading', () => {
     await expect(overflow).toHaveCount(0);
     await expect(more).toHaveCount(0);
 
-    // The secondary actions go into the overflow button first; all the tabs stay.
+    // The secondary actions go into the overflow button first, the search last of them; all the
+    // tabs stay.
     await page.setViewportSize({ width: 1280, height: 800 });
     await expect(overflow).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Search' })).toHaveCount(0);
+    await expect(page.getByText('Sort:')).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Search' })).toBeVisible();
     await expect(create).toBeVisible();
     await expect(page.getByRole('tab')).toHaveCount(7);
 
@@ -133,7 +135,7 @@ test.describe('Heading', () => {
     await expect(more).toBeFocused();
   });
 
-  test('the overflow tray holds the hidden actions as they are; a command closes it', async ({
+  test('the overflow tray holds the hidden actions as they are; the search opens in it', async ({
     page,
   }) => {
     await page.setViewportSize({ width: 1000, height: 800 });
@@ -147,10 +149,72 @@ test.describe('Heading', () => {
     await expect(tray).toBeHidden();
     await expect(overflow).toBeFocused();
 
+    // The search opens in the tray, which stays open; its Escapes stay in the field.
     await overflow.click();
     await tray.getByRole('button', { name: 'Search' }).click();
-    await expect(page.getByTestId('event-log')).toHaveText('search');
+    await expect(tray.getByRole('textbox', { name: 'Search' })).toBeFocused();
+    await page.keyboard.type('north');
+    await expect(page.getByTestId('projects')).toHaveText('North Sea Infill');
+    await page.keyboard.press('Escape');
+    await expect(tray.getByRole('textbox', { name: 'Search' })).toHaveValue('');
+    await page.keyboard.press('Escape');
+    await expect(tray.getByRole('button', { name: 'Search' })).toBeFocused();
+    await page.keyboard.press('Escape');
     await expect(tray).toBeHidden();
+    await expect(overflow).toBeFocused();
+  });
+
+  test('the search opens into a field that filters; Escape clears, then closes', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1600, height: 800 });
+    await open(page);
+    const projects = page.getByTestId('projects').getByRole('listitem');
+    await expect(projects).toHaveCount(4);
+    const button = page.getByRole('button', { name: 'Search' });
+    await button.click();
+    const field = page.getByRole('search', { name: 'Search' }).getByRole('textbox');
+    await expect(field).toBeFocused();
+    await page.keyboard.type('gulf');
+    await expect(projects).toHaveText(['Gulf Appraisal']);
+    // The field keeps a search in progress when the focus leaves it.
+    await page.getByRole('tab', { name: 'Team' }).click();
+    await expect(field).toHaveValue('gulf');
+    await field.focus();
+    await page.keyboard.press('Escape');
+    await expect(field).toHaveValue('');
+    await expect(projects).toHaveCount(4);
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('search')).toHaveCount(0);
+    await expect(button).toBeFocused();
+    // Empty, it closes when the focus leaves it.
+    await button.click();
+    await page.getByRole('tab', { name: 'Overview' }).click();
+    await expect(page.getByRole('search')).toHaveCount(0);
+  });
+
+  test('an open search keeps its place: the other actions and tabs make room', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await open(page);
+    await expect(page.getByRole('tab')).toHaveCount(7);
+    await page.getByRole('button', { name: 'Search' }).click();
+    const field = page.getByRole('search', { name: 'Search' }).getByRole('textbox');
+    await expect(field).toBeFocused();
+    await page.keyboard.type('sea');
+    // The field takes the room of some tabs; the primary action stays, the row stays one row.
+    await expect(page.getByRole('button', { name: 'More', exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Create Project' })).toBeVisible();
+    await expect(field).toBeFocused();
+    await expect(field).toHaveValue('sea');
+    await expect(page.getByTestId('page-heading')).not.toHaveClass(/TectonHeading-compact/);
+    // Narrower still: the field stays put while everything else collapses.
+    await page.setViewportSize({ width: 700, height: 800 });
+    await expect(field).toBeVisible();
+    await expect(field).toHaveValue('sea');
+    const overflowX = await page.evaluate(
+      () => document.documentElement.scrollWidth - window.innerWidth,
+    );
+    expect(overflowX).toBeLessThanOrEqual(0);
   });
 
   test('compact: the tabs get a row of their own; nothing overflows down to 320px', async ({
@@ -241,6 +305,15 @@ test.describe('Heading', () => {
         await expect(page.getByRole('menu')).toBeHidden();
         await page.getByRole('button', { name: 'More actions' }).click();
         await shown('.TectonHeading-overflowTray');
+        expect(await analyze()).toEqual([]);
+        await page.keyboard.press('Escape');
+        await expect(page.getByRole('dialog')).toBeHidden();
+
+        // An open search with text.
+        await page.setViewportSize({ width: 1600, height: 800 });
+        await page.getByRole('button', { name: 'Search' }).click();
+        await page.keyboard.type('gulf');
+        await expect(page.getByRole('button', { name: 'Clear search' })).toBeVisible();
         expect(await analyze()).toEqual([]);
       });
     }

@@ -1,6 +1,7 @@
 import {
+  actionCollapseOrder,
   allocateHeading,
-  hiddenActionCount,
+  hiddenActions,
   visibleTabIndices,
   type ActionsMeasure,
   type HeadingMeasure,
@@ -19,6 +20,8 @@ const tabs: TabsMeasure = {
 const actions: ActionsMeasure = {
   items: [40, 1, 120, 120, 70, 140],
   separators: [false, true, false, false, false, false],
+  pinned: [false, false, false, false, false, false],
+  late: [false, false, false, false, false, false],
   gap: 16,
   overflow: 40,
 };
@@ -45,13 +48,43 @@ describe('visibleTabIndices', () => {
   });
 });
 
-describe('hiddenActionCount', () => {
-  it('takes a separator that would come first along with the hidden actions', () => {
-    expect(hiddenActionCount(actions, 0)).toBe(0);
-    expect(hiddenActionCount(actions, 1)).toBe(2);
-    expect(hiddenActionCount(actions, 2)).toBe(2);
-    expect(hiddenActionCount(actions, 3)).toBe(3);
-    expect(hiddenActionCount(actions, 9)).toBe(6);
+describe('actionCollapseOrder', () => {
+  it('collapses first to last, the late ones after the others, the last action at the end', () => {
+    expect(actionCollapseOrder(actions)).toEqual([0, 2, 3, 4, 5]);
+    // A closed search (first, late) goes after the other secondary actions.
+    expect(
+      actionCollapseOrder({ ...actions, late: [true, false, false, false, false, false] }),
+    ).toEqual([2, 3, 4, 0, 5]);
+    // An open search (pinned) never collapses.
+    expect(
+      actionCollapseOrder({ ...actions, pinned: [true, false, false, false, false, false] }),
+    ).toEqual([2, 3, 4, 5]);
+    expect(actionCollapseOrder({ separators: [], pinned: [], late: [] })).toEqual([]);
+  });
+});
+
+describe('hiddenActions', () => {
+  const hiddenIndices = (kinds: Parameters<typeof hiddenActions>[0], count: number) =>
+    hiddenActions(kinds, count).flatMap((hidden, index) => (hidden ? [index] : []));
+
+  it('takes the separators left without an action before them along with the hidden actions', () => {
+    expect(hiddenIndices(actions, 0)).toEqual([]);
+    // The search button goes, and the separator after it, now first in the row.
+    expect(hiddenIndices(actions, 1)).toEqual([0, 1]);
+    expect(hiddenIndices(actions, 2)).toEqual([0, 1, 2]);
+    expect(hiddenIndices(actions, 9)).toEqual([0, 1, 2, 3, 4, 5]);
+  });
+
+  it('keeps a separator between two actions that show, and drops doubled or trailing ones', () => {
+    const kinds = {
+      separators: [false, true, false, true, false],
+      pinned: [true, false, false, false, false],
+      late: [false, false, false, false, false],
+    };
+    // [search (pinned)] | [view] | [create]: the view goes, two separators meet: one stays.
+    expect(hiddenIndices(kinds, 1)).toEqual([2, 3]);
+    // Everything that can go: the pinned search alone, without a separator after it.
+    expect(hiddenIndices(kinds, 2)).toEqual([1, 2, 3, 4]);
   });
 });
 
@@ -67,24 +100,24 @@ describe('allocateHeading', () => {
 
   it('collapses the actions first, the first ones first, and keeps the last one', () => {
     // The search button goes, and the separator after it with it: 41 + 16 - 56 (⋮) = 1px saved.
-    expect(allocateHeading(measure(FULL - 1))).toMatchObject({ tabs: 7, actions: 2 });
-    expect(allocateHeading(measure(FULL - 130))).toMatchObject({ tabs: 7, actions: 3 });
-    expect(allocateHeading(measure(FULL - 300))).toMatchObject({ tabs: 7, actions: 5 });
+    expect(allocateHeading(measure(FULL - 1))).toMatchObject({ tabs: 7, actions: 1 });
+    expect(allocateHeading(measure(FULL - 130))).toMatchObject({ tabs: 7, actions: 2 });
+    expect(allocateHeading(measure(FULL - 300))).toMatchObject({ tabs: 7, actions: 4 });
   });
 
   it('then collapses the tabs into the More pill, keeping the selected one', () => {
     // All actions but the last: ⋮ + primary = 40 + 16 + 140 = 196. Five tabs + More:
     // 12 + 5 * 90 + 4 * 2 + 2 + 80 = 552. Row: 160 + 32 + 552 + 32 + 196 = 972.
-    expect(allocateHeading(measure(972))).toMatchObject({ compact: false, tabs: 5, actions: 5 });
+    expect(allocateHeading(measure(972))).toMatchObject({ compact: false, tabs: 5, actions: 4 });
     expect(allocateHeading(measure(972, { tabs: { ...tabs, pinned: 6 } }))).toMatchObject({
       tabs: 5,
     });
-    expect(allocateHeading(measure(971))).toMatchObject({ tabs: 4, actions: 5 });
+    expect(allocateHeading(measure(971))).toMatchObject({ tabs: 4, actions: 4 });
   });
 
   it('then collapses the last action too', () => {
     // One tab + More: 12 + 90 + 2 + 80 = 184; ⋮ alone: 40. Row: 160 + 32 + 184 + 32 + 40 = 448.
-    expect(allocateHeading(measure(448))).toMatchObject({ compact: false, tabs: 1, actions: 6 });
+    expect(allocateHeading(measure(448))).toMatchObject({ compact: false, tabs: 1, actions: 5 });
   });
 
   it('turns compact when even that does not fit: the tabs get a row of their own', () => {
@@ -94,20 +127,20 @@ describe('allocateHeading', () => {
       // 12 + 3 * 90 + 2 * 2 + 2 + 80 = 368 fits in 447.
       tabs: 3,
       // Title + ⋮ + primary: 160 + 32 + 196 = 388.
-      actions: 5,
+      actions: 4,
     });
     // The first row: title + ⋮ only (the title shortens below that). Two tabs + More: 276.
-    expect(allocateHeading(measure(300))).toMatchObject({ compact: true, tabs: 2, actions: 6 });
-    expect(allocateHeading(measure(150))).toMatchObject({ compact: true, tabs: 1, actions: 6 });
+    expect(allocateHeading(measure(300))).toMatchObject({ compact: true, tabs: 2, actions: 5 });
+    expect(allocateHeading(measure(150))).toMatchObject({ compact: true, tabs: 1, actions: 5 });
   });
 
   it('keeps one row without tabs, collapsing the actions', () => {
     const noTabs = (available: number) => allocateHeading(measure(available, { tabs: null }));
     // 160 + 32 + 571 = 763
     expect(noTabs(763)).toMatchObject({ compact: false, actions: 0 });
-    expect(noTabs(700)).toMatchObject({ compact: false, actions: 3 });
+    expect(noTabs(700)).toMatchObject({ compact: false, actions: 2 });
     // Not even the title and ⋮: everything collapses, the title shortens.
-    expect(noTabs(100)).toMatchObject({ compact: false, actions: 6 });
+    expect(noTabs(100)).toMatchObject({ compact: false, actions: 5 });
   });
 
   it('works with any part missing', () => {
@@ -118,7 +151,7 @@ describe('allocateHeading', () => {
       tabs: 2,
     });
     expect(allocateHeading(measure(200, { title: null, tabs: null }))).toMatchObject({
-      actions: 5,
+      actions: 4,
     });
   });
 });

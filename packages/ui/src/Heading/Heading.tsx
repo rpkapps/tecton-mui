@@ -62,6 +62,12 @@ export const headingClasses = {
   overflowButton: 'TectonHeading-overflowButton',
   /** The tray the overflow button opens, holding those actions. */
   overflowTray: 'TectonHeading-overflowTray',
+  /** `HeadingSearch`: its root (a search landmark while open). */
+  search: 'TectonHeading-search',
+  /** The Search button that opens the field. */
+  searchButton: 'TectonHeading-searchButton',
+  /** The search field (a `FilledInput`). */
+  searchField: 'TectonHeading-searchField',
 } as const;
 
 export type HeadingClassKey = keyof typeof headingClasses;

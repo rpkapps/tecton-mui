@@ -11,6 +11,7 @@ import {
   FormControl,
   Heading,
   HeadingActions,
+  HeadingSearch,
   HeadingTabs,
   HeadingTitle,
   IconButton,
@@ -126,9 +127,7 @@ function LabeledSelect({ label, value }: { label: string; value: string }) {
 function SearchAndFilter() {
   return (
     <>
-      <IconButton size="medium" aria-label="Search">
-        <span className="tecton-search-outline" aria-hidden />
-      </IconButton>
+      <HeadingSearch />
       <IconButton size="medium" aria-label="Filter">
         <span className="tecton-filter-outline" aria-hidden />
       </IconButton>
