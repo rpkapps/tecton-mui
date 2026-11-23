@@ -135,6 +135,8 @@ test.describe('Heading', () => {
         expect(await analyze()).toEqual([]);
         await page.getByRole('button', { name: 'Switch portfolio' }).click();
         await expect(page.getByRole('menu')).toBeVisible();
+        // Wait for the menu's fade-in: half-transparent items would fail the contrast check.
+        await expect(page.locator('.MuiMenu-paper')).toHaveCSS('opacity', '1');
         expect(await analyze()).toEqual([]);
       });
     }
