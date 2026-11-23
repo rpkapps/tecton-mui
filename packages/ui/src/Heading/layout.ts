@@ -36,7 +36,10 @@ export interface HeadingMeasure {
   available: number;
   /** Space between the title, the tabs and the actions. */
   gap: number;
-  /** The title cluster's natural width, or `null` without a title. */
+  /**
+   * The natural width of the heading's start (the title and what sits beside it), or `null` when it
+   * has none.
+   */
   title: number | null;
   tabs: TabsMeasure | null;
   actions: ActionsMeasure | null;

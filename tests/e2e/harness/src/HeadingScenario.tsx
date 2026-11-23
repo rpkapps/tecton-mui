@@ -1,4 +1,4 @@
-// Page heading in a real browser: the title's home and menu buttons, tabs that switch the page's
+// Page heading in a real browser: home and menu buttons beside the title, tabs that switch the page's
 // section, a search that filters the projects, actions, and a section heading below. Used by
 // tests/e2e/heading.spec.ts.
 import * as React from 'react';
@@ -12,6 +12,7 @@ import {
   HeadingSearch,
   HeadingTabs,
   HeadingTitle,
+  IconButton,
   InputAdornment,
   Menu,
   MenuItem,
@@ -38,20 +39,20 @@ export function HeadingScenario() {
   return (
     <Box>
       <Heading component="header" data-testid="page-heading">
-        <HeadingTitle
-          onHomeClick={() => setLog('home')}
-          onMenuClick={(event) => setAnchor(event.currentTarget)}
-          slotProps={{
-            menuButton: {
-              'aria-label': 'Switch portfolio',
-              'aria-haspopup': 'menu',
-              'aria-expanded': open,
-              'aria-controls': open ? 'portfolio-menu' : undefined,
-            },
-          }}
+        <IconButton aria-label="Home" onClick={() => setLog('home')}>
+          <Icon name="home" />
+        </IconButton>
+        <HeadingTitle>{portfolio}</HeadingTitle>
+        <IconButton
+          size="small"
+          aria-label="Switch portfolio"
+          aria-haspopup="menu"
+          aria-expanded={open}
+          aria-controls={open ? 'portfolio-menu' : undefined}
+          onClick={(event) => setAnchor(event.currentTarget)}
         >
-          {portfolio}
-        </HeadingTitle>
+          <Icon name="chevron-down" />
+        </IconButton>
         <HeadingTabs
           value={section}
           onChange={(_event, next: number) => setSection(next)}
@@ -120,7 +121,7 @@ export function HeadingScenario() {
         </ul>
       </Box>
       <Heading data-testid="section-heading">
-        <HeadingTitle slotProps={{ title: { component: 'h2' } }}>Wells</HeadingTitle>
+        <HeadingTitle component="h2">Wells</HeadingTitle>
       </Heading>
     </Box>
   );

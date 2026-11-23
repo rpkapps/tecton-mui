@@ -1,137 +1,52 @@
 'use client';
 import * as React from 'react';
 import clsx from 'clsx';
-import IconButton, { type IconButtonProps } from '@mui/material/IconButton';
 import Typography, { type TypographyProps } from '@mui/material/Typography';
-import { styled, type SxProps, type Theme } from '@mui/material/styles';
-import useForkRef from '@mui/utils/useForkRef';
-import { cssVar } from '../styles/tecton/index.js';
 import { sxList } from '../internal/sxList.js';
 import { headingClasses } from './Heading.js';
-import { useHeadingPart, widthOf } from './HeadingContext.js';
 
-export interface HeadingTitleProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
+export interface HeadingTitleProps extends Omit<TypographyProps, 'component' | 'ref'> {
   /** The title. */
   children?: React.ReactNode;
   /**
-   * Shows the home button before the title and is called when it is clicked. A home button with an
-   * `href` in `slotProps.homeButton` shows without it.
+   * The component used for the root node: for example `'h2'` for a section heading.
+   * @default 'h1'
    */
-  onHomeClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  component?: React.ElementType;
   /**
-   * Shows the menu button (a chevron) after the title and is called when it is clicked, for example
-   * to open a `Menu` that switches to another page of the same kind.
+   * The Typography variant.
+   * @default 'h4' (Tecton heading-1)
    */
-  onMenuClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
-  /** Props for the title's own parts. */
-  slotProps?: {
-    /**
-     * Props of the title text, a `Typography` (`variant="h4"`, an `<h1>` by default, `noWrap` so
-     * that a heading out of room ends it with an ellipsis): for example `component: 'h2'` for a
-     * section heading.
-     */
-    title?: Partial<TypographyProps> & { component?: React.ElementType };
-    /**
-     * Props of the home button, an `IconButton`: its `aria-label` (default "Home"), or an `href`
-     * that makes it a link.
-     */
-    homeButton?: Partial<IconButtonProps> & { href?: string };
-    /**
-     * Props of the menu button, an `IconButton`: its `aria-label` (default "More"), and
-     * `aria-haspopup`, `aria-expanded` and `aria-controls` for the menu it opens.
-     */
-    menuButton?: Partial<IconButtonProps>;
-  };
-  /** The system prop that allows defining system overrides as well as additional CSS styles. */
-  sx?: SxProps<Theme>;
+  variant?: TypographyProps['variant'];
+  /**
+   * The title stays on one line and ends with an ellipsis when the heading has no room left.
+   * @default true
+   */
+  noWrap?: boolean;
 }
 
-const TitleRoot = styled('div', { name: 'TectonHeading', slot: 'Title' })({
-  display: 'flex',
-  alignItems: 'center',
-  // Figma: the home button, the title and the chevron sit space-75 apart.
-  gap: cssVar('space-75'),
-  // A narrow heading shortens the title, never its buttons.
-  [`& > .${headingClasses.homeButton}, & > .${headingClasses.menuButton}`]: { flexShrink: 0 },
-});
-
-// Tecton heading-1 type (the theme's `h4`) without the letter spacing MUI's own h4 adds. When the
-// heading has no room left, the title ends with an ellipsis (`noWrap`).
-const titleTextSx = { color: 'text.primary', letterSpacing: 'normal', minWidth: 0 } as const;
-
-const MenuIcon = styled('span', { name: 'TectonHeading', slot: 'MenuIcon' })({
-  fontSize: cssVar('icon-size-100'),
-});
+// Tecton heading-1 type (the theme's `h4`) without the letter spacing MUI's own h4 adds.
+const titleSx = { color: 'text.primary', letterSpacing: 'normal' } as const;
 
 /**
- * The heading's title cluster: the title, with an optional home button before it and an optional
- * menu (chevron) button after it.
+ * The heading's title: a `Typography`, an `<h1>` by default, which takes the Typography props. Put
+ * an `IconButton` before it (to go home) or after it (to open a menu) in the `Heading` itself: the
+ * heading sets them beside the title.
  */
-const HeadingTitle = React.forwardRef<HTMLDivElement, HeadingTitleProps>(
+const HeadingTitle = React.forwardRef<HTMLHeadingElement, HeadingTitleProps>(
   function HeadingTitle(props, ref) {
-    const { children, onHomeClick, onMenuClick, slotProps, className, ...other } = props;
-    const { sx: titleSx, className: titleClassName, ...titleProps } = slotProps?.title ?? {};
-    const {
-      onClick: onHomeButtonClick,
-      className: homeButtonClassName,
-      ...homeButtonProps
-    } = slotProps?.homeButton ?? {};
-    const {
-      onClick: onMenuButtonClick,
-      className: menuButtonClassName,
-      ...menuButtonProps
-    } = slotProps?.menuButton ?? {};
-    const showHome = onHomeClick != null || homeButtonProps.href != null;
-    const showMenu = onMenuClick != null;
-    const rootRef = React.useRef<HTMLDivElement>(null);
-    const handleRef = useForkRef(rootRef, ref);
-    useHeadingPart('title', rootRef, () => widthOf(rootRef.current));
-
+    const { className, sx, ...other } = props;
     return (
-      <TitleRoot
-        ref={handleRef}
+      <Typography
+        ref={ref}
+        variant="h4"
+        component="h1"
+        noWrap
+        {...other}
         data-heading-part="title"
         className={clsx(headingClasses.title, className)}
-        {...other}
-      >
-        {showHome && (
-          <IconButton
-            aria-label="Home"
-            {...homeButtonProps}
-            className={clsx(headingClasses.homeButton, homeButtonClassName)}
-            onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-              onHomeButtonClick?.(event);
-              onHomeClick?.(event);
-            }}
-          >
-            <span className="tecton-home-outline" aria-hidden />
-          </IconButton>
-        )}
-        <Typography
-          variant="h4"
-          component="h1"
-          noWrap
-          {...titleProps}
-          className={clsx(headingClasses.titleText, titleClassName)}
-          sx={[titleTextSx, ...sxList(titleSx)]}
-        >
-          {children}
-        </Typography>
-        {showMenu && (
-          <IconButton
-            size="small"
-            aria-label="More"
-            {...menuButtonProps}
-            className={clsx(headingClasses.menuButton, menuButtonClassName)}
-            onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-              onMenuButtonClick?.(event);
-              onMenuClick?.(event);
-            }}
-          >
-            <MenuIcon className="tecton-chevron-down-outline" aria-hidden />
-          </IconButton>
-        )}
-      </TitleRoot>
+        sx={[titleSx, ...sxList(sx)]}
+      />
     );
   },
 );

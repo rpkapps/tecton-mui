@@ -432,9 +432,13 @@ import Heading, { HeadingActions, HeadingTabs, HeadingTitle } from '@tecton-mui/
 import Tab from '@tecton-mui/ui/Tab';
 
 <Heading>
-  <HeadingTitle onHomeClick={goHome} onMenuClick={(event) => openMenu(event.currentTarget)}>
-    Portfolio
-  </HeadingTitle>
+  <IconButton aria-label="All portfolios" href="/portfolios">
+    <Icon name="home" />
+  </IconButton>
+  <HeadingTitle>Portfolio</HeadingTitle>
+  <IconButton size="small" aria-label="Switch portfolio" aria-haspopup="menu" onClick={openMenu}>
+    <Icon name="chevron-down" />
+  </IconButton>
   <HeadingTabs value={section} onChange={(event, value) => setSection(value)} aria-label="Sections">
     <Tab value="overview" label="Overview" />
     <Tab value="team" label="Team" />
@@ -447,8 +451,8 @@ import Tab from '@tecton-mui/ui/Tab';
 </Heading>;
 ```
 
-The title is an `<h1>` (`slotProps.title` changes the element and `Typography` variant);
-`onHomeClick` and `onMenuClick` show the home button and the menu chevron. `HeadingSearch`, among
+`HeadingTitle` is a `Typography`, an `<h1>` by default (`component`, `variant`). A home button and a
+menu chevron are your own `IconButton`s, beside it in the `Heading`. `HeadingSearch`, among
 the actions, is a Search button that opens into a search field (`value`, `onChange`; Escape clears,
 then closes). `HeadingTabs` takes the
 MUI `Tabs` props and shows the Tecton filled tab group. The row never wraps: when it runs out of

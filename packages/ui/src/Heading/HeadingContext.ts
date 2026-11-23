@@ -5,8 +5,8 @@ import * as React from 'react';
 import useEnhancedEffect from '@mui/utils/useEnhancedEffect';
 import type { ActionsMeasure, HeadingLayout, TabsMeasure } from './layout.js';
 
+/** The parts that `Heading` measures through a registry (it reads the title and its start itself). */
 export interface HeadingPartMeasures {
-  title: number;
   tabs: TabsMeasure;
   actions: ActionsMeasure;
 }

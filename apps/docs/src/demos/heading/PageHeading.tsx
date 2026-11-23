@@ -8,6 +8,7 @@ import Heading, {
   HeadingTitle,
 } from '@tecton-mui/ui/Heading';
 import Icon from '@tecton-mui/ui/Icon';
+import IconButton from '@tecton-mui/ui/IconButton';
 import Tab from '@tecton-mui/ui/Tab';
 import Typography from '@tecton-mui/ui/Typography';
 import ToggleButton from '@tecton-mui/ui/ToggleButton';
@@ -27,7 +28,10 @@ export default function PageHeading() {
   return (
     <Box sx={{ width: '100%' }}>
       <Heading component="header">
-        <HeadingTitle onHomeClick={() => setSection('Overview')}>Portfolio</HeadingTitle>
+        <IconButton aria-label="Overview" onClick={() => setSection('Overview')}>
+          <Icon name="home" />
+        </IconButton>
+        <HeadingTitle>Portfolio</HeadingTitle>
         <HeadingTabs
           value={section}
           onChange={(_event, next: string) => setSection(next)}

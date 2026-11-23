@@ -9,6 +9,7 @@ import Heading, {
   HeadingTitle,
 } from '@tecton-mui/ui/Heading';
 import Icon from '@tecton-mui/ui/Icon';
+import IconButton from '@tecton-mui/ui/IconButton';
 import Slider from '@tecton-mui/ui/Slider';
 import Stack from '@tecton-mui/ui/Stack';
 import Tab from '@tecton-mui/ui/Tab';
@@ -39,7 +40,10 @@ export default function ResponsiveHeading() {
       </Stack>
       <Box sx={{ width: `${width}%`, border: 1, borderColor: 'divider', borderStyle: 'dashed' }}>
         <Heading>
-          <HeadingTitle onHomeClick={() => setSection('Overview')}>Portfolio</HeadingTitle>
+          <IconButton aria-label="Overview" onClick={() => setSection('Overview')}>
+            <Icon name="home" />
+          </IconButton>
+          <HeadingTitle>Portfolio</HeadingTitle>
           <HeadingTabs
             value={section}
             onChange={(_event, next: string) => setSection(next)}
