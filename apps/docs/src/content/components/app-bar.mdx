@@ -65,8 +65,14 @@ strip jumps instead.
 ## Actions
 
 `AppBarActions` sits at the end of the bar and centres its content: icon buttons, text buttons, a
-menu button or an avatar. It never shrinks, so wide content takes room from the tabs. Other content,
-such as a [Menubar](/components/menubar), can go anywhere in the bar.
+menu button or an avatar. The tabs scroll to make room for it. When even the narrowest tab strip
+(the selected tab between its two arrows, and the add button) leaves too little room, the actions
+collapse into an overflow (⋮) button, first to last, so put the primary one last. The button opens a
+tray that shows them as they are; a click on a command in it closes it. It works like the
+[Heading](/components/heading)'s actions, and takes `slotProps.overflowButton` and
+`slotProps.overflowTray` the same way. Pass the actions as separate children (fragments are fine) so
+that they collapse one by one. Other content, such as a [Menubar](/components/menubar), can go
+anywhere in the bar.
 
 <Demo name="AppBarActions" />
 
@@ -104,6 +110,9 @@ Both are driven by the page's state.
 - The close button is a separate button next to its tab, not inside it, so screen readers and
   touch users reach it as a normal button. The tab list holds only tabs.
 - Icon-only tabs need an `aria-label`, as do icon buttons in the actions.
+- The overflow button ("More actions") opens its tray as a dialog (`aria-haspopup="dialog"`); focus
+  moves into it, and Escape closes it and gives the focus back to the button. The actions that do not
+  fit are left out of the bar, not hidden, so the keyboard never lands on something out of sight.
 - The bar is a `<header>` with `role="banner"`. With two bars on a page, as in the application
   shell, give the second one an `aria-label` (or `component="nav"`) so the landmarks can be told
   apart.

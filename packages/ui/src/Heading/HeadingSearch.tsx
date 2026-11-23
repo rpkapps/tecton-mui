@@ -18,7 +18,10 @@ import useControlled from '@mui/utils/useControlled';
 import useEnhancedEffect from '@mui/utils/useEnhancedEffect';
 import { cssVar } from '../styles/tecton/index.js';
 import { headingClasses } from './Heading.js';
-import { HeadingActionContext } from './HeadingActions.js';
+import {
+  OverflowItemContext,
+  type OverflowPriorityMarker,
+} from '../internal/overflow/useCollapsingItems.js';
 
 export type HeadingSearchCloseReason = 'escapeKeyDown' | 'blur';
 
@@ -143,8 +146,9 @@ const HeadingSearch = React.forwardRef<HTMLDivElement, HeadingSearchProps>(
     });
 
     // An open field keeps its place in the heading's row; in the tray it stays in the tray. (The
-    // closed Search button collapses after the other secondary actions: see `muiName` below.)
-    const action = React.useContext(HeadingActionContext);
+    // closed Search button collapses after the other secondary actions: see `overflowPriority`
+    // below.)
+    const action = React.useContext(OverflowItemContext);
     const setPinned = action?.setPinned;
     const pin = open && !action?.inTray;
     useEnhancedEffect(() => {
@@ -258,7 +262,8 @@ const HeadingSearch = React.forwardRef<HTMLDivElement, HeadingSearchProps>(
   },
 );
 
-// `HeadingActions` knows the search from its type, as MUI knows its own parts (`Input.muiName`).
-(HeadingSearch as typeof HeadingSearch & { muiName: string }).muiName = 'HeadingSearch';
+// A row of collapsing actions knows the search from its type (as MUI knows its own parts by
+// `muiName`) and collapses it after the other secondary actions.
+(HeadingSearch as typeof HeadingSearch & OverflowPriorityMarker).overflowPriority = 'late';
 
 export default HeadingSearch;

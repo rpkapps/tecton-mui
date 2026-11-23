@@ -91,7 +91,8 @@ and `IconButton`, `variant="square"` on `IconButton`, `shape` on `Chip` and `Bad
 `Divider` and `tier` on `AppBar`. `AppBar` is the Tecton App Bar, composed from `AppBarBrand`,
 `AppBarTabs` / `AppBarTab` (the MUI `Tabs` and `Tab` props, plus close and add buttons) and
 `AppBarActions`. It replaces the MUI `AppBar` and its `Toolbar` composition; see the App Bar page of
-the docs portal.
+the docs portal. On a narrow bar, the tabs scroll and then the actions collapse into an overflow (⋮)
+button, as a `Heading`'s do.
 
 ## Stylesheets: shell, hosted MFE and standalone
 

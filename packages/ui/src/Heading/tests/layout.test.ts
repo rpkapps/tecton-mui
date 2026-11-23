@@ -1,7 +1,5 @@
 import {
-  actionCollapseOrder,
   allocateHeading,
-  hiddenActions,
   type ActionsMeasure,
   type HeadingMeasure,
   type TabsMeasure,
@@ -28,46 +26,6 @@ const measure = (available: number, patch: Partial<HeadingMeasure> = {}): Headin
   tabs,
   actions,
   ...patch,
-});
-
-describe('actionCollapseOrder', () => {
-  it('collapses first to last, the late ones after the others, the last action at the end', () => {
-    expect(actionCollapseOrder(actions)).toEqual([0, 2, 3, 4, 5]);
-    // A closed search (first, late) goes after the other secondary actions.
-    expect(
-      actionCollapseOrder({ ...actions, late: [true, false, false, false, false, false] }),
-    ).toEqual([2, 3, 4, 0, 5]);
-    // An open search (pinned) never collapses.
-    expect(
-      actionCollapseOrder({ ...actions, pinned: [true, false, false, false, false, false] }),
-    ).toEqual([2, 3, 4, 5]);
-    expect(actionCollapseOrder({ separators: [], pinned: [], late: [] })).toEqual([]);
-  });
-});
-
-describe('hiddenActions', () => {
-  const hiddenIndices = (kinds: Parameters<typeof hiddenActions>[0], count: number) =>
-    hiddenActions(kinds, count).flatMap((hidden, index) => (hidden ? [index] : []));
-
-  it('takes the separators left without an action before them along with the hidden actions', () => {
-    expect(hiddenIndices(actions, 0)).toEqual([]);
-    // The search button goes, and the separator after it, now first in the row.
-    expect(hiddenIndices(actions, 1)).toEqual([0, 1]);
-    expect(hiddenIndices(actions, 2)).toEqual([0, 1, 2]);
-    expect(hiddenIndices(actions, 9)).toEqual([0, 1, 2, 3, 4, 5]);
-  });
-
-  it('keeps a separator between two actions that show, and drops doubled or trailing ones', () => {
-    const kinds = {
-      separators: [false, true, false, true, false],
-      pinned: [true, false, false, false, false],
-      late: [false, false, false, false, false],
-    };
-    // [search (pinned)] | [view] | [create]: the view goes, two separators meet: one stays.
-    expect(hiddenIndices(kinds, 1)).toEqual([2, 3]);
-    // Everything that can go: the pinned search alone, without a separator after it.
-    expect(hiddenIndices(kinds, 2)).toEqual([1, 2, 3, 4]);
-  });
 });
 
 describe('allocateHeading', () => {

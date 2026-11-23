@@ -237,14 +237,14 @@ test.describe('Heading', () => {
     await expect(field).toBeFocused();
     await expect(field).toHaveValue('sea');
     await expect(page.getByTestId('page-heading')).not.toHaveClass(/TectonHeading-compact/);
-    // Narrower still: the field stays put while everything else collapses.
+    // Narrower still: the field stays put while everything else collapses (once the heading has
+    // laid itself out again after the resize).
     await page.setViewportSize({ width: 700, height: 800 });
     await expect(field).toBeVisible();
     await expect(field).toHaveValue('sea');
-    const overflowX = await page.evaluate(
-      () => document.documentElement.scrollWidth - window.innerWidth,
-    );
-    expect(overflowX).toBeLessThanOrEqual(0);
+    await expect
+      .poll(() => page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth))
+      .toBeLessThanOrEqual(0);
   });
 
   test('compact: the tabs get a row of their own; nothing overflows down to 320px', async ({
@@ -273,10 +273,11 @@ test.describe('Heading', () => {
 
     for (const width of [375, 320]) {
       await page.setViewportSize({ width, height: 800 });
-      const overflowX = await page.evaluate(
-        () => document.documentElement.scrollWidth - window.innerWidth,
-      );
-      expect(overflowX, `horizontal overflow at ${width}px`).toBeLessThanOrEqual(0);
+      await expect
+        .poll(() => page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth), {
+          message: `horizontal overflow at ${width}px`,
+        })
+        .toBeLessThanOrEqual(0);
     }
 
     // Wide again: one row with everything.
@@ -326,7 +327,8 @@ test.describe('Heading', () => {
         await shown('[role="menu"]');
         expect(await analyze()).toEqual([]);
         await page.keyboard.press('Escape');
-        await expect(page.getByRole('menu')).toBeHidden();
+        // Gone, not fading out: half-transparent items would fail the contrast check.
+        await expect(page.locator('.MuiMenu-paper')).toHaveCount(0);
 
         // Collapsed: scrolling tabs and the overflow tray.
         await page.setViewportSize({ width: 1000, height: 800 });

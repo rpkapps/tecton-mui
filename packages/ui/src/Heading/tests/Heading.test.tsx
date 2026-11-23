@@ -489,7 +489,7 @@ describe('Heading layout (with layout geometry)', () => {
     if (element.classList.contains(headingClasses.title)) return 160;
     if (element.getAttribute('role') === 'tab') return 90;
     if (element.classList.contains(headingClasses.overflowButton)) return 40;
-    if (element.hasAttribute('data-heading-action')) return 120;
+    if (element.hasAttribute('data-overflow-item')) return 120;
     return 0;
   };
 
