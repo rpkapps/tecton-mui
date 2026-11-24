@@ -451,11 +451,12 @@ The title is an `<h1>` (`slotProps.title` changes the element and `Typography` v
 `onHomeClick` and `onMenuClick` show the home button and the menu chevron. `HeadingSearch`, among
 the actions, is a Search button that opens into a search field (`value`, `onChange`; Escape clears,
 then closes). `HeadingTabs` takes the
-MUI `Tabs` props and shows the Tecton filled tab group. The row never wraps: when it runs out of
-room, the actions collapse into an overflow (⋮) button first to last (the last, primary one stays),
-then the tabs after the selected one into a More pill, then the primary action; a very narrow
-heading gives the tabs a row of their own. The gutters follow the heading's own width;
-`disableGutters` removes them.
+MUI `Tabs` props and shows the Tecton filled tab group. The heading behaves as the Tecton drop-in
+heading (`<wc-heading>`): above 720px (its own width) it keeps one row, the actions folding into an
+overflow (⋮) menu that lists them as menu items (buttons, then the view toggle, the selects, the
+icon buttons and the search; never the primary action), then the last tabs into a More tab; at
+720px and below it is narrow, with 16px padding, the tabs one dropdown on a row of their own and the
+primary action an icon button. `disableGutters` removes the side padding.
 
 ## ColorSwatchControl
 

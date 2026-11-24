@@ -37,8 +37,8 @@ export interface HeadingTitleProps extends Omit<React.HTMLAttributes<HTMLDivElem
      */
     homeButton?: Partial<IconButtonProps> & { href?: string };
     /**
-     * Props of the menu button, an `IconButton`: its `aria-label` (default "More"), and
-     * `aria-haspopup`, `aria-expanded` and `aria-controls` for the menu it opens.
+     * Props of the menu button, an `IconButton`: its `aria-label` (default "Page menu"), and
+     * `aria-expanded` and `aria-controls` for the menu it opens (`aria-haspopup` is `"menu"`).
      */
     menuButton?: Partial<IconButtonProps>;
   };
@@ -53,6 +53,10 @@ const TitleRoot = styled('div', { name: 'TectonHeading', slot: 'Title' })({
   gap: cssVar('space-75'),
   // A narrow heading shortens the title, never its buttons.
   [`& > .${headingClasses.homeButton}, & > .${headingClasses.menuButton}`]: { flexShrink: 0 },
+  // Figma: their glyphs in the tertiary text color, in every state (`&&`: over the theme's).
+  [`&& > .${headingClasses.homeButton}, && > .${headingClasses.menuButton}`]: {
+    color: cssVar('color-action-tertiary-text'),
+  },
 });
 
 // Tecton heading-1 type (the theme's `h4`) without the letter spacing MUI's own h4 adds. When the
@@ -96,6 +100,7 @@ const HeadingTitle = React.forwardRef<HTMLDivElement, HeadingTitleProps>(
       >
         {showHome && (
           <IconButton
+            color="tertiary"
             aria-label="Home"
             {...homeButtonProps}
             className={clsx(headingClasses.homeButton, homeButtonClassName)}
@@ -104,7 +109,7 @@ const HeadingTitle = React.forwardRef<HTMLDivElement, HeadingTitleProps>(
               onHomeClick?.(event);
             }}
           >
-            <span className="tecton-home-outline" aria-hidden />
+            <span className="tecton-home-filled" aria-hidden />
           </IconButton>
         )}
         <Typography
@@ -119,8 +124,10 @@ const HeadingTitle = React.forwardRef<HTMLDivElement, HeadingTitleProps>(
         </Typography>
         {showMenu && (
           <IconButton
+            color="tertiary"
             size="small"
-            aria-label="More"
+            aria-label="Page menu"
+            aria-haspopup="menu"
             {...menuButtonProps}
             className={clsx(headingClasses.menuButton, menuButtonClassName)}
             onClick={(event: React.MouseEvent<HTMLButtonElement>) => {

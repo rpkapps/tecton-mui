@@ -71,25 +71,25 @@ test.describe('Heading', () => {
     await page.setViewportSize({ width: 1600, height: 800 });
     await open(page);
     const overflow = page.getByRole('button', { name: 'More actions' });
-    const more = page.getByRole('button', { name: 'More', exact: true });
+    const more = page.getByRole('tab', { name: 'More' });
     const create = page.getByRole('button', { name: 'Create Project' });
     // Everything fits.
     await expect(page.getByRole('tab')).toHaveCount(7);
     await expect(overflow).toHaveCount(0);
     await expect(more).toHaveCount(0);
 
-    // The secondary actions go into the overflow button first, the search last of them; all the
-    // tabs stay.
-    await page.setViewportSize({ width: 1280, height: 800 });
+    // The actions fold into the overflow menu first, the select before the search; every tab stays.
+    await page.setViewportSize({ width: 1200, height: 800 });
     await expect(overflow).toBeVisible();
     await expect(page.getByText('Sort:')).toHaveCount(0);
     await expect(page.getByRole('button', { name: 'Search' })).toBeVisible();
     await expect(create).toBeVisible();
     await expect(page.getByRole('tab')).toHaveCount(7);
 
-    // Then the tabs after the selected one go into the More pill.
+    // Then the last tabs go into the More tab, at the end of the tab list.
     await page.setViewportSize({ width: 1000, height: 800 });
     await expect(more).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Search' })).toHaveCount(0);
     await expect(page.getByRole('tab', { name: 'Overview' })).toBeVisible();
     await expect(page.getByRole('tab', { name: 'Analytics' })).toHaveCount(0);
     await expect(create).toBeVisible();
@@ -111,56 +111,68 @@ test.describe('Heading', () => {
     await expect(page.getByTestId('page-heading')).not.toHaveClass(/TectonHeading-compact/);
   });
 
-  test('the More pill lists the hidden tabs; a pick selects, shows and focuses it', async ({
+  test('the More tab lists the hidden tabs; a pick selects it, and the More tab with it', async ({
     page,
   }) => {
     await page.setViewportSize({ width: 1000, height: 800 });
     await open(page);
     // The open menu is modal: it hides the rest of the page from assistive technology.
-    const more = page.getByRole('button', { name: 'More', exact: true, includeHidden: true });
+    const more = page.getByRole('tab', { name: 'More', includeHidden: true });
+    await expect(more).toHaveAttribute('aria-haspopup', 'menu');
     await more.click();
     await expect(more).toHaveAttribute('aria-expanded', 'true');
-    const menu = page.getByRole('menu', { name: 'More' });
+    const menu = page.getByRole('menu');
     await menu.getByRole('menuitem', { name: 'Analytics' }).click();
-    const analytics = page.getByRole('tab', { name: 'Analytics' });
-    await expect(analytics).toHaveAttribute('aria-selected', 'true');
-    await expect(analytics).toBeFocused();
-    await expect(page.getByTestId('section')).toHaveText('Analytics');
     await expect(page.getByRole('menu')).toBeHidden();
-    // Escape closes the menu and gives the focus back to the pill.
+    await expect(page.getByTestId('section')).toHaveText('Analytics');
+    // The open tab is in the More menu: the More tab is selected, and keeps the focus.
+    await expect(more).toHaveAttribute('aria-selected', 'true');
+    await expect(more).toBeFocused();
     await more.click();
-    await expect(page.getByRole('menu')).toBeVisible();
+    await expect(page.getByRole('menuitem', { name: 'Analytics' })).toHaveClass(/Mui-selected/);
+    // Escape closes the menu and gives the focus back to the More tab.
     await page.keyboard.press('Escape');
     await expect(page.getByRole('menu')).toBeHidden();
     await expect(more).toBeFocused();
   });
 
-  test('the overflow tray holds the hidden actions as they are; the search opens in it', async ({
+  test('the overflow menu lists the folded actions; the search opens back in the row', async ({
     page,
   }) => {
     await page.setViewportSize({ width: 1000, height: 800 });
     await open(page);
     const overflow = page.getByRole('button', { name: 'More actions', includeHidden: true });
+    await expect(overflow).toHaveAttribute('aria-haspopup', 'menu');
     await overflow.click();
     await expect(overflow).toHaveAttribute('aria-expanded', 'true');
-    const tray = page.getByRole('dialog', { name: 'More actions' });
-    await expect(tray.getByText('Sort:')).toBeVisible();
-    await page.keyboard.press('Escape');
-    await expect(tray).toBeHidden();
+    const menu = page.getByRole('menu', { name: 'More actions' });
+    await expect(menu.getByRole('menuitem')).toHaveText(['Search']);
+    await expect(menu.getByRole('menuitemradio')).toHaveText(['Recent', 'Name']);
+    await expect(menu.getByRole('menuitemradio', { name: 'Recent' })).toHaveAttribute(
+      'aria-checked',
+      'true',
+    );
+    // A pick closes the menu; the select's value follows.
+    await menu.getByRole('menuitemradio', { name: 'Name' }).click();
+    await expect(menu).toBeHidden();
     await expect(overflow).toBeFocused();
-
-    // The search opens in the tray, which stays open; its Escapes stay in the field.
     await overflow.click();
-    await tray.getByRole('button', { name: 'Search' }).click();
-    await expect(tray.getByRole('textbox', { name: 'Search' })).toBeFocused();
+    await expect(menu.getByRole('menuitemradio', { name: 'Name' })).toHaveAttribute(
+      'aria-checked',
+      'true',
+    );
+
+    // The search comes back to the row, open; closed again, it folds and ⋮ has the focus.
+    await menu.getByRole('menuitem', { name: 'Search' }).click();
+    const field = page.getByRole('search', { name: 'Search' }).getByRole('textbox');
+    await expect(field).toBeFocused();
     await page.keyboard.type('north');
     await expect(page.getByTestId('projects')).toHaveText('North Sea Infill');
     await page.keyboard.press('Escape');
-    await expect(tray.getByRole('textbox', { name: 'Search' })).toHaveValue('');
+    await expect(field).toHaveValue('');
     await page.keyboard.press('Escape');
-    await expect(tray.getByRole('button', { name: 'Search' })).toBeFocused();
-    await page.keyboard.press('Escape');
-    await expect(tray).toBeHidden();
+    await expect(page.getByRole('search')).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Search' })).toHaveCount(0);
     await expect(overflow).toBeFocused();
   });
 
@@ -252,7 +264,7 @@ test.describe('Heading', () => {
     await expect(field).toBeFocused();
     await page.keyboard.type('sea');
     // The field takes the room of some tabs; the primary action stays, the row stays one row.
-    await expect(page.getByRole('button', { name: 'More', exact: true })).toBeVisible();
+    await expect(page.getByRole('tab', { name: 'More' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Create Project' })).toBeVisible();
     await expect(field).toBeFocused();
     await expect(field).toHaveValue('sea');
@@ -286,8 +298,16 @@ test.describe('Heading', () => {
     // Title and actions on the first row, the tabs below.
     expect(overflow.y + overflow.height / 2).toBeCloseTo(title.y + title.height / 2, 0);
     expect(group.y).toBeGreaterThanOrEqual(title.y + title.height);
+    // Narrow: the tabs are one dropdown, named after the open tab; the primary action an icon.
+    await expect(page.getByRole('tab')).toHaveCount(1);
+    await expect(page.getByRole('tab', { name: 'Overview' })).toHaveAttribute(
+      'aria-haspopup',
+      'menu',
+    );
     await expect(page.getByRole('tab', { name: 'Overview' })).toBeInViewport();
-    await expect(page.getByRole('button', { name: 'More', exact: true })).toBeInViewport();
+    await expect(page.getByRole('button', { name: 'Create Project' })).toHaveClass(
+      /MuiIconButton-root/,
+    );
 
     for (const width of [375, 320]) {
       await page.setViewportSize({ width, height: 800 });
@@ -316,7 +336,7 @@ test.describe('Heading', () => {
     expect(rootBox.x + rootBox.width - (titleBox.x + titleBox.width)).toBeCloseTo(72, 0);
     expect(actionsBox.x - rootBox.x).toBeCloseTo(72, 0);
     // Collapsed, the overflow button comes first: on the right of the primary action.
-    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.setViewportSize({ width: 1200, height: 800 });
     const [overflow, create] = await Promise.all([
       box(page, `${root} .TectonHeading-overflowButton`),
       page.getByRole('button', { name: 'Create Project' }).boundingBox(),
@@ -348,18 +368,18 @@ test.describe('Heading', () => {
         // Gone, not fading out: half-transparent items would fail the contrast check.
         await expect(page.locator('.MuiMenu-paper')).toHaveCount(0);
 
-        // Collapsed: the More menu and the overflow tray.
+        // Collapsed: the More tab's menu and the overflow menu.
         await page.setViewportSize({ width: 1000, height: 800 });
-        await page.getByRole('button', { name: 'More', exact: true }).click();
+        await page.getByRole('tab', { name: 'More' }).click();
         await shown('[role="menu"]');
         expect(await analyze()).toEqual([]);
         await page.keyboard.press('Escape');
         await expect(page.locator('.MuiMenu-paper')).toHaveCount(0);
         await page.getByRole('button', { name: 'More actions' }).click();
-        await shown('.TectonHeading-overflowTray');
+        await shown('[role="menu"]');
         expect(await analyze()).toEqual([]);
         await page.keyboard.press('Escape');
-        await expect(page.getByRole('dialog')).toBeHidden();
+        await expect(page.locator('.MuiMenu-paper')).toHaveCount(0);
 
         // An open search with text.
         await page.setViewportSize({ width: 1600, height: 800 });

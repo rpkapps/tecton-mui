@@ -2,9 +2,11 @@
 // then. Pure and DOM-free; `useCollapsingItems` measures the items and renders the result. Shared by
 // the heading's actions (`HeadingActions`) and the app bar's (`AppBarActions`).
 //
-// The items collapse first to last, so the last one (the primary action in the Tecton design) stays
-// the longest. Late items (a closed search) go after the others, pinned ones (an open search field)
-// never, and separators (vertical dividers) follow the items around them.
+// By default the items collapse first to last, so the last one (the primary action in the Tecton
+// design) stays the longest. Late items (a closed search) go after the others, pinned ones (an open
+// search field) never, and separators (vertical dividers) follow the items around them. A row can give
+// its own order instead (`order`): the heading folds its actions by kind, as the Tecton drop-in
+// heading does (`foldOrder`).
 
 /** The kinds of the items, in order. */
 export interface CollapseKinds {
@@ -14,6 +16,11 @@ export interface CollapseKinds {
   pinned: boolean[];
   /** Which items collapse after the others, before the last one (a closed search). */
   late: boolean[];
+  /**
+   * The order in which the items collapse, when the row sets it (indices of items that are neither
+   * separators nor pinned). Items left out never collapse.
+   */
+  order?: number[];
 }
 
 /** Natural widths of a row of items. */
@@ -34,7 +41,8 @@ const EPSILON = 0.5;
  * last item (the primary one) at the very end. Separators and pinned items never do.
  */
 export function collapseOrder(kinds: CollapseKinds): number[] {
-  const { separators, pinned, late } = kinds;
+  const { separators, pinned, late, order } = kinds;
+  if (order) return order.filter((index) => !separators[index] && !pinned[index]);
   const candidates = separators
     .map((separator, index) => (separator || pinned[index] ? -1 : index))
     .filter((index) => index >= 0);
@@ -45,6 +53,41 @@ export function collapseOrder(kinds: CollapseKinds): number[] {
     ...candidates.filter((index) => late[index]),
     primary,
   ];
+}
+
+/** What an action is, for the order in which the heading folds it (`foldOrder`). */
+export type ActionKind =
+  'primary' | 'button' | 'toggle' | 'select' | 'icon' | 'search' | 'separator';
+
+/** The rank of each kind: lower ranks fold first. */
+const FOLD_RANK: Record<Exclude<ActionKind, 'separator' | 'primary'>, number> = {
+  button: 0,
+  toggle: 1,
+  select: 2,
+  icon: 3,
+  search: 4,
+};
+
+/**
+ * The order in which the heading folds its actions, as the Tecton drop-in heading does: first the
+ * (secondary) buttons, then the toggle button groups (the view toggle), the selects, the icon buttons
+ * (filter before search: from the end of the row) and the search last. The primary action (a
+ * contained button in the primary color) never folds. Within a kind, the actions fold in the order
+ * of the row, the icon buttons from its end.
+ */
+export function foldOrder(kinds: ActionKind[]): number[] {
+  return kinds
+    .map((kind, index) => ({ kind, index }))
+    .filter(
+      (item): item is { kind: Exclude<ActionKind, 'separator' | 'primary'>; index: number } =>
+        item.kind !== 'separator' && item.kind !== 'primary',
+    )
+    .sort(
+      (a, b) =>
+        FOLD_RANK[a.kind] - FOLD_RANK[b.kind] ||
+        (a.kind === 'icon' ? b.index - a.index : a.index - b.index),
+    )
+    .map((item) => item.index);
 }
 
 /** How many items can collapse: those that are neither separators nor pinned. */

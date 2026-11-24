@@ -1,48 +1,72 @@
+import { foldOrder } from '../../internal/overflow/collapse.js';
 import {
   allocateHeading,
-  visibleTabIndices,
+  tabsWidth,
   type ActionsMeasure,
   type HeadingMeasure,
   type TabsMeasure,
 } from '../layout.js';
 
-// A heading like the canonical Storybook one: a 160px title cluster, seven 90px tabs and six
-// actions, the last one the primary button.
+// The drop-in heading's "All parts" row (wc-heading 1.0.0): a 165px title cluster, seven tabs, and
+// search, filter, |, View, Sort, |, the view toggle, |, Publish and Create Project.
 const tabs: TabsMeasure = {
-  items: [90, 90, 90, 90, 90, 90, 90],
-  gap: 2,
+  items: [80, 70, 55, 65, 90, 80, 80],
+  gap: 8,
   padding: 12,
-  more: 80,
-  pinned: 0,
+  more: 70,
 };
+const kinds = [
+  'icon',
+  'icon',
+  'separator',
+  'select',
+  'select',
+  'separator',
+  'toggle',
+  'separator',
+  'button',
+  'primary',
+] as const;
 const actions: ActionsMeasure = {
-  items: [40, 1, 120, 120, 70, 140],
-  separators: [false, true, false, false, false, false],
-  pinned: [false, false, false, false, false, false],
-  late: [false, false, false, false, false, false],
+  items: [32, 32, 1, 152, 152, 1, 130, 1, 70, 120],
+  separators: kinds.map((kind) => kind === 'separator'),
+  pinned: kinds.map(() => false),
+  late: kinds.map(() => false),
+  order: foldOrder([...kinds]),
   gap: 16,
-  overflow: 40,
+  overflow: 32,
 };
-// 160 + 32 + (12 + 7 * 90 + 6 * 2) + 32 + (491 + 5 * 16) = 1449
-const FULL = 1449;
-const measure = (available: number, patch: Partial<HeadingMeasure> = {}): HeadingMeasure => ({
+
+const measure = (available: number, overrides: Partial<HeadingMeasure> = {}): HeadingMeasure => ({
   available,
-  gap: 32,
-  title: 160,
+  tabsGap: 32,
+  actionsGap: 32,
+  narrow: false,
+  title: 165,
   tabs,
   actions,
-  ...patch,
+  ...overrides,
 });
 
-describe('visibleTabIndices', () => {
-  it('shows the first tabs, with the selected one in place of the last when further along', () => {
-    expect(visibleTabIndices(5, 5, 4)).toEqual([0, 1, 2, 3, 4]);
-    expect(visibleTabIndices(5, 9, 4)).toEqual([0, 1, 2, 3, 4]);
-    expect(visibleTabIndices(5, 3, 1)).toEqual([0, 1, 2]);
-    expect(visibleTabIndices(5, 3, 4)).toEqual([0, 1, 4]);
-    expect(visibleTabIndices(5, 1, 3)).toEqual([3]);
-    expect(visibleTabIndices(5, 2, -1)).toEqual([0, 1]);
-    expect(visibleTabIndices(0, 3, -1)).toEqual([]);
+// Every tab: 12 + 520 + 6 * 8 = 580. Every action: 691 + 9 * 16 = 835.
+const FULL = 165 + 32 + 580 + 32 + 835;
+
+describe('foldOrder', () => {
+  it('folds the buttons, then the toggles, the selects, the icon buttons from the end; never the primary', () => {
+    expect(foldOrder([...kinds])).toEqual([8, 6, 3, 4, 1, 0]);
+    expect(foldOrder(['search', 'icon', 'button', 'primary'])).toEqual([2, 1, 0]);
+    // Without a primary action, every action folds.
+    expect(foldOrder(['icon', 'toggle'])).toEqual([1, 0]);
+  });
+});
+
+describe('tabsWidth', () => {
+  it('is the group padding, the tabs that show, the More tab and the gaps between them', () => {
+    expect(tabsWidth(tabs, 7)).toBe(580);
+    // Four tabs and More: 12 + 270 + 70 + 4 * 8.
+    expect(tabsWidth(tabs, 4)).toBe(384);
+    // The More tab alone.
+    expect(tabsWidth(tabs, 0)).toBe(82);
   });
 });
 
@@ -56,60 +80,57 @@ describe('allocateHeading', () => {
     });
   });
 
-  it('collapses the actions first, the first ones first, and keeps the last one', () => {
-    // The search button goes, and the separator after it with it: 41 + 16 - 56 (⋮) = 1px saved.
+  it('folds the actions in fold order first, with every tab in view', () => {
+    // Publish goes (and ⋮ comes): 835 - 70 - 16 + 32 + 16 = 797.
     expect(allocateHeading(measure(FULL - 1))).toMatchObject({ tabs: 7, actions: 1 });
-    expect(allocateHeading(measure(FULL - 130))).toMatchObject({ tabs: 7, actions: 2 });
-    expect(allocateHeading(measure(FULL - 300))).toMatchObject({ tabs: 7, actions: 4 });
+    expect(allocateHeading(measure(FULL - 38))).toMatchObject({ tabs: 7, actions: 1 });
+    // Then the view toggle (and the divider after it).
+    expect(allocateHeading(measure(FULL - 39))).toMatchObject({ tabs: 7, actions: 2 });
   });
 
-  it('then collapses the tabs into the More pill, keeping the selected one', () => {
-    // All actions but the last: ⋮ + primary = 40 + 16 + 140 = 196. Five tabs + More:
-    // 12 + 5 * 90 + 4 * 2 + 2 + 80 = 552. Row: 160 + 32 + 552 + 32 + 196 = 972.
-    expect(allocateHeading(measure(972))).toMatchObject({ compact: false, tabs: 5, actions: 4 });
-    expect(allocateHeading(measure(972, { tabs: { ...tabs, pinned: 6 } }))).toMatchObject({
-      tabs: 5,
+  it('then folds the last tabs into the More tab, down to the More tab alone', () => {
+    // Every action but the primary folded: ⋮ + Create Project = 32 + 16 + 120 = 168.
+    const row = (shown: number) => 165 + 32 + tabsWidth(tabs, shown) + 32 + 168;
+    expect(allocateHeading(measure(row(7)))).toMatchObject({ tabs: 7, actions: 6 });
+    expect(allocateHeading(measure(row(7) - 1))).toMatchObject({ tabs: 6, actions: 6 });
+    expect(allocateHeading(measure(row(4)))).toMatchObject({ tabs: 4, actions: 6 });
+    expect(allocateHeading(measure(row(0)))).toMatchObject({ tabs: 0, actions: 6 });
+    // Narrower still: the title shortens; the primary action never folds.
+    expect(allocateHeading(measure(200))).toEqual({
+      measuring: false,
+      compact: false,
+      tabs: 0,
+      actions: 6,
     });
-    expect(allocateHeading(measure(971))).toMatchObject({ tabs: 4, actions: 4 });
   });
 
-  it('then collapses the last action too', () => {
-    // One tab + More: 12 + 90 + 2 + 80 = 184; ⋮ alone: 40. Row: 160 + 32 + 184 + 32 + 40 = 448.
-    expect(allocateHeading(measure(448))).toMatchObject({ compact: false, tabs: 1, actions: 5 });
-  });
-
-  it('turns compact when even that does not fit: the tabs get a row of their own', () => {
-    expect(allocateHeading(measure(447))).toEqual({
+  it('keeps the tabs out of the row when narrow, and folds the actions with the narrow gap', () => {
+    const narrow = { narrow: true, actionsGap: 16 };
+    // Title + 16 + every action.
+    expect(allocateHeading(measure(165 + 16 + 835, narrow))).toEqual({
       measuring: false,
       compact: true,
-      // 12 + 3 * 90 + 2 * 2 + 2 + 80 = 368 fits in 447.
-      tabs: 3,
-      // Title + ⋮ + primary: 160 + 32 + 196 = 388.
-      actions: 4,
+      tabs: 0,
+      actions: 0,
     });
-    // The first row: title + ⋮ only (the title shortens below that). Two tabs + More: 276.
-    expect(allocateHeading(measure(300))).toMatchObject({ compact: true, tabs: 2, actions: 5 });
-    expect(allocateHeading(measure(150))).toMatchObject({ compact: true, tabs: 1, actions: 5 });
-  });
-
-  it('keeps one row without tabs, collapsing the actions', () => {
-    const noTabs = (available: number) => allocateHeading(measure(available, { tabs: null }));
-    // 160 + 32 + 571 = 763
-    expect(noTabs(763)).toMatchObject({ compact: false, actions: 0 });
-    expect(noTabs(700)).toMatchObject({ compact: false, actions: 2 });
-    // Not even the title and ⋮: everything collapses, the title shortens.
-    expect(noTabs(100)).toMatchObject({ compact: false, actions: 5 });
+    expect(allocateHeading(measure(165 + 16 + 835 - 1, narrow))).toMatchObject({
+      compact: true,
+      actions: 1,
+    });
   });
 
   it('works with any part missing', () => {
-    expect(allocateHeading(measure(100, { tabs: null, actions: null }))).toMatchObject({
+    expect(allocateHeading(measure(400, { tabs: null }))).toMatchObject({ tabs: 0 });
+    // 165 + 32 + one tab and More (170) fits in 400; two tabs and More (248) do not.
+    expect(allocateHeading(measure(400, { actions: null }))).toMatchObject({
+      tabs: 1,
+      actions: 0,
+    });
+    expect(allocateHeading(measure(100, { title: null, tabs: null, actions: null }))).toEqual({
+      measuring: false,
       compact: false,
-    });
-    expect(allocateHeading(measure(300, { title: null, actions: null }))).toMatchObject({
-      tabs: 2,
-    });
-    expect(allocateHeading(measure(200, { title: null, tabs: null }))).toMatchObject({
-      actions: 4,
+      tabs: 0,
+      actions: 0,
     });
   });
 });

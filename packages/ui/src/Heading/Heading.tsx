@@ -15,16 +15,17 @@
 //   </Heading>
 //
 // The row lays the parts out as the Figma heading frame does: the title cluster, then the tabs, then
-// the actions at the end. It never wraps: when the parts do not fit, the actions collapse into an
-// overflow button and the tabs into a More pill, and a narrow heading gives the tabs a row of their
-// own (layout.ts). `Heading` measures the parts' natural widths in a pass that is never painted
+// the actions at the end. It behaves as the Tecton drop-in heading (`<wc-heading>`) does: above 720px
+// it keeps to one row, the actions that do not fit folding into an overflow (⋮) menu and then the
+// last tabs into a More tab; at 720px and below (its own width) it is narrow, the tabs one dropdown
+// on a row of their own (layout.ts). `Heading` measures the parts' natural widths in a pass that is never painted
 // (all items shown, in a layout effect) whenever its own size or a part's size changes, and the
 // parts render what the layout gives them.
 import * as React from 'react';
 import clsx from 'clsx';
 import useEnhancedEffect from '@mui/utils/useEnhancedEffect';
 import useForkRef from '@mui/utils/useForkRef';
-import { styled, useTheme, type SxProps, type Theme } from '@mui/material/styles';
+import { styled, type SxProps, type Theme } from '@mui/material/styles';
 import { cssVar } from '../styles/tecton/index.js';
 import { useMeasureAfterGrowth } from '../internal/overflow/growth.js';
 import {
@@ -34,12 +35,18 @@ import {
   type HeadingPart,
   type HeadingPartEntry,
 } from './HeadingContext.js';
-import { allocateHeading, FULL_LAYOUT, INITIAL_LAYOUT, type HeadingLayout } from './layout.js';
+import {
+  allocateHeading,
+  FULL_LAYOUT,
+  INITIAL_LAYOUT,
+  NARROW_WIDTH,
+  type HeadingLayout,
+} from './layout.js';
 
 export const headingClasses = {
   /** The heading row. */
   root: 'TectonHeading-root',
-  /** On the root of a narrow heading, whose tabs have a row of their own. */
+  /** On the root of a narrow heading (720px and below), whose tabs have a row of their own. */
   compact: 'TectonHeading-compact',
   /** On the root with `disableGutters`. */
   disableGutters: 'TectonHeading-disableGutters',
@@ -53,16 +60,16 @@ export const headingClasses = {
   menuButton: 'TectonHeading-menuButton',
   /** `HeadingTabs`: the `Tabs` root. */
   tabs: 'TectonHeading-tabs',
-  /** The tab group's paper surface, holding the tabs and the More pill. */
+  /** The tab group's paper surface, holding the tabs. */
   tabGroup: 'TectonHeading-tabGroup',
-  /** The More pill, for the tabs that do not fit. */
-  moreButton: 'TectonHeading-moreButton',
+  /** The More tab, last in the tab list, for the tabs that do not fit (a menu button). */
+  moreTab: 'TectonHeading-moreTab',
   /** `HeadingActions`: the actions at the end of the row. */
   actions: 'TectonHeading-actions',
   /** The overflow (⋮) button, for the actions that do not fit. */
   overflowButton: 'TectonHeading-overflowButton',
-  /** The tray the overflow button opens, holding those actions. */
-  overflowTray: 'TectonHeading-overflowTray',
+  /** The paper of the menu the overflow button opens, listing those actions. */
+  overflowMenu: 'TectonHeading-overflowMenu',
   /** `HeadingSearch`: its root (a search landmark while open). */
   search: 'TectonHeading-search',
   /** The Search button that opens the field. */
@@ -83,8 +90,8 @@ export interface HeadingProps extends React.HTMLAttributes<HTMLDivElement> {
    */
   component?: React.ElementType;
   /**
-   * Removes the inline padding (the Figma frame's 72px gutters, narrower below the theme's `md`
-   * breakpoint), for a heading inside a container that already has its own.
+   * Removes the inline padding (the Figma frame's 72px gutters, 16px on a narrow heading), for a
+   * heading inside a container that already has its own.
    * @default false
    */
   disableGutters?: boolean;
@@ -95,14 +102,13 @@ export interface HeadingProps extends React.HTMLAttributes<HTMLDivElement> {
 const part = (name: HeadingPart) => `& > [data-heading-part="${name}"]`;
 
 /**
- * The heading's own width class: `lg` from the theme's `md` breakpoint width up, `md` from `sm`,
- * `sm` below. It sets the gutters, so a heading in a narrow panel is as roomy as on a phone.
+ * The heading's own width class: `narrow` at 720px and below (`NARROW_WIDTH`, measured on the
+ * heading itself, so a heading in a narrow panel is laid out as on a phone), `wide` above.
  */
-type HeadingWidth = 'sm' | 'md' | 'lg';
+type HeadingWidth = 'wide' | 'narrow';
 
-function widthClass(width: number, breakpoints: Theme['breakpoints']['values']): HeadingWidth {
-  if (width >= breakpoints.md) return 'lg';
-  return width >= breakpoints.sm ? 'md' : 'sm';
+function widthClass(width: number): HeadingWidth {
+  return width <= NARROW_WIDTH ? 'narrow' : 'wide';
 }
 
 // Physical sides, as everywhere in the library: the RTL style cache mirrors them.
@@ -111,34 +117,38 @@ const HeadingRoot = styled('div', { name: 'TectonHeading', slot: 'Root' })({
   display: 'flex',
   flexWrap: 'nowrap',
   alignItems: 'center',
-  // Figma: the title cluster and the tab group sit space-400 apart.
-  columnGap: cssVar('space-400'),
+  // Figma: the title cluster and the tab group sit space-400 apart. The actions keep the end of the
+  // row: the room between them and the rest is at least space-400 (space-200 on a narrow heading)
+  // while the parts fit, as the drop-in heading reserves it when it folds them, and no more than
+  // there is when even the title does not fit.
+  columnGap: 0,
   rowGap: cssVar('space-100'),
-  // Figma heading frame: space-400 above and below, space-900 gutters. A narrower heading has
-  // narrower gutters (its width class, set before the first paint). Variables, so that an `sx`
+  '--TectonHeading-actions-gap': cssVar('space-400'),
+  // Figma heading frame: space-400 above and below, space-900 gutters; a narrow heading has
+  // space-200 all round (its width class, set before the first paint). Variables, so that an `sx`
   // padding still wins.
   '--TectonHeading-gutter': cssVar('space-900'),
   '--TectonHeading-inset': cssVar('space-400'),
-  '&[data-width="md"]': { '--TectonHeading-gutter': cssVar('space-400') },
-  '&[data-width="sm"]': {
-    '--TectonHeading-gutter': cssVar('space-200'),
-    '--TectonHeading-inset': cssVar('space-300'),
-  },
   paddingTop: 'var(--TectonHeading-inset)',
   paddingBottom: 'var(--TectonHeading-inset)',
   paddingLeft: 'var(--TectonHeading-gutter)',
   paddingRight: 'var(--TectonHeading-gutter)',
   [`&.${headingClasses.disableGutters}`]: { paddingLeft: 0, paddingRight: 0 },
   // The title gives way last, with an ellipsis; the tabs and the actions take what the layout gives
-  // them (their own collapsing).
-  [part('title')]: { flex: '0 1 auto', minWidth: 0 },
-  [part('tabs')]: { flex: 'none' },
+  // them (their own folding). Figma: the title row is space-600 tall.
+  [part('title')]: { flex: '0 1 auto', minWidth: 0, minHeight: cssVar('space-600') },
+  [part('tabs')]: { flex: 'none', marginLeft: cssVar('space-400') },
   [part('actions')]: { flex: 'none' },
-  // Compact: the title and the actions on the first row, the tabs on a row of their own.
+  // Narrow (compact): space-200 all round and before the actions, half the actions' gap; the title
+  // and the actions on the first row, the tabs on a row of their own.
   [`&.${headingClasses.compact}`]: {
+    '--TectonHeading-gutter': cssVar('space-200'),
+    '--TectonHeading-inset': cssVar('space-200'),
+    '--TectonHeading-actions-gap': cssVar('space-200'),
     flexWrap: 'wrap',
     [part('title')]: { flex: '1 1 0%' },
-    [part('tabs')]: { order: 1, flexBasis: '100%' },
+    [part('tabs')]: { order: 1, flexBasis: '100%', minHeight: 0, marginLeft: 0 },
+    [part('actions')]: { gap: cssVar('space-100') },
   },
   // Measure pass (never painted): every part at its natural width.
   '&[data-measuring]': {
@@ -157,9 +167,12 @@ function measureHeading(
   if (available <= 0) return FULL_LAYOUT;
   const measure = <P extends HeadingPart>(name: P) =>
     (parts.get(name) as HeadingPartEntry<P> | undefined)?.measure() ?? null;
+  const tabs = parts.get('tabs')?.element;
   return allocateHeading({
     available,
-    gap: px(style.columnGap),
+    tabsGap: tabs ? px(getComputedStyle(tabs).marginLeft) : 0,
+    actionsGap: px(style.getPropertyValue('--TectonHeading-actions-gap')),
+    narrow: root.classList.contains(headingClasses.compact),
     title: measure('title'),
     tabs: measure('tabs'),
     actions: measure('actions'),
@@ -169,7 +182,7 @@ function measureHeading(
 /**
  * Tecton page heading. Compose it from `HeadingTitle`, `HeadingTabs` (holding MUI `Tab` elements)
  * and `HeadingActions`, or any content of your own. When the parts do not fit in its row, the
- * actions and the tabs collapse into overflow menus.
+ * actions fold into an overflow menu and the tabs into a More tab, as in the Tecton drop-in heading.
  *
  * Demos: [Heading](/components/heading)
  */
@@ -178,8 +191,7 @@ const Heading = React.forwardRef<HTMLDivElement, HeadingProps>(function Heading(
   const rootRef = React.useRef<HTMLDivElement | null>(null);
   const handleRef = useForkRef(rootRef, ref);
   const [layout, setLayout] = React.useState<HeadingLayout>(INITIAL_LAYOUT);
-  const [width, setWidth] = React.useState<HeadingWidth>('lg');
-  const breakpoints = useTheme().breakpoints.values;
+  const [width, setWidth] = React.useState<HeadingWidth>('wide');
   const parts = React.useRef(new Map<HeadingPart, HeadingPartEntry>());
   const observer = React.useRef<ResizeObserver | null>(null);
 
@@ -225,18 +237,19 @@ const Heading = React.forwardRef<HTMLDivElement, HeadingProps>(function Heading(
     const root = rootRef.current;
     if (!layout.measuring || !root) return;
     if (root.getClientRects().length > 0) {
-      const next = widthClass(root.getBoundingClientRect().width, breakpoints);
+      const next = widthClass(root.getBoundingClientRect().width);
       if (next !== width) {
         setWidth(next);
         return;
       }
     }
     setLayout(measureHeading(root, parts.current));
-  }, [layout, width, breakpoints]);
+  }, [layout, width]);
 
+  const narrow = width === 'narrow';
   const context = React.useMemo<HeadingContextValue>(
-    () => ({ layout, register, requestMeasure }),
-    [layout, register, requestMeasure],
+    () => ({ layout, narrow, register, requestMeasure }),
+    [layout, narrow, register, requestMeasure],
   );
 
   return (
@@ -248,7 +261,7 @@ const Heading = React.forwardRef<HTMLDivElement, HeadingProps>(function Heading(
         data-width={width}
         className={clsx(
           headingClasses.root,
-          layout.compact && !layout.measuring && headingClasses.compact,
+          narrow && headingClasses.compact,
           disableGutters && headingClasses.disableGutters,
           className,
         )}

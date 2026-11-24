@@ -22,6 +22,8 @@ export interface HeadingPartEntry<P extends HeadingPart = HeadingPart> {
 
 export interface HeadingContextValue {
   layout: HeadingLayout;
+  /** The heading is narrow (720px and below): the tabs are one dropdown, the primary action an icon. */
+  narrow: boolean;
   register: <P extends HeadingPart>(part: P, entry: HeadingPartEntry<P>) => () => void;
   /** Measures the parts again (their content changed) and shares the row anew. */
   requestMeasure: () => void;

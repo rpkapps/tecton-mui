@@ -9,6 +9,6 @@ field, and `size` (`medium` by default, like the buttons and inputs beside it, o
 the button toward the start of the row, the actions before it moving over smoothly (no motion with
 reduced motion). It opens focused; Escape clears it, then closes it and gives the focus back to the
 button; it only closes empty, so a search in progress stays on show. In a narrow heading, a closed
-search collapses into the overflow tray after the other secondary actions and opens in the tray;
-an open one keeps its place while the other actions and the tabs make room. New `headingClasses`:
+search folds into the overflow menu after the other actions, as a Search item that opens it back in
+the row; an open one keeps its place while the other actions and the tabs make room. New `headingClasses`:
 `search`, `searchButton`, `searchField`.

@@ -174,30 +174,40 @@ differences below. `storybook-parity.spec.ts` runs all 22 comparisons.
   is a tab list. `tests/e2e/app-bar.spec.ts` runs axe on the bar and checks the button sits on its
   slot (LTR, RTL, scrolled strips).
 
-## Heading (`Heading` component vs "Organisms / Heading")
+## Drop-ins: Heading (`<wc-heading>` vs React `Heading`)
 
-The eight "Organisms / Heading" stories compose each heading by hand from MUI parts: a padded
-1920px (or fluid) frame, a title cluster (home button, title, chevron), a filled tab group on a
-paper box and a right cluster. `@tecton-mui/ui` now ships that composition as `Heading` with
-`HeadingTitle`, `HeadingTabs` and `HeadingActions` (`packages/ui/src/Heading`), and the
-reproduction (`stories/Heading.tsx`) renders every story with it. All eight are pixel-identical in
-both modes, and `storybook-parity.spec.ts` runs all 16 comparisons.
+`Heading` (`packages/ui/src/Heading`) follows the Tecton drop-in heading, the `<wc-heading>` web
+component (wc-heading 1.0.0), in the drop-in Storybook **1.3.0**
+(`https://d1md5uq86jnv53.cloudfront.net/lmk/webframework/apps/storybook/1.3.0/`, "Drop-ins /
+Heading"; the 1.1.0 Storybook of the app bar has no heading). Its story module was decompiled the
+same way, and the web component's own bundle, which bundles MUI 9 and takes its theme from the same
+Tecton 0.11.2 UMD, was read for its fold rules (its `src/fold.ts`). The spec pins the wc-heading
+release by answering its CDN manifest with 1.0.0. The harness module
+`tests/e2e/harness/src/storybook/stories/DropInsHeading.tsx` reproduces the story pages with the
+React parts: the drop-in's attributes become `HeadingTitle`, `HeadingTabs` with `Tab`s and a
+`HeadingActions` of MUI `IconButton`s, `Select`s, a `ToggleButtonGroup`, `Button`s and the
+dividers the drop-in puts between them.
 
-- **Responsive layout (intended difference):** at 1280px the Storybook's fluid "Elevated" row does
-  not fit. It overflows its container (the page scrolls sideways to 1637px), the selects truncate
-  their values and "Create Project" breaks onto two lines. `Heading` keeps one row and lets its parts
-  give way instead (priority+): the secondary actions collapse into an overflow (⋮) button, then the
-  tabs after the selected one into a More pill ("Elevated" at 1280px: six tabs, More, ⋮ and Create
-  Project). A very narrow heading gives the tabs a row of their own, so nothing overflows down to
-  320px (WCAG 1.4.10). The Elevated story is therefore compared at a 1920px viewport, where its
-  fluid row fits and is pixel-identical. `tests/e2e/heading.spec.ts` covers the collapse order, the
-  More menu, the overflow tray, the compact layout, RTL, keyboard and axe.
-- **Search:** the stories' Search icon button is a placeholder. The reproduction renders it with
-  `HeadingSearch`, which opens into a search field; closed, it is pixel-identical to the story's
-  icon button.
-- **Title letter spacing:** the title uses the theme's `h4` variant (Tecton heading 1) with
-  `letter-spacing: normal`, as the story's title has. MUI's own `h4` letter spacing (0.00735em)
-  survives in the theme and would move the glyphs.
+All 10 stories (Basic, Tabs and view toggle, Filter and sort, Tabs and sort, All parts, Figma
+variant, Page menu, Live attributes, Playground, Responsiveness) match in both modes; the
+Responsiveness story shows six headings at six widths, from the canvas down to 320px, so it also
+covers the folding, the More tab and the narrow layout. `storybook-parity.spec.ts` runs all 20
+comparisons.
+
+- **The add glyph:** the drop-in draws the primary action's add icon from its own SVG; the
+  reproduction uses the Tecton `add` icon, whose vertical stroke falls one pixel column apart
+  (20 pixels per button, well within the tolerance).
+- **The controls' look comes from the heading:** the drop-in styles its MUI controls to the Figma
+  heading (32px buttons with the start icon 2px from the label, toggle buttons with 6px between
+  glyph and label, selects with the value right after their label, icon glyphs in the tertiary
+  text color). `HeadingActions` and `HeadingTitle` apply the same rules to the MUI components given
+  to them, so the reproduction only sets what the drop-in fixes per control: the selects' 152px
+  width and their label text.
+
+The eight "Organisms / Heading" stories of storybook-mui 0.10.1 were the reference before. They
+compose a heading by hand with the theme's own spacing (2px between the pills, the theme's
+tertiary icon color) where the drop-in follows the Figma heading (8px, the tertiary text color), so
+both cannot match; they were retired from the reproduction (they matched before).
 
 ## Per-story results
 
@@ -427,14 +437,14 @@ both modes, and `storybook-parity.spec.ts` runs all 16 comparisons.
 | `organisms-date--year-view`                | match   | 0.000        | 0.000       | Matches; one dark run measured 0.265 % (year list scroll position settling under load), three reruns 0.000 %.                   |
 | `organisms-date--examples`                 | match   | 0.000        | 0.000       | Matches after the PickerDay compat fix (selected day in the static calendar).                                                   |
 | `organisms-date--playground`               | match   | 0.000        | 0.000       |                                                                                                                                 |
-| `organisms-heading--compact`               | match   | 0.000        | 0.000       |                                                                                                                                 |
-| `organisms-heading--elevated`              | match   | 0.000        | 0.000       | Matches at a 1920px viewport. At 1280px the Storybook row overflows; `Heading` collapses (see Heading).                         |
-| `organisms-heading--page`                  | match   | 0.000        | 0.000       |                                                                                                                                 |
-| `organisms-heading--reports`               | match   | 0.000        | 0.000       |                                                                                                                                 |
-| `organisms-heading--section`               | match   | 0.000        | 0.000       |                                                                                                                                 |
-| `organisms-heading--wells`                 | match   | 0.000        | 0.000       |                                                                                                                                 |
-| `organisms-heading--with-crumbs`           | match   | 0.000        | 0.000       |                                                                                                                                 |
-| `organisms-heading--workspaces`            | match   | 0.000        | 0.000       |                                                                                                                                 |
+| `organisms-heading--compact`               | retired | –            | –           | The Tecton drop-in heading is the reference (see Drop-ins: Heading).                                                            |
+| `organisms-heading--elevated`              | retired | –            | –           | The Tecton drop-in heading is the reference (see Drop-ins: Heading).                                                            |
+| `organisms-heading--page`                  | retired | –            | –           | The Tecton drop-in heading is the reference (see Drop-ins: Heading).                                                            |
+| `organisms-heading--reports`               | retired | –            | –           | The Tecton drop-in heading is the reference (see Drop-ins: Heading).                                                            |
+| `organisms-heading--section`               | retired | –            | –           | The Tecton drop-in heading is the reference (see Drop-ins: Heading).                                                            |
+| `organisms-heading--wells`                 | retired | –            | –           | The Tecton drop-in heading is the reference (see Drop-ins: Heading).                                                            |
+| `organisms-heading--with-crumbs`           | retired | –            | –           | The Tecton drop-in heading is the reference (see Drop-ins: Heading).                                                            |
+| `organisms-heading--workspaces`            | retired | –            | –           | The Tecton drop-in heading is the reference (see Drop-ins: Heading).                                                            |
 | `organisms-tree-view--actions`             | match   | 0.000        | 0.000       |                                                                                                                                 |
 | `organisms-tree-view--collapsed`           | match   | 0.000        | 0.000       |                                                                                                                                 |
 | `organisms-tree-view--color-tags`          | match   | 0.000        | 0.000       |                                                                                                                                 |
