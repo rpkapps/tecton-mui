@@ -5,8 +5,14 @@ import { renderToString } from 'react-dom/server';
 import { ThemeProvider } from '../../styles/index.js';
 import Button from '../../Button/index.js';
 import Divider from '../../Divider/index.js';
+import Icon from '../../Icon/index.js';
+import IconButton from '../../IconButton/index.js';
+import InputAdornment from '../../InputAdornment/index.js';
+import MenuItem from '../../MenuItem/index.js';
+import Select from '../../Select/index.js';
 import Tab from '../../Tab/index.js';
 import ToggleButton from '../../ToggleButton/index.js';
+import ToggleButtonGroup from '../../ToggleButtonGroup/index.js';
 import { HeadingContext, type HeadingContextValue } from '../HeadingContext.js';
 import { FULL_LAYOUT, type HeadingLayout } from '../layout.js';
 import Heading, {
@@ -197,16 +203,21 @@ describe('HeadingTitle', () => {
     expect(onMenuClick.mock.results[0]!.value).toBe(menu);
   });
 
-  it('labels the buttons "Home" and "More" by default, with decorative icons', () => {
+  it('labels the buttons "Home" and "Page menu" by default, with decorative icons', () => {
     wrap(
       <HeadingTitle onHomeClick={() => {}} onMenuClick={() => {}}>
         Portfolio
       </HeadingTitle>,
     );
-    for (const name of ['Home', 'More']) {
+    for (const name of ['Home', 'Page menu']) {
       const button = screen.getByRole('button', { name });
       expect(button.querySelector('[aria-hidden]')).not.toBeNull();
+      expect(button).toHaveClass('MuiIconButton-colorTertiary');
     }
+    expect(screen.getByRole('button', { name: 'Page menu' })).toHaveAttribute(
+      'aria-haspopup',
+      'menu',
+    );
   });
 
   it('forwards its ref, className and HTML attributes to the cluster', () => {
@@ -314,27 +325,30 @@ describe('collapsed parts (in a narrow Heading)', () => {
   /** Renders the parts with a given layout, as their `Heading` would after measuring them. */
   function Collapsed({
     layout,
+    narrow = false,
     children,
   }: {
     layout: Partial<HeadingLayout>;
+    narrow?: boolean;
     children: React.ReactNode;
   }) {
     const context = React.useMemo<HeadingContextValue>(
       () => ({
         layout: { ...FULL_LAYOUT, ...layout },
+        narrow,
         register: () => () => {},
         requestMeasure: () => {},
       }),
-      [layout],
+      [layout, narrow],
     );
     return <HeadingContext.Provider value={context}>{children}</HeadingContext.Provider>;
   }
 
   const SECTIONS = ['Overview', 'Framing', 'Team', 'Builder'];
-  function Sections({ layout }: { layout: Partial<HeadingLayout> }) {
+  function Sections({ layout, narrow }: { layout: Partial<HeadingLayout>; narrow?: boolean }) {
     const [value, setValue] = React.useState('Overview');
     return (
-      <Collapsed layout={layout}>
+      <Collapsed layout={layout} narrow={narrow}>
         <HeadingTabs
           value={value}
           onChange={(_event, next) => setValue(next)}
@@ -347,22 +361,21 @@ describe('collapsed parts (in a narrow Heading)', () => {
       </Collapsed>
     );
   }
+  const tabNames = () =>
+    within(screen.getByRole('tablist'))
+      .getAllByRole('tab')
+      .map((tab) => `${tab.textContent}${tab.getAttribute('aria-selected') === 'true' ? '*' : ''}`);
 
-  it('shows the tabs that fit and lists the others in the More menu', async () => {
+  it('shows the first tabs and a More tab, last in the tab list, with a menu of the others', async () => {
     wrap(<Sections layout={{ tabs: 2 }} />);
-    const list = screen.getByRole('tablist', { name: 'Sections' });
-    expect(
-      within(list)
-        .getAllByRole('tab')
-        .map((tab) => tab.textContent),
-    ).toEqual(['Overview', 'Framing']);
-    const more = screen.getByRole('button', { name: 'More' });
-    expect(more).toHaveClass(headingClasses.moreButton);
+    expect(tabNames()).toEqual(['Overview*', 'Framing', 'More']);
+    const more = screen.getByRole('tab', { name: 'More' });
+    expect(more).toHaveClass(headingClasses.moreTab);
     expect(more).toHaveAttribute('aria-haspopup', 'menu');
     expect(more).toHaveAttribute('aria-expanded', 'false');
     await userEvent.click(more);
     expect(more).toHaveAttribute('aria-expanded', 'true');
-    const menu = screen.getByRole('menu', { name: 'More' });
+    const menu = screen.getByRole('menu');
     expect(
       within(menu)
         .getAllByRole('menuitem')
@@ -370,99 +383,236 @@ describe('collapsed parts (in a narrow Heading)', () => {
     ).toEqual(['Team', 'Builder']);
   });
 
-  it('selects a tab picked in the menu, shows it in place of the last one and focuses it', async () => {
+  it('selects a tab picked in the menu: the More tab is selected while the open tab is in it', async () => {
     wrap(<Sections layout={{ tabs: 2 }} />);
-    await userEvent.click(screen.getByRole('button', { name: 'More' }));
+    await userEvent.click(screen.getByRole('tab', { name: 'More' }));
     await userEvent.click(screen.getByRole('menuitem', { name: 'Builder' }));
-    const tabs = within(screen.getByRole('tablist')).getAllByRole('tab');
-    expect(tabs.map((tab) => tab.textContent)).toEqual(['Overview', 'Builder']);
-    expect(tabs[1]).toHaveAttribute('aria-selected', 'true');
-    expect(tabs[1]).toHaveFocus();
+    expect(tabNames()).toEqual(['Overview', 'Framing', 'More*']);
+    await waitFor(() => expect(screen.getByRole('tab', { name: 'More' })).toHaveFocus());
+    await userEvent.click(screen.getByRole('tab', { name: 'More' }));
+    expect(screen.getByRole('menuitem', { name: 'Builder' })).toHaveClass('Mui-selected');
+    // The tabs that show are tabs as ever.
+    await userEvent.keyboard('{Escape}');
+    await userEvent.click(screen.getByRole('tab', { name: 'Framing' }));
+    expect(tabNames()).toEqual(['Overview', 'Framing*', 'More']);
   });
 
-  it('shows no More pill when every tab fits, and none outside a Heading', () => {
-    wrap(<Sections layout={{ tabs: 9 }} />);
-    expect(screen.getAllByRole('tab')).toHaveLength(4);
-    expect(screen.queryByRole('button', { name: 'More' })).toBeNull();
+  it('is one dropdown named after the open tab on a narrow heading', async () => {
+    wrap(<Sections layout={{ tabs: 4 }} narrow />);
+    expect(tabNames()).toEqual(['Overview*']);
+    await userEvent.click(screen.getByRole('tab', { name: 'Overview' }));
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Team' }));
+    expect(tabNames()).toEqual(['Team*']);
   });
 
-  it('takes the More pill label and props through slotProps', () => {
+  it('shows no More tab when every tab fits, and none outside a Heading', () => {
+    const { unmount } = wrap(<Sections layout={{ tabs: 9 }} />);
+    expect(tabNames()).toEqual(['Overview*', 'Framing', 'Team', 'Builder']);
+    unmount();
+    wrap(
+      <HeadingTabs value={0} aria-label="Views">
+        <Tab label="Grid" />
+        <Tab label="Map" />
+      </HeadingTabs>,
+    );
+    expect(tabNames()).toEqual(['Grid*', 'Map']);
+  });
+
+  it('takes the More tab label and props through slotProps', () => {
     wrap(
       <Collapsed layout={{ tabs: 1 }}>
         <HeadingTabs
           value={0}
           aria-label="Views"
-          slotProps={{ moreButton: { children: 'Plus', className: 'extra' } }}
+          slotProps={{ moreTab: { label: 'Plus', className: 'extra' } }}
         >
           <Tab label="Grid" />
           <Tab label="Map" />
         </HeadingTabs>
       </Collapsed>,
     );
-    expect(screen.getByRole('button', { name: 'Plus' })).toHaveClass('extra');
+    expect(screen.getByRole('tab', { name: 'Plus' })).toHaveClass('extra');
   });
 
   function Actions({
     layout,
-    onCreate,
+    narrow,
+    on = {},
   }: {
     layout: Partial<HeadingLayout>;
-    onCreate?: () => void;
+    narrow?: boolean;
+    on?: {
+      filter?: () => void;
+      sort?: (value: string) => void;
+      view?: (value: string) => void;
+      create?: () => void;
+    };
   }) {
     return (
-      <Collapsed layout={layout}>
+      <Collapsed layout={layout} narrow={narrow}>
         <HeadingActions>
-          <>
-            <Button>Search</Button>
-            <Divider orientation="vertical" flexItem />
-          </>
-          <ToggleButton value="list" selected>
-            List
-          </ToggleButton>
-          <Button variant="contained" onClick={onCreate}>
+          <IconButton aria-label="Search">
+            <Icon name="search" />
+          </IconButton>
+          <IconButton aria-label="Filter" onClick={on.filter}>
+            <Icon name="filter" />
+          </IconButton>
+          <Divider orientation="vertical" flexItem />
+          <Select
+            value="recent"
+            onChange={(event) => on.sort?.(String(event.target.value))}
+            startAdornment={<InputAdornment position="start">Sort:</InputAdornment>}
+            inputProps={{ 'aria-label': 'Sort' }}
+          >
+            <MenuItem value="recent">Recent</MenuItem>
+            <MenuItem value="name">Name</MenuItem>
+          </Select>
+          <Divider orientation="vertical" flexItem />
+          <ToggleButtonGroup
+            exclusive
+            value="list"
+            aria-label="Page view"
+            onChange={(_event, value: string) => on.view?.(value)}
+          >
+            <ToggleButton value="list">
+              <Icon name="list" />
+              List
+            </ToggleButton>
+            <ToggleButton value="grid">
+              <Icon name="grid-view" />
+              Grid
+            </ToggleButton>
+          </ToggleButtonGroup>
+          <Divider orientation="vertical" flexItem />
+          <Button variant="contained" color="secondary">
+            Publish
+          </Button>
+          <Button variant="contained" startIcon={<Icon name="add" />} onClick={on.create}>
             Create
           </Button>
         </HeadingActions>
       </Collapsed>
     );
   }
+  const rowNames = () =>
+    Array.from(
+      document.querySelectorAll(
+        `.${headingClasses.actions} :is(button, [role="combobox"], .MuiDivider-root)`,
+      ),
+    ).map((element) =>
+      element.classList.contains('MuiDivider-root')
+        ? '|'
+        : (element.getAttribute('aria-label') ?? element.textContent),
+    );
 
-  it('moves the actions that do not fit into the overflow tray, as they are', async () => {
-    wrap(<Actions layout={{ actions: 2 }} />);
-    expect(screen.queryByRole('button', { name: 'Search' })).toBeNull();
-    expect(screen.getByRole('button', { name: 'Create' })).toBeInTheDocument();
+  it('folds the actions by kind, the primary one never, with ⋮ before it', () => {
+    const { rerender } = wrap(<Actions layout={{ actions: 0 }} />);
+    expect(rowNames()).toEqual([
+      'Search',
+      'Filter',
+      '|',
+      'Sort',
+      '|',
+      'List',
+      'Grid',
+      '|',
+      'Publish',
+      'Create',
+    ]);
+    const steps: [number, string[]][] = [
+      [1, ['Search', 'Filter', '|', 'Sort', '|', 'List', 'Grid', '|', 'More actions', 'Create']],
+      [2, ['Search', 'Filter', '|', 'Sort', '|', 'More actions', 'Create']],
+      [3, ['Search', 'Filter', '|', 'More actions', 'Create']],
+      [4, ['Search', '|', 'More actions', 'Create']],
+      [5, ['More actions', 'Create']],
+      [9, ['More actions', 'Create']],
+    ];
+    for (const [actions, names] of steps) {
+      rerender(
+        <ThemeProvider>
+          <Actions layout={{ actions }} />
+        </ThemeProvider>,
+      );
+      expect(rowNames()).toEqual(names);
+    }
     const overflow = screen.getByRole('button', { name: 'More actions' });
     expect(overflow).toHaveClass(headingClasses.overflowButton);
-    expect(overflow).toHaveAttribute('aria-haspopup', 'dialog');
-    await userEvent.click(overflow);
-    expect(overflow).toHaveAttribute('aria-expanded', 'true');
-    const tray = screen.getByRole('dialog', { name: 'More actions' });
-    expect(tray).toHaveClass(headingClasses.overflowTray);
-    expect(within(tray).getByRole('button', { name: 'Search' })).toBeInTheDocument();
-    expect(within(tray).getByRole('button', { name: 'List' })).toBeInTheDocument();
-    // The separator between them stays.
-    expect(tray.querySelector('.MuiDivider-root')).not.toBeNull();
+    expect(overflow).toHaveAttribute('aria-haspopup', 'menu');
+    expect(overflow).toHaveAttribute('title', 'More actions');
   });
 
-  it('leaves out a separator at either end of the tray', async () => {
-    wrap(<Actions layout={{ actions: 1 }} />);
-    expect(screen.getByRole('button', { name: 'List' })).toBeInTheDocument();
+  it('lists the folded actions in its menu as menu items, in row order', async () => {
+    wrap(<Actions layout={{ actions: 5 }} />);
     await userEvent.click(screen.getByRole('button', { name: 'More actions' }));
-    const tray = screen.getByRole('dialog', { name: 'More actions' });
-    expect(within(tray).getByRole('button', { name: 'Search' })).toBeInTheDocument();
-    expect(tray.querySelector('.MuiDivider-root')).toBeNull();
+    const menu = screen.getByRole('menu', { name: 'More actions' });
+    expect(menu.closest(`.${headingClasses.overflowMenu}`)).not.toBeNull();
+    expect(
+      Array.from(menu.children).map((item) => {
+        if (item.tagName === 'HR') return '|';
+        // A select's or a group's name is presentational: a menu holds menu items only.
+        const role = item.getAttribute('role');
+        const checked = item.getAttribute('aria-checked') === 'true' ? '*' : '';
+        return `${role === 'presentation' ? 'label' : role}:${item.textContent}${checked}`;
+      }),
+    ).toEqual([
+      'menuitem:Search',
+      'menuitem:Filter',
+      '|',
+      'label:Sort',
+      'menuitemradio:Recent*',
+      'menuitemradio:Name',
+      '|',
+      'label:Page view',
+      'menuitemradio:List*',
+      'menuitemradio:Grid',
+      '|',
+      'menuitem:Publish',
+    ]);
   });
 
-  it('closes the tray after a command, not after a toggle', async () => {
-    const onCreate = vi.fn();
-    wrap(<Actions layout={{ actions: 3 }} onCreate={onCreate} />);
+  it('runs the folded actions from the menu: clicks, select and toggle changes', async () => {
+    const on = { filter: vi.fn(), sort: vi.fn(), view: vi.fn() };
+    wrap(<Actions layout={{ actions: 5 }} on={on} />);
+    const pick = async (role: 'menuitem' | 'menuitemradio', name: string) => {
+      await userEvent.click(screen.getByRole('button', { name: 'More actions' }));
+      await userEvent.click(screen.getByRole(role, { name }));
+      await waitFor(() => expect(screen.queryByRole('menu')).toBeNull());
+    };
+    await pick('menuitem', 'Filter');
+    expect(on.filter).toHaveBeenCalledTimes(1);
+    await pick('menuitemradio', 'Name');
+    expect(on.sort).toHaveBeenCalledWith('name');
+    // The checked option changes nothing.
+    await pick('menuitemradio', 'Recent');
+    expect(on.sort).toHaveBeenCalledTimes(1);
+    await pick('menuitemradio', 'Grid');
+    expect(on.view).toHaveBeenCalledWith('grid');
+  });
+
+  it('shows the primary action as an icon button on a narrow heading', async () => {
+    const create = vi.fn();
+    wrap(<Actions layout={{ actions: 5 }} narrow on={{ create }} />);
+    const primary = screen.getByRole('button', { name: 'Create' });
+    expect(primary).toHaveClass('MuiIconButton-root', 'MuiIconButton-colorPrimary');
+    expect(primary).toHaveAttribute('title', 'Create');
+    expect(primary).not.toHaveTextContent('Create');
+    await userEvent.click(primary);
+    expect(create).toHaveBeenCalledTimes(1);
+    expect(rowNames()).toEqual(['More actions', 'Create']);
+  });
+
+  it('shows an action it cannot read as it is, in the menu', async () => {
+    wrap(
+      <Collapsed layout={{ actions: 1 }}>
+        <HeadingActions>
+          <span data-testid="status">Draft</span>
+          <Button variant="contained">Create</Button>
+        </HeadingActions>
+      </Collapsed>,
+    );
+    expect(screen.queryByTestId('status')).toBeNull();
     await userEvent.click(screen.getByRole('button', { name: 'More actions' }));
-    const tray = screen.getByRole('dialog', { name: 'More actions' });
-    await userEvent.click(within(tray).getByRole('button', { name: 'List' }));
-    expect(screen.getByRole('dialog', { name: 'More actions' })).toBeInTheDocument();
-    await userEvent.click(within(tray).getByRole('button', { name: 'Create' }));
-    expect(onCreate).toHaveBeenCalledTimes(1);
-    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(within(screen.getByRole('menu')).getByTestId('status')).toHaveTextContent('Draft');
   });
 
   it('keeps the overflow button out of sight and reach while measuring', () => {
@@ -476,13 +626,12 @@ describe('collapsed parts (in a narrow Heading)', () => {
         </HeadingActions>
       </Collapsed>,
     );
-    for (const className of [headingClasses.moreButton, headingClasses.overflowButton]) {
-      const button = document.querySelector<HTMLElement>(`.${className}`)!;
-      expect(button).toHaveAttribute('aria-hidden', 'true');
-      expect(button).toHaveAttribute('tabindex', '-1');
-      expect(button.style.visibility).toBe('hidden');
-    }
-    expect(screen.getAllByRole('tab')).toHaveLength(1);
+    const button = document.querySelector<HTMLElement>(`.${headingClasses.overflowButton}`)!;
+    expect(button).toHaveAttribute('aria-hidden', 'true');
+    expect(button).toHaveAttribute('tabindex', '-1');
+    expect(button.style.visibility).toBe('hidden');
+    // The More tab is measured too, out of the tab order.
+    expect(screen.getByRole('tab', { name: 'More' })).toHaveAttribute('tabindex', '-1');
     expect(screen.getByRole('button', { name: 'Publish' })).toBeInTheDocument();
   });
 });
@@ -496,8 +645,8 @@ describe('Heading layout (with layout geometry)', () => {
   const widthFor = (element: Element) => {
     if (element.classList.contains(headingClasses.root)) return headingWidth;
     if (element.classList.contains(headingClasses.title)) return 160;
+    if (element.classList.contains(headingClasses.moreTab)) return 80;
     if (element.getAttribute('role') === 'tab') return 90;
-    if (element.classList.contains(headingClasses.moreButton)) return 80;
     if (element.classList.contains(headingClasses.overflowButton)) return 40;
     if (element.hasAttribute('data-overflow-item')) return 120;
     return 0;
@@ -553,7 +702,9 @@ describe('Heading layout (with layout geometry)', () => {
         <HeadingActions>
           <Button>Search</Button>
           <Button>Publish</Button>
-          <Button variant="contained">Create</Button>
+          <Button variant="contained" startIcon={<Icon name="add" />}>
+            Create
+          </Button>
         </HeadingActions>
       </Heading>
     );
@@ -565,38 +716,46 @@ describe('Heading layout (with layout geometry)', () => {
       observers.forEach((callback) => callback());
     });
 
+  const tabNames = () =>
+    screen
+      .getAllByRole('tab')
+      .map((tab) => `${tab.textContent}${tab.getAttribute('aria-selected') === 'true' ? '*' : ''}`);
+
   it('measures its parts and lets them give way as it narrows', () => {
     wrap(<Page />);
     const heading = screen.getByTestId('heading');
     // Everything fits.
-    expect(screen.getAllByRole('tab')).toHaveLength(5);
+    expect(tabNames()).toEqual(['A*', 'B', 'C', 'D', 'E']);
     expect(screen.queryByRole('button', { name: 'More actions' })).toBeNull();
-    expect(heading).toHaveAttribute('data-width', 'lg');
+    expect(heading).toHaveAttribute('data-width', 'wide');
     expect(heading).not.toHaveAttribute('data-measuring');
 
-    // The actions go first, the primary one stays: 956px of content (72px gutters) holds the title,
-    // the five tabs, ⋮ and the primary action (870px), not one more action (1006px).
-    resizeTo(1100);
+    // The actions fold first, the primary one never: 1056px of content (72px gutters) holds the
+    // title, the five tabs, ⋮ and two actions, not the third.
+    resizeTo(1200);
     expect(screen.getByRole('button', { name: 'More actions' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Search' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Publish' })).toBeInTheDocument();
+    expect(tabNames()).toEqual(['A*', 'B', 'C', 'D', 'E']);
+
+    // Then the last tabs fold into the More tab.
+    resizeTo(1000);
+    expect(screen.queryByRole('button', { name: 'Publish' })).toBeNull();
     expect(screen.getByRole('button', { name: 'Create' })).toBeInTheDocument();
-    expect(screen.getAllByRole('tab')).toHaveLength(5);
+    expect(tabNames()).toEqual(['A*', 'B', 'C', 'More']);
 
-    // Then the tabs.
+    // Narrow (720px and below): the tabs are one dropdown, the primary action an icon button.
     resizeTo(700);
-    expect(heading).toHaveAttribute('data-width', 'md');
-    expect(screen.getByRole('button', { name: 'More' })).toBeInTheDocument();
-    expect(screen.getAllByRole('tab').length).toBeLessThan(5);
-
-    // Compact: the tabs get a row of their own.
-    resizeTo(300);
-    expect(heading).toHaveAttribute('data-width', 'sm');
+    expect(heading).toHaveAttribute('data-width', 'narrow');
     expect(heading).toHaveClass(headingClasses.compact);
+    expect(tabNames()).toEqual(['A*']);
+    expect(screen.getByRole('button', { name: 'Create' })).toHaveClass('MuiIconButton-root');
 
     // And back.
     resizeTo(2000);
     expect(heading).not.toHaveClass(headingClasses.compact);
-    expect(screen.getAllByRole('tab')).toHaveLength(5);
+    expect(tabNames()).toEqual(['A*', 'B', 'C', 'D', 'E']);
+    expect(screen.getByRole('button', { name: 'Create' })).toHaveClass('MuiButton-root');
   });
 
   it('shows everything while it has no layout (hidden)', () => {
@@ -755,6 +914,7 @@ describe('HeadingSearch', () => {
     const context = React.useMemo<HeadingContextValue>(
       () => ({
         layout: { ...FULL_LAYOUT, actions },
+        narrow: false,
         register: () => () => {},
         requestMeasure: () => {},
       }),
@@ -793,31 +953,39 @@ describe('HeadingSearch', () => {
     );
     const { rerender } = render(actions(0));
     await userEvent.click(screen.getByRole('button', { name: 'Search' }));
-    // The heading narrows: two actions collapse, the filter and the primary one, not the open
-    // search.
+    // The heading narrows: the filter folds, not the open search (nor the primary action).
     rerender(actions(2));
     expect(screen.getByRole('search')).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'Search' })).toHaveFocus();
-    expect(screen.queryByRole('button', { name: 'Create' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Create' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Filter' })).toBeNull();
   });
 
-  it('opens in the overflow tray, which stays open', async () => {
+  it('is a Search item in the overflow menu, which opens it back in the row', async () => {
+    const onOpen = vi.fn();
     wrap(
-      <Collapsed actions={3}>
+      <Collapsed actions={2}>
         <HeadingActions>
-          <HeadingSearch />
+          <HeadingSearch onOpen={onOpen} />
           <Button>Filter</Button>
           <Button variant="contained">Create</Button>
         </HeadingActions>
       </Collapsed>,
     );
+    expect(screen.queryByRole('button', { name: 'Search' })).toBeNull();
     await userEvent.click(screen.getByRole('button', { name: 'More actions' }));
-    const tray = screen.getByRole('dialog', { name: 'More actions' });
-    await userEvent.click(within(tray).getByRole('button', { name: 'Search' }));
-    expect(within(tray).getByRole('search')).toBeInTheDocument();
-    await userEvent.keyboard('g');
-    await userEvent.click(within(tray).getByRole('button', { name: 'Clear search' }));
-    expect(screen.getByRole('dialog', { name: 'More actions' })).toBeInTheDocument();
+    const menu = screen.getByRole('menu', { name: 'More actions' });
+    expect(
+      within(menu)
+        .getAllByRole('menuitem')
+        .map((item) => item.textContent),
+    ).toEqual(['Search', 'Filter']);
+    await userEvent.click(within(menu).getByRole('menuitem', { name: 'Search' }));
+    // Back in the row, open and focused; the filter stays folded.
+    const field = await screen.findByRole('textbox', { name: 'Search' });
+    expect(field.closest(`.${headingClasses.actions}`)).not.toBeNull();
+    await waitFor(() => expect(field).toHaveFocus());
+    expect(onOpen).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('button', { name: 'Filter' })).toBeNull();
   });
 });

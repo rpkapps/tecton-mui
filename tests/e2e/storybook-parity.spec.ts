@@ -1,5 +1,6 @@
 // Visual parity with the official Tecton Storybook (storybook-mui 0.10.1, Tecton 0.11.2) and the
-// Tecton drop-in Storybook (apps/storybook 1.1.0: the `<wc-*>` web components, same Tecton theme).
+// Tecton drop-in Storybook (apps/storybook 1.1.0, and 1.3.0 for the heading: the `<wc-*>` web
+// components, same Tecton theme).
 //
 // Each case renders a Storybook story from the public Tecton CDN and our reproduction of it
 // (`/?scenario=sb:<story-id>`, see tests/e2e/harness/src/storybook) at the same viewport, mode and
@@ -14,6 +15,11 @@ import { expect, test, type BrowserContext, type Page } from '@playwright/test';
 const SB_BASE = 'https://d1md5uq86jnv53.cloudfront.net/lmk/webframework/utils/storybook-mui/0.10.1';
 /** Drop-in Storybook: stories render the web components, which bundle MUI 9 and the Tecton theme. */
 const DROP_INS_BASE = 'https://d1md5uq86jnv53.cloudfront.net/lmk/webframework/apps/storybook/1.1.0';
+/** The drop-in Storybook release that has the heading (`<wc-heading>`). */
+const DROP_INS_HEADING_BASE =
+  'https://d1md5uq86jnv53.cloudfront.net/lmk/webframework/apps/storybook/1.3.0';
+/** The `<wc-heading>` release the heading stories are compared with (its CDN manifest is pinned). */
+const WC_HEADING_VERSION = '1.0.0';
 const TECTON_UMD =
   'https://d1md5uq86jnv53.cloudfront.net/lmk/webframework/utils/tecton-mui/0.11.2/index.umd.js';
 const VIEWPORT = { width: 1280, height: 900 };
@@ -46,7 +52,7 @@ interface ParityCase {
   /** Share of differing pixels allowed (default DEFAULT_TOLERANCE). */
   tolerance?: number;
   /** Which Storybook the story comes from (default `mui`). */
-  storybook?: 'mui' | 'drop-ins';
+  storybook?: 'mui' | 'drop-ins' | 'drop-ins-heading';
   /**
    * Capture the viewport instead of the full page. A full-page capture briefly resizes the page,
    * and scrollable Tabs react to that resize (scroll arrows, scroll position) at random, on either
@@ -97,14 +103,6 @@ const CASES: ParityCase[] = [
   { id: 'molecules-tabs--medium' },
   { id: 'molecules-textfield--states' },
   { id: 'molecules-toggle-button--sizes' },
-  // Heading: the `Heading` component against every "Organisms/Heading" story. "Elevated" is the
-  // canonical heading at fluid width; at 1280px the Storybook's row overflows its container, where
-  // `Heading` collapses its actions and tabs into overflow menus (see the parity report), so it is
-  // compared at a width where the row fits.
-  ...['compact', 'page', 'reports', 'section', 'wells', 'with-crumbs', 'workspaces'].map(
-    (story) => ({ id: `organisms-heading--${story}` }),
-  ),
-  { id: 'organisms-heading--elevated', viewport: { width: 1920, height: 900 } },
   { id: 'organisms-date--sizes' },
   { id: 'organisms-date--range' },
   { id: 'organisms-date--month-view' },
@@ -139,6 +137,22 @@ const CASES: ParityCase[] = [
     // the start arrow on at the start of a strip that cannot scroll that way (about 0.08 % of the
     // page). The React bar's arrows follow the scroll position, so it never shows it.
     ...(story === 'overflow' ? { tolerance: 0.001 } : {}),
+  })),
+  // Drop-ins: the React Heading against the `<wc-heading>` stories (drop-in Storybook 1.3.0).
+  ...[
+    'basic',
+    'tabs-and-view-toggle',
+    'filter-and-sort',
+    'tabs-and-sort',
+    'all-parts',
+    'figma-variant',
+    'page-menu',
+    'live-attributes',
+    'playground',
+    'responsiveness',
+  ].map((story) => ({
+    id: `drop-ins-heading--${story}`,
+    storybook: 'drop-ins-heading' as const,
   })),
 ];
 
@@ -177,7 +191,7 @@ async function fetchText(url: string) {
  */
 async function disablePlayFunctions(context: BrowserContext) {
   await context.route(
-    /(storybook-mui\/0\.10\.1|apps\/storybook\/1\.1\.0)\/assets\/.*\.stories-.*\.js$/,
+    /(storybook-mui\/0\.10\.1|apps\/storybook\/1\.[13]\.0)\/assets\/.*\.stories-.*\.js$/,
     async (route) => {
       let body: string;
       try {
@@ -327,11 +341,17 @@ for (const mode of ['light', 'dark'] as const) {
           }
         }, mode);
         await disablePlayFunctions(context);
+        // The drop-in Storybook loads the latest `<wc-heading>` from the CDN: pin the release.
+        await context.route(/\/components\/wc-heading\/manifest\.json$/, (route) =>
+          route.fulfill({
+            json: { latest: WC_HEADING_VERSION, stableVersions: [WC_HEADING_VERSION] },
+          }),
+        );
         const page = await context.newPage();
         try {
           const storybook = await shoot(
             page,
-            `${source === 'drop-ins' ? DROP_INS_BASE : SB_BASE}/iframe.html?id=${id}&viewMode=story&theme=${mode}&tectonVersion=0.11.2&tectonSrc=${encodeURIComponent(TECTON_UMD)}`,
+            `${{ mui: SB_BASE, 'drop-ins': DROP_INS_BASE, 'drop-ins-heading': DROP_INS_HEADING_BASE }[source]}/iframe.html?id=${id}&viewMode=story&theme=${mode}&tectonVersion=0.11.2&tectonSrc=${encodeURIComponent(TECTON_UMD)}`,
             '#storybook-root > *',
             !viewportOnly,
           );

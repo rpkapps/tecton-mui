@@ -198,12 +198,25 @@ const HeadingSearch = React.forwardRef<HTMLDivElement, HeadingSearchProps>(
     // below.)
     const action = React.useContext(OverflowItemContext);
     const setPinned = action?.setPinned;
-    const pin = open && !action?.inTray;
+    // Picked in the heading's overflow menu: back in the row, it opens there (and stays pinned
+    // meanwhile).
+    const activation = action?.activation ?? null;
+    const pin = (open || activation != null) && !action?.inTray;
     useEnhancedEffect(() => {
       if (!setPinned) return undefined;
       setPinned(pin);
       return () => setPinned(false);
     }, [setPinned, pin]);
+    const acknowledge = action?.acknowledge;
+    useEnhancedEffect(() => {
+      if (!activation) return;
+      acknowledge?.();
+      if (open) return;
+      pendingFocus.current = 'input';
+      setOpen(true);
+      onOpen?.(activation);
+      // Only a new activation acts.
+    }, [activation]);
 
     const change = (event: React.SyntheticEvent, next: string) => {
       setValue(next);

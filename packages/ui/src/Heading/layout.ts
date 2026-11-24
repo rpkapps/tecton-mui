@@ -1,18 +1,18 @@
-// How the heading's row shares its width between the title, the tabs and the actions. Pure and
-// DOM-free: `Heading` measures the parts' natural widths (heading.tsx) and applies the result.
+// How the heading's row shares its width between the title, the tabs and the actions, as the Tecton
+// drop-in heading (`<wc-heading>`, its fold rules) does. Pure and DOM-free: `Heading` measures the
+// parts' natural widths (heading.tsx) and applies the result.
 //
-// The row never wraps. When the parts do not fit, they give way in this order (priority+):
+// Above 720px (on the heading's own width) the heading keeps to one row. When the parts do not fit:
 //
-// 1. The actions collapse into the overflow (⋮) button, the first ones first; the last action,
-//    the primary one in the Tecton design, stays. Late actions (a closed search) go after the
-//    others, pinned ones (an open search field) never, and separators follow the actions around
-//    them (internal/overflow/collapse.ts).
-// 2. The tabs after the selected one collapse into the More pill, the last ones first. The selected
-//    tab stays visible.
-// 3. The last action collapses too.
-// 4. When even that does not fit (a narrow container), the heading turns compact: the title and the
-//    actions share the first row (actions collapsing first again, then the title shortens with an
-//    ellipsis) and the tabs get a row of their own below.
+// 1. The actions fold into the overflow (⋮) menu, by kind: first the secondary buttons, then the
+//    view toggle, the selects, filter and search (internal/overflow/collapse.ts `foldOrder`). The
+//    last action, the primary one, never folds; an open search field neither.
+// 2. Then the last tabs fold into the More tab, down to none: the More tab alone, named after the
+//    open tab.
+// 3. A title that still does not fit ends with an ellipsis.
+//
+// At 720px and below the heading is narrow (`compact`): smaller gutters and gaps, the primary action
+// shows its icon only, and the tabs are one dropdown on a row of their own, so only the actions fold.
 
 import {
   collapsedWidth,
@@ -20,18 +20,19 @@ import {
   type CollapseMeasure,
 } from '../internal/overflow/collapse.js';
 
+/** The heading's width at and below which it is narrow (the Tecton Storybook header breakpoint). */
+export const NARROW_WIDTH = 720;
+
 /** Natural widths of the tab group. */
 export interface TabsMeasure {
   /** Each tab's width, in order. */
   items: number[];
-  /** Space between two tabs (and between the last tab and the More pill). */
+  /** Space between two tabs (and between the last tab and the More tab). */
   gap: number;
   /** The group surface's inline padding, both sides together. */
   padding: number;
-  /** The More pill's width. */
+  /** The More tab's width. */
   more: number;
-  /** Index of the selected tab, or -1. It always stays visible. */
-  pinned: number;
 }
 
 /** Natural widths of the actions (see internal/overflow/collapse.ts). */
@@ -40,8 +41,12 @@ export type ActionsMeasure = CollapseMeasure;
 export interface HeadingMeasure {
   /** The row's content width. */
   available: number;
-  /** Space between the title, the tabs and the actions. */
-  gap: number;
+  /** Space between the title and the tabs. */
+  tabsGap: number;
+  /** The least space before the actions while the parts fit. */
+  actionsGap: number;
+  /** The heading is narrow: the tabs have a row of their own. */
+  narrow: boolean;
   /** The title cluster's natural width, or `null` without a title. */
   title: number | null;
   tabs: TabsMeasure | null;
@@ -51,11 +56,11 @@ export interface HeadingMeasure {
 export interface HeadingLayout {
   /** The parts render everything at its natural width, to be measured. */
   measuring: boolean;
-  /** The tabs have a row of their own, below the title and the actions. */
+  /** The heading is narrow: the tabs are one dropdown on a row of their own. */
   compact: boolean;
-  /** How many tabs show (the rest are in the More menu). */
+  /** How many tabs show before the More tab (the rest are in its menu). */
   tabs: number;
-  /** How many of the actions that can collapse are in the overflow tray (the first ones). */
+  /** How many of the actions that can fold are in the overflow menu (in fold order). */
   actions: number;
 }
 
@@ -73,92 +78,35 @@ export const FULL_LAYOUT: HeadingLayout = { ...INITIAL_LAYOUT, measuring: false 
 /** Sub-pixel rounding between measured and laid out widths. */
 const EPSILON = 0.5;
 
-/**
- * The tabs that show when `count` of `total` fit: the first ones, with the selected tab (`pinned`)
- * in place of the last of them when it is further along.
- */
-export function visibleTabIndices(total: number, count: number, pinned: number): number[] {
-  const shown = Math.max(0, Math.min(count, total));
-  const indices = Array.from({ length: shown }, (_, index) => index);
-  if (shown > 0 && shown < total && pinned >= shown) indices[shown - 1] = pinned;
-  return indices;
-}
-
 function sum(values: number[]) {
   return values.reduce((total, value) => total + value, 0);
 }
 
-function tabsWidth(tabs: TabsMeasure, count: number) {
-  const total = tabs.items.length;
-  const indices = visibleTabIndices(total, count, tabs.pinned);
-  const shown = indices.map((index) => tabs.items[index]!);
-  const more = indices.length < total ? tabs.more + (indices.length > 0 ? tabs.gap : 0) : 0;
-  return tabs.padding + sum(shown) + tabs.gap * Math.max(0, shown.length - 1) + more;
-}
-
-function rowWidth(gap: number, parts: (number | null)[]) {
-  const present = parts.filter((part): part is number => part !== null);
-  return sum(present) + gap * Math.max(0, present.length - 1);
+/** The tab group's width with the first `count` tabs, and the More tab when some do not show. */
+export function tabsWidth(tabs: TabsMeasure, count: number) {
+  const shown = tabs.items.slice(0, Math.max(0, count));
+  const widths = shown.length < tabs.items.length ? [...shown, tabs.more] : shown;
+  return tabs.padding + sum(widths) + tabs.gap * Math.max(0, widths.length - 1);
 }
 
 /** Shares the row between the parts (see the top of this file). */
 export function allocateHeading(measure: HeadingMeasure): HeadingLayout {
-  const { available, gap, title, tabs, actions } = measure;
-  const tabCount = tabs?.items.length ?? 0;
-  const actionCount = actions ? collapsibleCount(actions) : 0;
-  const fits = (shownTabs: number, hiddenActions: number) =>
-    rowWidth(gap, [
-      title,
-      tabs ? tabsWidth(tabs, shownTabs) : null,
-      actions ? collapsedWidth(actions, hiddenActions) : null,
-    ]) <=
-    available + EPSILON;
-  const layout = (shownTabs: number, hiddenActions: number, compact = false): HeadingLayout => ({
-    measuring: false,
-    compact,
-    tabs: shownTabs,
-    actions: hiddenActions,
-  });
+  const { available, tabsGap, actionsGap, narrow, title, tabs, actions } = measure;
+  const inRow = !narrow && tabs !== null && tabs.items.length > 0;
+  const tabCount = inRow ? tabs!.items.length : 0;
+  const foldable = actions ? collapsibleCount(actions) : 0;
+  const fits = (folded: number, shownTabs: number) => {
+    const start = (title ?? 0) + (inRow ? tabsGap + tabsWidth(tabs!, shownTabs) : 0);
+    const end = actions ? collapsedWidth(actions, folded) : 0;
+    return start + (end > 0 ? actionsGap + end : 0) <= available + EPSILON;
+  };
 
-  // 1. Everything.
-  if (fits(tabCount, 0)) return layout(tabCount, 0);
-  // 2. The actions but the last collapse, the first ones first.
-  for (let count = 1; count < actionCount; count += 1) {
-    if (fits(tabCount, count)) return layout(tabCount, count);
-  }
-  const allButLast = Math.max(0, actionCount - 1);
-  // 3. The tabs after the selected one collapse, the last ones first.
-  for (let shown = tabCount - 1; shown >= 1; shown -= 1) {
-    if (fits(shown, allButLast)) return layout(shown, allButLast);
-  }
-  // 4. The last action too.
-  const all = actionCount;
-  for (let shown = tabCount; shown >= 1; shown -= 1) {
-    if (fits(shown, all)) return layout(shown, all);
-  }
-  if (tabCount === 0) {
-    // One row of title and actions; the title shortens once the actions are all collapsed.
-    for (let count = 0; count <= actionCount; count += 1) {
-      if (fits(0, count)) return layout(0, count);
-    }
-    return layout(0, all);
-  }
-
-  // 5. Compact: the title and the actions on the first row, the tabs on a row of their own.
-  let hidden = all;
-  for (let count = 0; count <= actionCount; count += 1) {
-    const row = rowWidth(gap, [title, actions ? collapsedWidth(actions, count) : null]);
-    if (row <= available + EPSILON) {
-      hidden = count;
-      break;
-    }
-  }
-  let shown = 1;
-  for (let count = tabCount; count >= 1; count -= 1) {
-    if (tabsWidth(tabs!, count) <= available + EPSILON) {
-      shown = count;
-      break;
-    }
-  }
-  return layout(shown, hidden, true);
+  // 1. The actions fold, one by one in fold order, until the row fits with every tab.
+  let folded = 0;
+  while (folded < foldable && !fits(folded, tabCount)) folded += 1;
+  // 2. Then the last tabs, down to the More tab alone.
+  let shown = tabCount;
+  while (shown > 0 && !fits(folded, shown)) shown -= 1;
+  // 3. Whatever is left over shortens the title (an ellipsis).
+  return { measuring: false, compact: narrow, tabs: shown, actions: folded };
 }

@@ -1,19 +1,22 @@
 'use client';
+// The heading's tabs: the Tecton filled tab group (MUI Tabs, `variant="pills"`) on a paper surface,
+// as the Tecton drop-in heading (`<wc-heading>`) draws and folds them. In a heading too narrow for
+// every tab, the first ones show and a More tab at the end of the tab list opens a menu of the rest;
+// the More tab is selected while the open tab is among them. On a narrow heading (720px and below)
+// the tabs are one dropdown on a row of their own: the More tab alone, named after the open tab.
 import * as React from 'react';
 import clsx from 'clsx';
-import Button, { type ButtonProps } from '@mui/material/Button';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
 import Menu, { type MenuProps } from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import Tab, { type TabProps } from '@mui/material/Tab';
 import Tabs, { tabsClasses, type TabsProps } from '@mui/material/Tabs';
 import { styled } from '@mui/material/styles';
 import useEnhancedEffect from '@mui/utils/useEnhancedEffect';
 import useForkRef from '@mui/utils/useForkRef';
 import { cssVar } from '../styles/tecton/index.js';
+import { sxList } from '../internal/sxList.js';
 import { headingClasses } from './Heading.js';
 import { px, useHeadingPart, widthOf } from './HeadingContext.js';
-import { visibleTabIndices } from './layout.js';
 
 /**
  * The MUI `Tabs` props. The props that only apply to other variants or to vertical tabs are left
@@ -36,14 +39,14 @@ export interface HeadingTabsProps extends Omit<
 > {
   /** The tabs: MUI `Tab` elements. */
   children?: React.ReactNode;
-  /** Props for the `Tabs` slots, and for the More pill and its menu. */
+  /** Props for the `Tabs` slots, and for the More tab and its menu. */
   slotProps?: NonNullable<TabsProps['slotProps']> & {
     /**
-     * Props of the More pill (a tertiary text `Button`), shown when not every tab fits: for
-     * example its label (`children`, default "More").
+     * Props of the More tab (a `Tab`), shown when not every tab fits: for example its `label`
+     * (default "More").
      */
-    moreButton?: Partial<ButtonProps>;
-    /** Props of the More pill's `Menu`, which lists the tabs that do not fit. */
+    moreTab?: Partial<TabProps>;
+    /** Props of the More tab's `Menu`, which lists the tabs that do not fit. */
     moreMenu?: Partial<MenuProps>;
   };
 }
@@ -63,6 +66,9 @@ function readTabs(children: React.ReactNode): TabItem[] {
     }));
 }
 
+/** The More tab's value: no tab of the page has it. */
+const MORE = '\0TectonHeading-more';
+
 // The tab group's row is as tall as the Figma heading's title row (space-600), whatever the tab size.
 const TabsRegion = styled('div', { name: 'TectonHeading', slot: 'TabsRegion' })({
   display: 'flex',
@@ -71,110 +77,89 @@ const TabsRegion = styled('div', { name: 'TectonHeading', slot: 'TabsRegion' })(
 });
 
 // Figma <TabGroup type="filled" background=true>: the pills on a paper surface. The theme's `pills`
-// variant styles the strip and leaves this surface to the heading. The More pill sits in it too.
+// variant styles the strip and leaves this surface to the heading.
 const TabGroup = styled('div', { name: 'TectonHeading', slot: 'TabGroup' })({
-  position: 'relative',
   display: 'flex',
-  alignItems: 'center',
-  gap: cssVar('space-25'),
+  flexShrink: 0,
   backgroundColor: cssVar('color-bg-paper'),
   padding: cssVar('space-75'),
   borderRadius: cssVar('radius-50'),
 });
 
-// The More pill has the look of a tab that is not selected (the tertiary action colors of the
-// filled tab group), and the tab's size.
-const MoreButton = styled(Button, { name: 'TectonHeading', slot: 'MoreButton' })({
-  flexShrink: 0,
-  minWidth: 0,
+// Figma <TabGroup> gap: space-100 between the tabs; each tab as wide as its label.
+const tabsSx = {
   minHeight: cssVar('space-400'),
-  paddingTop: cssVar('space-50'),
-  paddingBottom: cssVar('space-50'),
-  paddingLeft: cssVar('space-100'),
-  paddingRight: cssVar('space-100'),
-  borderRadius: cssVar('radius-50'),
-  lineHeight: cssVar('line-height-medium'),
-  // Open: the pressed look of the tertiary button (Figma State=Activated).
-  '&[aria-expanded="true"]': {
-    backgroundColor: cssVar('color-action-tertiary-bg-active'),
-    color: cssVar('color-action-tertiary-text-active'),
-  },
-});
+  [`& .${tabsClasses.list}`]: { gap: cssVar('space-100') },
+  '& .MuiTab-root': { minWidth: 0 },
+} as const;
 
 const MoreIcon = styled('span', { name: 'TectonHeading', slot: 'MoreIcon' })({
+  display: 'block',
   fontSize: cssVar('icon-size-100'),
 });
 
-/** Kept for the measure pass but out of the flow and out of sight. */
-const measureOnly = { position: 'absolute', visibility: 'hidden', left: 0, top: 0 } as const;
-
 /**
  * The heading's tabs: MUI `Tabs` with the Tecton filled (`pills`) look on a paper surface. Give them
- * an `aria-label`. In a `Heading` that is too narrow, the tabs after the selected one go into a More
- * pill's menu; the selected tab always shows.
+ * an `aria-label`. In a `Heading` that is too narrow, the last tabs go into the menu of a More tab.
  */
 const HeadingTabs = React.forwardRef<HTMLDivElement, HeadingTabsProps>(
   function HeadingTabs(props, ref) {
-    const { children, value, onChange, className, slotProps, ...other } = props;
-    const {
-      moreButton: moreButtonProps,
-      moreMenu: moreMenuProps,
-      ...tabsSlotProps
-    } = slotProps ?? {};
+    const { children, value, onChange, className, sx, slotProps, ...other } = props;
+    const { moreTab: moreTabProps, moreMenu: moreMenuProps, ...tabsSlotProps } = slotProps ?? {};
     const items = React.useMemo(() => readTabs(children), [children]);
     const total = items.length;
-    const pinned = items.findIndex((item) => item.value === value);
 
     const regionRef = React.useRef<HTMLDivElement>(null);
     const groupRef = React.useRef<HTMLDivElement>(null);
     const tabsRef = React.useRef<HTMLDivElement>(null);
-    const moreRef = React.useRef<HTMLButtonElement>(null);
     const handleTabsRef = useForkRef(tabsRef, ref);
 
     const heading = useHeadingPart('tabs', regionRef, () => {
       const list = tabsRef.current?.querySelector(`.${tabsClasses.list}`);
       const tabs = list
-        ? Array.from(list.children).filter((child) => child.getAttribute('role') === 'tab')
+        ? Array.from(list.children).filter(
+            (child) =>
+              child.getAttribute('role') === 'tab' &&
+              !child.classList.contains(headingClasses.moreTab),
+          )
         : [];
       const group = groupRef.current ? getComputedStyle(groupRef.current) : null;
       return {
         items: tabs.map(widthOf),
         gap: list ? px(getComputedStyle(list).columnGap) : 0,
         padding: group ? px(group.paddingLeft) + px(group.paddingRight) : 0,
-        more: widthOf(moreRef.current),
-        pinned,
+        more: widthOf(list?.querySelector(`.${headingClasses.moreTab}`)),
       };
     });
     const measuring = heading?.layout.measuring ?? false;
-    const count = heading && !measuring ? heading.layout.tabs : total;
-    const shown = visibleTabIndices(total, count, pinned);
-    const shownSet = new Set(shown);
-    const hidden = items.filter((_, index) => !shownSet.has(index));
+    let count = total;
+    if (heading && !measuring) count = heading.narrow ? 0 : Math.min(total, heading.layout.tabs);
+    const shown = items.slice(0, count);
+    const hidden = items.slice(count);
+    const openHidden = hidden.find((item) => item.value === value);
 
-    // Another selected tab may be wider than the one it replaces: share the row again.
+    // A tab added or removed: share the row again.
     const requestMeasure = heading?.requestMeasure;
     useEnhancedEffect(() => {
       requestMeasure?.();
-    }, [pinned, total, requestMeasure]);
+    }, [total, requestMeasure]);
 
     const [anchor, setAnchor] = React.useState<HTMLElement | null>(null);
-    // A tab picked in the menu takes the focus (once it shows), not the More pill.
-    const [picked, setPicked] = React.useState(false);
-    const pendingFocus = React.useRef(false);
     const open = Boolean(anchor) && hidden.length > 0;
     const menuId = React.useId();
-    const buttonId = React.useId();
 
-    React.useEffect(() => {
-      if (!pendingFocus.current) return;
-      pendingFocus.current = false;
-      const selected = tabsRef.current?.querySelector<HTMLElement>(
-        '[role="tab"][aria-selected="true"]',
-      );
-      (selected ?? moreRef.current)?.focus();
-    });
-
-    const { onClick: onMoreClick, className: moreClassName, ...moreProps } = moreButtonProps ?? {};
+    // The More tab: "More" after the tabs that show, or alone, the open tab's name (a dropdown).
+    const hiddenLabel = (openHidden ?? hidden[0])?.element.props.label as React.ReactNode;
+    const {
+      onClick: onMoreClick,
+      className: moreClassName,
+      label: moreLabel,
+      ...moreProps
+    } = moreTabProps ?? {};
+    const label = measuring || shown.length > 0 ? (moreLabel ?? 'More') : hiddenLabel;
+    let tabsValue: unknown = false;
+    if (shown.some((item) => item.value === value)) tabsValue = value;
+    else if (openHidden && !measuring) tabsValue = MORE;
 
     return (
       <TabsRegion ref={regionRef} data-heading-part="tabs">
@@ -182,74 +167,60 @@ const HeadingTabs = React.forwardRef<HTMLDivElement, HeadingTabsProps>(
           <Tabs
             ref={handleTabsRef}
             {...other}
-            value={value}
-            onChange={onChange}
+            value={tabsValue}
+            onChange={(event, next) => {
+              if (next !== MORE) onChange?.(event, next);
+            }}
             variant="pills"
             slotProps={tabsSlotProps}
             className={clsx(headingClasses.tabs, className)}
+            sx={[tabsSx, ...sxList(sx)]}
           >
-            {shown.map((index) => {
-              const item = items[index]!;
-              return React.cloneElement(item.element, { value: item.value });
-            })}
+            {shown.map((item) => React.cloneElement(item.element, { value: item.value }))}
+            {measuring || hidden.length > 0 ? (
+              <Tab
+                value={MORE}
+                label={label}
+                icon={<MoreIcon className="tecton-chevron-down-outline" aria-hidden />}
+                iconPosition="end"
+                aria-haspopup="menu"
+                aria-expanded={open}
+                aria-controls={open ? menuId : undefined}
+                tabIndex={measuring ? -1 : undefined}
+                {...moreProps}
+                className={clsx(headingClasses.moreTab, moreClassName)}
+                onClick={(event: React.MouseEvent<HTMLDivElement>) => {
+                  onMoreClick?.(event);
+                  setAnchor(event.currentTarget);
+                }}
+              />
+            ) : null}
           </Tabs>
-          {(measuring || hidden.length > 0) && (
-            <MoreButton
-              ref={moreRef}
-              id={buttonId}
-              variant="text"
-              color="tertiary"
-              aria-haspopup="menu"
-              aria-expanded={open}
-              aria-controls={open ? menuId : undefined}
-              endIcon={<MoreIcon className="tecton-chevron-down-outline" aria-hidden />}
-              tabIndex={measuring ? -1 : undefined}
-              aria-hidden={measuring || undefined}
-              style={measuring ? measureOnly : undefined}
-              {...moreProps}
-              className={clsx(headingClasses.moreButton, moreClassName)}
-              onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-                onMoreClick?.(event);
-                setPicked(false);
-                setAnchor(event.currentTarget);
-              }}
-            >
-              {moreProps.children ?? 'More'}
-            </MoreButton>
-          )}
         </TabGroup>
         <Menu
           id={menuId}
           anchorEl={anchor}
           open={open}
           onClose={() => setAnchor(null)}
-          disableRestoreFocus={picked}
           {...moreMenuProps}
-          slotProps={{
-            ...moreMenuProps?.slotProps,
-            list: { 'aria-labelledby': buttonId, ...moreMenuProps?.slotProps?.list },
-          }}
         >
           {hidden.map((item) => {
             const tab = item.element.props as {
               label?: React.ReactNode;
-              icon?: React.ReactNode;
               disabled?: boolean;
               'aria-label'?: string;
             };
             return (
               <MenuItem
                 key={item.element.key}
+                selected={item.value === value}
                 disabled={tab.disabled}
                 onClick={(event) => {
-                  setPicked(true);
                   setAnchor(null);
-                  pendingFocus.current = true;
-                  onChange?.(event, item.value);
+                  if (item.value !== value) onChange?.(event, item.value);
                 }}
               >
-                {tab.icon ? <ListItemIcon>{tab.icon}</ListItemIcon> : null}
-                <ListItemText>{tab.label ?? tab['aria-label']}</ListItemText>
+                {tab.label ?? tab['aria-label']}
               </MenuItem>
             );
           })}
