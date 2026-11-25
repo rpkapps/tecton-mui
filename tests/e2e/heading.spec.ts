@@ -303,6 +303,31 @@ test.describe('Heading', () => {
     await expect.poll(layout).toEqual({ gap: 16, titleShortened: true });
   });
 
+  test('narrow: actions that wrap onto a line of their own start where the title starts', async ({
+    page,
+  }) => {
+    // Too narrow for the open field beside the title: the actions take a line of their own. The
+    // gap before the actions is the row's column gap, so it does not indent that line.
+    await page.setViewportSize({ width: 360, height: 800 });
+    await open(page);
+    await page.getByRole('button', { name: 'Search' }).click();
+    await expect(page.getByRole('search', { name: 'Search' }).getByRole('textbox')).toBeFocused();
+    const layout = () =>
+      page.evaluate(() => {
+        const heading = document.querySelector('[data-testid="page-heading"]')!;
+        const title = heading.querySelector('[data-heading-part="title"]')!.getBoundingClientRect();
+        const actions = heading
+          .querySelector('[data-heading-part="actions"]')!
+          .getBoundingClientRect();
+        const field = heading.querySelector('.TectonHeading-searchField')!.getBoundingClientRect();
+        return {
+          ownLine: actions.top >= title.bottom - 1,
+          indent: Math.round(field.left - title.left),
+        };
+      });
+    await expect.poll(layout).toEqual({ ownLine: true, indent: 0 });
+  });
+
   test('compact: the tabs get a row of their own; nothing overflows down to 320px', async ({
     page,
   }) => {

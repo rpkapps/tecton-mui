@@ -122,9 +122,10 @@ const HeadingRoot = styled('div', { name: 'TectonHeading', slot: 'Root' })({
   // while the parts fit, as the drop-in heading reserves it when it folds them
   // (`--TectonHeading-actions-gap`). When even the title does not fit (an open search field, which
   // never folds), the actions still keep the space between two actions (space-200, space-100 on a
-  // narrow heading) as their own start padding, and the title shortens instead. The drop-in lets
-  // its tabs or title touch the actions then.
-  columnGap: 0,
+  // narrow heading), and the title shortens instead. The drop-in lets its tabs or title touch the
+  // actions then. That space is the row's column gap, not a margin or padding of the actions: on a
+  // narrow heading whose actions wrap onto a line of their own, it does not indent that line.
+  columnGap: 'var(--TectonHeading-actions-min-gap)',
   rowGap: cssVar('space-100'),
   '--TectonHeading-actions-gap': cssVar('space-400'),
   '--TectonHeading-actions-min-gap': cssVar('space-200'),
@@ -141,8 +142,13 @@ const HeadingRoot = styled('div', { name: 'TectonHeading', slot: 'Root' })({
   // The title gives way last, with an ellipsis; the tabs and the actions take what the layout gives
   // them (their own folding). Figma: the title row is space-600 tall.
   [part('title')]: { flex: '0 1 auto', minWidth: 0, minHeight: cssVar('space-600') },
-  [part('tabs')]: { flex: 'none', marginLeft: cssVar('space-400') },
-  [part('actions')]: { flex: 'none', paddingLeft: 'var(--TectonHeading-actions-min-gap)' },
+  // The tabs' margin and the column gap together: space-400 after the title, as without a title.
+  [part('tabs')]: {
+    flex: 'none',
+    marginLeft: `calc(${cssVar('space-400')} - var(--TectonHeading-actions-min-gap))`,
+    '&:first-child': { marginLeft: cssVar('space-400') },
+  },
+  [part('actions')]: { flex: 'none' },
   // Narrow (compact): space-200 all round and before the actions, half the actions' gap; the title
   // and the actions on the first row, the tabs on a row of their own.
   [`&.${headingClasses.compact}`]: {
@@ -175,7 +181,11 @@ function measureHeading(
   const tabs = parts.get('tabs')?.element;
   return allocateHeading({
     available,
-    tabsGap: tabs ? px(getComputedStyle(tabs).marginLeft) : 0,
+    // The tabs' margin, and the row's column gap after the title.
+    tabsGap: tabs
+      ? px(getComputedStyle(tabs).marginLeft) +
+        (tabs.previousElementSibling ? px(style.columnGap) : 0)
+      : 0,
     actionsGap: px(style.getPropertyValue('--TectonHeading-actions-gap')),
     narrow: root.classList.contains(headingClasses.compact),
     title: measure('title'),
