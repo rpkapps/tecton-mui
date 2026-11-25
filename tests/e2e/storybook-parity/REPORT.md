@@ -168,12 +168,14 @@ and compares the tab strip's behaviour with the drop-in's (below).
   story's third bar 17px to keep its selected tab clear of the start arrow's room (0.076 % of the
   page). The drop-in does the same when its font arrives late.
 - **Narrow bars (intended difference):** when even the narrowest tab strip (the selected tab between
-  its arrows, and the add button) leaves the actions too little room, `AppBarActions` collapse into
-  an overflow (⋮) button, first to last, and the selected tab stays in view. The drop-in keeps every
+  its arrows, or without them below 600px, and the add button) leaves the actions too little room,
+  `AppBarActions` collapse into an overflow (⋮) button, first to last. The drop-in keeps every
   action, squeezes the tabs out of view, and below about 400px its content runs past the bar's edge.
-  A sweep of the stories from 1920 to 320px against wc-app-bar 1.2.0 differs only by this, by the
-  scroll arrows and scroll-into-view above, and by the drop-in leaving the selected tab partly
-  hidden after a resize (which ours keeps in view).
+  A sweep of the stories from 1920 to 320px against wc-app-bar 1.2.0 (each story loaded at 1920px,
+  then narrowed 40px at a time: the tabs in view, the arrows, the add button, the actions) differs
+  only in bars whose actions the React bar has folded into ⋮, where its strip is wider. A story
+  loaded narrow keeps the scroll position its wider strip got, as MUI's strip does, so it can still
+  differ once widened.
 - **Keyboard (intended differences):** Delete or Backspace closes the active tab, and focus moves to
   the newly active tab when the focused tab, its close button or the add button is removed. The
   drop-in ignores Delete and leaves focus on the document body. Covered by
