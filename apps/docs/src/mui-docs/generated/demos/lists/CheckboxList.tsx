@@ -8,6 +8,7 @@ import ListItemIcon from '@tecton-mui/ui/ListItemIcon';
 import ListItemText from '@tecton-mui/ui/ListItemText';
 import IconButton from '@tecton-mui/ui/IconButton';
 import Icon, { type IconProps } from '@tecton-mui/ui/Icon';
+import { cssVar } from '@tecton-mui/ui/styles';
 
 function CheckBoxIcon(props: Omit<IconProps, 'name'>) {
   return <Icon name="checkbox-checked" variant="filled" {...props} />;
@@ -62,7 +63,7 @@ export default function CheckboxList() {
                 <SelectionIcon
                   size="medium"
                   sx={{
-                    color: isChecked ? 'primary.main' : 'text.secondary',
+                    color: isChecked ? cssVar('color-action-filled-bg-active') : cssVar('color-action-text-only-text'),
                     padding: '2px',
                     boxSizing: 'content-box',
                   }}

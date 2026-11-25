@@ -10,6 +10,7 @@ import Stack from '@tecton-mui/ui/Stack';
 import MenuItem from '@tecton-mui/ui/MenuItem';
 import MenuList from '@tecton-mui/ui/MenuList';
 import Icon, { type IconProps } from '@tecton-mui/ui/Icon';
+import { cssVar } from '@tecton-mui/ui/styles';
 
 function CheckBoxIcon(props: Omit<IconProps, 'name'>) {
   return <Icon name="checkbox-checked" variant="filled" {...props} />;
@@ -68,7 +69,7 @@ const CustomList = React.forwardRef(function CustomList(
                 <SelectionIcon
                   size="medium"
                   sx={{
-                    color: isSelected ? 'primary.main' : 'text.secondary',
+                    color: isSelected ? cssVar('color-action-filled-bg-active') : cssVar('color-action-text-only-text'),
                     padding: '2px',
                     boxSizing: 'content-box',
                   }}
