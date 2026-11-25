@@ -262,6 +262,16 @@
             "find": "padding: '9px',",
             "replace": "padding: '2px',",
             "reason": "The item checkbox icons use the padding of Tecton's Checkbox (2px), not MUI's (9px), so they line up with the header Checkbox and keep Tecton's row height."
+          },
+          {
+            "find": "import Icon, { type IconProps } from '@tecton-mui/ui/Icon';\n",
+            "replace": "import Icon, { type IconProps } from '@tecton-mui/ui/Icon';\nimport { cssVar } from '@tecton-mui/ui/styles';\n",
+            "reason": "Tecton colors come from tokens (cssVar)."
+          },
+          {
+            "find": "color: isSelected ? 'primary.main' : 'text.secondary',",
+            "replace": "color: isSelected ? cssVar('color-action-filled-bg-active') : cssVar('color-action-text-only-text'),",
+            "reason": "The checkbox icons take the colors of Tecton's Checkbox (checked: action filled background, unchecked: action text-only text) instead of primary.main and text.secondary, which drew them darker than every other checkbox (in dark mode, the checked one all but disappeared)."
           }
         ],
         "TransferList": [
@@ -269,6 +279,16 @@
             "find": "padding: '9px',",
             "replace": "padding: '2px',",
             "reason": "The item checkbox icons use the padding of Tecton's Checkbox (2px), not MUI's (9px), so the items keep Tecton's row height."
+          },
+          {
+            "find": "import Icon, { type IconProps } from '@tecton-mui/ui/Icon';\n",
+            "replace": "import Icon, { type IconProps } from '@tecton-mui/ui/Icon';\nimport { cssVar } from '@tecton-mui/ui/styles';\n",
+            "reason": "Tecton colors come from tokens (cssVar)."
+          },
+          {
+            "find": "color: isSelected ? 'primary.main' : 'text.secondary',",
+            "replace": "color: isSelected ? cssVar('color-action-filled-bg-active') : cssVar('color-action-text-only-text'),",
+            "reason": "The checkbox icons take the colors of Tecton's Checkbox (checked: action filled background, unchecked: action text-only text) instead of primary.main and text.secondary, which drew them darker than every other checkbox (in dark mode, the checked one all but disappeared)."
           }
         ]
       }
@@ -461,6 +481,16 @@
             "find": "padding: '9px',\n                    marginLeft: '-12px',",
             "replace": "padding: '2px',",
             "reason": "The checkbox icons use the padding of Tecton's Checkbox (2px), not MUI's (9px), so the items keep Tecton's row height; the -12px offset only compensated MUI's padding."
+          },
+          {
+            "find": "import Icon, { type IconProps } from '@tecton-mui/ui/Icon';\n",
+            "replace": "import Icon, { type IconProps } from '@tecton-mui/ui/Icon';\nimport { cssVar } from '@tecton-mui/ui/styles';\n",
+            "reason": "Tecton colors come from tokens (cssVar)."
+          },
+          {
+            "find": "color: isChecked ? 'primary.main' : 'text.secondary',",
+            "replace": "color: isChecked ? cssVar('color-action-filled-bg-active') : cssVar('color-action-text-only-text'),",
+            "reason": "The checkbox icons take the colors of Tecton's Checkbox (checked: action filled background, unchecked: action text-only text) instead of primary.main and text.secondary, which drew them darker than every other checkbox (in dark mode, the checked one all but disappeared)."
           }
         ]
       }
