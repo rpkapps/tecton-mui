@@ -118,9 +118,10 @@ const HeadingRoot = styled('div', { name: 'TectonHeading', slot: 'Root' })({
   flexWrap: 'nowrap',
   alignItems: 'center',
   // Figma: the title cluster and the tab group sit space-400 apart. The actions keep the end of the
-  // row: the room between them and the rest is at least space-400 (space-200 on a narrow heading)
-  // while the parts fit, as the drop-in heading reserves it when it folds them, and no more than
-  // there is when even the title does not fit.
+  // row: the room between them and the rest is at least space-400 (space-200 on a narrow heading),
+  // as the drop-in heading reserves it when it folds them. The actions hold that room as their own
+  // start padding, so it stays when even the title does not fit (an open search field, which never
+  // folds): the title shortens instead. The drop-in lets its tabs or title touch the actions then.
   columnGap: 0,
   rowGap: cssVar('space-100'),
   '--TectonHeading-actions-gap': cssVar('space-400'),
@@ -138,7 +139,7 @@ const HeadingRoot = styled('div', { name: 'TectonHeading', slot: 'Root' })({
   // them (their own folding). Figma: the title row is space-600 tall.
   [part('title')]: { flex: '0 1 auto', minWidth: 0, minHeight: cssVar('space-600') },
   [part('tabs')]: { flex: 'none', marginLeft: cssVar('space-400') },
-  [part('actions')]: { flex: 'none' },
+  [part('actions')]: { flex: 'none', paddingLeft: 'var(--TectonHeading-actions-gap)' },
   // Narrow (compact): space-200 all round and before the actions, half the actions' gap; the title
   // and the actions on the first row, the tabs on a row of their own.
   [`&.${headingClasses.compact}`]: {

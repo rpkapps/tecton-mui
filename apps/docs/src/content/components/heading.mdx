@@ -110,7 +110,9 @@ not the window's) it keeps one row; when its parts do not fit, they give way one
 2. **Tabs.** Then the last tabs move into a More tab at the end of the tab list, down to the More
    tab alone. Its menu lists them; while the open tab is among them, the More tab is the selected
    one.
-3. **Title.** A title that still does not fit ends with an ellipsis.
+3. **Title.** A title that still does not fit ends with an ellipsis. The actions keep their
+   `space-400` gap from the tabs or the title (`space-200` on a narrow heading) all the while: an
+   open search field, which never folds, shortens the title rather than touch the tabs.
 
 At 720px and below the heading is **narrow**: `space-200` (16px) all round, the tabs one dropdown
 (the More tab alone, named after the open tab) on a row of their own, the primary action an icon
