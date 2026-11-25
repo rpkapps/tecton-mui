@@ -1,8 +1,9 @@
 'use client';
 // The app bar's tab strip: MUI `Tabs` with the Tecton behaviour of the `<wc-app-bar>` drop-in.
 //
-// - Scroll arrows that page by whole tabs and only show while the strip can scroll their way
-//   (tabStrip.tsx, useScrollButtonCompensation.ts).
+// - MUI's scrollable tabs and scroll arrows, as the drop-in has them: an arrow shows while the strip
+//   can scroll its way (MUI's IntersectionObserver), a click pages as MUI's does, and the drop-in's
+//   patch keeps the tabs in place when the start arrow shows (useScrollButtonCompensation.ts).
 // - The selected tab's close button, rendered next to the tab list rather than inside the tab
 //   (TabCloseButton.tsx), for the tabs that have `onClose`.
 // - The add (+) button, when `onAdd` is set.
@@ -16,9 +17,7 @@ import { createSvgIcon } from '@mui/material/utils';
 import useForkRef from '@mui/utils/useForkRef';
 import { cssVar } from '../styles/tecton/index.js';
 import { sxList } from '../internal/sxList.js';
-import { useScrollButtonCompensation } from '../internal/tab-strip/useScrollButtonCompensation.js';
-import { TabStripContext, useTabStrip } from '../internal/tab-strip/tabStrip.js';
-import { TabStripScrollButton } from './TabStripScrollButton.js';
+import { useScrollButtonCompensation } from './useScrollButtonCompensation.js';
 import { TabCloseButton, TabCloseContext, type TabCloseContextValue } from './TabCloseButton.js';
 
 export interface AppBarTabsProps extends Omit<
@@ -77,9 +76,10 @@ const tabsSlots = {
   startScrollButtonIcon: ScrollLeftIcon,
   endScrollButtonIcon: ScrollRightIcon,
   indicator: TabCloseButton,
-  // Arrows follow the strip's scroll position, not MUI's IntersectionObserver (see tabStrip.tsx).
-  scrollButtons: TabStripScrollButton,
 };
+
+// As in the drop-in: an arrow that cannot scroll its way (MUI disables it) takes no room.
+const scrollButtonsSx = { '& .MuiTabs-scrollButtons.Mui-disabled': { display: 'none' } } as const;
 
 // The strip and the add button, filling the bar between the branding and the actions.
 const TabsRegion = styled('div', { name: 'TectonAppBarTabs', slot: 'Region' })({
@@ -153,8 +153,11 @@ const AppBarTabs = React.forwardRef<HTMLDivElement, AppBarTabsProps>(
 
     const tabsRef = React.useRef<HTMLDivElement>(null);
     const handleRef = useForkRef(tabsRef, ref);
-    const strip = useTabStrip(tabsRef, selectedKey, tabs.length);
-    useScrollButtonCompensation(tabsRef, strip);
+    useScrollButtonCompensation(tabsRef);
+    const tabsSx = React.useMemo(
+      () => [scrollButtonsSx, ...(attachedStyle ? [attachedStyle] : []), ...sxList(sx)],
+      [attachedStyle, sx],
+    );
 
     // Latest props, so the handlers below keep stable identities.
     const latest = React.useRef({ onChange, onAdd, tabs });
@@ -221,37 +224,35 @@ const AppBarTabs = React.forwardRef<HTMLDivElement, AppBarTabsProps>(
     const { onClick: onAddButtonClick, ...addButtonProps } = slotProps?.addButton ?? {};
 
     return (
-      <TabStripContext.Provider value={strip}>
-        <TabCloseContext.Provider value={closeContext}>
-          <TabsRegion data-region="tab-strip">
-            <Tabs
-              ref={handleRef}
-              value={value}
-              variant="scrollable"
-              scrollButtons
-              data-region="tabs"
-              onChange={handleChange}
-              slots={tabsSlots}
-              sx={attachedStyle ? [attachedStyle, ...sxList(sx)] : sx}
-              {...other}
+      <TabCloseContext.Provider value={closeContext}>
+        <TabsRegion data-region="tab-strip">
+          <Tabs
+            ref={handleRef}
+            value={value}
+            variant="scrollable"
+            scrollButtons
+            data-region="tabs"
+            onChange={handleChange}
+            slots={tabsSlots}
+            sx={tabsSx}
+            {...other}
+          >
+            {children}
+          </Tabs>
+          {showAdd && (
+            <IconButton
+              aria-label="Add tab"
+              {...addButtonProps}
+              onClick={(event) => {
+                onAddButtonClick?.(event);
+                if (!event.defaultPrevented) handleAdd(event);
+              }}
             >
-              {children}
-            </Tabs>
-            {showAdd && (
-              <IconButton
-                aria-label="Add tab"
-                {...addButtonProps}
-                onClick={(event) => {
-                  onAddButtonClick?.(event);
-                  if (!event.defaultPrevented) handleAdd(event);
-                }}
-              >
-                <span className="tecton-add-outline" aria-hidden />
-              </IconButton>
-            )}
-          </TabsRegion>
-        </TabCloseContext.Provider>
-      </TabStripContext.Provider>
+              <span className="tecton-add-outline" aria-hidden />
+            </IconButton>
+          )}
+        </TabsRegion>
+      </TabCloseContext.Provider>
     );
   },
 );

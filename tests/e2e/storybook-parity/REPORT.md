@@ -125,44 +125,57 @@ view sizing in the theme would diverge from MUI.
 "Organisms / App Bar" stories of storybook-mui, which compose it that way, were retired from the
 reproduction (they matched before). The drop-in stories below cover the bar.
 
-The drop-in Storybook (`https://d1md5uq86jnv53.cloudfront.net/lmk/webframework/apps/storybook/1.1.0/`,
-"Drop-ins / App Bar") renders the `<wc-app-bar>` web component, which bundles MUI 9 and takes its
-theme from the same Tecton 0.11.2 UMD. Its story module was decompiled the same way. The web
-component renders MUI `AppBar`, `Toolbar`, `Tabs`, `Tab`, `Chip` and `IconButton` with the Tecton
-`MuiAppBar` overrides; `AppBar` with navigation props renders the same tree
-(`packages/ui/src/AppBar/AppBarNavigation.tsx`). The harness module
+The drop-in Storybook (`https://d1md5uq86jnv53.cloudfront.net/lmk/webframework/apps/storybook/1.3.0/`,
+"Drop-ins / App Bar"; the same eleven stories as its 1.1.0 release) renders the `<wc-app-bar>` web
+component, which bundles MUI 9 and takes its theme from the same Tecton 0.11.2 UMD. The Storybook
+loads the latest release from the CDN; the spec pins **wc-app-bar 1.2.0** by answering its manifest.
+Its story module was decompiled the same way, and the component's own bundle was read for its logic.
+The web component renders MUI `AppBar`, `Toolbar`, `Tabs`, `Tab`, `Chip` and `IconButton` with the
+Tecton `MuiAppBar` overrides; the `AppBar` parts (`AppBarBrand`, `AppBarTabs`, `AppBarTab`,
+`AppBarActions`) render the same tree. The harness module
 `tests/e2e/harness/src/storybook/stories/DropInsAppBar.tsx` reproduces the story host page (event
 log, toasts, tab state) with the React component.
 
 All 11 stories (Primary, Figma variant, Secondary, Branding, Tab options, Tab limits, Overflow,
-Slots, Slots with changing content, Live attributes, Playground) are compared in both modes; all
-but Overflow are pixel-identical (0 differing pixels), and Overflow differs only by the intended
-differences below. `storybook-parity.spec.ts` runs all 22 comparisons.
+Slots, Slots with changing content, Live attributes, Playground) are compared in both modes, and
+all are pixel-identical (0 differing pixels). `storybook-parity.spec.ts` runs all 22 comparisons,
+and compares the tab strip's behaviour with the drop-in's (below).
 
 - **Scroll arrows:** Tecton's compat layer gives `Tabs` Tecton chevrons; the drop-in keeps MUI's
   `KeyboardArrowLeft` / `KeyboardArrowRight` SVGs, so the app bar passes the same glyphs through
   `slots`.
-- **Scroll arrow cells (intended difference):** the React bar's arrows are 48px cells with a
-  divider toward the tabs, like the Home (fixed tab) cell next to them; the drop-in keeps MUI's
-  borderless 40px buttons. They follow where the strip's slide is going: an arrow that goes away does so
-  as the slide starts and one that shows grows in over it, where the drop-in's pop in or out when
-  the strip arrives and make the tabs jump by an arrow's width. Only
-  strips that overflow show an arrow (the Overflow story, within its 0.1 % allowance).
 - **Viewport captures:** these cases capture the viewport, not the full page. A full-page capture
   briefly resizes the page; scrollable `Tabs` react to that resize (scroll arrows, scroll position)
   at random on either side. The same happens without any capture under heavy load: MUI's
   IntersectionObserver can leave both arrows on although the tabs fit, in the drop-in and in ours.
   `settle` also waits until every tab strip has stopped scrolling (the selected tab is scrolled into
   view by a JavaScript animation).
-- **Scroll arrows and scroll-into-view (intended difference):** the React bar's arrows follow the
-  strip's scroll position, and the bar does all of its own scrolling (`AppBar/tabStrip.tsx`): an
-  arrow click, and bringing a selected or added tab into view, slide with MUI's duration (the theme's
-  `standard`, 300ms) and easing, towards a target recomputed every frame, so an arrow that shows or
-  hides on the way cannot leave the tab short. MUI's own writes to the strip's scroll position are
-  ignored. The drop-in's arrows follow MUI's IntersectionObserver, which can lag or miss updates (a
-  start arrow at the start, an end arrow at the end, an added tab left under the end arrow). The
-  Overflow story therefore allows 0.1 %: the drop-in sometimes shows that stray start arrow; the
-  React bar never does. Every other story is pixel-identical.
+- **Scroll arrows and scrolling:** the same as the drop-in's. The tab strip is MUI's scrollable
+  `Tabs` (40px arrows shown by MUI's IntersectionObserver, a disabled one `display: none`, MUI's
+  page size and scroll-into-view, no arrows below 600px), with the drop-in's own patch ported as it
+  is (`AppBar/useScrollButtonCompensation.ts`): when the start arrow shows, the tabs stay in place;
+  when the end arrow shows at the end, the strip stays at its end; at the start, a
+  `scroll-padding-right` as wide as the start arrow. The drop-in's quirks come with it (an added
+  tab left partly under the end arrow, the tabs moving by an arrow's width when the start arrow
+  hides at the start; in RTL, where the scroll position is negative, the patch only sets the scroll
+  padding, so the tabs move by the start arrow's width when it shows). "Drop-in app bar: scroll behaviour" runs the same steps (the end arrow three
+  times, the start arrow, add, add, close, a tab) on both Overflow stories at 1280, 900 and 760px,
+  with motion, and requires the same strip after each step: the arrows, the scroll position and the
+  scroll padding.
+- **Font loading (harness):** the Storybook reproductions render once the Figtree font has loaded
+  (`tests/e2e/harness/src/main.tsx`), as a Storybook story does. Before, the harness rendered first
+  and the font arrived after; the new text widths re-laid the strips, and MUI scrolled the Overflow
+  story's third bar 17px to keep its selected tab clear of the start arrow's room (0.076 % of the
+  page). The drop-in does the same when its font arrives late.
+- **Narrow bars (intended difference):** when even the narrowest tab strip (the selected tab between
+  its arrows, or without them below 600px, and the add button) leaves the actions too little room,
+  `AppBarActions` collapse into an overflow (⋮) button, first to last. The drop-in keeps every
+  action, squeezes the tabs out of view, and below about 400px its content runs past the bar's edge.
+  A sweep of the stories from 1920 to 320px against wc-app-bar 1.2.0 (each story loaded at 1920px,
+  then narrowed 40px at a time: the tabs in view, the arrows, the add button, the actions) differs
+  only in bars whose actions the React bar has folded into ⋮, where its strip is wider. A story
+  loaded narrow keeps the scroll position its wider strip got, as MUI's strip does, so it can still
+  differ once widened.
 - **Keyboard (intended differences):** Delete or Backspace closes the active tab, and focus moves to
   the newly active tab when the focused tab, its close button or the add button is removed. The
   drop-in ignores Delete and leaves focus on the document body. Covered by
@@ -179,7 +192,7 @@ differences below. `storybook-parity.spec.ts` runs all 22 comparisons.
 `Heading` (`packages/ui/src/Heading`) follows the Tecton drop-in heading, the `<wc-heading>` web
 component (wc-heading 1.0.0), in the drop-in Storybook **1.3.0**
 (`https://d1md5uq86jnv53.cloudfront.net/lmk/webframework/apps/storybook/1.3.0/`, "Drop-ins /
-Heading"; the 1.1.0 Storybook of the app bar has no heading). Its story module was decompiled the
+Heading"; the heading first appears in its 1.2.0 release). Its story module was decompiled the
 same way, and the web component's own bundle, which bundles MUI 9 and takes its theme from the same
 Tecton 0.11.2 UMD, was read for its fold rules (its `src/fold.ts`). The spec pins the wc-heading
 release by answering its CDN manifest with 1.0.0. The harness module
