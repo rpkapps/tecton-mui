@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { styled, type SxProps, type Theme } from '@mui/material/styles';
+import { styled, useTheme, type SxProps, type Theme } from '@mui/material/styles';
 import useEnhancedEffect from '@mui/utils/useEnhancedEffect';
 import useForkRef from '@mui/utils/useForkRef';
 import { cssVar } from '../styles/tecton/index.js';
@@ -11,7 +11,6 @@ import {
   type OverflowSlotProps,
 } from '../internal/overflow/useCollapsingItems.js';
 import { actionsGap, AppBarContext, type AppBarTier } from './AppBar.js';
-import { SCROLL_ARROW_WIDTH } from './TabStripScrollButton.js';
 
 export interface AppBarActionsProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
@@ -61,23 +60,36 @@ const outerWidth = (element: Element) => {
 };
 
 /**
+ * A scroll arrow's width while it shows (MUI's 40px), whether or not it shows now. On phones (below
+ * the theme's `sm` breakpoint) MUI hides the arrows: none.
+ */
+function arrowWidth(button: Element, phone: boolean) {
+  if (phone && button.classList.contains('MuiTabs-scrollButtonsHideMobile')) return 0;
+  return px(getComputedStyle(button).width);
+}
+
+/**
  * The tab strip at its narrowest: the selected tab (or the first) between the two scroll arrows,
  * with what else its region holds (the add button). The strip scrolls down to that before the
  * actions give up any room.
  */
-function tabStripMinWidth(region: Element) {
+function tabStripMinWidth(region: Element, phone: boolean) {
   const tabs = region.querySelector('.MuiTabs-root');
   const tab =
     region.querySelector('[role="tab"][aria-selected="true"]') ??
     region.querySelector('[role="tab"]');
+  const arrows = Array.from(region.querySelectorAll('.MuiTabs-scrollButtons')).reduce(
+    (total, button) => total + arrowWidth(button, phone),
+    0,
+  );
   const others = Array.from(region.children)
     .filter((child) => child !== tabs)
     .reduce((total, child) => total + outerWidth(child), 0);
-  return (tab ? tab.getBoundingClientRect().width + 2 * SCROLL_ARROW_WIDTH : 0) + others;
+  return (tab ? tab.getBoundingClientRect().width + arrows : 0) + others;
 }
 
 /** The room the bar leaves the actions: its row, less everything else at its narrowest. */
-function availableWidth(actions: HTMLElement) {
+function availableWidth(actions: HTMLElement, phone: boolean) {
   const row = actions.parentElement;
   if (!row) return Number.POSITIVE_INFINITY;
   const style = getComputedStyle(row);
@@ -86,7 +98,7 @@ function availableWidth(actions: HTMLElement) {
     if (child === actions) return;
     available -=
       child.getAttribute('data-region') === 'tab-strip'
-        ? tabStripMinWidth(child)
+        ? tabStripMinWidth(child, phone)
         : outerWidth(child);
   });
   const own = getComputedStyle(actions);
@@ -102,6 +114,10 @@ const AppBarActions = React.forwardRef<HTMLDivElement, AppBarActionsProps>(
   function AppBarActions(props, ref) {
     const { children, slotProps, className, ...other } = props;
     const { tier } = React.useContext(AppBarContext);
+    // Where MUI hides the tab strip's scroll arrows (as `useMediaQuery` reads a breakpoint).
+    const phoneQuery = useTheme()
+      .breakpoints.down('sm')
+      .replace(/^@media( ?)/m, '');
     const rootRef = React.useRef<HTMLDivElement>(null);
     const handleRef = useForkRef(rootRef, ref);
 
@@ -127,7 +143,13 @@ const AppBarActions = React.forwardRef<HTMLDivElement, AppBarActionsProps>(
       const collapsed =
         root.getClientRects().length === 0
           ? 0
-          : fitCollapse(overflow.measure(), availableWidth(root));
+          : fitCollapse(
+              overflow.measure(),
+              availableWidth(
+                root,
+                root.ownerDocument.defaultView?.matchMedia?.(phoneQuery).matches ?? false,
+              ),
+            );
       setLayout({ measuring: false, collapsed });
     }, [layout]);
 

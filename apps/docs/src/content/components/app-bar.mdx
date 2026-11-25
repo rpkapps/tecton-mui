@@ -53,12 +53,13 @@ back.
 
 ### Many tabs
 
-When the tabs outgrow the bar, the tab strip scrolls with arrows, while the branding, the add button
-and the actions keep their place. An arrow only shows while the strip can scroll its way, and is a
-cell as wide as the Home cell. A click slides the strip by the tabs that fit, and a newly selected
-or added tab slides into view; an arrow that goes away does so as the slide starts, and one that
-shows grows in. Both take the theme's `transitions.duration.standard`, and with reduced motion the
-strip jumps instead.
+When the tabs outgrow the bar, the tab strip scrolls, while the branding, the add button and the
+actions keep their place. The strip is MUI's scrollable `Tabs`, as in the Tecton drop-in: MUI's
+40px scroll arrows, each shown only while the strip can scroll its way (a hidden arrow takes no
+room). A click scrolls by the tabs that fit, and a newly selected or added tab is scrolled into
+view, both over the theme's `transitions.duration.standard` (with reduced motion the strip jumps).
+When the start arrow shows, the tabs stay where they are. Below the theme's `sm` breakpoint (600px)
+there are no arrows, as in MUI: the strip scrolls by touch, wheel or keyboard.
 
 <Demo name="ManyTabsAppBar" />
 
@@ -66,12 +67,12 @@ strip jumps instead.
 
 `AppBarActions` sits at the end of the bar and centres its content: icon buttons, text buttons, a
 menu button or an avatar. The tabs scroll to make room for it. When even the narrowest tab strip
-(the selected tab between its two arrows, and the add button) leaves too little room, the actions
-collapse into an overflow (⋮) button, first to last, so put the primary one last. The button opens a
-tray that shows them as they are; a click on a command in it closes it. It works like the
-[Heading](/components/heading)'s actions, and takes `slotProps.overflowButton` and
-`slotProps.overflowTray` the same way. Pass the actions as separate children (fragments are fine) so
-that they collapse one by one. Other content, such as a [Menubar](/components/menubar), can go
+(the selected tab between its two arrows, or without them below 600px, and the add button) leaves
+too little room, the actions collapse into an overflow (⋮) button, first to last, so put the
+primary one last. The button opens a tray that shows them as they are; a click on a command in it
+closes it. It works like the [Heading](/components/heading)'s actions, and takes
+`slotProps.overflowButton` and `slotProps.overflowTray` the same way. Pass the actions as separate
+children (fragments are fine) so that they collapse one by one. Other content, such as a [Menubar](/components/menubar), can go
 anywhere in the bar.
 
 <Demo name="AppBarActions" />

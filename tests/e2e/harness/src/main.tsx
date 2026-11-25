@@ -27,5 +27,18 @@ if (scenario === 'multi-root') {
   // Loaded on demand: it brings a second copy of MUI that no other scenario should load.
   void import('./ModalLayerScenario.js').then((m) => m.mountModalLayerScenario(container));
 } else {
-  createRoot(container).render(<App scenario={scenario} rtl={params.get('dir') === 'rtl'} />);
+  // The Storybook reproductions render once the Tecton font has loaded, as a Storybook story does
+  // (the Storybook has its font before the story renders). A font that arrives after the first
+  // render changes the text widths, and MUI's scrollable tabs react to that: they scroll the
+  // selected tab into view again, which the Storybook's tabs never do.
+  const fontReady =
+    scenario.startsWith('sb:') && document.fonts
+      ? Promise.race([
+          document.fonts.load('400 1em Figtree').catch(() => undefined),
+          new Promise((resolve) => setTimeout(resolve, 3000)),
+        ])
+      : Promise.resolve();
+  void fontReady.then(() => {
+    createRoot(container).render(<App scenario={scenario} rtl={params.get('dir') === 'rtl'} />);
+  });
 }

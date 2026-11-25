@@ -641,17 +641,26 @@ describe('AppBarActions: collapsing (with layout geometry)', () => {
     });
 
   // MUI's scrollable Tabs do not settle on jsdom geometry (every element at x = 0), so a plain
-  // stand-in takes the tab strip's place: the region, its Tabs root with the selected tab, and the
-  // add button, which is all the actions read of it. The browser tests use the real strip.
+  // stand-in takes the tab strip's place: the region, its Tabs root with MUI's two scroll buttons
+  // (hidden, as at rest or on a phone) around the selected tab, and the add button, which is all the
+  // actions read of it. The browser tests use the real strip.
+  const arrow = (
+    <div
+      className="MuiTabs-scrollButtons MuiTabs-scrollButtonsHideMobile"
+      style={{ width: 40, display: 'none' }}
+    />
+  );
   function Actions() {
     return (
       <AppBar>
         <AppBarBrand>APP</AppBarBrand>
         <div data-region="tab-strip">
           <div className="MuiTabs-root">
+            {arrow}
             <div role="tab" aria-selected="true">
               Tab 1
             </div>
+            {arrow}
           </div>
           <button type="button" aria-label="Add tab" />
         </div>
@@ -676,8 +685,8 @@ describe('AppBarActions: collapsing (with layout geometry)', () => {
     const padding =
       Number.parseFloat(getComputedStyle(actions).paddingLeft) +
       Number.parseFloat(getComputedStyle(actions).paddingRight);
-    // The narrowest strip: the selected tab between two arrows and the add button.
-    const strip = 120 + 2 * 48 + 48;
+    // The narrowest strip: the selected tab between MUI's two 40px arrows, and the add button.
+    const strip = 120 + 2 * 40 + 48;
     // Room for ⋮ and the last action (40 + gap + 40), not one more.
     const gap = Number.parseFloat(getComputedStyle(actions).columnGap) || 0;
     resizeTo(100 + strip + padding + 80 + gap + 20);
@@ -692,6 +701,24 @@ describe('AppBarActions: collapsing (with layout geometry)', () => {
     resizeTo(1200);
     expect(screen.queryByRole('button', { name: 'More actions' })).toBeNull();
     expect(screen.getByRole('button', { name: 'Search' })).toBeInTheDocument();
+  });
+
+  it('counts no scroll arrows on a phone, where MUI hides them', () => {
+    const matchMedia = vi.spyOn(window, 'matchMedia');
+    matchMedia.mockImplementation(
+      (query: string) =>
+        ({ matches: query.includes('max-width'), media: query }) as unknown as MediaQueryList,
+    );
+    wrap(<Actions />);
+    const actions = document.querySelector('[data-region="right"]')!;
+    const padding =
+      Number.parseFloat(getComputedStyle(actions).paddingLeft) +
+      Number.parseFloat(getComputedStyle(actions).paddingRight);
+    const gap = Number.parseFloat(getComputedStyle(actions).columnGap) || 0;
+    // The selected tab and the add button, and every action (3 * 40 + 2 gaps): no collapse.
+    resizeTo(100 + 120 + 48 + padding + 120 + 2 * gap);
+    expect(screen.queryByRole('button', { name: 'More actions' })).toBeNull();
+    expect(matchMedia).toHaveBeenCalledWith('(max-width:599.95px)');
   });
 
   it('shows every action while the bar has no layout (hidden)', () => {

@@ -9,7 +9,7 @@
 //
 // The suite needs the CDN. It is skipped when the CDN is unreachable, unless
 // STORYBOOK_PARITY_REQUIRED=1 (set it in CI). Behind a proxy, run with NODE_USE_ENV_PROXY=1.
-import { expect, test, type BrowserContext, type Page } from '@playwright/test';
+import { expect, test, type BrowserContext, type Locator, type Page } from '@playwright/test';
 
 const SB_BASE = 'https://d1md5uq86jnv53.cloudfront.net/lmk/webframework/utils/storybook-mui/0.10.1';
 /** Drop-in Storybook: stories render the web components, which bundle MUI 9 and the Tecton theme. */
@@ -132,10 +132,6 @@ const CASES: ParityCase[] = [
     id: `drop-ins-app-bar--${story}`,
     storybook: 'drop-ins' as const,
     viewportOnly: true,
-    // Overflow: the drop-in's arrows follow MUI's IntersectionObserver, which now and then leaves
-    // the start arrow on at the start of a strip that cannot scroll that way (about 0.08 % of the
-    // page). The React bar's arrows follow the scroll position, so it never shows it.
-    ...(story === 'overflow' ? { tolerance: 0.001 } : {}),
   })),
   // Drop-ins: the React Heading against the `<wc-heading>` stories (drop-in Storybook 1.3.0).
   ...[
@@ -380,3 +376,87 @@ for (const mode of ['light', 'dark'] as const) {
     }
   });
 }
+
+// The app bar's tab strip behaves as the drop-in's (`<wc-app-bar>` 1.2.0): the same steps on the
+// drop-in's Overflow story and on ours leave the first bar's strip at the same scroll position, with
+// the same scroll arrows. With motion, as a person sees it (MUI's slides, the arrows that show during
+// one). At these widths the React bar keeps its actions in the row, as the drop-in does; narrower,
+// it folds them into ⋮ and its strip is wider.
+test.describe('Drop-in app bar: scroll behaviour', () => {
+  /** The first bar's strip: its arrows (`-` hidden, else the width), scroll and scroll padding. */
+  const strip = (page: Page) =>
+    page.evaluate(() => {
+      const bar = document.querySelector('.MuiAppBar-root')!;
+      const scroller = bar.querySelector<HTMLElement>('.MuiTabs-scroller')!;
+      const arrows = Array.from(bar.querySelectorAll<HTMLElement>('.MuiTabs-scrollButtons'))
+        .map((b) => (getComputedStyle(b).display === 'none' ? '-' : String(b.offsetWidth)))
+        .join(' ');
+      return `arrows ${arrows}, scroll ${Math.round(scroller.scrollLeft)} of ${
+        scroller.scrollWidth - scroller.clientWidth
+      }, padding ${scroller.style.scrollPaddingRight || 'none'}`;
+    });
+
+  /** Runs the steps and returns the strip after each. */
+  async function run(page: Page, url: string) {
+    await page.goto(url, { waitUntil: 'networkidle' });
+    await page.waitForSelector('.MuiAppBar-root .MuiTabs-scroller', { timeout: 30_000 });
+    await page.evaluate(() => document.fonts.ready);
+    await page.waitForTimeout(1500);
+    const bar = page.locator('.MuiAppBar-root').first();
+    const arrows = bar.locator('.MuiTabs-scrollButtons');
+    const states = [`load: ${await strip(page)}`];
+    const step = async (name: string, target: Locator) => {
+      if (!(await target.isVisible())) {
+        states.push(`${name}: not shown`);
+        return;
+      }
+      // Into view first (a tab off the strip), then the click: as a person would.
+      await target.scrollIntoViewIfNeeded();
+      await page.waitForTimeout(600);
+      await target.click();
+      await page.waitForTimeout(900);
+      states.push(`${name}: ${await strip(page)}`);
+    };
+    for (let i = 1; i <= 3; i += 1) await step(`end arrow ${i}`, arrows.nth(1));
+    await step('start arrow', arrows.nth(0));
+    await step('add', bar.getByRole('button', { name: /add/i }));
+    await step('add again', bar.getByRole('button', { name: /add/i }));
+    await step('close', bar.getByRole('button', { name: /close/i }).first());
+    await step('fourth tab', bar.getByRole('tab').nth(3));
+    return states;
+  }
+
+  for (const width of [1280, 900, 760]) {
+    test(`overflow story at ${width}px`, async ({ browser, baseURL }) => {
+      test.skip(
+        !cdnReachable && process.env.STORYBOOK_PARITY_REQUIRED !== '1',
+        'Tecton Storybook CDN unreachable',
+      );
+      test.setTimeout(120_000);
+      const context = await browser.newContext({
+        viewport: { width, height: 700 },
+        deviceScaleFactor: 1,
+      });
+      await disablePlayFunctions(context);
+      await context.route(/\/components\/wc-app-bar\/manifest\.json$/, (route) =>
+        route.fulfill({
+          json: {
+            latest: DROP_IN_VERSIONS['wc-app-bar'],
+            stableVersions: [DROP_IN_VERSIONS['wc-app-bar']],
+          },
+        }),
+      );
+      const page = await context.newPage();
+      try {
+        const dropIn = await run(
+          page,
+          `${DROP_INS_BASE}/iframe.html?id=drop-ins-app-bar--overflow&viewMode=story&tectonVersion=0.11.2&tectonSrc=${encodeURIComponent(TECTON_UMD)}`,
+        );
+        const ours = await run(page, `${baseURL}/?scenario=sb:drop-ins-app-bar--overflow`);
+        expect(ours).toEqual(dropIn);
+      } finally {
+        await context.close();
+      }
+    });
+  }
+});
