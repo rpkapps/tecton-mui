@@ -216,6 +216,15 @@ comparisons.
   text color). `HeadingActions` and `HeadingTitle` apply the same rules to the MUI components given
   to them, so the reproduction only sets what the drop-in fixes per control: the selects' 152px
   width and their label text.
+- **The gap before the actions (intended difference):** `Heading` keeps its actions gap
+  (`space-400`, `space-200` on a narrow heading) even when the row is too short for the title, and
+  shortens the title instead (`Heading.tsx`, the actions' start padding). The drop-in reserves that
+  gap only while its parts fit; past that, its title or tabs come right up to the actions. An open
+  `HeadingSearch` field, which never folds (the drop-in's search is only an icon), made that common:
+  opened from the overflow menu on a heading about 760-900px wide, it sat against the tabs. A sweep
+  of the Basic, Tabs and view toggle, Filter and sort, Tabs and sort and All parts stories from
+  1920 to 320px (20px steps) against wc-heading 1.0.0 differs only there, in four places at 320 and
+  360px: the drop-in leaves 3-11px before its actions, ours 16px, with the title 5-13px shorter.
 
 The eight "Organisms / Heading" stories of storybook-mui 0.10.1 were the reference before. They
 compose a heading by hand with the theme's own spacing (2px between the pills, the theme's
