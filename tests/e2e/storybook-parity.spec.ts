@@ -1,6 +1,5 @@
 // Visual parity with the official Tecton Storybook (storybook-mui 0.10.1, Tecton 0.11.2) and the
-// Tecton drop-in Storybook (apps/storybook 1.1.0, and 1.3.0 for the heading: the `<wc-*>` web
-// components, same Tecton theme).
+// Tecton drop-in Storybook (apps/storybook 1.3.0: the `<wc-*>` web components, same Tecton theme).
 //
 // Each case renders a Storybook story from the public Tecton CDN and our reproduction of it
 // (`/?scenario=sb:<story-id>`, see tests/e2e/harness/src/storybook) at the same viewport, mode and
@@ -14,12 +13,12 @@ import { expect, test, type BrowserContext, type Page } from '@playwright/test';
 
 const SB_BASE = 'https://d1md5uq86jnv53.cloudfront.net/lmk/webframework/utils/storybook-mui/0.10.1';
 /** Drop-in Storybook: stories render the web components, which bundle MUI 9 and the Tecton theme. */
-const DROP_INS_BASE = 'https://d1md5uq86jnv53.cloudfront.net/lmk/webframework/apps/storybook/1.1.0';
-/** The drop-in Storybook release that has the heading (`<wc-heading>`). */
-const DROP_INS_HEADING_BASE =
-  'https://d1md5uq86jnv53.cloudfront.net/lmk/webframework/apps/storybook/1.3.0';
-/** The `<wc-heading>` release the heading stories are compared with (its CDN manifest is pinned). */
-const WC_HEADING_VERSION = '1.0.0';
+const DROP_INS_BASE = 'https://d1md5uq86jnv53.cloudfront.net/lmk/webframework/apps/storybook/1.3.0';
+/**
+ * The drop-in releases the stories are compared with. The drop-in Storybook loads the latest release
+ * of each web component from the CDN; the spec answers their manifests with these.
+ */
+const DROP_IN_VERSIONS: Record<string, string> = { 'wc-heading': '1.0.0', 'wc-app-bar': '1.2.0' };
 const TECTON_UMD =
   'https://d1md5uq86jnv53.cloudfront.net/lmk/webframework/utils/tecton-mui/0.11.2/index.umd.js';
 const VIEWPORT = { width: 1280, height: 900 };
@@ -52,7 +51,7 @@ interface ParityCase {
   /** Share of differing pixels allowed (default DEFAULT_TOLERANCE). */
   tolerance?: number;
   /** Which Storybook the story comes from (default `mui`). */
-  storybook?: 'mui' | 'drop-ins' | 'drop-ins-heading';
+  storybook?: 'mui' | 'drop-ins';
   /**
    * Capture the viewport instead of the full page. A full-page capture briefly resizes the page,
    * and scrollable Tabs react to that resize (scroll arrows, scroll position) at random, on either
@@ -152,7 +151,7 @@ const CASES: ParityCase[] = [
     'responsiveness',
   ].map((story) => ({
     id: `drop-ins-heading--${story}`,
-    storybook: 'drop-ins-heading' as const,
+    storybook: 'drop-ins' as const,
   })),
 ];
 
@@ -341,17 +340,17 @@ for (const mode of ['light', 'dark'] as const) {
           }
         }, mode);
         await disablePlayFunctions(context);
-        // The drop-in Storybook loads the latest `<wc-heading>` from the CDN: pin the release.
-        await context.route(/\/components\/wc-heading\/manifest\.json$/, (route) =>
-          route.fulfill({
-            json: { latest: WC_HEADING_VERSION, stableVersions: [WC_HEADING_VERSION] },
-          }),
-        );
+        // The drop-in Storybook loads the latest drop-ins from the CDN: pin the releases.
+        for (const [name, version] of Object.entries(DROP_IN_VERSIONS)) {
+          await context.route(new RegExp(`/components/${name}/manifest\\.json$`), (route) =>
+            route.fulfill({ json: { latest: version, stableVersions: [version] } }),
+          );
+        }
         const page = await context.newPage();
         try {
           const storybook = await shoot(
             page,
-            `${{ mui: SB_BASE, 'drop-ins': DROP_INS_BASE, 'drop-ins-heading': DROP_INS_HEADING_BASE }[source]}/iframe.html?id=${id}&viewMode=story&theme=${mode}&tectonVersion=0.11.2&tectonSrc=${encodeURIComponent(TECTON_UMD)}`,
+            `${source === 'drop-ins' ? DROP_INS_BASE : SB_BASE}/iframe.html?id=${id}&viewMode=story&theme=${mode}&tectonVersion=0.11.2&tectonSrc=${encodeURIComponent(TECTON_UMD)}`,
             '#storybook-root > *',
             !viewportOnly,
           );

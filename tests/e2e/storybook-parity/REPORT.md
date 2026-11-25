@@ -125,12 +125,14 @@ view sizing in the theme would diverge from MUI.
 "Organisms / App Bar" stories of storybook-mui, which compose it that way, were retired from the
 reproduction (they matched before). The drop-in stories below cover the bar.
 
-The drop-in Storybook (`https://d1md5uq86jnv53.cloudfront.net/lmk/webframework/apps/storybook/1.1.0/`,
-"Drop-ins / App Bar") renders the `<wc-app-bar>` web component, which bundles MUI 9 and takes its
-theme from the same Tecton 0.11.2 UMD. Its story module was decompiled the same way. The web
-component renders MUI `AppBar`, `Toolbar`, `Tabs`, `Tab`, `Chip` and `IconButton` with the Tecton
-`MuiAppBar` overrides; `AppBar` with navigation props renders the same tree
-(`packages/ui/src/AppBar/AppBarNavigation.tsx`). The harness module
+The drop-in Storybook (`https://d1md5uq86jnv53.cloudfront.net/lmk/webframework/apps/storybook/1.3.0/`,
+"Drop-ins / App Bar"; the same eleven stories as its 1.1.0 release) renders the `<wc-app-bar>` web
+component, which bundles MUI 9 and takes its theme from the same Tecton 0.11.2 UMD. The Storybook
+loads the latest release from the CDN; the spec pins **wc-app-bar 1.2.0** by answering its manifest.
+Its story module was decompiled the same way, and the component's own bundle was read for its logic.
+The web component renders MUI `AppBar`, `Toolbar`, `Tabs`, `Tab`, `Chip` and `IconButton` with the
+Tecton `MuiAppBar` overrides; the `AppBar` parts (`AppBarBrand`, `AppBarTabs`, `AppBarTab`,
+`AppBarActions`) render the same tree. The harness module
 `tests/e2e/harness/src/storybook/stories/DropInsAppBar.tsx` reproduces the story host page (event
 log, toasts, tab state) with the React component.
 
@@ -163,6 +165,13 @@ differences below. `storybook-parity.spec.ts` runs all 22 comparisons.
   start arrow at the start, an end arrow at the end, an added tab left under the end arrow). The
   Overflow story therefore allows 0.1 %: the drop-in sometimes shows that stray start arrow; the
   React bar never does. Every other story is pixel-identical.
+- **Narrow bars (intended difference):** when even the narrowest tab strip (the selected tab between
+  its arrows, and the add button) leaves the actions too little room, `AppBarActions` collapse into
+  an overflow (⋮) button, first to last, and the selected tab stays in view. The drop-in keeps every
+  action, squeezes the tabs out of view, and below about 400px its content runs past the bar's edge.
+  A sweep of the stories from 1920 to 320px against wc-app-bar 1.2.0 differs only by this, by the
+  scroll arrows and scroll-into-view above, and by the drop-in leaving the selected tab partly
+  hidden after a resize (which ours keeps in view).
 - **Keyboard (intended differences):** Delete or Backspace closes the active tab, and focus moves to
   the newly active tab when the focused tab, its close button or the add button is removed. The
   drop-in ignores Delete and leaves focus on the document body. Covered by
@@ -179,7 +188,7 @@ differences below. `storybook-parity.spec.ts` runs all 22 comparisons.
 `Heading` (`packages/ui/src/Heading`) follows the Tecton drop-in heading, the `<wc-heading>` web
 component (wc-heading 1.0.0), in the drop-in Storybook **1.3.0**
 (`https://d1md5uq86jnv53.cloudfront.net/lmk/webframework/apps/storybook/1.3.0/`, "Drop-ins /
-Heading"; the 1.1.0 Storybook of the app bar has no heading). Its story module was decompiled the
+Heading"; the heading first appears in its 1.2.0 release). Its story module was decompiled the
 same way, and the web component's own bundle, which bundles MUI 9 and takes its theme from the same
 Tecton 0.11.2 UMD, was read for its fold rules (its `src/fold.ts`). The spec pins the wc-heading
 release by answering its CDN manifest with 1.0.0. The harness module
