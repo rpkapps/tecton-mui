@@ -279,6 +279,30 @@ test.describe('Heading', () => {
       .toBeLessThanOrEqual(0);
   });
 
+  test('an open search keeps its gap before the tabs; the title shortens instead', async ({
+    page,
+  }) => {
+    // Too narrow for the title, the More tab and the open field together: the title gives way.
+    await page.setViewportSize({ width: 900, height: 800 });
+    await open(page);
+    await page.getByRole('button', { name: 'More actions' }).click();
+    await page.getByRole('menu', { name: 'More actions' }).getByRole('menuitem').click();
+    await expect(page.getByRole('search', { name: 'Search' }).getByRole('textbox')).toBeFocused();
+    const layout = () =>
+      page.evaluate(() => {
+        const heading = document.querySelector('[data-testid="page-heading"]')!;
+        const field = heading.querySelector('.TectonHeading-searchField')!.getBoundingClientRect();
+        const tabs = heading.querySelector('.TectonHeading-tabGroup')!.getBoundingClientRect();
+        const title = heading.querySelector('h1')!;
+        return {
+          gap: Math.round(field.left - tabs.right),
+          titleShortened: title.scrollWidth > title.clientWidth,
+        };
+      });
+    // The heading's actions gap (space-400), not a field against the tabs.
+    await expect.poll(layout).toEqual({ gap: 32, titleShortened: true });
+  });
+
   test('compact: the tabs get a row of their own; nothing overflows down to 320px', async ({
     page,
   }) => {
