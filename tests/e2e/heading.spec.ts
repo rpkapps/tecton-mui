@@ -299,8 +299,8 @@ test.describe('Heading', () => {
           titleShortened: title.scrollWidth > title.clientWidth,
         };
       });
-    // The heading's actions gap (space-400), not a field against the tabs.
-    await expect.poll(layout).toEqual({ gap: 32, titleShortened: true });
+    // The space between two actions (space-200), not a field against the tabs.
+    await expect.poll(layout).toEqual({ gap: 16, titleShortened: true });
   });
 
   test('compact: the tabs get a row of their own; nothing overflows down to 320px', async ({
